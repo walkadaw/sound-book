@@ -1,0 +1,35 @@
+.entry-title-meta {
+    font-size: 13px;
+    color: #b3b3b1;
+    font-weight: 100;
+    letter-spacing: 1px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    font-style: normal;
+    line-height: 1.4;
+    
+    a {
+        color: #b3b3b1;
+        text-decoration: none;
+    }
+}
+
+h1.entry-title {
+    font-size: 2em !important;
+    color: #333 !important;
+}
+
+.lyrics {
+    display: flex;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+
+    p {
+        flex: 1 1 80%;
+    }
+    .chord {
+        font-weight: bold;
+        flex: 1 1 20%;;
+    }
+}
