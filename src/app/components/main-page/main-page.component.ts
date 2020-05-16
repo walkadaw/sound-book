@@ -1,10 +1,11 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { SongService } from '../../services/song-service/song.service';
 import { Song } from '../../interfaces/song';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { TAGS_LIST } from '../../constants/tag-list';
 import { TagList } from '../../interfaces/tag-list';
+import Fuse from 'fuse.js';
 
 @Component({
   selector: 'app-main-page',
@@ -13,14 +14,40 @@ import { TagList } from '../../interfaces/tag-list';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainPageComponent implements OnInit {
-  songListFiltered$: Observable<Song[]>;
   tags$: BehaviorSubject<Set<number>> = new BehaviorSubject(new Set());
   tagsList: TagList[] = TAGS_LIST;
+  songListFiltered$: Observable<Song[]>;
+  searchTest$: Observable<string> = of('Бог');
+  private songList$: Observable<Song[]>;
+  private fuse: Fuse<Song, Fuse.IFuseOptions<Song>>;
+  private options = {
+    shouldSort: true,
+    tokenize: true,
+    threshold: 0,
+    location: 0,
+    distance: 100,
+
+    maxPatternLength: 32,
+    minMatchCharLength: 1,
+
+    id: 'id',
+    keys: [
+      {
+        name: 'title',
+        weight: 0.7,
+      },
+      {
+        name: 'text',
+        weight: 0.3,
+      },
+    ],
+  };
 
   constructor(private songService: SongService) {}
 
   ngOnInit(): void {
-    this.songListFiltered$ = this.tags$.pipe(
+    this.fuse = new Fuse([], this.options);
+    this.songList$ = this.tags$.pipe(
       map((tags) => {
         if (tags.size) {
           return this.songService.songList.filter(
@@ -28,6 +55,16 @@ export class MainPageComponent implements OnInit {
           );
         }
         return this.songService.songList;
+      }),
+      tap((songList) => this.fuse.setCollection(songList))
+    );
+
+    this.songListFiltered$ = combineLatest([this.songList$, this.searchTest$]).pipe(
+      map(([songList, searchTest]) => {
+        if (searchTest) {
+          return this.fuse.search(searchTest).map((fuseItem) => fuseItem.item);
+        }
+        return songList;
       })
     );
   }
