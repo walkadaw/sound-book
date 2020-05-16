@@ -1,9 +1,9 @@
-<div class="logo">
+<div class="logo" routerLink>
   <h2>SoundBook</h2>
 </div>
 <mat-nav-list class="list-horizontal">
   <mat-list role="list">
-    <mat-list-item role="listitem">Чытанне дня</mat-list-item>
+    <mat-list-item routerLink="liturgy" role="listitem">Чытанне дня</mat-list-item>
     <mat-list-item role="listitem" [matMenuTriggerFor]="menu"> Генератор</mat-list-item>
     <mat-menu #menu="matMenu">
       <button mat-menu-item>Генератор прізентаціі</button>

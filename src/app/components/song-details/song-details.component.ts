@@ -1,8 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { MockDataService } from '../../service/mock-data.service';
-import { Song } from '../../interface/song';
+import { SongService } from '../../services/song-service/song.service';
+import { Song } from '../../interfaces/song';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-song-details',
@@ -12,15 +13,14 @@ import { map } from 'rxjs/operators';
 })
 export class SongDetailsComponent implements OnInit {
   selectedSong$: Observable<Song>;
-  constructor(private mockService: MockDataService) {}
+  constructor(private songService: SongService, private router: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.selectedSong$ = this.mockService.getData().pipe(
-      map((value) => {
-        return value[10];
+    this.selectedSong$ = this.router.paramMap.pipe(
+      map((paramMap) => {
+        const songId = paramMap.get('id');
+        return this.songService.getSong(songId);
       })
     );
-
-    this.selectedSong$.subscribe(console.log);
   }
 }
