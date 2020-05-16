@@ -1,0 +1,14 @@
+<div class="logo">
+  <h2>SoundBook</h2>
+</div>
+<mat-nav-list class="list-horizontal">
+  <mat-list role="list">
+    <mat-list-item role="listitem">Чытанне дня</mat-list-item>
+    <mat-list-item role="listitem" [matMenuTriggerFor]="menu"> Генератор</mat-list-item>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item>Генератор прізентаціі</button>
+      <button mat-menu-item>Создание бумажней версии</button>
+    </mat-menu>
+    <app-search-song></app-search-song>
+  </mat-list>
+</mat-nav-list>

@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+
+  .logo {
+    flex: 2 1 auto;
+  }
+  .list-horizontal {
+    flex: 1 1 auto;
+    padding: 0;
+    .mat-list-item {
+      display: inline-block;
+      height: auto;
+      width: auto;
+    }
+  }
+}
