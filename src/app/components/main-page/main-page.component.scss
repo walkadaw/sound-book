@@ -24,7 +24,7 @@
     padding: 8px;
 
     .song-container {
-        flex: 1 1 50%;
+        flex: 0 0 49%;
         display: flex;
         justify-content: space-between;
         font-size: .93em;
@@ -42,7 +42,8 @@
         }
 
         .action {
-            flex: 0 0 60px;
+            flex: 0 0 auto;
+            align-self: center;
         }
     }
 }

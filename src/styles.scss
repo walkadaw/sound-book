@@ -54,3 +54,7 @@ h6 {
 a, a:visited, a:active {
     color: #284a66 !important;
 }
+
+.mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary {
+    background-color: #444;
+}

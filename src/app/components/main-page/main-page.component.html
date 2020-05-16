@@ -12,6 +12,8 @@
 <div class="songs-list">
   <div class="song-container" *ngFor="let song of songListFiltered$ | async; trackBy: trackBySong">
     <span class="song-title" [routerLink]="['song', song.id, song.title | replaceSpace]">{{song.title}}</span>
-    <div class="action">12</div>
+    <div class="action">
+      <mat-icon> add </mat-icon>
+    </div>
   </div>
 </div>
