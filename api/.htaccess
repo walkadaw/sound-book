@@ -1,0 +1,57 @@
+# UTF-8 кодирование
+AddDefaultCharset utf-8
+
+#Отключение глобальных переменных
+php_flag register_globals  off
+
+<IfModule mod_rewrite.c>
+ Options All -ExecCGI -Indexes -Includes +FollowSymLinks
+ #Options -MultiViews
+ #Options +SymLinksIfOwnerMatch
+</IfModule>
+
+# Turn on URL rewriting
+RewriteEngine On
+
+# Installation directory
+RewriteBase /api/
+
+# Protect hidden files from being viewed
+<Files .*>
+	Order Deny,Allow
+	Deny From All
+</Files>
+
+# Allow any files or directories that exist to be displayed directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite all other URLs to index.php/URL
+RewriteRule ^([_0-9a-zA-Z-]+/)?(.*)$ index.php?mpage=$0 [L,QSA]
+
+#----------------------------------------------------------------------
+# Блокируем некоторые эксплоиты
+# ----------------------------------------------------------------------
+## Если у вас появились проблемы, закомментируйте данные правила
+<IfModule mod_rewrite.c>
+# Блокируем возможность посылать base64_encode через URL
+  RewriteCond %{QUERY_STRING} base64_encode.*\(.*\) [OR]
+# Блокируем передачу тега <script> через URL
+  RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+# Блокируем выставление переменной PHP GLOBALS через URL
+  RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+# Блокируем возможность изменять переменную _REQUEST через URL
+  RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+# Посылаем все заблокированные запросы на домашнюю страницу с ошибкой 403 Forbidden error!
+  RewriteRule ^(.*)$ index.php [F,L]
+</IfModule>
+########### [Конец] Блокируем некоторые эксплоиты
+
+
+# Блокировка доступа к резервным копиям и исходникам. Некоторые файлы могут быть оставлены
+# текстовыми редакторами и предоставлять собой большую опасность, если они будут доступны каждому.
+<FilesMatch "(\.(bak|config|sql|fla|ini|log|sh|inc|swp|dist)|~)$">
+  Order allow,deny
+  Deny from all
+  Satisfy All
+</FilesMatch>

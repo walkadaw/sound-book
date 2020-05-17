@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
-import { Song } from '../../interfaces/song';
+import { Song, SongRequest } from '../../interfaces/song';
 import { catchError, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,23 +13,20 @@ export class SongService {
 
   constructor(private http: HttpClient) {}
 
-  hasSong(id: string): boolean {
-    return !!this.songList[id];
+  hasSong(songId: string): boolean {
+    return this.songList.some(({ id }) => id === +songId);
   }
 
-  getSong(id: string): Song {
-    return this.songList[id];
+  getSong(songId: string): Song {
+    return this.songList.find(({ id }) => id === +songId);
   }
 
-  loadSongs(): Promise<Song[]> {
+  loadSongs(): Promise<SongRequest> {
     return this.http
-      .get<Song[]>('http://public/ajax/json-song-list?slide=false')
+      .get<SongRequest>(`${environment.baseUrl}/song/get`)
       .pipe(
-        tap((songList) => this.setSongs(songList)),
-        catchError((error) => {
-          console.log(error);
-          return of([]);
-        })
+        tap((songList) => this.setSongs(songList.songs)),
+        catchError((error) => of(null))
       )
       .toPromise();
   }
