@@ -6,6 +6,9 @@ import { map, tap } from 'rxjs/operators';
 import { TAGS_LIST } from '../../constants/tag-list';
 import { TagList } from '../../interfaces/tag-list';
 import Fuse from 'fuse.js';
+import { Store } from '@ngrx/store';
+import { IAppState } from '../../redux/models/IAppState';
+import { getSearchTerm } from '../../redux/selector/search.selector';
 
 @Component({
   selector: 'app-main-page',
@@ -17,7 +20,6 @@ export class MainPageComponent implements OnInit {
   tags$: BehaviorSubject<Set<number>> = new BehaviorSubject(new Set());
   tagsList: TagList[] = TAGS_LIST;
   songListFiltered$: Observable<Song[]>;
-  searchTest$: Observable<string> = of('Бог');
   private songList$: Observable<Song[]>;
   private fuse: Fuse<Song, Fuse.IFuseOptions<Song>>;
   private options = {
@@ -43,7 +45,7 @@ export class MainPageComponent implements OnInit {
     ],
   };
 
-  constructor(private songService: SongService) {}
+  constructor(private songService: SongService, private store: Store<IAppState>) {}
 
   ngOnInit(): void {
     this.fuse = new Fuse([], this.options);
@@ -59,7 +61,7 @@ export class MainPageComponent implements OnInit {
       tap((songList) => this.fuse.setCollection(songList))
     );
 
-    this.songListFiltered$ = combineLatest([this.songList$, this.searchTest$]).pipe(
+    this.songListFiltered$ = combineLatest([this.songList$, this.store.select(getSearchTerm)]).pipe(
       map(([songList, searchTest]) => {
         if (searchTest) {
           return this.fuse.search(searchTest).map((fuseItem) => fuseItem.item);

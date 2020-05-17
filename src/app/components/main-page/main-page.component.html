@@ -9,11 +9,20 @@
   </button>
 </div>
 
-<div class="songs-list">
-  <div class="song-container" *ngFor="let song of songListFiltered$ | async; trackBy: trackBySong">
-    <span class="song-title" [routerLink]="['song', song.id, song.title | replaceSpace]">{{song.title}}</span>
-    <div class="action">
-      <mat-icon> add </mat-icon>
+<div class="songs-list" *ngIf="songListFiltered$ | async as songListFiltered">
+  <ng-container *ngIf="songListFiltered.length; else noSongResult">
+    <div class="song-container" 
+         *ngFor="let song of songListFiltered; trackBy: trackBySong"
+         [routerLink]="['song', song.id, song.title | replaceSpace]">
+      <span class="song-title">{{song.title}}</span>
+      <!-- <div class="action">
+        <mat-icon>add</mat-icon>
+      </div> -->
     </div>
-  </div>
+  </ng-container>
+  <ng-template #noSongResult>
+    <div>
+      Не адна песня не знойдзена па вашаму запыту.
+    </div>
+  </ng-template>
 </div>

@@ -1,64 +1,54 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
-
-export interface State {
-  flag: string;
-  name: string;
-  population: string;
-}
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { IAppState } from '../../redux/models/IAppState';
+import { Store } from '@ngrx/store';
+import { SetSearchTermAction, ClearSearchAction } from '../../redux/actions/search.actions';
+import { Subject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MenuSearchDialogComponent } from '../menu-search-dialog/menu-search-dialog.component';
 
 @Component({
   selector: 'app-search-song',
   templateUrl: './search-song.component.html',
   styleUrls: ['./search-song.component.scss'],
 })
-export class SearchSongComponent {
-  stateCtrl = new FormControl();
-  filteredStates: Observable<State[]>;
+export class SearchSongComponent implements OnInit, OnDestroy {
+  searchTerm = new FormControl();
+  private onDestroy$ = new Subject<void>();
 
-  states: State[] = [
-    {
-      name: 'Arkansas',
-      population: '2.978M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Arkansas.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arkansas.svg',
-    },
-    {
-      name: 'California',
-      population: '39.14M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_California.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg',
-    },
-    {
-      name: 'Florida',
-      population: '20.27M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Florida.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg',
-    },
-    {
-      name: 'Texas',
-      population: '27.47M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Texas.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg',
-    },
-  ];
+  constructor(
+    private store: Store<IAppState>,
+    private activatedRoute: ActivatedRoute,
+    private route: Router,
+    private dialog: MatDialog
+  ) {}
 
-  constructor() {
-    this.filteredStates = this.stateCtrl.valueChanges.pipe(
-      startWith(''),
-      map((state) => (state ? this._filterStates(state) : this.states.slice()))
-    );
+  ngOnInit() {
+    this.searchTerm.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy$))
+      .subscribe((value) => this.store.dispatch(new SetSearchTermAction(value)));
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
+
+  onFocus() {
+    if (!this.route.isActive('/', true) && !this.dialog.getDialogById('MenuSearchDialogComponent')) {
+      this.dialog.open(MenuSearchDialogComponent, {
+        id: 'MenuSearchDialogComponent',
+        width: '700px',
+        height: '100%',
+        restoreFocus: false,
+      });
+    }
   }
 
   onClear() {
-    this.stateCtrl.setValue('');
-  }
-
-  private _filterStates(value: string): State[] {
-    const filterValue = value.toLowerCase();
-
-    return this.states.filter((state) => state.name.toLowerCase().indexOf(filterValue) === 0);
+    this.store.dispatch(new ClearSearchAction());
+    this.searchTerm.setValue('');
   }
 }

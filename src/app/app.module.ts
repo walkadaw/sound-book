@@ -23,6 +23,10 @@ import { ReplaceSpacePipe } from './pipes/replace-space/replace-space.pipe';
 import { startUpFactory } from './services/start-up-service/start-up.service';
 import { SongService } from './services/song-service/song.service';
 import { MatIconRegistryService } from './services/mat-icon-registry-service/mat-icon-registry.service';
+import { StoreModule } from '@ngrx/store';
+import { searchReducer } from './redux/reducers/search.reducer';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MenuSearchDialogComponent } from './components/menu-search-dialog/menu-search-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,6 +38,7 @@ import { MatIconRegistryService } from './services/mat-icon-registry-service/mat
     MainPageComponent,
     LiturgyComponent,
     ReplaceSpacePipe,
+    MenuSearchDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +46,12 @@ import { MatIconRegistryService } from './services/mat-icon-registry-service/mat
     ReactiveFormsModule,
     HttpClientModule,
     AppRoutingModule,
+    // redux
+    StoreModule.forRoot({
+      searchInput: searchReducer,
+    }),
+
+    // material
     MatListModule,
     MatMenuModule,
     MatAutocompleteModule,
@@ -48,6 +59,7 @@ import { MatIconRegistryService } from './services/mat-icon-registry-service/mat
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    MatDialogModule,
   ],
   providers: [
     {

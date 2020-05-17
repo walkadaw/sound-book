@@ -1,0 +1,17 @@
+.mat-dialog-title {
+    display: flex;
+  
+    .logo {
+      flex: 0 0 auto;
+    }
+    .list-horizontal {
+      flex: 1 1 auto;
+      padding: 0;
+      .mat-list-item {
+        display: inline-block;
+        height: auto;
+        width: auto;
+      }
+    }
+  }
+  

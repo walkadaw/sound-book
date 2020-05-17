@@ -1,20 +1,9 @@
 <mat-form-field class="example-full-width">
-  <input matInput
-          placeholder="Пошук"
-          aria-label="Пошук"
-          [matAutocomplete]="auto"
-          [formControl]="stateCtrl">
-          <button mat-button *ngIf="stateCtrl.value" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
-            <mat-icon>close</mat-icon>
-          </button>
-          <button mat-button  matSuffix mat-icon-button aria-label="Search">
-            <mat-icon>search</mat-icon>
-          </button>
-  <mat-autocomplete #auto="matAutocomplete">
-    <mat-option *ngFor="let state of filteredStates | async" [value]="state.name">
-      <img class="example-option-img" aria-hidden [src]="state.flag" height="25">
-      <span>{{state.name}}</span> |
-      <small>Population: {{state.population}}</small>
-    </mat-option>
-  </mat-autocomplete>
+  <input matInput (focus)="onFocus()" placeholder="Пошук" aria-label="Пошук" [formControl]="searchTerm">
+  <button mat-button *ngIf="searchTerm.value" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
+    <mat-icon>close</mat-icon>
+  </button>
+  <button mat-button matSuffix mat-icon-button aria-label="Search">
+    <mat-icon>search</mat-icon>
+  </button>
 </mat-form-field>
