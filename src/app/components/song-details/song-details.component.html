@@ -1,7 +1,10 @@
 <article itemscope="itemscope" itemtype="http://schema.org/BlogPosting" itemprop="blogPost" *ngIf="selectedSong$ |async as selectedSong">
   <header class="entry-header">
-    <h2 class="entry-title-meta">Тэгі:
-      <a href="#" title="Велікодныя">Велікодныя</a>
+    <h2 class="entry-title-meta" *ngIf="selectedSong.tag">Тэгі:
+      <ng-container *ngFor="let item of selectedSong.tag | keyvalue">
+        <span>{{tagNameById[item.key]}},</span>
+      </ng-container>
+     
      </h2>
     <h1 class="entry-title" itemprop="name">{{selectedSong?.title}}</h1>
   </header>

@@ -1,0 +1,37 @@
+<h2>Стварэнне папяровай версіі</h2>
+
+<form [formGroup]="songList" class="docx-options">
+    <div class="column">
+        <label id="song-radio-group-label">Якія песні неабходна дадаць</label>
+        <mat-radio-group formControlName="allSong" aria-labelledby="song-radio-group-label" color="primary">
+            <mat-radio-button value="1">Усе песні</mat-radio-button>
+            <mat-radio-button value="0">Выбраць песні</mat-radio-button>
+          </mat-radio-group>
+    </div>
+
+    <div class="column">
+        <label>Дадатковыя опцыі</label>
+        <mat-checkbox formControlName="chord" color="primary">
+            Акорды 
+            <mat-icon matTooltip="Адлюстраванне акордаў у створаным варыянце">info</mat-icon>
+        </mat-checkbox>
+        <mat-checkbox formControlName="showTag" color="primary">
+            Тэгі 
+            <mat-icon matTooltip="Паказваць тэгі ў створаным варыянце">info</mat-icon>
+        </mat-checkbox>
+        <mat-checkbox formControlName="chastki" color="primary">Часткі Імшы</mat-checkbox>
+        <mat-checkbox formControlName="gadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
+    </div>
+    <div class="column-full" *ngIf="songList.get('allSong').value === '0'">
+        <label>Дадатковыя опцыі</label>
+        <mat-checkbox formControlName="chord" color="primary">Акорды (Адлюстраванне акордаў у створаным варыянце)</mat-checkbox>
+        <mat-checkbox formControlName="showTag" color="primary">Тэгі (Паказваць тэгі ў створаным варыянце)</mat-checkbox>
+        <mat-checkbox formControlName="chastki" color="primary">Часткі Імшы</mat-checkbox>
+        <mat-checkbox formControlName="gadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
+    </div>
+
+    <button mat-raised-button color="primary" class="download-button">
+        <mat-icon>get_app</mat-icon>
+        Спампаваць
+    </button>
+</form>

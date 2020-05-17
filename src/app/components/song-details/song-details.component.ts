@@ -4,6 +4,7 @@ import { Song } from '../../interfaces/song';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { TagNameById } from '../../interfaces/tag-list';
 
 @Component({
   selector: 'app-song-details',
@@ -13,6 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class SongDetailsComponent implements OnInit {
   selectedSong$: Observable<Song>;
+  readonly tagNameById = TagNameById;
   constructor(private songService: SongService, private router: ActivatedRoute) {}
 
   ngOnInit(): void {

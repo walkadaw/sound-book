@@ -5,10 +5,12 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { HasSongGuard } from './guards/has-song.guard';
+import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
 
 const appRoutes: Routes = [
   { path: 'song/:id/:title', component: SongDetailsComponent, canActivate: [HasSongGuard] },
   { path: 'song/:id', component: SongDetailsComponent, canActivate: [HasSongGuard] },
+  { path: 'generator/docx', component: PaperGeneratorComponent },
   { path: 'liturgy', component: LiturgyComponent },
   { path: '', component: MainPageComponent, pathMatch: 'full' },
   { path: '404', component: PageNotFoundComponent },

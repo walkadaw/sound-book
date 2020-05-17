@@ -27,6 +27,13 @@ import { StoreModule } from '@ngrx/store';
 import { searchReducer } from './redux/reducers/search.reducer';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MenuSearchDialogComponent } from './components/menu-search-dialog/menu-search-dialog.component';
+import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { PresentationComponent } from './components/presentation/presentation.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -39,6 +46,8 @@ import { MenuSearchDialogComponent } from './components/menu-search-dialog/menu-
     LiturgyComponent,
     ReplaceSpacePipe,
     MenuSearchDialogComponent,
+    PaperGeneratorComponent,
+    PresentationComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,6 +69,10 @@ import { MenuSearchDialogComponent } from './components/menu-search-dialog/menu-
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
+    MatSlideToggleModule,
+    MatRadioModule,
+    MatCheckboxModule,
+    MatTooltipModule,
   ],
   providers: [
     {
