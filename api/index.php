@@ -10,6 +10,10 @@ $user = 'root';
 $pass = '';
 $charset = 'utf8';
 
+function __autoload($name){ 
+	include "classes/_class.".$name.".php";
+}
+
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 $opt = [
 	PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -20,6 +24,7 @@ $db = new PDO($dsn, $user, $pass, $opt);
 $page = trim($_GET["mpage"], "/");
 
 switch($page){
+	case "liturgy/get-slide": include("liturgy/_get_slide.php"); break;		
 	case "liturgy/get": include("liturgy/_get.php"); break;		
 	case "song/get":  include("song/_get_song.php"); break; 
 	# 403 error by default
