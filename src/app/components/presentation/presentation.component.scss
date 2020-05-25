@@ -1,0 +1,30 @@
+.slide-menu-button {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 30;
+    font-size: 24px;
+
+    .slide-button {
+        display: inline-block;
+        color: #eee;
+        border-radius: 12px;
+        width: 30px;
+        text-align: center;
+        padding: 4px;
+        margin: 0 4px;
+        opacity: .5;
+        cursor: pointer;
+        
+        &:hover{
+            opacity: .9;
+        }
+    }
+   
+
+    mat-icon {
+        width: 30px;
+        font-size: 30px;
+        height: 30px;
+    }
+}

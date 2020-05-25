@@ -33,9 +33,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PresentationComponent } from './components/presentation/presentation.component';
+import { PresentationMenuComponent } from './components/presentation/presentation-menu/presentation-menu.component';
+import { MatSelectModule } from '@angular/material/select';
+import { LetDirective } from './directives/let-directive/app-let.directive';
 
 @NgModule({
   declarations: [
+    LetDirective,
     AppComponent,
     HeaderComponent,
     SongDetailsComponent,
@@ -48,6 +52,7 @@ import { PresentationComponent } from './components/presentation/presentation.co
     MenuSearchDialogComponent,
     PaperGeneratorComponent,
     PresentationComponent,
+    PresentationMenuComponent,
   ],
   imports: [
     BrowserModule,
@@ -73,6 +78,7 @@ import { PresentationComponent } from './components/presentation/presentation.co
     MatRadioModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatSelectModule,
   ],
   providers: [
     {

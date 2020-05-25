@@ -5,6 +5,7 @@
   <mat-list role="list">
     <mat-list-item routerLink="liturgy" role="listitem">Чытанне дня</mat-list-item>
     <mat-list-item role="listitem" [matMenuTriggerFor]="menu"> Генератор</mat-list-item>
+    <mat-list-item role="listitem" routerLink="presentation"> BY</mat-list-item>
     <mat-menu #menu="matMenu">
       <button mat-menu-item routerLink="generator">Генератор прізентаціі</button>
       <button mat-menu-item routerLink="generator/docx">Создание бумажней версии</button>

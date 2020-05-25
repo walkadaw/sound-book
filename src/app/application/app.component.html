@@ -1,5 +1,10 @@
-<app-header></app-header>
-<main>
+<ng-container *ngIf="!isModePresentation; else presentationMode">
+    <app-header></app-header>
+    <main>
+        <router-outlet></router-outlet>
+    </main>
+    <app-footer></app-footer>
+</ng-container>
+<ng-template #presentationMode>
     <router-outlet></router-outlet>
-</main>
-<app-footer></app-footer>
+</ng-template>
