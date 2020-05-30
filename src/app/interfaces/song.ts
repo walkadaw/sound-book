@@ -1,7 +1,10 @@
+import { SlideList } from './slide';
+
 export interface SongRequest {
-  songs: Song[];
+  songs?: Song[];
+  slides?: SlideList[];
   last_update: string;
-  has: string;
+  hash: string;
 }
 
 export interface Song {

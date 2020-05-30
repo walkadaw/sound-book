@@ -32,10 +32,6 @@ export class FuseService {
       switchMap((songList) =>
         search$.pipe(
           map((searchTest) => {
-            console.log(
-              searchTest,
-              this.fuse.search(searchTest).map((fuseItem) => fuseItem.item)
-            );
             if (searchTest) {
               return this.fuse.search(searchTest).map((fuseItem) => fuseItem.item);
             }

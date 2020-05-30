@@ -32,19 +32,8 @@ class slide{
 	Output:		$text Текст песни
 	Descriiption: Разбивает текст на строки и обварачивает разметкой для слайдов повер поинт
 	\*======================================================================*/
-	function song($text, $type = "pptx", $id = NULL , $title = NULL){
+	function song($text, $id = NULL , $title = NULL){
 
-		$tag_arr["web"] = [
-							"start" => "<span style=\"font-size: {size}px\">",
-							"br" => "<br>",
-							"end" => "</span>"
-						]; 
-
-		$tag_arr["pptx"] = [
-							"start" => "<a:r><a:rPr lang=\"ru-RU\" sz=\"{size}00\" dirty=\"0\" smtClean=\"0\"/><a:t>",
-							"br" => "<a:br><a:rPr lang=\"ru-RU\" sz=\"2800\" dirty=\"0\" smtClean=\"0\"/></a:br>",
-							"end" => "</a:t></a:r>"
-						]; 
 		$slide = '';
 		$count = 0;
 		$start = 0;
@@ -87,11 +76,7 @@ class slide{
 
 				//Склейка слайдов при необходимости
 				if( (($line_p > 9) or ($t_line_c + $line > 6) ) and $slide){
-					if($start == 1){
-						$slide .= $tag_arr[$type]["end"];
-					}
-					$slide = str_replace( '{size}', $fontsize, $slide );
-					$allSlide[] = $slide;
+					$allSlide[] = ['fontSize' => $fontsize, 'text' => $slide];
 					$slide = "";
 
 					//$lineEnd = -1;
@@ -103,11 +88,10 @@ class slide{
 
 				}else{
 					if($start == 1){
-						$slide .= $tag_arr[$type]["end"];
 						$start = 0;
 					}
 					if($line > 0){
-						$slide .= $tag_arr[$type]["br"] . $tag_arr[$type]["br"];
+						$slide .= "\n\n";
 						$br = 0;
 					}
 				}
@@ -124,12 +108,7 @@ class slide{
 					if($count_str > 130){
 
 						if($line == $lineEnd){
-
-							if($start == 1){
-								$slide .= $tag_arr[$type]["end"];
-							}
-							$slide = str_replace( '{size}', $fontsize, $slide );
-							$allSlide[] = $slide;
+							$allSlide[] = ['fontSize' => $fontsize, 'text' => $slide];
 							$slide = "";
 
 							$lineEnd = -1;
@@ -164,13 +143,12 @@ class slide{
 					if($string){
 						
 						if($start == 1){
-							$slide .= $tag_arr[$type]["end"] . $tag_arr[$type]["br"];
+							$slide .= "\n";
 							$start = 0;
 							$br = 0;
 						}
 
 						if($start == 0){
-							 $slide .= $tag_arr[$type]["start"];
 							 $start = 1;
 							 $line++;
 						}
@@ -181,11 +159,7 @@ class slide{
 						$br++;
 
 						if($br == 2){
-							if($start == 1){
-								$slide .= $tag_arr[$type]["end"];
-							}
-
-							$slide .= $tag_arr[$type]["br"];
+							$slide .= "\n";
 							$start = 0;
 							$br = 0;
 							$line++;
@@ -195,41 +169,18 @@ class slide{
 			}
 			
 				if($start == 1){
-					$slide .= $tag_arr[$type]["end"];
 					$start = 0;
 				}
 
 		}
 		if($slide){
-			$slide = str_replace( '{size}', $fontsize, $slide );
-			$allSlide[] = $slide;
-		}
-
-		if($type == "web"){
-			foreach ($allSlide as $value) {
-				$value = "<section data-id=\"{$id}\" data-title=\"{$title}\">".$value."</section>";
-				$allSlideTmp .= $value;
-			}
-
-			$allSlide = $allSlideTmp;
+			$allSlide[] = ['fontSize' => $fontsize, 'text' => $slide];
 		}
 
 		return $allSlide;
 	}
 
-	function gen_linurgia($data, $type = "pptx", $id = NULL , $title = NULL){
-
-		$tag_arr["web"] = [
-							"start" => "<span style=\"font-size: 54px\"><div align=\"justify\">",
-							"br" => "<br>",
-							"end" => "</div></span>"
-						]; 
-
-		$tag_arr["pptx"] = [
-							"start" => "<a:pPr algn=\"just\"/><a:r><a:rPr lang=\"ru-RU\" sz=\"5400\" dirty=\"0\" smtClean=\"0\"/><a:t>",
-							"br" => "<a:br><a:rPr lang=\"ru-RU\" sz=\"2800\" dirty=\"0\" smtClean=\"0\"/></a:br>",
-							"end" => "</a:t></a:r>"
-						]; 
+	function gen_linurgia($data, $id = NULL , $title = NULL){
 		$allSlide = [];
 
 		$max_string = $this->max_string_lityrgia;
@@ -267,16 +218,13 @@ class slide{
 						
 						foreach($t_string as $word){ 
 							if($str_count_all + iconv_strlen($word,'UTF-8') + 1 >= $max_string){
-								if($start == 0){
-									$slide .= $tag_arr[$type]["start"];
-								}
+								
 								$slide .= trim($string); 
 
 								$string = NULL;
 								$str_count_all = 0;
-								$slide .= $tag_arr[$type]["end"];
-
-								$allSlide[] = $slide;
+							
+								$allSlide[] = ['fontSize' => '54px', 'text' => $slide];
 								$slide = NULL;
 							}
 
@@ -286,16 +234,12 @@ class slide{
 						}
 					}
 				}else{
-					if($start == 0){
-						$slide .= $tag_arr[$type]["start"];
-					}
 					$slide .= trim($string); 
 
 					$string = NULL;
 					$str_count_all = 0;
-					$slide .= $tag_arr[$type]["end"];
 
-					$allSlide[] = $slide;
+					$allSlide[] = ['fontSize' => '54px', 'text' => $slide];
 					$slide = NULL;
 
 					$string .= $pred." ";
@@ -310,39 +254,18 @@ class slide{
 		}
 		if($string){
 			if($start == 0){
-				$slide .= $tag_arr[$type]["start"];
 				$start = 1;
 			}
 
 			$slide .= $string;
 		}
-		if($start == 1) $slide .= $tag_arr[$type]["end"];
-		if($slide)	$allSlide[] = $slide;
-
-		if($type == "web"){
-			foreach ($allSlide as $value) {
-				$value = "<section data-id=\"{$id}\" data-title=\"{$title}\">".$value."</section>";
-				$allSlideTmp .= $value;
-			}
-
-			$allSlide = $allSlideTmp;
-		}
+		if($slide)	$allSlide[] = ['fontSize' => '54px', 'text' => $slide];
 		
 		return $allSlide;
 	}
-	function psalm($text, $type = "pptx", $id = NULL , $title = NULL){
 
-		$tag_arr["web"] = [
-							"start" => "<span style=\"font-size: 50px\">",
-							"br" => "<br>",
-							"end" => "</span>"
-						]; 
+	function psalm($text, $id = NULL , $title = NULL){
 
-		$tag_arr["pptx"] = [
-							"start" => "<a:r><a:rPr lang=\"ru-RU\" sz=\"5000\" dirty=\"0\" smtClean=\"0\"/><a:t>",
-							"br" => "<a:br><a:rPr lang=\"ru-RU\" sz=\"2800\" dirty=\"0\" smtClean=\"0\"/></a:br>",
-							"end" => "</a:t></a:r>"
-						]; 
 		$allSlide = [];
 		$slide = null;
 		preg_match("#Рэфрэн:(.+?)(<br>|</p>)#is", $text, $refren);
@@ -371,29 +294,27 @@ class slide{
 				$value = ltrim(preg_replace('/^\d./i', '', $value)," .");
 
 				if($start == 1){
-					$slide .= $tag_arr[$type]["end"];
 					$start = 0;
 					$br = 1;
 				}
 
 				if(!$value and $line > 0){
 					if($line > 3){
-						$allSlide[] = $slide;
+						$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
 						$slide = NULL;
 						$br = 0;
 						$start = 0;
 						$line = 0;
 					}else{
-						$slide .= $tag_arr[$type]["br"] . $tag_arr[$type]["br"];
+						$slide .= "\n\n";
 						$br = 0;
 					}
 				}else{
 					if($br == 1){
-						$slide .= $tag_arr[$type]["br"];
+						$slide .= "\n";
 						$br = 0;
 					}
 					if($star == 0){
-						$slide .= $tag_arr[$type]["start"];
 						$start = 1;
 					}
 					$slide .= $value;
@@ -404,35 +325,14 @@ class slide{
 
 		}
 		if($slide and $line > 3){
-			if($start == 1)	$slide .= $tag_arr[$type]["end"];;
-			$allSlide[] = $slide;
-		}
-
-		if($type == "web"){
-			foreach ($allSlide as $value) {
-				$value = "<section data-id=\"{$id}\" data-title=\"{$title}\">".$value."</section>";
-				$allSlideTmp .= $value;
-			}
-
-			$allSlide = $allSlideTmp;
+			$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
 		}
 
 		return $allSlide;
 	}
 
-	function gen_songeva($text, $type = "pptx", $id = NULL , $title = NULL){
+	function gen_songeva($text, $id = NULL , $title = NULL){
 
-		$tag_arr["web"] = [
-							"start" => "<span style=\"font-size: 50px\">",
-							"br" => "<br>",
-							"end" => "</span>"
-						]; 
-
-		$tag_arr["pptx"] = [
-							"start" => "<a:r><a:rPr lang=\"ru-RU\" sz=\"5000\" dirty=\"0\" smtClean=\"0\"/><a:t>",
-							"br" => "<a:br><a:rPr lang=\"ru-RU\" sz=\"2800\" dirty=\"0\" smtClean=\"0\"/></a:br>",
-							"end" => "</a:t></a:r>"
-						]; 
 		$allSlide = [];
 		$slide = null;
 		$text = str_replace('Акламацыя:', "", $text);
@@ -454,29 +354,27 @@ class slide{
 				$value = trim(preg_replace('/^\d./i', '', $value)," .;*");
 
 				if($start == 1){
-					$slide .= $tag_arr[$type]["end"];
 					$start = 0;
 					$br = 1;
 				}
 
 				if(!$value and $line > 0){
 					if($line > 4){
-						$allSlide[] = $slide;
+						$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
 						$slide = null;
 						$br = 0;
 						$start = 0;
 						$line = 0;
 					}else{
-						$slide .= $tag_arr[$type]["br"] . $tag_arr[$type]["br"];
+						$slide .= "\n\n";
 						$br = 0;
 					}
 				}else{
 					if($br == 1){
-						$slide .= $tag_arr[$type]["br"];
+						$slide .= "\n";
 						$br = 0;
 					}
 					if($star == 0){
-						$slide .= $tag_arr[$type]["start"];
 						$start = 1;
 					}
 					$slide .= $value;
@@ -487,17 +385,7 @@ class slide{
 
 		}
 		if($slide and $line > 3){
-			if($start == 1)	$slide .= $tag_arr[$type]["end"];
-			$allSlide[] = $slide;
-		}
-
-		if($type == "web"){
-			foreach ($allSlide as $value) {
-				$value = "<section data-id=\"{$id}\" data-title=\"{$title}\">".$value."</section>";
-				$allSlideTmp .= $value;
-			}
-
-			$allSlide = $allSlideTmp;
+			$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
 		}
 
 		return $allSlide;
@@ -506,28 +394,36 @@ class slide{
 	function genLitur($liturgia, $read, $type = "pptx"){
 
 		$counList = count($read);
-
+		$trueLit = array();
 		//Первое читанне
 		$key = $this->saerch_key_liturgia($liturgia[1][1], $read[0]);
 		if($key !== FALSE){
-			$trueLit["r1"]["slide"] = $this->gen_linurgia($liturgia[1][1][$key], $type, "r1", "ПЕРШАЕ ЧЫТАННЕ");
-			$trueLit["r1"]["title"] = "ПЕРШАЕ ЧЫТАННЕ";
+			$trueLit[] = [
+						"id" => "r1",
+						"title" => "ПЕРШАЕ ЧЫТАННЕ",
+						"slides" => $this->gen_linurgia($liturgia[1][1][$key], "r1", "ПЕРШАЕ ЧЫТАННЕ"),
+					];
 		}
 
 		//Псальм
 		$key = $this->saerch_key_liturgia($liturgia[3][1], $read[1]);
 		if($key !== FALSE){
-			$trueLit["p1"]["slide"] = $this->psalm($liturgia[3][1][$key], $type, "p1", "РЭСПАНСАРЫЙНЫ ПСАЛЬМ");
-			$trueLit["p1"]["title"] = "РЭСПАНСАРЫЙНЫ ПСАЛЬМ";
-			$trueLit["p1"]["id"] = "p1";
+			$trueLit[] = [
+				"id" => "p1",
+				"title" => "РЭСПАНСАРЫЙНЫ ПСАЛЬМ",
+				"slides" => $this->psalm($liturgia[3][1][$key], "p1", "РЭСПАНСАРЫЙНЫ ПСАЛЬМ"),
+			];
 		}
 
 		//Вторпое читание
 		if($counList > 3){
 			$key = $this->saerch_key_liturgia($liturgia[1][1], $read[2]);
 			if($key !== FALSE){
-				$trueLit["r2"]["slide"] = $this->gen_linurgia($liturgia[1][1][$key], $type, "r2", "ДРУГОЕ ЧЫТАННЕ");
-				$trueLit["r2"]["title"] = "ДРУГОЕ ЧЫТАННЕ";
+				$trueLit[] = [
+					"id" => "r2",
+					"title" => "ДРУГОЕ ЧЫТАННЕ",
+					"slides" => $this->gen_linurgia($liturgia[1][1][$key], "r2", "ДРУГОЕ ЧЫТАННЕ"),
+				];
 			}
 		}
 		// Если у нас 3 читанне 3 псальма
@@ -535,31 +431,42 @@ class slide{
 			//второй псальм
 			$key = $this->saerch_key_liturgia($liturgia[3][1], $read[3]);
 			if($key !== FALSE){
-				$trueLit["p2"]["slide"] = $this->psalm($liturgia[3][1][$key], $type, "p2", "РЭСПАНСАРЫЙНЫ ПСАЛЬМ");
-				$trueLit["p2"]["title"] = "РЭСПАНСАРЫЙНЫ ПСАЛЬМ";
+				$trueLit[] = [
+					"id" => "p2",
+					"title" => "РЭСПАНСАРЫЙНЫ ПСАЛЬМ",
+					"slides" => $this->psalm($liturgia[3][1][$key], "p2", "РЭСПАНСАРЫЙНЫ ПСАЛЬМ"),
+				];
 			}
 
 			//Третье читание
 			$key = $this->saerch_key_liturgia($liturgia[1][1], $read[4]);
 			if($key !== FALSE){
-				$trueLit["r3"]["slide"] = $this->gen_linurgia($liturgia[1][1][$key], $type, "r3", "ТРЭЦЯЕ ЧЫТАННЕ");
-				$trueLit["r3"]["title"] = "ТРЭЦЯЕ ЧЫТАННЕ";
+				$trueLit[] = [
+					"id" => "r3",
+					"title" => "ТРЭЦЯЕ ЧЫТАННЕ",
+					"slides" => $this->gen_linurgia($liturgia[1][1][$key], "r3", "ТРЭЦЯЕ ЧЫТАННЕ"),
+				];
 			}
 
 			//третий псальм
 			$key = $this->saerch_key_liturgia($liturgia[3][1], $read[5]);
 			if($key !== FALSE){
-				$trueLit["p3"]["slide"] = $this->psalm($liturgia[3][1][$key], $type, "p3", "РЭСПАНСАРЫЙНЫ ПСАЛЬМ");
-				$trueLit["p3"]["title"] = "РЭСПАНСАРЫЙНЫ ПСАЛЬМ";
+				$trueLit[] = [
+					"id" => "p3",
+					"title" => "РЭСПАНСАРЫЙНЫ ПСАЛЬМ",
+					"slides" => $this->psalm($liturgia[3][1][$key], "p3", "РЭСПАНСАРЫЙНЫ ПСАЛЬМ"),
+				];
 			}
 
 			//Еванилье
 			$key = $this->saerch_key_liturgia($liturgia[5][1], $read[6]);
 			if($key !== FALSE){
 				//ЕВАНГЕЛЛЕ
-				$trueLit["e"]["slide"] = $this->gen_linurgia($liturgia[5][1][$key], $type, "e", "ЕВАНГЕЛЛЕ");
-				$trueLit["e"]["title"] = "ЕВАНГЕЛЛЕ";
-
+				$trueLit[] = [
+					"id" => "e",
+					"title" => "ЕВАНГЕЛЛЕ",
+					"slides" => $this->gen_linurgia($liturgia[5][1][$key], "e", "ЕВАНГЕЛЛЕ"),
+				];
 			}
 
 
@@ -570,11 +477,17 @@ class slide{
 			$key = $this->saerch_key_liturgia($liturgia[5][1], $read[3]);
 			if($key !== FALSE){
 				//Спеу перед евангелле
-				$trueLit["es"]["slide"] = $this->gen_songeva($liturgia[4][1][$key], $type, "es", "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ");
-				$trueLit["es"]["title"] = "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ";
+				$trueLit[] = [
+					"id" => "es",
+					"title" => "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ",
+					"slides" => $this->gen_songeva($liturgia[4][1][$key], "es", "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ"),
+				];
 				//ЕВАНГЕЛЛЕ
-				$trueLit["e"]["slide"] = $this->gen_linurgia($liturgia[5][1][$key], $type, "e", "ЕВАНГЕЛЛЕ");
-				$trueLit["e"]["title"] = "ЕВАНГЕЛЛЕ";
+				$trueLit[] = [
+					"id" => "e",
+					"title" => "ЕВАНГЕЛЛЕ",
+					"slides" => $this->gen_linurgia($liturgia[5][1][$key], "e", "ЕВАНГЕЛЛЕ"),
+				];
 
 			}
 
@@ -583,20 +496,18 @@ class slide{
 			$key = $this->saerch_key_liturgia($liturgia[5][1], $read[2]);
 			if($key !== FALSE){
 				//Спеу перед евангелле
-				$trueLit["es"]["slide"] = $this->gen_songeva($liturgia[4][1][$key], $type, "es", "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ");
-				$trueLit["es"]["title"] = "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ";
+				$trueLit[] = [
+					"id" => "es",
+					"title" => "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ",
+					"slides" => $this->gen_songeva($liturgia[4][1][$key], "es", "СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ"),
+				];
 				//ЕВАНГЕЛЛЕ
-				$trueLit["e"]["slide"] = $this->gen_linurgia($liturgia[5][1][$key], $type, "e", "ЕВАНГЕЛЛЕ");
-				$trueLit["e"]["title"] = "ЕВАНГЕЛЛЕ";
+				$trueLit[] = [
+					"id" => "e",
+					"title" => "ЕВАНГЕЛЛЕ",
+					"slides" => $this->gen_linurgia($liturgia[5][1][$key], "e", "ЕВАНГЕЛЛЕ"),
+				];
 			}
-		}
-
-		if($type == "web"){
-			foreach ($trueLit as $key => $value) {
-				$allSlideTmp[$key] = $value["slide"];
-			}
-
-			$trueLit = $allSlideTmp;
 		}
 
 		return $trueLit;
@@ -683,7 +594,7 @@ class slide{
 
 			foreach ($explode as $values) {
 
-				foreach ($slides[$values]["slide"] as $key => $value) {
+				foreach ($slides[$values]["slides"] as $key => $value) {
 
 					
 					$rId = $i + 10;

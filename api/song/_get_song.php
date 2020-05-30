@@ -43,7 +43,11 @@ function updateList($db, $fillename, $last_update){
             "chord" => $row["chord"],
             "tag" => $tags
           ];
-        $slide[] = ["slide" => $row["slide"]];
+        $slide[] = [
+            "id" => $row["id"],
+            "title" => $row["title"],
+            "slides" => json_decode($row["slide"])
+        ];
     }
     
     $list_result =  gzencode(json_encode([ 'songs' => $list,'last_update' => $last_update, 'hash' => md5(json_encode($list, JSON_UNESCAPED_UNICODE))]));
