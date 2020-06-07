@@ -18,9 +18,7 @@ try {
 }
 
 
-if($last_update_file != $last_update ){
-    $list = updateList($db, $fillename, $last_update);
-}else if( !($list = file_get_contents($fillename)) ){
+if($last_update_file != $last_update || !($list = file_get_contents($fillename)) ){
     $list = updateList($db, $fillename, $last_update);
 }
 
@@ -49,12 +47,12 @@ function updateList($db, $fillename, $last_update){
             "slides" => json_decode($row["slide"])
         ];
     }
-    
-    $list_result =  gzencode(json_encode([ 'songs' => $list,'last_update' => $last_update, 'hash' => md5(json_encode($list, JSON_UNESCAPED_UNICODE))]));
-    $slide_result =  gzencode(json_encode([ 'slides' => $slide,'last_update' => $last_update, 'hash' => md5(json_encode($list, JSON_UNESCAPED_UNICODE))]));
+
+    $list_result =  gzencode(json_encode([ 'songs' => $list,'last_update' => $last_update,], JSON_UNESCAPED_UNICODE));
+    $slide_result =  gzencode(json_encode([ 'slides' => $slide,'last_update' => $last_update,], JSON_UNESCAPED_UNICODE));
         
-    file_put_contents( __DIR__."/../tmp/_list_song_json_noslide.txt", $list_result );
-    file_put_contents( __DIR__."/../tmp/_list_song_json.txt", $slide_result );
+    file_put_contents(__DIR__."/../tmp/_list_song_json_noslide.txt", $list_result );
+    file_put_contents(__DIR__."/../tmp/_list_song_json.txt", $slide_result );
     file_put_contents(__DIR__."/../tmp/_list_song_json_update.txt", $last_update );
 
     return isset($_GET["slide"]) ? $slide_result : $list_result;
