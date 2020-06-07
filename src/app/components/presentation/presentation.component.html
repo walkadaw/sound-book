@@ -1,32 +1,25 @@
-<div class="reveal">
+<div class="reveal" [class.speakerNotes]="this.isSpeakerNotes()">
   <div class="slides">
-    <section data-id="2" data-title="LAUDATE OMNES GENTES"><span style="font-size: 60px">Laudate omnes
-        gentes,</span><br><span style="font-size: 60px">Laudate Dominum</span></section>
-    <section data-id="4" data-title="MISERICORDIAM DOMINI"><span style="font-size: 60px">Misericordiam
-        Domini</span><br><span style="font-size: 60px">In aeternum cantabo</span></section>
-    <section data-id="103" data-title="ДА ЦЯБЕ, МАЦІ, УЗНЯСУ Я МАЛІТВУ"><span style="font-size: 58px">Да Цябе, Маці,
-        узнясу я малітву:</span><br><span style="font-size: 58px">Пажадай, каб Езус жыў ува мне.</span><br><span
-        style="font-size: 58px">Дзе Ты ёсць – Святы Дух зыходзіць,</span><br><span style="font-size: 58px">Дзе Ты ёсць –
-        неба бачу я.</span></section>
-    <section data-id="103" data-title="ДА ЦЯБЕ, МАЦІ, УЗНЯСУ Я МАЛІТВУ"><span style="font-size: 56px">Маці, Ты – Брама
-        да неба.</span><br><span style="font-size: 56px">Маё неба – гэта Твой Сын.</span><br><span
-        style="font-size: 56px">Забяры да свайго лона,</span><br><span style="font-size: 56px">Каб я стаў чыстым, стаў
-        чыстым, як Ён.</span></section>
-    <section data-id="116" data-title="ДУХ СВЯТЫ ДУХ"><span style="font-size: 56px">Дух Святы Дух, прыйдзі і распалі нас
-        (x2)</span><br><span style="font-size: 56px">Дух Святы, прыйдзі (x3)</span><br><span style="font-size: 56px">Дух
-        Прыйдзі, прыйдзі Дух!</span></section>
+    <ng-container *ngIf="slideList && slideList.length; else noSlide">
+      <ng-container *ngFor="let slides of slideList; trackBy: trackBySlides" >
+        <section *ngFor="let slide of slides.slides" [style.font-size.px]="slide.fontSize">
+          {{slide.text}}
+        </section>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #noSlide>
+      <section>Ня дададзены ні адзін слайд</section>
+    </ng-template>
+  
   </div>
 </div>
 
-<div class="slide-menu-button">
-  <mat-icon class="slide-button" (click)="toggleMenu()">menu</mat-icon>
-  <mat-icon class="slide-button" *ngIf="!isSpeakerNotes()" (click)="fullScreen()">
-    <ng-template [ngIf]="!document.fullscreenElement" [ngIfElse]="fullscreenExit">fullscreen</ng-template>
-    <ng-template #fullscreenExit>fullscreen_exit</ng-template>
-  </mat-icon>
-  <mat-icon class="slide-button" (click)="togglePause()">visibility_off</mat-icon>
-</div>
+<ng-container *ngIf="isReady()">
 
-<app-presentation-menu [active]="activeMenu" (closeMenu)="toggleMenu()" (themeChange)="changeTheme()"
-  (showMenuChange)="toggleShowMenu()">
-</app-presentation-menu>
+  <app-presentation-menu 
+    [slideList]="slideList"
+    (addedSong)="addSlide($event)"
+    (removeSong)="removeSlide($event)">
+  </app-presentation-menu>
+</ng-container>

@@ -5,14 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { SearchSongComponent } from './components/search-song/search-song.component';
-import { MatListModule } from '@angular/material/list';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { HttpClientModule } from '@angular/common/http';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
@@ -25,21 +18,16 @@ import { SongService } from './services/song-service/song.service';
 import { MatIconRegistryService } from './services/mat-icon-registry-service/mat-icon-registry.service';
 import { StoreModule } from '@ngrx/store';
 import { searchReducer } from './redux/reducers/search.reducer';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MenuSearchDialogComponent } from './components/menu-search-dialog/menu-search-dialog.component';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { PresentationComponent } from './components/presentation/presentation.component';
-import { PresentationMenuComponent } from './components/presentation/presentation-menu/presentation-menu.component';
-import { MatSelectModule } from '@angular/material/select';
-import { LetDirective } from './directives/let-directive/app-let.directive';
+import { MainSoundComponent } from './application/main-sound/main-sound.component';
+import { LiturgyModule } from './services/liturgy-service/liturgy.module';
+import { SongModule } from './services/song-service/song.module';
+import { MatModule } from './mat.module';
+import { LetDirectiveModule } from './directives/let-directive/app-let.module';
 
 @NgModule({
   declarations: [
-    LetDirective,
     AppComponent,
     HeaderComponent,
     SongDetailsComponent,
@@ -51,8 +39,7 @@ import { LetDirective } from './directives/let-directive/app-let.directive';
     ReplaceSpacePipe,
     MenuSearchDialogComponent,
     PaperGeneratorComponent,
-    PresentationComponent,
-    PresentationMenuComponent,
+    MainSoundComponent,
   ],
   imports: [
     BrowserModule,
@@ -64,21 +51,10 @@ import { LetDirective } from './directives/let-directive/app-let.directive';
     StoreModule.forRoot({
       searchInput: searchReducer,
     }),
-
-    // material
-    MatListModule,
-    MatMenuModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatSlideToggleModule,
-    MatRadioModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatSelectModule,
+    LetDirectiveModule,
+    MatModule,
+    LiturgyModule,
+    SongModule,
   ],
   providers: [
     {

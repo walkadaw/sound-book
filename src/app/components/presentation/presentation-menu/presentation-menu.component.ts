@@ -8,16 +8,17 @@ import {
   OnDestroy,
   ViewChild,
   ElementRef,
+  AfterViewInit,
 } from '@angular/core';
 import { TagList } from '../../../interfaces/tag-list';
 import { TAGS_LIST } from '../../../constants/tag-list';
 import { FormControl } from '@angular/forms';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, fromEvent } from 'rxjs';
 import { Song } from '../../../interfaces/song';
-import { takeUntil, filter, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-
-declare const RevealNotes;
+import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
+import { SlideList } from '../../../interfaces/slide';
+import { RevealService } from '../../../services/reveal-service/reveal.service';
 
 @Component({
   selector: 'app-presentation-menu',
@@ -25,44 +26,68 @@ declare const RevealNotes;
   styleUrls: ['./presentation-menu.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class PresentationMenuComponent implements OnInit, OnDestroy {
-  @Input() active = false;
-  @Output() closeMenu = new EventEmitter<boolean>();
-  @Output() themeChange = new EventEmitter<null>();
-  @Output() showMenuChange = new EventEmitter<boolean>();
+export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Input() slideList: SlideList[];
+
+  @Output() addedSong = new EventEmitter<number | string>();
+  @Output() removeSong = new EventEmitter<number>();
 
   @ViewChild('searchElement') searchElement: ElementRef<HTMLInputElement>;
 
+  active = false;
+  isShowControls = false;
+  isSpeakerNotes = false;
+  isSearchFocused = false;
+  document = document;
   hideMenu = false;
   openSelectedTag = false;
   selectedTag: TagList;
   tagsList: TagList[];
   search: FormControl = new FormControl();
   songListFiltered$: Observable<Song[]>;
+  selectedSlide = this.reveal.getActiveSlide();
 
+  private revealNotes = this.reveal.getNotesPlugin();
   private onDestroy$ = new Subject<void>();
 
-  constructor(private fuseService: FuseService) {}
+  constructor(private fuseService: FuseService, private reveal: RevealService) {}
 
   ngOnInit(): void {
-    this.tagsList = [
-      {
-        id: 0,
-        title: 'Усе',
-        icon: 'search',
-      },
-      ...TAGS_LIST,
-    ];
-    this.onClickTag(0);
-    const search$ = this.search.valueChanges.pipe(debounceTime(300), distinctUntilChanged());
+    this.initTag();
+    this.initSearch();
+    this.isShowControls = this.reveal.isShowControls();
+    this.isSpeakerNotes = this.reveal.isSpeakerNotes();
 
-    this.songListFiltered$ = this.fuseService.getFilteredSong(search$);
-    this.search.valueChanges
+    fromEvent<MessageEvent>(window, 'message')
       .pipe(
-        takeUntil(this.onDestroy$),
-        filter(() => this.openSelectedTag)
+        filter((event) => event && event.data && event.source !== window.self),
+        map((event) => JSON.parse(event.data)),
+        filter((data) => data && data.namespace === 'reveal-menu'),
+        takeUntil(this.onDestroy$)
       )
-      .subscribe(() => (this.openSelectedTag = false));
+      .subscribe((data) => {
+        switch (data.type) {
+          case 'addSong':
+            this.addedSong.emit(data.payload);
+            break;
+          case 'removeSong':
+            this.removeSong.emit(data.payload);
+            break;
+          case 'hideMenuControl':
+            this.toggleShowIconMenu(false);
+            break;
+          case 'changeTheme':
+            this.toggleTheme(false);
+            break;
+
+          default:
+            break;
+        }
+      });
+  }
+
+  ngAfterViewInit() {
+    this.initHighlightCurrentSlide();
   }
 
   ngOnDestroy() {
@@ -70,26 +95,43 @@ export class PresentationMenuComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
-  onClose() {
-    this.closeMenu.emit(true);
-  }
-
   openRemoteControl() {
-    RevealNotes.open();
+    this.revealNotes.open();
   }
 
-  toggleTheme() {
-    this.themeChange.emit();
+  toggleTheme(dispatch = true) {
+    if (!this.isSpeakerNotes) {
+      document.body.classList.toggle('white');
+    }
+
+    if (dispatch) {
+      this.sendPostMessage('changeTheme');
+    }
   }
 
   toggleMenu() {
+    this.active = !this.active;
+  }
+
+  toggleShowIconMenu(dispatch = true) {
     this.hideMenu = !this.hideMenu;
-    this.showMenuChange.emit(this.hideMenu);
+    if (!this.isSpeakerNotes) {
+      document.body.classList.toggle('hideMenu');
+    }
+
+    if (dispatch) {
+      this.sendPostMessage('hideMenuControl');
+    }
+  }
+
+  openSlide(song: SlideList) {
+    this.toggleMenu();
+
+    this.reveal.slide(song.startIndex);
   }
 
   onClickTag(tagId: number) {
     const tag = this.tagsList.find(({ id }) => id === tagId);
-    console.log(tag, tagId);
 
     if (tag) {
       this.selectedTag = tag;
@@ -103,11 +145,106 @@ export class PresentationMenuComponent implements OnInit, OnDestroy {
     this.openSelectedTag = false;
   }
 
+  onClickSearchSong(song: SlideList) {
+    this.search.setValue('');
+    this.addedSong.emit(song.id);
+
+    this.sendPostMessage('addSong', song.id);
+  }
+
+  onClickRemovedSong(event: Event, index: number) {
+    event.stopPropagation();
+    this.removeSong.emit(index);
+
+    this.sendPostMessage('removeSong', index);
+  }
+
   toggleSelectedTag() {
     this.openSelectedTag = !this.openSelectedTag;
   }
 
+  fullScreen() {
+    document.fullscreenElement ? document.exitFullscreen() : this.enterFullscreen();
+  }
+
+  togglePause(): void {
+    this.reveal.togglePause();
+  }
+
+  onSearchFocused() {
+    this.isSearchFocused = true;
+  }
+
+  onSearchBlur() {
+    setTimeout(() => {
+      this.isSearchFocused = false;
+    }, 250);
+  }
+
   trackBySong(index: number, song: Song) {
     return song.id;
+  }
+
+  private enterFullscreen() {
+    const element: any = document.documentElement;
+
+    // Check which implementation is available
+    const requestMethod =
+      element.requestFullscreen ||
+      element.webkitRequestFullscreen ||
+      element.webkitRequestFullScreen ||
+      element.mozRequestFullScreen ||
+      element.msRequestFullscreen;
+
+    if (requestMethod) {
+      requestMethod.apply(element);
+    }
+  }
+
+  private initTag() {
+    this.tagsList = [
+      {
+        id: 0,
+        title: 'Усе',
+        icon: 'search',
+      },
+      ...TAGS_LIST,
+    ];
+    this.onClickTag(0);
+  }
+
+  private initSearch() {
+    const search$ = this.search.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged());
+
+    this.songListFiltered$ = this.fuseService.getFilteredSong(search$);
+    this.search.valueChanges
+      .pipe(
+        takeUntil(this.onDestroy$),
+        filter(() => this.openSelectedTag)
+      )
+      .subscribe(() => (this.openSelectedTag = false));
+  }
+
+  private initHighlightCurrentSlide() {
+    this.reveal
+      .onSlideChange()
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe((slideNumber) => {
+        this.selectedSlide = slideNumber;
+
+        if (this.active && !this.isSpeakerNotes) {
+          this.toggleMenu();
+        }
+      });
+  }
+
+  private sendPostMessage(type: string, payload?: number | string) {
+    const message = {
+      namespace: 'reveal-menu',
+      isSpeakerNotes: this.isSpeakerNotes,
+      payload,
+      type,
+    };
+    window.parent.postMessage(JSON.stringify(message), '*');
   }
 }

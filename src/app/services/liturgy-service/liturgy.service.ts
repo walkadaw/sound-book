@@ -6,9 +6,7 @@ import { of, Observable, iif } from 'rxjs';
 import { Liturgy } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class LiturgyService {
   constructor(private http: HttpClient) {}
   slideLiturgy: SlideList[];
