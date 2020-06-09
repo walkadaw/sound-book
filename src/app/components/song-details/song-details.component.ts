@@ -25,4 +25,8 @@ export class SongDetailsComponent implements OnInit {
       })
     );
   }
+
+  isArray(arg: any): boolean {
+    return Array.isArray(arg);
+  }
 }
