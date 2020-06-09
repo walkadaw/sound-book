@@ -70,7 +70,16 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   }
 
   removeSlide(removedIndex: number) {
-    this.slideList = this.slideList.filter((slide, index) => index !== removedIndex);
+    this.slideList = this.slideList
+      .filter((slide, index) => index !== removedIndex)
+      .map((slide, index, slideList) => {
+        if (index >= removedIndex) {
+          const lastIndex = index > 0 ? slideList[index - 1].endIndex : -1;
+          slide.startIndex = lastIndex + 1;
+          slide.endIndex = lastIndex + slide.slides.length;
+        }
+        return slide;
+      });
 
     if (!this.reveal.isSpeakerNotes()) {
       this.location.replaceState('/presentation/' + this.slideList.map((slide) => slide.id).toString());

@@ -224,7 +224,7 @@ class slide{
 								$string = NULL;
 								$str_count_all = 0;
 							
-								$allSlide[] = ['fontSize' => '54px', 'text' => $slide];
+								$allSlide[] = ['fontSize' => 54, 'text' => $slide];
 								$slide = NULL;
 							}
 
@@ -239,7 +239,7 @@ class slide{
 					$string = NULL;
 					$str_count_all = 0;
 
-					$allSlide[] = ['fontSize' => '54px', 'text' => $slide];
+					$allSlide[] = ['fontSize' => 54, 'text' => $slide];
 					$slide = NULL;
 
 					$string .= $pred." ";
@@ -259,7 +259,7 @@ class slide{
 
 			$slide .= $string;
 		}
-		if($slide)	$allSlide[] = ['fontSize' => '54px', 'text' => $slide];
+		if($slide)	$allSlide[] = ['fontSize' => 54, 'text' => $slide];
 		
 		return $allSlide;
 	}
@@ -300,7 +300,7 @@ class slide{
 
 				if(!$value and $line > 0){
 					if($line > 3){
-						$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
+						$allSlide[] = ['fontSize' => 50, 'text' => $slide];
 						$slide = NULL;
 						$br = 0;
 						$start = 0;
@@ -325,7 +325,7 @@ class slide{
 
 		}
 		if($slide and $line > 3){
-			$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
+			$allSlide[] = ['fontSize' => 50, 'text' => $slide];
 		}
 
 		return $allSlide;
@@ -360,7 +360,7 @@ class slide{
 
 				if(!$value and $line > 0){
 					if($line > 4){
-						$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
+						$allSlide[] = ['fontSize' => 50, 'text' => $slide];
 						$slide = null;
 						$br = 0;
 						$start = 0;
@@ -385,7 +385,7 @@ class slide{
 
 		}
 		if($slide and $line > 3){
-			$allSlide[] = ['fontSize' => '50px', 'text' => $slide];
+			$allSlide[] = ['fontSize' => 50, 'text' => $slide];
 		}
 
 		return $allSlide;
