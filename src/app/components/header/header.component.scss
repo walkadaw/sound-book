@@ -14,3 +14,21 @@
     }
   }
 }
+
+.checkbox-menu {
+  display: flex;
+  align-content: space-between;
+
+  >span {
+    flex: 1 1 auto;
+    padding-right: 10px;
+  }
+  >.right {
+    flex: 1 1 auto;
+    text-align: end;
+
+    .mat-icon {
+      margin-right: 0;
+    }
+  }
+}

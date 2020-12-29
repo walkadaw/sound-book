@@ -25,6 +25,7 @@ import { LiturgyModule } from './services/liturgy-service/liturgy.module';
 import { SongModule } from './services/song-service/song.module';
 import { MatModule } from './mat.module';
 import { LetDirectiveModule } from './directives/let-directive/app-let.module';
+import { settingsReducer } from './redux/reducers/settings.reducer';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { LetDirectiveModule } from './directives/let-directive/app-let.module';
     // redux
     StoreModule.forRoot({
       searchInput: searchReducer,
+      settings: settingsReducer,
     }),
     LetDirectiveModule,
     MatModule,

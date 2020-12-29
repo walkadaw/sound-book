@@ -1,15 +1,41 @@
 <div class="logo" routerLink>
-  <h2>SoundBook</h2>
+  <h2>Спеўнік</h2>
 </div>
 <mat-nav-list class="list-horizontal">
   <mat-list role="list">
     <mat-list-item routerLink="/liturgy" role="listitem">Чытанне дня</mat-list-item>
-    <mat-list-item role="listitem" [matMenuTriggerFor]="menu"> Генератор</mat-list-item>
-    <mat-list-item role="listitem" routerLink="/presentation"> BY</mat-list-item>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item routerLink="/generator">Генератор прізентаціі</button>
-      <button mat-menu-item routerLink="/generator/docx">Создание бумажней версии</button>
-    </mat-menu>
-    <app-search-song></app-search-song>
+    <mat-list-item routerLink="/favorite" role="listitem">
+      <mat-icon>favorite</mat-icon>
+    </mat-list-item>
+    <mat-list-item role="listitem" [matMenuTriggerFor]="settings">
+      <mat-icon>settings</mat-icon>
+    </mat-list-item>
+    <!-- <app-search-song></app-search-song> -->
   </mat-list>
 </mat-nav-list>
+
+<mat-menu #settings="matMenu">
+  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
+    <span>Адлюстроўваць нумар песні:</span>
+    <div class="right">
+      <mat-checkbox [checked]="showSongNumber" (change)="toggleSongNumber($event)"></mat-checkbox>
+    </div>
+  </button>
+  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
+    <span>Паказваць акорды:</span>
+    <div class="right">
+      <mat-checkbox [checked]="showChord" (change)="toggleChord($event)"></mat-checkbox>
+    </div>
+  </button>
+  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
+    <span>Памер шрыфта:</span>
+    <div class="right">
+      <mat-icon (click)="changeFontSize(false)">remove</mat-icon>
+      <span (click)="changeFontSize(null, true)">{{ fontSize }}%</span>
+      <mat-icon (click)="changeFontSize(true)">add</mat-icon>
+    </div>
+  </button>
+ 
+  <button mat-menu-item routerLink="/generator">Генератор прізентаціі</button>
+  <button mat-menu-item routerLink="/generator/docx">Создание бумажней версии</button>
+</mat-menu>
