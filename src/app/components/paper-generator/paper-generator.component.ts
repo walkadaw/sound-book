@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { SongService } from '../../services/song-service/song.service';
+import { Song } from '../../interfaces/song';
+import { combineLatest, Observable } from 'rxjs';
+import { FuseService } from '../../services/fuse-service/fuse.service';
+import { distinctUntilChanged, filter, map, startWith, switchMap, tap } from 'rxjs/operators';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-paper-generator',
@@ -7,18 +13,54 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
   styleUrls: ['./paper-generator.component.scss'],
 })
 export class PaperGeneratorComponent implements OnInit {
-  songList: FormGroup;
+  songListForm: FormGroup;
+  songListFiltered$: Observable<Song[]>;
+  selectedSongList$: Observable<Song[]>;
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(private formBuilder: FormBuilder, private songService: SongService, private fuseService: FuseService) {}
 
   ngOnInit() {
-    this.songList = this.formBuilder.group({
-      allSong: ['1', Validators.required],
-      selectedSong: [''],
+    this.songListForm = this.formBuilder.group({
+      allSong: [true, Validators.required],
+      selectedSong: {},
       chord: [true],
       showTag: [true],
       chastki: [false],
       gadzinki: [false],
+      search: '',
+      selectedTabId: 0,
     });
+
+    const search = this.songListForm.get('search');
+    this.songListFiltered$ = this.fuseService.getFilteredSong(
+      search.valueChanges.pipe(startWith(search.value)),
+      this.songService.songList
+    );
+
+    this.selectedSongList$ = this.songListForm.get('selectedSong').valueChanges.pipe(
+      startWith(this.songListForm.get('selectedSong').value),
+      map((selectedSong) => {
+        return Object.entries(selectedSong)
+          .filter(([key, value]) => value)
+          .map(([key]) => this.songService.getSong(key));
+      })
+    );
+  }
+
+  selectedIndexChange(value: number): void {
+    this.songListForm.get('selectedTabId').setValue(value);
+  }
+
+  changeSelectedSong(event: MatCheckboxChange, songId: number): void {
+    const selectedSong = this.songListForm.get('selectedSong');
+    selectedSong.setValue({ ...selectedSong.value, [songId]: event.checked });
+  }
+
+  clearFilterSong() {
+    this.songListForm.get('search').setValue('');
+  }
+
+  trackBy(index: number, song: Song): number {
+    return song.id;
   }
 }

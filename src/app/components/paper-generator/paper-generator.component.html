@@ -1,37 +1,71 @@
 <h2>Стварэнне папяровай версіі</h2>
 
-<form [formGroup]="songList" class="docx-options">
-    <div class="column">
-        <label id="song-radio-group-label">Якія песні неабходна дадаць</label>
-        <mat-radio-group formControlName="allSong" aria-labelledby="song-radio-group-label" color="primary">
-            <mat-radio-button value="1">Усе песні</mat-radio-button>
-            <mat-radio-button value="0">Выбраць песні</mat-radio-button>
-          </mat-radio-group>
-    </div>
+<form [formGroup]="songListForm" class="docx-options">
+  <div class="column">
+    <label id="song-radio-group-label">Якія песні неабходна дадаць</label>
+    <mat-radio-group formControlName="allSong" aria-labelledby="song-radio-group-label" color="primary">
+      <mat-radio-button [value]="true">Усе песні</mat-radio-button>
+      <mat-radio-button [value]="false">Выбраць песні</mat-radio-button>
+    </mat-radio-group>
+  </div>
 
-    <div class="column">
-        <label>Дадатковыя опцыі</label>
-        <mat-checkbox formControlName="chord" color="primary">
-            Акорды 
-            <mat-icon matTooltip="Адлюстраванне акордаў у створаным варыянце">info</mat-icon>
-        </mat-checkbox>
-        <mat-checkbox formControlName="showTag" color="primary">
-            Тэгі 
-            <mat-icon matTooltip="Паказваць тэгі ў створаным варыянце">info</mat-icon>
-        </mat-checkbox>
-        <mat-checkbox formControlName="chastki" color="primary">Часткі Імшы</mat-checkbox>
-        <mat-checkbox formControlName="gadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
-    </div>
-    <div class="column-full" *ngIf="songList.get('allSong').value === '0'">
-        <label>Дадатковыя опцыі</label>
-        <mat-checkbox formControlName="chord" color="primary">Акорды (Адлюстраванне акордаў у створаным варыянце)</mat-checkbox>
-        <mat-checkbox formControlName="showTag" color="primary">Тэгі (Паказваць тэгі ў створаным варыянце)</mat-checkbox>
-        <mat-checkbox formControlName="chastki" color="primary">Часткі Імшы</mat-checkbox>
-        <mat-checkbox formControlName="gadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
-    </div>
+  <div class="column">
+    <label>Дадатковыя опцыі</label>
+    <mat-checkbox formControlName="chord" color="primary">
+      Акорды
+      <mat-icon matTooltip="Адлюстраванне акордаў у створаным варыянце">info</mat-icon>
+    </mat-checkbox>
+    <mat-checkbox formControlName="showTag" color="primary">
+      Тэгі
+      <mat-icon matTooltip="Паказваць тэгі ў створаным варыянце">info</mat-icon>
+    </mat-checkbox>
+    <mat-checkbox formControlName="chastki" color="primary">Часткі Імшы</mat-checkbox>
+    <mat-checkbox formControlName="gadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
+  </div>
 
-    <button mat-raised-button color="primary" class="download-button">
-        <mat-icon>get_app</mat-icon>
-        Спампаваць
-    </button>
+  <div class="column-full" *ngIf="!songListForm.get('allSong').value && selectedSongList$ | async as selectedSongList">
+    <mat-form-field class="example-form-field">
+      <mat-label>Пошук</mat-label>
+      <input matInput formControlName="search" type="text">
+      <button mat-button matSuffix mat-icon-button aria-label="очистить" (click)="clearFilterSong()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
+      <mat-tab label="Пошук песен">
+        <div class="song-content" *ngIf="songListFiltered$ | async as songList">
+          <ng-container *ngIf="songList.length; else noSongResult">
+            <div class="song-container" *ngFor="let song of songList; trackBy: trackBy">
+              <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
+            </div>
+          </ng-container>
+          <ng-template #noSongResult>
+            <div>
+              Не адна песня не знойдзена па вашаму запыту.
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+      <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
+        <div class="song-content">
+          <ng-container *ngIf="selectedSongList.length; else noSongResult">
+            <div class="song-container" *ngFor="let song of selectedSongList; trackBy: trackBy">
+              <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)">{{ song.title }}
+              </mat-checkbox>
+            </div>
+          </ng-container>
+          <ng-template #noSongResult>
+            <div>
+              Няма выбраных песень.
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <button mat-raised-button color="primary" class="download-button">
+    <mat-icon>get_app</mat-icon>
+    Спампаваць
+  </button>
 </form>
