@@ -13,19 +13,19 @@ export class FuseService {
 
   private fuse: Fuse<Song, Fuse.IFuseOptions<Song>>;
 
-  constructor(private songService: SongService) {
+  constructor() {
     this.fuse = new Fuse([], this.getOptions());
   }
 
-  getFilteredSong(search$: Observable<string>): Observable<Song[]> {
+  getFilteredSong(search$: Observable<string>, allSongList: Song[]): Observable<Song[]> {
     return this.selectedTags$.pipe(
       map((selectedTags) => {
         if (selectedTags) {
-          return this.songService.songList.filter(
+          return allSongList.filter(
             (song) => song.tag && Object.keys(song.tag).some((tag) => selectedTags === +tag)
           );
         }
-        return this.songService.songList;
+        return allSongList;
       }),
       tap((songList) => this.fuse.setCollection(songList)),
       debounceTime(100),

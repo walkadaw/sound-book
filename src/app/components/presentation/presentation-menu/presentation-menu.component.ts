@@ -19,6 +19,7 @@ import { Song } from '../../../interfaces/song';
 import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
+import { SongService } from '../../../services/song-service/song.service';
 
 @Component({
   selector: 'app-presentation-menu',
@@ -50,7 +51,11 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private revealNotes = this.reveal.getNotesPlugin();
   private onDestroy$ = new Subject<void>();
 
-  constructor(private fuseService: FuseService, private reveal: RevealService) {}
+  constructor(
+    private fuseService: FuseService,
+    private songService: SongService,
+    private reveal: RevealService,
+  ) {}
 
   ngOnInit(): void {
     this.initTag();
@@ -216,7 +221,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private initSearch() {
     const search$ = this.search.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged());
 
-    this.songListFiltered$ = this.fuseService.getFilteredSong(search$);
+    this.songListFiltered$ = this.fuseService.getFilteredSong(search$, this.songService.songList);
     this.search.valueChanges
       .pipe(
         takeUntil(this.onDestroy$),
