@@ -1,0 +1,28 @@
+app-search-song {
+    display: flex;
+
+    .search-input {
+        flex: 0 1 100%;
+        display: block;
+    }
+    .mat-select {
+        width: auto;
+        
+        .mat-select-value {
+            max-width: none;
+        }
+    }
+
+}
+
+.search-tag-mat-menu {
+    &.mat-select-panel {
+        max-height: none;
+
+        .mat-option {
+            height: 40px;
+            line-height: 40px;
+        }
+    }
+
+}

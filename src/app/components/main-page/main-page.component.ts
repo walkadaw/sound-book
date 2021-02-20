@@ -1,15 +1,15 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { SongService } from '../../services/song-service/song.service';
-import { Song } from '../../interfaces/song';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { TAGS_LIST } from '../../constants/tag-list';
-import { TagList } from '../../interfaces/tag-list';
-
+import { SongFavorite } from '../../interfaces/song';
+import { combineLatest, Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { IAppState } from '../../redux/models/IAppState';
 import { getSearchTerm } from '../../redux/selector/search.selector';
 import { FuseService } from '../../services/fuse-service/fuse.service';
+import { SongService } from '../../services/song-service/song.service';
+import { getShowSongNumber } from '../../redux/selector/settings.selector';
+import { getFavoriteState } from '../../redux/selector/favorite.selector';
+import { map } from 'rxjs/operators';
+import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 
 @Component({
   selector: 'app-main-page',
@@ -18,21 +18,19 @@ import { FuseService } from '../../services/fuse-service/fuse.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainPageComponent implements OnInit {
-  tags$: BehaviorSubject<Set<number>> = new BehaviorSubject(new Set());
-  songListFiltered$: Observable<Song[]>;
-  readonly tagsList: TagList[] = TAGS_LIST;
+  songListFiltered$: Observable<SongFavorite[]>;
+  showSongNumber$ = this.store.select(getShowSongNumber);
 
-  constructor(private fuseService: FuseService, private store: Store<IAppState>) {}
+  constructor(private fuseService: FuseService, private songService: SongService, private store: Store<IAppState>) {}
 
   ngOnInit(): void {
-    this.songListFiltered$ = this.fuseService.getFilteredSong(this.store.select(getSearchTerm));
+    this.songListFiltered$ = combineLatest([
+      this.fuseService.getFilteredSong(this.store.select(getSearchTerm), this.songService.songList),
+      this.store.select(getFavoriteState),
+    ]).pipe(map(([songs, favoriteList]) => songs.map((song) => ({ ...song, favorite: favoriteList.has(song.id) }))));
   }
 
-  tagToggle(eventTag: number) {
-    this.fuseService.setSelectedTag(eventTag);
-  }
-
-  trackBySong(index: string, item: Song) {
-    return item.id;
+  trackBySong(index: string, item: SongFavorite) {
+    return `${item.id}-${item.favorite}`;
   }
 }

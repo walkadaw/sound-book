@@ -1,9 +1,15 @@
 import { Component } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Store } from '@ngrx/store';
-import { changeFontSizeAction, showChordAction, showSongNumberAction } from '../../redux/actions/settings.actions';
+import {
+  changeFontSizeAction,
+  changeShowMenuAction,
+  showChordAction,
+  showSongNumberAction,
+} from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
-import { getFontSize, getShowChord, getShowSongNumber } from '../../redux/selector/settings.selector';
+import { getFontSize, getShowChord, getShowMenu, getShowSongNumber } from '../../redux/selector/settings.selector';
+import { SongService } from '../../services/song-service/song.service';
 import { getCurrentValue } from '../utils/redux.utils';
 const MIN_FONT_SIZE = 0.4;
 const MAX_FONT_SIZE = 2;
@@ -19,7 +25,7 @@ export class HeaderComponent {
   showSongNumber = getCurrentValue(this.store, getShowSongNumber);
   fontSize = Math.floor(getCurrentValue(this.store, getFontSize) * 100);
 
-  constructor(private store: Store<IAppState>) {}
+  constructor(private store: Store<IAppState>, public songService: SongService) {}
 
   toggleSongNumber(event: MatCheckboxChange): void {
     this.showSongNumber = event.checked;
@@ -51,5 +57,10 @@ export class HeaderComponent {
     this.fontSize = Math.floor(newFontSize * 100);
     window.localStorage.setItem('fontSize', newFontSize.toString());
     this.store.dispatch(changeFontSizeAction(newFontSize));
+  }
+
+  toggleMainMenu() {
+    const toggle = getCurrentValue(this.store, getShowMenu);
+    this.store.dispatch(changeShowMenuAction(!toggle));
   }
 }

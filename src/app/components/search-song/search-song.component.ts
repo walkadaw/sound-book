@@ -1,29 +1,34 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { IAppState } from '../../redux/models/IAppState';
 import { Store } from '@ngrx/store';
 import { SetSearchTermAction, ClearSearchAction } from '../../redux/actions/search.actions';
 import { Subject } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { MenuSearchDialogComponent } from '../menu-search-dialog/menu-search-dialog.component';
+import { FuseService } from '../../services/fuse-service/fuse.service';
+import { TagList } from '../../interfaces/tag-list';
+import { TAGS_LIST } from '../../constants/tag-list';
 
 @Component({
   selector: 'app-search-song',
   templateUrl: './search-song.component.html',
   styleUrls: ['./search-song.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
+  selected = 0;
   searchTerm = new FormControl();
+  readonly tagsList: TagList[] = [
+    {
+      id: null,
+      title: 'Усе',
+      icon: null,
+    },
+    ...TAGS_LIST,
+  ];
   private onDestroy$ = new Subject<void>();
 
-  constructor(
-    private store: Store<IAppState>,
-    private activatedRoute: ActivatedRoute,
-    private route: Router,
-    private dialog: MatDialog
-  ) {}
+  constructor(private store: Store<IAppState>, private fuseService: FuseService) {}
 
   ngOnInit() {
     this.searchTerm.valueChanges
@@ -32,23 +37,17 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.store.dispatch(new ClearSearchAction());
     this.onDestroy$.next();
     this.onDestroy$.complete();
-  }
-
-  onFocus() {
-    if (!this.route.isActive('/', true) && !this.dialog.getDialogById('MenuSearchDialogComponent')) {
-      this.dialog.open(MenuSearchDialogComponent, {
-        id: 'MenuSearchDialogComponent',
-        width: '700px',
-        height: '100%',
-        restoreFocus: false,
-      });
-    }
   }
 
   onClear() {
     this.store.dispatch(new ClearSearchAction());
     this.searchTerm.setValue('');
+  }
+
+  tagToggle(eventTag: number) {
+    this.fuseService.setSelectedTag(eventTag);
   }
 }

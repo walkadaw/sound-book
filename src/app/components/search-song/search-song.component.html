@@ -1,9 +1,17 @@
-<mat-form-field class="example-full-width">
-  <input matInput (focus)="onFocus()" placeholder="Пошук" aria-label="Пошук" [formControl]="searchTerm">
-  <button mat-button *ngIf="searchTerm.value" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
-    <mat-icon>close</mat-icon>
-  </button>
-  <button mat-button matSuffix mat-icon-button aria-label="Search">
-    <mat-icon>search</mat-icon>
-  </button>
-</mat-form-field>
+<mat-select panelClass="search-tag-mat-menu" [(value)]="selected">
+  <mat-select-trigger>
+    <mat-icon *ngIf="tagsList[selected]?.icon" [svgIcon]="tagsList[selected]?.icon"></mat-icon>
+    <mat-icon *ngIf="!tagsList[selected]?.icon">search</mat-icon>
+  </mat-select-trigger>
+  <mat-option *ngFor="let tagList of tagsList; let i = index" [value]="i">
+    <mat-icon *ngIf="tagList.icon" [svgIcon]="tagList.icon"></mat-icon>
+    <mat-icon *ngIf="!tagList.icon">search</mat-icon>
+    {{tagList.title}}
+  </mat-option>
+
+</mat-select>
+
+<input matInput placeholder="Пошук" aria-label="Пошук" [formControl]="searchTerm">
+<button mat-button *ngIf="searchTerm.value" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
+  <mat-icon>close</mat-icon>
+</button>

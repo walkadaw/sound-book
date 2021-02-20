@@ -1,9 +1,19 @@
 :host {
-  max-width: 700px;
-  margin: 0 auto;
   display: block;
 
   main {
     min-height: calc(100vh - 167px);
-  };
+  }
+
+  .menu {
+    display: none;
+    
+    &.show-menu {
+      display: block;
+    }
+  } 
+
+  .hide {
+    display: none;
+  }
 }

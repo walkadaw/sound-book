@@ -33,9 +33,9 @@
     </mat-form-field>
     <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
       <mat-tab label="Пошук песен">
-        <div class="song-content" *ngIf="songListFiltered$ | async as songList">
+        <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content" *ngIf="songListFiltered$ | async as songList">
           <ng-container *ngIf="songList.length; else noSongResult">
-            <div class="song-container" *ngFor="let song of songList; trackBy: trackBy">
+            <div class="song-container" *cdkVirtualFor="let song of songList; trackBy: trackBy; templateCacheSize: 0">
               <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
             </div>
           </ng-container>
@@ -44,12 +44,12 @@
               Не адна песня не знойдзена па вашаму запыту.
             </div>
           </ng-template>
-        </div>
+        </cdk-virtual-scroll-viewport>
       </mat-tab>
       <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
-        <div class="song-content">
+        <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
           <ng-container *ngIf="selectedSongList.length; else noSongResult">
-            <div class="song-container" *ngFor="let song of selectedSongList; trackBy: trackBy">
+            <div class="song-container" *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0">
               <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)">{{ song.title }}
               </mat-checkbox>
             </div>
@@ -59,7 +59,7 @@
               Няма выбраных песень.
             </div>
           </ng-template>
-        </div>
+        </cdk-virtual-scroll-viewport >
       </mat-tab>
     </mat-tab-group>
   </div>

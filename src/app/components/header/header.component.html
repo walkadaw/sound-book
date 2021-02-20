@@ -1,18 +1,21 @@
-<div class="logo" routerLink>
-  <h2>Спеўнік</h2>
+<div class="container">
+  <mat-icon class="burger-menu" (click)="toggleMainMenu()">menu</mat-icon>
+  <div class="logo" (click)="toggleMainMenu()">
+    <h2>Спеўнік</h2>
+  </div>
+  <app-search-song class="sticky-search"></app-search-song>
+  <mat-nav-list class="list-horizontal">
+    <mat-list role="list">
+      <mat-list-item routerLink="/liturgy" role="listitem">Чытанне дня</mat-list-item>
+      <mat-list-item routerLink="/favorite" role="listitem">
+        <mat-icon>favorite</mat-icon>
+      </mat-list-item>
+      <mat-list-item role="listitem" [matMenuTriggerFor]="settings">
+        <mat-icon>settings</mat-icon>
+      </mat-list-item>
+    </mat-list>
+  </mat-nav-list>
 </div>
-<mat-nav-list class="list-horizontal">
-  <mat-list role="list">
-    <mat-list-item routerLink="/liturgy" role="listitem">Чытанне дня</mat-list-item>
-    <mat-list-item routerLink="/favorite" role="listitem">
-      <mat-icon>favorite</mat-icon>
-    </mat-list-item>
-    <mat-list-item role="listitem" [matMenuTriggerFor]="settings">
-      <mat-icon>settings</mat-icon>
-    </mat-list-item>
-    <!-- <app-search-song></app-search-song> -->
-  </mat-list>
-</mat-nav-list>
 
 <mat-menu #settings="matMenu">
   <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
@@ -35,7 +38,16 @@
       <mat-icon (click)="changeFontSize(true)">add</mat-icon>
     </div>
   </button>
- 
+  <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/generator">Генератор прізентаціі</button>
   <button mat-menu-item routerLink="/generator/docx">Создание бумажней версии</button>
+  <mat-divider></mat-divider>
+  <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="$event.stopPropagation()">
+    <span>Версия песен:</span>
+    <div class="right">{{ songService.songVersion ? (songService.songVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
+  </button>
+  <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="$event.stopPropagation()">
+    <span>Версия слайдов:</span>
+    <div class="right">{{ songService.songSlideVersion ? (songService.songSlideVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
+  </button>
 </mat-menu>
