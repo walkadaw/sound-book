@@ -51,17 +51,17 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private revealNotes = this.reveal.getNotesPlugin();
   private onDestroy$ = new Subject<void>();
 
-  constructor(
-    private fuseService: FuseService,
-    private songService: SongService,
-    private reveal: RevealService,
-  ) {}
+  constructor(private fuseService: FuseService, private songService: SongService, private reveal: RevealService) {}
 
   ngOnInit(): void {
     this.initTag();
     this.initSearch();
     this.isShowControls = this.reveal.isShowControls();
     this.isSpeakerNotes = this.reveal.isSpeakerNotes();
+
+    if (!this.slideList.length) {
+      this.toggleMenu();
+    }
 
     fromEvent<MessageEvent>(window, 'message')
       .pipe(

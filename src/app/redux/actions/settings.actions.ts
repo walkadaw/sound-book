@@ -5,3 +5,4 @@ export const showSongNumberAction = createAction('[settings] song number', (show
   showSongNumber,
 }));
 export const changeFontSizeAction = createAction('[settings] change font size', (fontSize: number) => ({ fontSize }));
+export const changeShowMenuAction = createAction('[settings] change show menu', (showMenu: boolean) => ({ showMenu }));

@@ -13,7 +13,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
-
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatDividerModule } from '@angular/material/divider';
 @NgModule({
   imports: [
     MatListModule,
@@ -29,6 +30,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatCheckboxModule,
     MatTooltipModule,
     MatSelectModule,
+    ScrollingModule,
+    MatDividerModule,
   ],
   exports: [
     MatListModule,
@@ -45,6 +48,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatTooltipModule,
     MatSelectModule,
     MatTabsModule,
+    ScrollingModule,
+    MatDividerModule,
   ],
 })
 export class MatModule {}

@@ -14,3 +14,7 @@ export interface Song {
   chord: string;
   tag: { [key: string]: number };
 }
+
+export interface SongFavorite extends Song {
+  favorite?: boolean;
+}

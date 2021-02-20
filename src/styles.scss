@@ -62,6 +62,7 @@ a, a:visited, a:active {
 	overflow: hidden;
 }
 
-header {
-	padding: 0 15px;
+.container {
+	margin: 0 auto;
+	max-width: 768px;
 }

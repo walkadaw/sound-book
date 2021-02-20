@@ -94,7 +94,11 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   private loadSlide() {
     const idParams: string = this.activatedRoute.snapshot.params.id || '';
     const listID = idParams.split(',');
-    forkJoin([this.liturgyService.loadSlideForLiturgy(), this.songService.loadSlideSongs()]).subscribe(() => {
+    forkJoin([
+      this.liturgyService.loadSlideForLiturgy(),
+      this.songService.loadSlideSongs(),
+      this.songService.loadSongs(),
+    ]).subscribe(() => {
       this.isDataLoaded$.next(true);
 
       this.slideList = listID.reduce<SlideList[]>((acc, id) => {

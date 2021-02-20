@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import Fuse from 'fuse.js';
 import { Song } from '../../interfaces/song';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { SongService } from '../song-service/song.service';
 import { map, tap, switchMap, debounceTime } from 'rxjs/operators';
 
 @Injectable({
@@ -21,9 +20,7 @@ export class FuseService {
     return this.selectedTags$.pipe(
       map((selectedTags) => {
         if (selectedTags) {
-          return allSongList.filter(
-            (song) => song.tag && Object.keys(song.tag).some((tag) => selectedTags === +tag)
-          );
+          return allSongList.filter((song) => song.tag && Object.keys(song.tag).some((tag) => selectedTags === +tag));
         }
         return allSongList;
       }),

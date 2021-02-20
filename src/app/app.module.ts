@@ -18,7 +18,6 @@ import { SongService } from './services/song-service/song.service';
 import { MatIconRegistryService } from './services/mat-icon-registry-service/mat-icon-registry.service';
 import { StoreModule } from '@ngrx/store';
 import { searchReducer } from './redux/reducers/search.reducer';
-import { MenuSearchDialogComponent } from './components/menu-search-dialog/menu-search-dialog.component';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
 import { MainSoundComponent } from './application/main-sound/main-sound.component';
 import { LiturgyModule } from './services/liturgy-service/liturgy.module';
@@ -26,6 +25,10 @@ import { SongModule } from './services/song-service/song.module';
 import { MatModule } from './mat.module';
 import { LetDirectiveModule } from './directives/let-directive/app-let.module';
 import { settingsReducer } from './redux/reducers/settings.reducer';
+import { FavoriteComponent } from './components/favorite/favorite.component';
+import { favoriteReducer } from './redux/reducers/favorite.reducer';
+import { FavoriteEffects } from './redux/effects/favorite.effect';
+import { EffectsModule } from '@ngrx/effects';
 
 @NgModule({
   declarations: [
@@ -38,9 +41,9 @@ import { settingsReducer } from './redux/reducers/settings.reducer';
     MainPageComponent,
     LiturgyComponent,
     ReplaceSpacePipe,
-    MenuSearchDialogComponent,
     PaperGeneratorComponent,
     MainSoundComponent,
+    FavoriteComponent,
   ],
   imports: [
     BrowserModule,
@@ -52,7 +55,9 @@ import { settingsReducer } from './redux/reducers/settings.reducer';
     StoreModule.forRoot({
       searchInput: searchReducer,
       settings: settingsReducer,
+      favorite: favoriteReducer,
     }),
+    EffectsModule.forRoot([FavoriteEffects]),
     LetDirectiveModule,
     MatModule,
     LiturgyModule,

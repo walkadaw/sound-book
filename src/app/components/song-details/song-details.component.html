@@ -1,17 +1,24 @@
 <article itemscope="itemscope" itemtype="http://schema.org/BlogPosting" itemprop="blogPost" *ngIf="selectedSong$ | async as selectedSong">
   <header class="entry-header">
+    <div class="title-container">
+      <h1 class="entry-title" itemprop="name">
+        <ng-container *ngIf="showSongNumber$ | async">{{ selectedSong.id }}. </ng-container>
+        {{selectedSong?.title}}
+      </h1>
+
+      <mat-icon (click)="toggleFavorite(selectedSong.id)">{{ (isFavoriteSong$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
+    </div>
     <h2 class="entry-title-meta" *ngIf="!isArray(selectedSong.tag)">Тэгі:
       <ng-container *ngFor="let item of selectedSong.tag | keyvalue">
         <span>{{tagNameById[item.key]}},</span>
       </ng-container>
      
-     </h2>
-    <h1 class="entry-title" itemprop="name">{{selectedSong?.title}}</h1>
+    </h2>
   </header>
   <div class="lyrics">
     <p>{{selectedSong?.text}}</p>
 
-    <p class="chord">{{selectedSong?.chord}}</p>
+    <p class="chord" *ngIf="showChord$ | async">{{selectedSong?.chord}}</p>
   </div>
 
 </article>

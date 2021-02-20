@@ -9,23 +9,26 @@ import { SlideList } from '../../interfaces/slide';
 @Injectable()
 export class SongService {
   songList: Song[] = [];
+  songVersion: string = null;
+
   songSlideList: SlideList[] = [];
+  songSlideVersion: string = null;
 
   constructor(private http: HttpClient) {}
 
-  hasSong(songId: string): boolean {
+  hasSong(songId: string | number): boolean {
     return this.songList.some(({ id }) => id.toString() === songId.toString());
   }
 
-  getSong(songId: string): Song {
+  getSong(songId: string | number): Song {
     return this.songList.find(({ id }) => id.toString() === songId.toString());
   }
 
-  hasSlideSong(songId: string): boolean {
+  hasSlideSong(songId: string | number): boolean {
     return this.songSlideList.some(({ id }) => id.toString() === songId.toString());
   }
 
-  getSlideSong(songId: string): SlideList {
+  getSlideSong(songId: string | number): SlideList {
     return { ...this.songSlideList.find(({ id }) => id.toString() === songId.toString()) };
   }
 
@@ -39,6 +42,7 @@ export class SongService {
         }
 
         this.songSlideList = songList.slides;
+        this.songSlideVersion = songList.last_update + '000';
         return of(songList);
       }),
       catchError((error) =>
@@ -46,7 +50,10 @@ export class SongService {
           .get<SongRequest>(`${environment.baseUrl}/song/get?slide=true`)
           .pipe(tap((songListResponse) => localStorage.setItem('songListSlide', JSON.stringify(songListResponse))))
       ),
-      tap((songListResponse) => (this.songSlideList = songListResponse.slides)),
+      tap((songListResponse) => {
+        this.songSlideList = songListResponse.slides;
+        this.songSlideVersion = songListResponse.last_update + '000';
+      }),
       catchError((error) => {
         console.error('loadSlideSongs', error);
         return of(null);
@@ -65,6 +72,7 @@ export class SongService {
           }
 
           this.songList = songList.songs;
+          this.songVersion = songList.last_update + '000';
           return of(songList);
         }),
         catchError((error) =>
@@ -72,7 +80,10 @@ export class SongService {
             .get<SongRequest>(`${environment.baseUrl}/song/get`)
             .pipe(tap((songListResponse) => localStorage.setItem('songList', JSON.stringify(songListResponse))))
         ),
-        tap((songListResponse) => (this.songList = songListResponse.songs)),
+        tap((songListResponse) => {
+          this.songList = songListResponse.songs;
+          this.songVersion = songListResponse.last_update + '000';
+        }),
         catchError((error) => {
           console.error('loadSongs', error);
           return of(null);
