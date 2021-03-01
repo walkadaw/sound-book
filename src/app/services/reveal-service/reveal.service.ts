@@ -8,6 +8,7 @@ interface NotesPlugin {
   open: () => void;
 }
 
+@Injectable()
 export class RevealService {
   private reveal: Reveal;
 
