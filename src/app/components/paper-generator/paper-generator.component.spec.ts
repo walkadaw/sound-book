@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { PaperGeneratorComponent } from './paper-generator.component';
 
@@ -6,7 +6,7 @@ describe('PaperGeneratorComponent', () => {
   let component: PaperGeneratorComponent;
   let fixture: ComponentFixture<PaperGeneratorComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ PaperGeneratorComponent ]
     })
