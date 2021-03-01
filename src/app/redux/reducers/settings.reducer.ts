@@ -8,9 +8,9 @@ import {
 } from '../actions/settings.actions';
 
 const SETTINGS_STATE_DEFAULT: MainSettings = {
-  fontSize: +window.localStorage.getItem('fontSize') || 1,
-  showChord: window.localStorage.getItem('showChord') === '1',
-  showSongNumber: window.localStorage.getItem('showSongNumber') === '1',
+  fontSize: 1,
+  showChord: false,
+  showSongNumber: false,
   showMenu: true,
 };
 

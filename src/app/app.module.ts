@@ -13,10 +13,10 @@ import { AppRoutingModule } from './app.routing';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { ReplaceSpacePipe } from './pipes/replace-space/replace-space.pipe';
-import { startUpFactory } from './services/start-up-service/start-up.service';
+import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
 import { SongService } from './services/song-service/song.service';
 import { MatIconRegistryService } from './services/mat-icon-registry-service/mat-icon-registry.service';
-import { StoreModule } from '@ngrx/store';
+import { Store, StoreModule } from '@ngrx/store';
 import { searchReducer } from './redux/reducers/search.reducer';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
 import { MainSoundComponent } from './application/main-sound/main-sound.component';
@@ -67,7 +67,7 @@ import { EffectsModule } from '@ngrx/effects';
     {
       provide: APP_INITIALIZER,
       useFactory: startUpFactory,
-      deps: [MatIconRegistryService, SongService],
+      deps: [StartUpService],
       multi: true,
     },
   ],
