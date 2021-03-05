@@ -66,3 +66,18 @@ a, a:visited, a:active {
 	margin: 0 auto;
 	max-width: 768px;
 }
+
+article {
+    padding: 0 15px;
+}
+
+.chord-position {
+	mat-button-toggle {
+		line-height: normal;
+	
+		.mat-button-toggle-label-content {
+		line-height: normal;
+		padding: 4px;
+		}
+	}
+}

@@ -1,6 +1,10 @@
 import { createAction } from '@ngrx/store';
+import { ChordPosition } from '../models/settings.state';
 
 export const showChordAction = createAction('[settings] chord', (showChord: boolean) => ({ showChord }));
+export const chordPositionAction = createAction('[settings] chordPosition', (chordPosition: ChordPosition) => ({
+  chordPosition,
+}));
 export const showSongNumberAction = createAction('[settings] song number', (showSongNumber: boolean) => ({
   showSongNumber,
 }));

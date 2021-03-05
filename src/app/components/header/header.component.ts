@@ -1,14 +1,22 @@
 import { Component } from '@angular/core';
+import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Store } from '@ngrx/store';
 import {
   changeFontSizeAction,
   changeShowMenuAction,
+  chordPositionAction,
   showChordAction,
   showSongNumberAction,
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
-import { getFontSize, getShowChord, getShowMenu, getShowSongNumber } from '../../redux/selector/settings.selector';
+import {
+  getChordPosition,
+  getFontSize,
+  getShowChord,
+  getShowMenu,
+  getShowSongNumber,
+} from '../../redux/selector/settings.selector';
 import { SongService } from '../../services/song-service/song.service';
 import { getCurrentValue } from '../utils/redux.utils';
 const MIN_FONT_SIZE = 0.4;
@@ -22,6 +30,7 @@ const DEFAULT_FONT_SIZE = 1;
 })
 export class HeaderComponent {
   showChord = getCurrentValue(this.store, getShowChord);
+  chordPosition = getCurrentValue(this.store, getChordPosition);
   showSongNumber = getCurrentValue(this.store, getShowSongNumber);
   fontSize = Math.floor(getCurrentValue(this.store, getFontSize) * 100);
 
@@ -40,8 +49,8 @@ export class HeaderComponent {
   }
 
   changeFontSize(plus: boolean, defaultSize = false) {
-    const acc = plus ? 0.1 : -0.1;
-    let newFontSize = getCurrentValue(this.store, getFontSize) + acc;
+    const acc = plus ? 1 : -1;
+    let newFontSize = Math.floor(getCurrentValue(this.store, getFontSize) * 10 + acc) / 10;
     if (newFontSize < MIN_FONT_SIZE) {
       newFontSize = MIN_FONT_SIZE;
     }
@@ -62,5 +71,9 @@ export class HeaderComponent {
   toggleMainMenu() {
     const toggle = getCurrentValue(this.store, getShowMenu);
     this.store.dispatch(changeShowMenuAction(!toggle));
+  }
+
+  changeChordPosition(event: MatButtonToggleChange) {
+    this.store.dispatch(chordPositionAction(event.value));
   }
 }

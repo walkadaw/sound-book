@@ -31,6 +31,15 @@
     </div>
   </button>
   <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
+    <span>Пазіцыя акордаў:</span>
+    <div class="right chord-position">
+      <mat-button-toggle-group [value]="chordPosition" (change)="changeChordPosition($event)">
+        <mat-button-toggle value="inText">У тэксце</mat-button-toggle>
+        <mat-button-toggle value="right">Справа</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </button>
+  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
     <span>Памер шрыфта:</span>
     <div class="right">
       <mat-icon (click)="changeFontSize(false)">remove</mat-icon>

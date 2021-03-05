@@ -1,4 +1,4 @@
-<article itemscope="itemscope" itemtype="http://schema.org/BlogPosting" itemprop="blogPost" *ngIf="selectedSong$ | async as selectedSong">
+<article [style.font-size.em]="fontSize$ | async" *ngIf="selectedSong$ | async as selectedSong">
   <header class="entry-header">
     <div class="title-container">
       <h1 class="entry-title" itemprop="name">
@@ -15,10 +15,20 @@
      
     </h2>
   </header>
-  <div class="lyrics">
-    <p>{{selectedSong?.text}}</p>
 
-    <p class="chord" *ngIf="showChord$ | async">{{selectedSong?.chord}}</p>
+  <div class="lyrics" [class.chord-right]="selectedSong.chordPosition === 'right'" *appLet="showChord$ | async as showChord">
+    <ng-container *ngIf="selectedSong.chordPosition === 'inText'; else chordRight">
+      <ng-container *ngFor="let line of selectedSong.text; let i = index">
+        <span class="chord" *ngIf="showChord && selectedSong.chord[i]">{{ selectedSong.chord[i] }}</span>
+        <span>{{ line }}</span>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #chordRight>
+      <span [class.without-chord]="!showChord">{{selectedSong?.text}}</span>
+
+      <span class="chord" *ngIf="showChord">{{selectedSong?.chord}}</span>
+    </ng-template>    
   </div>
 
 </article>

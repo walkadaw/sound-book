@@ -1,3 +1,4 @@
+
 .entry-title-meta {
     font-size: 13px;
     color: #b3b3b1;
@@ -7,7 +8,7 @@
     margin-top: 0px;
     font-style: normal;
     line-height: 1.4;
-    
+
     span {
         color: #284a66;
         text-decoration: none;
@@ -16,22 +17,39 @@
 }
 
 h1.entry-title {
-    font-size: 2em !important;
+    font-size: 1.6em !important;
     color: #333 !important;
 }
 
 .lyrics {
-    display: flex;
-    white-space: pre-wrap;
-    white-space: -moz-pre-wrap;
-    white-space: -o-pre-wrap;
+    margin-top: 20px;
 
-    p {
-        flex: 1 1 80%;
+    span {
+        display: block;
+
+        &:empty:before {
+            content: "\200b"; // unicode zero width space character
+        }
     }
+
+    &.chord-right {
+        display: flex;
+        white-space: pre-wrap;
+        white-space: -moz-pre-wrap;
+        white-space: -o-pre-wrap;
+        span {
+            flex: 1 1 80%;
+            &.without-chord {
+                 flex: 1 1 100%;
+            }
+            &.chord {
+                flex: 1 1 20%;
+            }
+        }
+    }
+
     .chord {
         font-weight: bold;
-        flex: 1 1 20%;;
     }
 }
 
@@ -39,5 +57,4 @@ h1.entry-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
 }
