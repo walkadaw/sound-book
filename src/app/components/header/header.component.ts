@@ -34,7 +34,9 @@ export class HeaderComponent {
   showSongNumber = getCurrentValue(this.store, getShowSongNumber);
   fontSize = Math.floor(getCurrentValue(this.store, getFontSize) * 100);
 
-  constructor(private store: Store<IAppState>, public songService: SongService) {}
+  searchInputInFocus: boolean = false;
+
+  constructor(public songService: SongService, private store: Store<IAppState>) {}
 
   toggleSongNumber(event: MatCheckboxChange): void {
     this.showSongNumber = event.checked;
@@ -68,12 +70,19 @@ export class HeaderComponent {
     this.store.dispatch(changeFontSizeAction(newFontSize));
   }
 
-  toggleMainMenu() {
+  toggleMainMenu(show?: boolean) {
     const toggle = getCurrentValue(this.store, getShowMenu);
+    if (show && show === toggle) {
+      return;
+    }
     this.store.dispatch(changeShowMenuAction(!toggle));
   }
 
   changeChordPosition(event: MatButtonToggleChange) {
     this.store.dispatch(chordPositionAction(event.value));
+  }
+
+  onInputChangeFocus(isFocus: boolean) {
+    this.searchInputInFocus = isFocus;
   }
 }

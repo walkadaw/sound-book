@@ -2,16 +2,27 @@
   display: block;
 
   main {
-    min-height: calc(100vh - 167px);
+    min-height: calc(100vh - 155px);
+  }
+
+  .fixed-menu {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    background: #fff;
   }
 
   .menu {
     display: none;
-    
-    &.show-menu {
+  } 
+
+  .show-menu {
+    margin-top: 55px;
+
+    .menu {
       display: block;
     }
-  } 
+  }
 
   .hide {
     display: none;

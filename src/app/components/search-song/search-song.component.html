@@ -1,4 +1,4 @@
-<mat-select panelClass="search-tag-mat-menu" [(value)]="selected">
+<mat-select class="search-select" panelClass="search-tag-mat-menu" [(value)]="selected" (valueChange)="tagToggle($event)">
   <mat-select-trigger>
     <mat-icon *ngIf="tagsList[selected]?.icon" [svgIcon]="tagsList[selected]?.icon"></mat-icon>
     <mat-icon *ngIf="!tagsList[selected]?.icon">search</mat-icon>
@@ -11,7 +11,16 @@
 
 </mat-select>
 
-<input matInput placeholder="Пошук" aria-label="Пошук" [formControl]="searchTerm">
-<button mat-button *ngIf="searchTerm.value" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
+<input 
+  #search
+  matInput 
+  class="search"
+  placeholder="Пошук" 
+  aria-label="Пошук" 
+  [formControl]="searchTerm"
+  (blur)="onBlurInput()"
+  (focus)="onFocusInput()">
+<button mat-button class="clear-icon" *ngIf="searchTerm.value" matSuffix mat-icon-button aria-label="Clear"
+  (click)="onClear()">
   <mat-icon>close</mat-icon>
 </button>

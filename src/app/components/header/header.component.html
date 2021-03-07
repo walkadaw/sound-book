@@ -1,20 +1,9 @@
 <div class="container">
-  <mat-icon class="burger-menu" (click)="toggleMainMenu()">menu</mat-icon>
-  <div class="logo" (click)="toggleMainMenu()">
+  <mat-icon class="burger-menu" [matMenuTriggerFor]="menu">menu</mat-icon>
+  <div class="logo" [class.hide-logo]="searchInputInFocus" (click)="toggleMainMenu()">
     <h2>Спеўнік</h2>
   </div>
-  <app-search-song class="sticky-search"></app-search-song>
-  <mat-nav-list class="list-horizontal">
-    <mat-list role="list">
-      <mat-list-item routerLink="/liturgy" role="listitem">Чытанне дня</mat-list-item>
-      <mat-list-item routerLink="/favorite" role="listitem">
-        <mat-icon>favorite</mat-icon>
-      </mat-list-item>
-      <mat-list-item role="listitem" [matMenuTriggerFor]="settings">
-        <mat-icon>settings</mat-icon>
-      </mat-list-item>
-    </mat-list>
-  </mat-nav-list>
+  <app-search-song class="sticky-search" (isFocusInput)="onInputChangeFocus($event)"></app-search-song>
 </div>
 
 <mat-menu #settings="matMenu">
@@ -48,9 +37,6 @@
     </div>
   </button>
   <mat-divider></mat-divider>
-  <button mat-menu-item routerLink="/generator">Генератор прізентаціі</button>
-  <button mat-menu-item routerLink="/generator/docx">Создание бумажней версии</button>
-  <mat-divider></mat-divider>
   <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="$event.stopPropagation()">
     <span>Версия песен:</span>
     <div class="right">{{ songService.songVersion ? (songService.songVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
@@ -58,5 +44,42 @@
   <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="$event.stopPropagation()">
     <span>Версия слайдов:</span>
     <div class="right">{{ songService.songSlideVersion ? (songService.songSlideVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
+  </button>
+</mat-menu>
+
+<mat-menu #menu="matMenu">
+  <button mat-menu-item (click)="toggleMainMenu(true)">
+    <mat-icon>library_music</mat-icon>
+    <span>Песни</span>
+  </button>
+  <button mat-menu-item routerLink="/favorite">
+    <mat-icon>favorite</mat-icon>
+    <span>Закладки</span>
+  </button>
+  <button mat-menu-item routerLink="/liturgy">
+    <mat-icon>auto_stories</mat-icon>
+    <span>Чытанне дня</span>
+  </button>
+  <button mat-menu-item routerLink="/gadzinki">
+    <mat-icon>notifications_off</mat-icon>
+    <span>Гадзінкі</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item routerLink="/generator">
+    <mat-icon>notifications_off</mat-icon>
+    <span>Генератор прізентаціі</span>
+  </button>
+  <button mat-menu-item routerLink="/generator/docx">
+    <mat-icon>notifications_off</mat-icon>
+    <span>Создание бумажней версии</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item [matMenuTriggerFor]="settings">
+    <mat-icon>settings</mat-icon>
+    <span>Настройки</span>
+  </button>
+  <button mat-menu-item routerLink="/about">
+    <mat-icon>accessibility_new</mat-icon>
+    <span>О нас</span>
   </button>
 </mat-menu>

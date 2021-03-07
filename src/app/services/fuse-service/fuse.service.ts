@@ -29,7 +29,9 @@ export class FuseService {
       switchMap((songList) =>
         search$.pipe(
           map((searchTest) => {
-            if (searchTest) {
+            if (!Number.isNaN(Number(searchTest))) {
+              return songList.filter(({ id }) => id.toString().includes(searchTest));
+            } else if (searchTest) {
               return this.fuse.search(searchTest).map((fuseItem) => fuseItem.item);
             }
             return songList;

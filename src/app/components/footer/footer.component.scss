@@ -19,4 +19,16 @@
     margin-left: 20px;
 }
 
+@media (max-width: 468px) {
+    .site-footer{
+        display: block;
+        span {
+            display: block;
+        }
+    }
+    .jesus {
+        margin: 0 auto;
+    }
+}
+
 

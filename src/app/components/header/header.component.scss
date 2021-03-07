@@ -15,10 +15,30 @@
   .logo {
     flex: 2 1 auto;
     cursor: pointer;
+    width: 125px;
+    transition: all .2s ease;
+    opacity: 1;
+  }
+    
 
     h2 {
-      margin: 10px 0;
+      width: 115px;
+      margin: 10px 10px 10px 0;
     }
+
+    @media (max-width: 468px) {
+      .logo {
+        flex: 0 1 auto;
+      }
+
+      .hide-logo {
+        width: 0;
+        opacity: 0;
+      }
+
+      app-search-song {
+        flex: 1 1 auto;
+      }
   }
 
   .list-horizontal {
