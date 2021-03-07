@@ -14,7 +14,7 @@ import { TagList } from '../../../interfaces/tag-list';
 import { TAGS_LIST } from '../../../constants/tag-list';
 import { FormControl } from '@angular/forms';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
-import { Observable, Subject, fromEvent } from 'rxjs';
+import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
 import { Song } from '../../../interfaces/song';
 import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
 import { SlideList } from '../../../interfaces/slide';
@@ -46,6 +46,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   tagsList: TagList[];
   search: FormControl = new FormControl();
   songListFiltered$: Observable<Song[]>;
+  selectedTag$: BehaviorSubject<number> = new BehaviorSubject(0);
   selectedSlide = this.reveal.getActiveSlide();
 
   private revealNotes = this.reveal.getNotesPlugin();
@@ -140,7 +141,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
 
     if (tag) {
       this.selectedTag = tag;
-      this.fuseService.setSelectedTag(tagId);
+      this.selectedTag$.next(tagId);
 
       if (this.searchElement) {
         this.searchElement.nativeElement.focus();
@@ -221,7 +222,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private initSearch() {
     const search$ = this.search.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged());
 
-    this.songListFiltered$ = this.fuseService.getFilteredSong(search$, this.songService.songList);
+    this.songListFiltered$ = this.fuseService.getFilteredSong(this.selectedTag$, search$, this.songService.songList);
     this.search.valueChanges
       .pipe(
         takeUntil(this.onDestroy$),

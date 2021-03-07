@@ -1,23 +1,25 @@
 import { Injectable } from '@angular/core';
 import Fuse from 'fuse.js';
 import { Song } from '../../interfaces/song';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, tap, switchMap, debounceTime } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FuseService {
-  selectedTags$: BehaviorSubject<number> = new BehaviorSubject(0);
-
   private fuse: Fuse<Song, Fuse.IFuseOptions<Song>>;
 
   constructor() {
     this.fuse = new Fuse([], this.getOptions());
   }
 
-  getFilteredSong(search$: Observable<string>, allSongList: Song[]): Observable<Song[]> {
-    return this.selectedTags$.pipe(
+  getFilteredSong(
+    selectedTags$: Observable<number>,
+    search$: Observable<string>,
+    allSongList: Song[]
+  ): Observable<Song[]> {
+    return selectedTags$.pipe(
       map((selectedTags) => {
         if (selectedTags) {
           return allSongList.filter((song) => song.tag && Object.keys(song.tag).some((tag) => selectedTags === +tag));
@@ -39,12 +41,6 @@ export class FuseService {
         )
       )
     );
-  }
-
-  setSelectedTag(tagId: number) {
-    if (this.selectedTags$.value !== tagId) {
-      this.selectedTags$.next(tagId);
-    }
   }
 
   private getOptions() {

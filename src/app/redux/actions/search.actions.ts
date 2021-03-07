@@ -1,20 +1,7 @@
-import { Action } from '@ngrx/store';
+import { createAction } from '@ngrx/store';
 
-export enum SearchActionTypes {
-  SET_SEARCH_TERM = '[Search] set search term',
-  CLEAR_SEARCH_TERM = '[Search] clear search term',
-}
-
-export class SetSearchTermAction implements Action {
-  readonly type = SearchActionTypes.SET_SEARCH_TERM;
-
-  constructor(readonly searchTerm: string) {}
-}
-
-export class ClearSearchAction implements Action {
-  readonly type = SearchActionTypes.CLEAR_SEARCH_TERM;
-
-  constructor() {}
-}
-
-export type SearchActions = SetSearchTermAction | ClearSearchAction;
+export const setSearchTermAction = createAction('[Search] set search term', (searchTerm: string) => ({ searchTerm }));
+export const setSelectedTagAction = createAction('[Search] set selected tag', (selectedTag: number) => ({
+  selectedTag,
+}));
+export const clearSearchAction = createAction('[Search] clear search term');

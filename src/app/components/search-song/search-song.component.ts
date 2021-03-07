@@ -4,7 +4,6 @@ import {
   OnDestroy,
   ViewEncapsulation,
   ViewChild,
-  TemplateRef,
   ElementRef,
   Output,
   EventEmitter,
@@ -13,7 +12,7 @@ import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { IAppState } from '../../redux/models/IAppState';
 import { Store } from '@ngrx/store';
-import { SetSearchTermAction, ClearSearchAction } from '../../redux/actions/search.actions';
+import { setSearchTermAction, clearSearchAction, setSelectedTagAction } from '../../redux/actions/search.actions';
 import { Subject } from 'rxjs';
 import { FuseService } from '../../services/fuse-service/fuse.service';
 import { TagList } from '../../interfaces/tag-list';
@@ -49,22 +48,22 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.searchTerm.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy$))
-      .subscribe((value) => this.store.dispatch(new SetSearchTermAction(value)));
+      .subscribe((value) => this.store.dispatch(setSearchTermAction(value)));
   }
 
   ngOnDestroy() {
-    this.store.dispatch(new ClearSearchAction());
+    this.store.dispatch(clearSearchAction());
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }
 
   onClear() {
-    this.store.dispatch(new ClearSearchAction());
+    this.store.dispatch(clearSearchAction());
     this.searchTerm.setValue('');
   }
 
   tagToggle(eventTag: number) {
-    this.fuseService.setSelectedTag(eventTag);
+    this.store.dispatch(setSelectedTagAction(eventTag));
     this.openSongMenu();
   }
 

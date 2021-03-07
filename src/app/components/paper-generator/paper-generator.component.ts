@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { SongService } from '../../services/song-service/song.service';
 import { Song } from '../../interfaces/song';
-import { combineLatest, Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { FuseService } from '../../services/fuse-service/fuse.service';
-import { distinctUntilChanged, filter, map, startWith, switchMap, tap } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
@@ -33,6 +33,7 @@ export class PaperGeneratorComponent implements OnInit {
 
     const search = this.songListForm.get('search');
     this.songListFiltered$ = this.fuseService.getFilteredSong(
+      of(0),
       search.valueChanges.pipe(startWith(search.value)),
       this.songService.songList
     );
