@@ -7,16 +7,10 @@ import { FooterComponent } from './components/footer/footer.component';
 import { SearchSongComponent } from './components/search-song/search-song.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { SongDetailsComponent } from './components/song-details/song-details.component';
-import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { AppRoutingModule } from './app.routing';
-import { MainPageComponent } from './components/main-page/main-page.component';
-import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { ReplaceSpacePipe } from './pipes/replace-space/replace-space.pipe';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
-import { SongService } from './services/song-service/song.service';
-import { MatIconRegistryService } from './services/mat-icon-registry-service/mat-icon-registry.service';
-import { Store, StoreModule } from '@ngrx/store';
+import { StoreModule } from '@ngrx/store';
 import { searchReducer } from './redux/reducers/search.reducer';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
 import { MainSoundComponent } from './application/main-sound/main-sound.component';
@@ -29,6 +23,12 @@ import { FavoriteComponent } from './components/favorite/favorite.component';
 import { favoriteReducer } from './redux/reducers/favorite.reducer';
 import { FavoriteEffects } from './redux/effects/favorite.effect';
 import { EffectsModule } from '@ngrx/effects';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { MainPageComponent } from './components/main-page/main-page.component';
+import { AboutComponent } from './components/about/about.component';
+import { GadzinkiComponent } from './components/gadzinki/gadzinki.component';
+import { LiturgyComponent } from './components/liturgy/liturgy.component';
+import { SongDetailsComponent } from './components/song-details/song-details.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +44,8 @@ import { EffectsModule } from '@ngrx/effects';
     PaperGeneratorComponent,
     MainSoundComponent,
     FavoriteComponent,
+    AboutComponent,
+    GadzinkiComponent,
   ],
   imports: [
     BrowserModule,
