@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Store } from '@ngrx/store';
+import { clearSearchAction } from '../../redux/actions/search.actions';
 import {
   changeFontSizeAction,
   changeShowMenuAction,
@@ -72,9 +73,15 @@ export class HeaderComponent {
 
   toggleMainMenu(show?: boolean) {
     const toggle = getCurrentValue(this.store, getShowMenu);
-    if (show && show === toggle) {
-      return;
+
+    if (show) {
+      this.store.dispatch(clearSearchAction());
+
+      if (show === toggle) {
+        return;
+      }
     }
+
     this.store.dispatch(changeShowMenuAction(!toggle));
   }
 

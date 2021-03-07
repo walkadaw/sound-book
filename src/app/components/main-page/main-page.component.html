@@ -18,6 +18,9 @@
   <ng-template #noSongResult>
     <div>
       Не адна песня не знойдзена па вашаму запыту.
+      <ng-container *ngIf="(selectedTag$ | async) > 0">
+        <a (click)="resetSelectedTag($event)">Паспрабаваць без фільтра па тэгу</a>
+      </ng-container>
     </div>
   </ng-template>
 </div>

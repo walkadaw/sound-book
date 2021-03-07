@@ -1,4 +1,10 @@
-<mat-select class="search-select" panelClass="search-tag-mat-menu" [(value)]="selected" (valueChange)="tagToggle($event)">
+<mat-select 
+  class="search-select"
+  panelClass="search-tag-mat-menu"
+  *appLet="selected$ | async as selected"
+  [value]="selected"
+  (valueChange)="tagToggle($event)"
+>
   <mat-select-trigger>
     <mat-icon *ngIf="tagsList[selected]?.icon" [svgIcon]="tagsList[selected]?.icon"></mat-icon>
     <mat-icon *ngIf="!tagsList[selected]?.icon">search</mat-icon>

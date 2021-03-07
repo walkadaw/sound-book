@@ -9,6 +9,7 @@ import { SongService } from '../../services/song-service/song.service';
 import { getShowSongNumber } from '../../redux/selector/settings.selector';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { map } from 'rxjs/operators';
+import { setSelectedTagAction } from '../../redux/actions/search.actions';
 
 @Component({
   selector: 'app-main-page',
@@ -19,18 +20,20 @@ import { map } from 'rxjs/operators';
 export class MainPageComponent implements OnInit {
   songListFiltered$: Observable<SongFavorite[]>;
   showSongNumber$ = this.store.select(getShowSongNumber);
+  selectedTag$ = this.store.select(getSelectedTag);
 
   constructor(private fuseService: FuseService, private songService: SongService, private store: Store<IAppState>) {}
 
   ngOnInit(): void {
     this.songListFiltered$ = combineLatest([
-      this.fuseService.getFilteredSong(
-        this.store.select(getSelectedTag),
-        this.store.select(getSearchTerm),
-        this.songService.songList
-      ),
+      this.fuseService.getFilteredSong(this.selectedTag$, this.store.select(getSearchTerm), this.songService.songList),
       this.store.select(getFavoriteState),
     ]).pipe(map(([songs, favoriteList]) => songs.map((song) => ({ ...song, favorite: favoriteList.has(song.id) }))));
+  }
+
+  resetSelectedTag(event: MouseEvent) {
+    event.preventDefault();
+    this.store.dispatch(setSelectedTagAction(0));
   }
 
   trackBySong(index: string, item: SongFavorite) {

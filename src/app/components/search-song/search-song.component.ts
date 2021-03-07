@@ -9,7 +9,7 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import { IAppState } from '../../redux/models/IAppState';
 import { Store } from '@ngrx/store';
 import { setSearchTermAction, clearSearchAction, setSelectedTagAction } from '../../redux/actions/search.actions';
@@ -20,6 +20,7 @@ import { TAGS_LIST } from '../../constants/tag-list';
 import { getCurrentValue } from '../utils/redux.utils';
 import { getShowMenu } from '../../redux/selector/settings.selector';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
+import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
 
 @Component({
   selector: 'app-search-song',
@@ -31,7 +32,7 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   @ViewChild('search', { read: ElementRef }) searchElement: ElementRef<HTMLElement>;
   @Output() isFocusInput = new EventEmitter<boolean>();
 
-  selected = 0;
+  selected$ = this.store.select(getSelectedTag);
   searchTerm = new FormControl();
   readonly tagsList: TagList[] = [
     {
@@ -46,6 +47,13 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   constructor(private store: Store<IAppState>, private fuseService: FuseService) {}
 
   ngOnInit() {
+    this.store
+      .select(getSearchTerm)
+      .pipe(filter((value) => value !== this.searchTerm.value))
+      .subscribe((value) => {
+        this.searchTerm.setValue(value);
+      });
+
     this.searchTerm.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy$))
       .subscribe((value) => this.store.dispatch(setSearchTermAction(value)));
