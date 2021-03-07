@@ -79,6 +79,7 @@ export class HeaderComponent {
   }
 
   changeChordPosition(event: MatButtonToggleChange) {
+    window.localStorage.setItem('chordPosition', event.value);
     this.store.dispatch(chordPositionAction(event.value));
   }
 
