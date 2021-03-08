@@ -29,6 +29,8 @@ import { AboutComponent } from './components/about/about.component';
 import { GadzinkiComponent } from './components/gadzinki/gadzinki.component';
 import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -64,6 +66,7 @@ import { SongDetailsComponent } from './components/song-details/song-details.com
     MatModule,
     LiturgyModule,
     SongModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
   ],
   providers: [
     {
