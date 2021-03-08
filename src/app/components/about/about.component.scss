@@ -7,10 +7,25 @@
 
     .item {
         flex: 0 0 100px;
-        margin-right: 10px;
+        margin-right: 25px;
 
         .item-name {
             text-align: center;
         }
     }
+}
+
+@media (max-width: 468px) {
+    .list {
+        justify-content: center;
+    }
+}
+
+.copyright {
+    font-size: 13px;
+    text-align: center;
+    color: #b3b3b1;
+    font-family: sans-serif;
+    font-weight: 100;
+    margin-top: 20px;
 }
