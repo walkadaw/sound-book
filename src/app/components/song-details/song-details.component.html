@@ -1,4 +1,4 @@
-<article [style.font-size.em]="fontSize$ | async" *ngIf="selectedSong$ | async as selectedSong">
+<article *ngIf="selectedSong$ | async as selectedSong">
   <header class="entry-header">
     <div class="title-container">
       <h1 class="entry-title" itemprop="name">

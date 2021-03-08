@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil, withLatestFrom } from 'rxjs/operators';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
-import { getShowMenu } from '../../redux/selector/settings.selector';
+import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
 
 @Component({
   selector: 'app-main-sound',
@@ -14,6 +14,7 @@ import { getShowMenu } from '../../redux/selector/settings.selector';
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
   showMenu$ = this.store.select(getShowMenu);
+  fontSize$ = this.store.select(getFontSize);
   private onDestroy$ = new Subject<void>();
 
   constructor(private store: Store<IAppState>, private router: Router) {}

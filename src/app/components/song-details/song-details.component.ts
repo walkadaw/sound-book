@@ -1,12 +1,11 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { SongService } from '../../services/song-service/song.service';
-import { Song } from '../../interfaces/song';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { TagNameById } from '../../interfaces/tag-list';
 import { IAppState } from '../../redux/models/IAppState';
-import { getChordPosition, getFontSize, getShowChord, getShowSongNumber } from '../../redux/selector/settings.selector';
+import { getChordPosition, getShowChord, getShowSongNumber } from '../../redux/selector/settings.selector';
 import { Store } from '@ngrx/store';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
@@ -32,7 +31,7 @@ export class SongDetailsComponent implements OnInit {
   isFavoriteSong$: Observable<boolean>;
   showSongNumber$ = this.store.select(getShowSongNumber);
   showChord$ = this.store.select(getShowChord);
-  fontSize$ = this.store.select(getFontSize);
+
   readonly tagNameById = TagNameById;
 
   constructor(private songService: SongService, private router: ActivatedRoute, private store: Store<IAppState>) {}
