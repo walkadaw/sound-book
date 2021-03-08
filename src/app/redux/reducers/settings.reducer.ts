@@ -13,7 +13,7 @@ const SETTINGS_STATE_DEFAULT: MainSettings = {
   showChord: false,
   chordPosition: 'right',
   showSongNumber: false,
-  showMenu: false,
+  showMenu: true,
 };
 
 export const settingsReducer = createReducer(

@@ -9,6 +9,9 @@
 
   .burger-menu {
     padding: 6px;
+    font-size: 35px;
+    height: 35px;
+    width: 35px;
     cursor: pointer;
   }
 
@@ -22,8 +25,9 @@
     
 
     h2 {
-      width: 115px;
+      width: 125px;
       margin: 10px 10px 10px 0;
+      word-wrap: normal;
     }
 
     @media (max-width: 468px) {
