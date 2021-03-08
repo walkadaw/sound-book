@@ -31,13 +31,6 @@ import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { DIRECTION_HORIZONTAL } from 'hammerjs';
-
-export class MyHammerConfig extends HammerGestureConfig {
-  overrides = <any>{
-    swipe: { direction: DIRECTION_HORIZONTAL },
-  };
-}
 
 @NgModule({
   declarations: [
@@ -83,7 +76,6 @@ export class MyHammerConfig extends HammerGestureConfig {
       deps: [StartUpService],
       multi: true,
     },
-    { provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig },
   ],
   bootstrap: [AppComponent],
 })
