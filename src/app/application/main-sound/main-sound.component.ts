@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostBinding, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
@@ -17,6 +17,16 @@ export class MainSoundComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<void>();
 
   constructor(private store: Store<IAppState>, private router: Router) {}
+
+  @HostListener('swipeleft')
+  swipeLeft() {
+    this.store.dispatch(changeShowMenuAction(false));
+  }
+
+  @HostListener('swiperight')
+  swipeRight() {
+    this.store.dispatch(changeShowMenuAction(true));
+  }
 
   ngOnInit() {
     this.router.events

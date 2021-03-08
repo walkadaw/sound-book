@@ -50,12 +50,13 @@
 <mat-menu #menu="matMenu">
   <button mat-menu-item (click)="toggleMainMenu(true)">
     <mat-icon>library_music</mat-icon>
-    <span>Песни</span>
+    <span>Усе песні</span>
   </button>
   <button mat-menu-item routerLink="/favorite">
     <mat-icon>favorite</mat-icon>
-    <span>Закладки</span>
+    <span>Закладкі</span>
   </button>
+  <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/liturgy">
     <mat-icon>auto_stories</mat-icon>
     <span>Чытанне дня</span>
@@ -67,9 +68,9 @@
   <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/presentation">
     <mat-icon>slideshow</mat-icon>
-    <span>Презентация</span>
+    <span>Презентація</span>
   </button>
-  <mat-divider></mat-divider>
+  <!-- <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/generator">
     <mat-icon>notifications_off</mat-icon>
     <span>Генератор прізентаціі</span>
@@ -77,12 +78,13 @@
   <button mat-menu-item routerLink="/generator/docx">
     <mat-icon>notifications_off</mat-icon>
     <span>Создание бумажней версии</span>
-  </button>
+  </button> -->
   <mat-divider></mat-divider>
   <button mat-menu-item [matMenuTriggerFor]="settings">
     <mat-icon>settings</mat-icon>
     <span>Налады</span>
   </button>
+  <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/about">
     <mat-icon>accessibility_new</mat-icon>
     <span>Пра нас</span>

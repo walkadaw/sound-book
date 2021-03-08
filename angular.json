@@ -24,6 +24,9 @@
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "preserveSymlinks": true,
+            "allowedCommonJsDependencies": [
+              "hammerjs"
+            ],
             "assets": [
               "src/favicon.ico",
               "src/assets",

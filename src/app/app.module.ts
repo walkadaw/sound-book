@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, HammerGestureConfig, HammerModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { AppComponent } from './application/app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -31,6 +31,13 @@ import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { DIRECTION_HORIZONTAL } from 'hammerjs';
+
+export class MyHammerConfig extends HammerGestureConfig {
+  overrides = <any>{
+    swipe: { direction: DIRECTION_HORIZONTAL },
+  };
+}
 
 @NgModule({
   declarations: [
@@ -67,6 +74,7 @@ import { environment } from '../environments/environment';
     LiturgyModule,
     SongModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    HammerModule,
   ],
   providers: [
     {
@@ -75,6 +83,7 @@ import { environment } from '../environments/environment';
       deps: [StartUpService],
       multi: true,
     },
+    { provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig },
   ],
   bootstrap: [AppComponent],
 })
