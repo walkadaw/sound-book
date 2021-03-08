@@ -1,5 +1,6 @@
 :host {
   display: block;
+  touch-action: pan-y !important;
 
   main {
     min-height: calc(100vh - 135px);

@@ -31,6 +31,7 @@ import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { HammerConfig } from './services/hammer-config/hammer-config.service';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,10 @@ import { environment } from '../environments/environment';
       useFactory: startUpFactory,
       deps: [StartUpService],
       multi: true,
+    },
+    {
+      provide: HAMMER_GESTURE_CONFIG,
+      useClass: HammerConfig,
     },
   ],
   bootstrap: [AppComponent],
