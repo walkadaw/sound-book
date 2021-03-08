@@ -58,9 +58,16 @@ export class PresentationComponent implements OnInit, AfterViewInit {
   addSlide(idSong: string) {
     if (this.songService.hasSlideSong(idSong)) {
       const newSlide = this.songService.getSlideSong(idSong);
+      const { text, chord } = this.songService.getSong(idSong);
 
       const lastIndex = this.slideList.length ? this.slideList[this.slideList.length - 1].endIndex : -1;
-      this.slideList.push({ ...newSlide, startIndex: lastIndex + 1, endIndex: lastIndex + newSlide.slides.length });
+      this.slideList.push({
+        ...newSlide,
+        text,
+        chord,
+        startIndex: lastIndex + 1,
+        endIndex: lastIndex + newSlide.slides.length,
+      });
 
       if (!this.reveal.isSpeakerNotes()) {
         this.location.replaceState('/presentation/' + this.slideList.map((slide) => slide.id).toString());
@@ -103,17 +110,23 @@ export class PresentationComponent implements OnInit, AfterViewInit {
 
       this.slideList = listID.reduce<SlideList[]>((acc, id) => {
         let slide: SlideList;
+        let chord: string;
+        let text: string;
+
         if (isNaN(parseInt(id, 10))) {
           if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
             slide = this.liturgyService.getSlideLiturgy(id);
           }
         } else if (this.songService.hasSlideSong(id)) {
           slide = this.songService.getSlideSong(id);
+          const song = this.songService.getSong(id);
+          chord = song.chord;
+          text = song.text;
         }
 
         if (slide) {
           const lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
-          acc.push({ ...slide, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length });
+          acc.push({ ...slide, chord, text, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length });
         }
 
         return acc;

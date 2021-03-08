@@ -4,6 +4,14 @@
       <ng-container *ngFor="let slides of slideList; trackBy: trackBySlides" >
         <section *ngFor="let slide of slides.slides" [style.font-size.px]="slide.fontSize">
           {{slide.text}}
+
+          <aside class="notes" *ngIf="slides.chord || slides.text">
+            <div class="lyrics">
+                <span>{{ slides.text }}</span>
+          
+                <span class="chord">{{ slides.chord }}</span>
+              </div>
+          </aside>
         </section>
       </ng-container>
     </ng-container>

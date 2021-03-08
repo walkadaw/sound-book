@@ -4,6 +4,8 @@ export interface SlideList {
   slides: Slide[];
   startIndex?: number;
   endIndex?: number;
+  text?: string;
+  chord?: string;
 }
 
 export interface Slide {
