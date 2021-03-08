@@ -32,12 +32,12 @@ export class SongService {
     return { ...this.songSlideList.find(({ id }) => id.toString() === songId.toString()) };
   }
 
-  loadSlideSongs(): Observable<SongRequest> {
+  loadSlideSongs(requeuedRequest?: boolean): Observable<SongRequest> {
     return of(localStorage.getItem('songListSlide')).pipe(
       map<string, SongRequest>((songList) => JSON.parse(songList)),
       switchMap((songList) => {
         // TODO Нужно добавить проверку на целостность данных
-        if (!songList || !songList.songs || !songList.slides.length) {
+        if (requeuedRequest || !songList || !songList.songs || !songList.slides.length) {
           return throwError('WrongData');
         }
 
@@ -61,13 +61,13 @@ export class SongService {
     );
   }
 
-  loadSongs(): Promise<SongRequest> {
+  loadSongs(requeuedRequest?: boolean): Promise<SongRequest> {
     return of(localStorage.getItem('songList'))
       .pipe(
         map<string, SongRequest>((songList) => JSON.parse(songList)),
         switchMap((songList) => {
           // TODO Нужно добавить проверку на целостность данных
-          if (!songList || !songList.songs || !songList.songs.length) {
+          if (requeuedRequest || !songList || !songList.songs || !songList.songs.length) {
             return throwError('WrongData');
           }
 

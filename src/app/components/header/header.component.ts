@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { clearSearchAction } from '../../redux/actions/search.actions';
 import {
@@ -37,7 +38,7 @@ export class HeaderComponent {
 
   searchInputInFocus: boolean = false;
 
-  constructor(public songService: SongService, private store: Store<IAppState>) {}
+  constructor(public songService: SongService, private store: Store<IAppState>, private snackBar: MatSnackBar) {}
 
   toggleSongNumber(event: MatCheckboxChange): void {
     this.showSongNumber = event.checked;
@@ -92,5 +93,21 @@ export class HeaderComponent {
 
   onInputChangeFocus(isFocus: boolean) {
     this.searchInputInFocus = isFocus;
+  }
+
+  updateSong(event: MouseEvent) {
+    event.preventDefault();
+
+    Promise.all([this.songService.loadSongs(true), this.songService.loadSlideSongs(true)])
+      .then(() => {
+        this.snackBar.open('Дадзеныя паспяхова абноўленыя', 'Зачыніць', {
+          duration: 2000,
+        });
+      })
+      .catch(() => {
+        this.snackBar.open('Адбылася памылка падчас абнаўлення', 'Зачыніць', {
+          duration: 2000,
+        });
+      });
   }
 }

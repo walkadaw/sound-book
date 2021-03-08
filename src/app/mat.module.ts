@@ -16,6 +16,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -35,6 +36,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     ScrollingModule,
     MatDividerModule,
     MatButtonToggleModule,
+    MatSnackBarModule,
   ],
   exports: [
     MatListModule,
@@ -54,6 +56,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     ScrollingModule,
     MatDividerModule,
     MatButtonToggleModule,
+    MatSnackBarModule,
   ],
 })
 export class MatModule {}
