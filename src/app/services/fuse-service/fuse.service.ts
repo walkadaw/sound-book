@@ -8,7 +8,7 @@ import { map, tap, switchMap, debounceTime } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class FuseService {
-  private fuse: Fuse<Song, Fuse.IFuseOptions<Song>>;
+  private fuse: Fuse<Song>;
 
   constructor() {
     this.fuse = new Fuse([], this.getOptions());
