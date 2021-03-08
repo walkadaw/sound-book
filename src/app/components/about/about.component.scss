@@ -1,0 +1,16 @@
+.list {
+    display: flex;
+    
+    img {
+        width: 100%;
+    }
+
+    .item {
+        flex: 0 0 100px;
+        margin-right: 10px;
+
+        .item-name {
+            text-align: center;
+        }
+    }
+}
