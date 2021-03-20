@@ -1,8 +1,8 @@
 import { Component, HostBinding, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Subject } from 'rxjs';
-import { filter, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, Observable, Subject } from 'rxjs';
+import { filter, map, startWith, takeUntil, withLatestFrom } from 'rxjs/operators';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
@@ -13,7 +13,7 @@ import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector
   styleUrls: ['./main-sound.component.scss'],
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
-  showMenu$ = this.store.select(getShowMenu);
+  showMenu$: Observable<boolean>;
   fontSize$ = this.store.select(getFontSize);
   private onDestroy$ = new Subject<void>();
 
@@ -30,9 +30,10 @@ export class MainSoundComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.router.events
+    const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart));
+
+    navigate$
       .pipe(
-        filter((event) => event instanceof NavigationStart),
         withLatestFrom(this.store.select(getShowMenu)),
         filter(([, showMenu]) => showMenu),
         takeUntil(this.onDestroy$)
@@ -40,6 +41,15 @@ export class MainSoundComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.store.dispatch(changeShowMenuAction(false));
       });
+
+    this.showMenu$ = combineLatest([
+      this.store.select(getShowMenu),
+      navigate$.pipe(
+        map((value: NavigationStart) => value.url),
+        startWith(window.location.pathname),
+        map((url) => url === '/')
+      ),
+    ]).pipe(map(([showMenu, rootUrl]) => showMenu || rootUrl));
   }
 
   ngOnDestroy() {
