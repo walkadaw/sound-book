@@ -10,7 +10,7 @@
     </div>
     <h2 class="entry-title-meta" *ngIf="!isArray(selectedSong.tag)">Тэгі:
       <ng-container *ngFor="let item of selectedSong.tag | keyvalue">
-        <span>{{tagNameById[item.key]}},</span>
+        <span>{{tagNameById[item.key]}}, </span>
       </ng-container>
      
     </h2>
