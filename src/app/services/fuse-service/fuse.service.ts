@@ -4,6 +4,12 @@ import { Song } from '../../interfaces/song';
 import { Observable } from 'rxjs';
 import { map, tap, switchMap, debounceTime } from 'rxjs/operators';
 
+const REPLACE_BY_TO_RU = {
+  і: 'и',
+  ў: 'у',
+};
+const REPLACE_BY_TO_RU_REGEXP = new RegExp(`[${Object.keys(REPLACE_BY_TO_RU).join('')}]`, 'gi');
+
 @Injectable({
   providedIn: 'root',
 })
@@ -34,7 +40,7 @@ export class FuseService {
             if (!Number.isNaN(Number(searchTest))) {
               return songList.filter(({ id }) => id.toString().includes(searchTest));
             } else if (searchTest) {
-              return this.fuse.search(searchTest).map((fuseItem) => fuseItem.item);
+              return this.fuse.search(this.replaceChar(searchTest)).map((fuseItem) => fuseItem.item);
             }
             return songList;
           })
@@ -43,7 +49,7 @@ export class FuseService {
     );
   }
 
-  private getOptions() {
+  private getOptions(): Fuse.IFuseOptions<Song> {
     return {
       threshold: 0.4,
       keys: [
@@ -56,6 +62,14 @@ export class FuseService {
           weight: 0.3,
         },
       ],
+      getFn: (obj, path) => {
+        const value = (Fuse as any).config.getFn(obj, path);
+        return this.replaceChar(value);
+      },
     };
+  }
+
+  private replaceChar(str: string): string {
+    return str.replace(REPLACE_BY_TO_RU_REGEXP, (char) => REPLACE_BY_TO_RU[char.toLowerCase()]);
   }
 }
