@@ -519,7 +519,7 @@ class slide{
 		$text = mb_strtolower($text);
 
 		$eng_list = ["a", "b", "c", "y", "k", "p", "i", "e", "m"];
-		$by_list = ["а", "в", "с", "у", "к", "р", "", "е", "м"];
+		$by_list = ["а", "в", "с", "у", "к", "р", "і", "е", "м"];
 		return str_replace($eng_list, $by_list, $text);
 	}
 	//Ищем вхожденей по сокращениеям в литургии

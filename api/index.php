@@ -4,23 +4,18 @@ header('Content-Encoding: gzip');
 // TODO removed
 header('Access-Control-Allow-Origin: *'); 
 
-$host = 'localhost';
-$db   = 'sound';
-$user = 'root';
-$pass = '';
-$charset = 'utf8';
-
 function __autoload($name){ 
 	include "classes/_class.".$name.".php";
 }
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$db = new db();
+$dsn = "mysql:host=$config->HostDB;dbname=$config->BaseDB;charset=$config->charset";
 $opt = [
 	PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
 	PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 	PDO::ATTR_EMULATE_PREPARES   => false,
 ];
-$db = new PDO($dsn, $user, $pass, $opt);
+$db = $db->connect();
 $page = trim($_GET["mpage"], "/");
 
 switch($page){
