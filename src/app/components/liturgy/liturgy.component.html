@@ -8,6 +8,9 @@
 </article>
 
 <ng-template #noLiturgy>
-    <h3>Не атрымалася атрымаць сэгдошене чытанне!</h3>
-    <p>Праверце сваё злучэнне з інтэрнэтам або паспрабуйце пазней.</p>
+    <mat-spinner *ngIf="isLoading; else errorLoading"></mat-spinner>
+    <ng-template #errorLoading>
+        <h3>Не атрымалася атрымаць сэгдошене чытанне!</h3>
+        <p>Праверце сваё злучэнне з інтэрнэтам або паспрабуйце пазней.</p>
+    </ng-template>
 </ng-template>
