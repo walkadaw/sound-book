@@ -55,5 +55,22 @@
       "type": "image/png",
       "purpose": "maskable any"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Закладкі",
+      "description": "Адкрыць закладкі",
+      "url": "/favorite"
+    },
+    {
+      "name": "Чытанне дня",
+      "description": "Адкрыць читанне дня",
+      "url": "/liturgy"
+    },
+    {
+      "name": "Гадзінки",
+      "description": "Адкрыць гадзінки",
+      "url": "/gadzinki"
+    }
   ]
 }
