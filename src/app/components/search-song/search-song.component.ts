@@ -14,7 +14,6 @@ import { IAppState } from '../../redux/models/IAppState';
 import { Store } from '@ngrx/store';
 import { setSearchTermAction, clearSearchAction, setSelectedTagAction } from '../../redux/actions/search.actions';
 import { Subject } from 'rxjs';
-import { FuseService } from '../../services/fuse-service/fuse.service';
 import { TagList } from '../../interfaces/tag-list';
 import { TAGS_LIST } from '../../constants/tag-list';
 import { getCurrentValue } from '../utils/redux.utils';
@@ -44,7 +43,7 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   ];
   private onDestroy$ = new Subject<void>();
 
-  constructor(private store: Store<IAppState>, private fuseService: FuseService) {}
+  constructor(private store: Store<IAppState>) {}
 
   ngOnInit() {
     this.store

@@ -2,7 +2,9 @@
   <ng-container *ngIf="songListFiltered.length; else noSongResult">
     <div class="song-container" 
          *ngFor="let song of songListFiltered; trackBy: trackBySong"
-         [routerLink]="['/song', song.id, song.title | replaceSpace]">    
+         routerLinkActive="active"
+         [routerLink]="['/song', song.id, song.title | replaceSpace]"   
+         (click)="onClick()">
       <span class="favorite">
         <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
       </span>
