@@ -4,11 +4,12 @@ import { Song } from '../../interfaces/song';
 import { Observable } from 'rxjs';
 import { map, tap, switchMap, debounceTime } from 'rxjs/operators';
 
-const REPLACE_BY_TO_RU = {
+const REPLACE_SIMILAR_CHAR = {
   і: 'и',
   ў: 'у',
+  ё: 'е',
 };
-const REPLACE_BY_TO_RU_REGEXP = new RegExp(`[${Object.keys(REPLACE_BY_TO_RU).join('')}]`, 'gi');
+const REPLACE_SIMILAR_CHAR_REGEXP = new RegExp(`[${Object.keys(REPLACE_SIMILAR_CHAR).join('')}]`, 'gi');
 
 @Injectable({
   providedIn: 'root',
@@ -70,6 +71,6 @@ export class FuseService {
   }
 
   private replaceChar(str: string): string {
-    return str.replace(REPLACE_BY_TO_RU_REGEXP, (char) => REPLACE_BY_TO_RU[char.toLowerCase()]);
+    return str.replace(REPLACE_SIMILAR_CHAR_REGEXP, (char) => REPLACE_SIMILAR_CHAR[char.toLowerCase()]);
   }
 }
