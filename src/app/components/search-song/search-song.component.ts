@@ -68,6 +68,7 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   onClear() {
     this.store.dispatch(clearSearchAction());
     this.searchTerm.setValue('');
+    this.searchElement.nativeElement.focus();
   }
 
   tagToggle(eventTag: number) {
