@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import Fuse from 'fuse.js';
 import { Song } from '../../interfaces/song';
 import { Observable } from 'rxjs';
-import { map, tap, switchMap, debounceTime } from 'rxjs/operators';
+import { map, tap, switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 const REPLACE_SIMILAR_CHAR = {
   і: 'и',
@@ -37,6 +37,8 @@ export class FuseService {
       debounceTime(100),
       switchMap((songList) =>
         search$.pipe(
+          debounceTime(100),
+          distinctUntilChanged(),
           map((searchTest) => {
             if (!Number.isNaN(Number(searchTest))) {
               return songList.filter(({ id }) => id.toString().includes(searchTest));
@@ -53,6 +55,7 @@ export class FuseService {
   private getOptions(): Fuse.IFuseOptions<Song> {
     return {
       threshold: 0.4,
+      ignoreLocation: true,
       keys: [
         {
           name: 'title',
