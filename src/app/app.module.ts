@@ -32,14 +32,13 @@ import { SongDetailsComponent } from './components/song-details/song-details.com
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { HammerConfig } from './services/hammer-config/hammer-config.service';
+import { HeaderModule } from './components/header/header.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
     SongDetailsComponent,
     FooterComponent,
-    SearchSongComponent,
     PageNotFoundComponent,
     MainPageComponent,
     LiturgyComponent,
@@ -69,6 +68,7 @@ import { HammerConfig } from './services/hammer-config/hammer-config.service';
     SongModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     HammerModule,
+    HeaderModule,
   ],
   providers: [
     {

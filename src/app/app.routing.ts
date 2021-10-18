@@ -29,6 +29,10 @@ const appRoutes: Routes = [
     path: 'presentation',
     loadChildren: () => import('./components/presentation/presentation.module').then((m) => m.PresentationModule),
   },
+  {
+    path: 'admin',
+    loadChildren: () => import('./components/admin/admin.module').then((m) => m.AdminModule),
+  },
   { path: '', component: MainSoundComponent, children: soundRoutes },
 ];
 
