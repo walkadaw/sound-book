@@ -1,22 +1,90 @@
 .site-footer {
-    font-size: 13px;
-    text-align: center;
-    color: #b3b3b1;
-    font-family: sans-serif;
-    font-weight: 100;
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  font-size: 13px;
+  text-align: center;
+  color: #b3b3b1;
+  font-family: sans-serif;
+  font-weight: 100;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .jesus {
-    background-image: url("/assets/img/jesus.png");
-    background-position: 50% 100%;
-    background-size: auto 50px;
-    background-repeat: no-repeat;
-    height: 62px;
-    width: 70px;
-    margin: 0 auto;
+  background-image: url('/assets/img/jesus.png');
+  background-position: 50% 100%;
+  background-size: auto 50px;
+  background-repeat: no-repeat;
+  height: 62px;
+  width: 70px;
+  margin: 0 auto;
+  position: relative;
+  cursor: pointer;
+
+  &.say {
+    &::after,
+    &::before {
+      content: ' ';
+      background-color: #fff;
+      border: 2px solid #666;
+      display: block;
+      border-radius: 50%;
+      position: absolute;
+    }
+    &::after {
+      width: 8px;
+      height: 8px;
+      right: 16px;
+      top: 6px;
+    }
+    &::before {
+      width: 14px;
+      height: 14px;
+      right: 8px;
+      top: -6px;
+    }
+  }
 }
 
+.say-block {
+  position: absolute;
+  left: 50%;
+  bottom: 62px;
+  transform: translate(-50%, 0);
+  width: 100%;
+  display: flex;
+  justify-content: center;
 
+  .text {
+    position: relative;
+    display: inline-block;
+    border: 2px solid #666;
+    background: #fff;
+    border-radius: 18px;
+    padding: 2px 5px;
+    min-width: 50px;
+    font-size: 0.9em;
+  }
+
+  .alias {
+    display: inline-block;
+    float: right;
+    font-weight: bold;
+    font-size: 0.9em;
+  }
+
+  .close {
+    position: absolute;
+    right: 2px;
+    top: -18px;
+    cursor: pointer;
+
+    mat-icon {
+      border-radius: 50%;
+      background-color: #fff;
+      border: 2px solid #666;
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+}
