@@ -20,8 +20,8 @@ export const svgMatIcons = {
 export class MatIconRegistryService {
   constructor(private matIconRegistry: MatIconRegistry, private sanitizer: DomSanitizer) {}
 
-  register(): Promise<string> {
-    return new Promise<string>((resolve) => {
+  register(): Promise<void> {
+    return new Promise<void>((resolve) => {
       Object.keys(svgMatIcons).forEach((iconName) => {
         this.matIconRegistry.addSvgIcon(iconName, this.sanitizer.bypassSecurityTrustResourceUrl(svgMatIcons[iconName]));
       });
