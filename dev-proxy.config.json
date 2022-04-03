@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "http://bixbox0i.beget.tech",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
