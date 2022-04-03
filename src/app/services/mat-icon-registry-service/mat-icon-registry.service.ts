@@ -22,8 +22,8 @@ export class MatIconRegistryService {
 
   register(): Promise<void> {
     return new Promise<void>((resolve) => {
-      Object.keys(svgMatIcons).forEach((iconName) => {
-        this.matIconRegistry.addSvgIcon(iconName, this.sanitizer.bypassSecurityTrustResourceUrl(svgMatIcons[iconName]));
+      Object.entries(svgMatIcons).forEach(([iconName, path]) => {
+        this.matIconRegistry.addSvgIcon(iconName, this.sanitizer.bypassSecurityTrustResourceUrl(path));
       });
       resolve();
     });

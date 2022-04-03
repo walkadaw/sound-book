@@ -10,7 +10,7 @@ export enum TagName {
   'easter' = 'Велікодныя',
 }
 
-export const TagNameById = {
+export const TagNameById: {[key: string]: string} = {
   1: 'Да Духа',
   2: 'Эўхарыстычныя',
   3: 'Праслаўленне',

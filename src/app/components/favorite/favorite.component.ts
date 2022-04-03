@@ -26,7 +26,7 @@ export class FavoriteComponent implements OnInit {
       .pipe(map((favoriteList) => [...favoriteList].map((songId) => this.songService.getSong(songId))));
   }
 
-  trackBySong(index: string, item: SongFavorite) {
+  trackBySong(index: number, item: SongFavorite): number {
     return item.id;
   }
 

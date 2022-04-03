@@ -4,7 +4,7 @@ import { Song } from '../../interfaces/song';
 import { Observable } from 'rxjs';
 import { map, tap, switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
-const REPLACE_SIMILAR_CHAR = {
+const REPLACE_SIMILAR_CHAR: { [key: string]: string } = {
   і: 'и',
   ў: 'у',
   ё: 'е',

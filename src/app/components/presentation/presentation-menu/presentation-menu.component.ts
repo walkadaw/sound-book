@@ -30,7 +30,7 @@ import { SongService } from '../../../services/song-service/song.service';
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() slideList: SlideList[];
 
-  @Output() addedSong = new EventEmitter<number | string>();
+  @Output() addedSong = new EventEmitter<string>();
   @Output() removeSong = new EventEmitter<number>();
 
   @ViewChild('searchElement') searchElement: ElementRef<HTMLInputElement>;
@@ -74,7 +74,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
       .subscribe((data) => {
         switch (data.type) {
           case 'addSong':
-            this.addedSong.emit(data.payload);
+            this.addedSong.emit(data.payload.toString());
             break;
           case 'removeSong':
             this.removeSong.emit(data.payload);

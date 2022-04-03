@@ -64,7 +64,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.store.dispatch(setSelectedTagAction(0));
   }
 
-  trackBySong(index: string, item: SongFavorite) {
+  trackBySong(index: number, item: SongFavorite): string {
     return `${item.id}-${item.favorite}`;
   }
 

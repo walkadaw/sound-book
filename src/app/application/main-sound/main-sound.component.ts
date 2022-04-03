@@ -1,4 +1,4 @@
-import { Component, HostBinding, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
@@ -30,7 +30,7 @@ export class MainSoundComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart));
+    const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart), map(s => s) );
 
     navigate$
       .pipe(
@@ -45,7 +45,8 @@ export class MainSoundComponent implements OnInit, OnDestroy {
     this.showMenu$ = combineLatest([
       this.store.select(getShowMenu),
       navigate$.pipe(
-        map((value: NavigationStart) => value.url),
+        // FIXME: type
+        map((value: any) => value.url),
         startWith(window.location.pathname),
         map((url) => url === '/')
       ),

@@ -4,7 +4,7 @@ import { DIRECTION_HORIZONTAL } from 'hammerjs';
 
 @Injectable()
 export class HammerConfig extends HammerGestureConfig {
-  overrides = {
+  override overrides = {
     swipe: { enable: true, direction: DIRECTION_HORIZONTAL },
   };
 }
