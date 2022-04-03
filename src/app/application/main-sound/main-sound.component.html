@@ -1,6 +1,6 @@
 <app-header [class.fixed-menu]="showMenu$ | async"></app-header>
 <main class="container" [class.show-menu]="showMenu$ | async" [style.font-size.em]="fontSize$ | async">
     <app-main-page class="menu"></app-main-page>
-    <router-outlet *ngIf="!(showMenu$ | async)"></router-outlet>
+    <router-outlet *ngIf="(showMenu$ | async) !== true"></router-outlet>
 </main>
 <app-footer></app-footer>
