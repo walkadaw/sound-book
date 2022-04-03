@@ -122,9 +122,21 @@
               "devServerTarget": "sound-book:serve:production"
             }
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
-  "defaultProject": "sound-book"
+  "defaultProject": "sound-book",
+  "cli": {
+    "defaultCollection": "@angular-eslint/schematics"
+  }
 }
