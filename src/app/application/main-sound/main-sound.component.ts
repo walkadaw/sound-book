@@ -3,6 +3,7 @@ import { NavigationStart, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
 import { filter, map, startWith, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { WakeLockService } from 'src/app/services/wakelock/wake-lock.service';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
@@ -15,9 +16,13 @@ import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector
 export class MainSoundComponent implements OnInit, OnDestroy {
   showMenu$: Observable<boolean>;
   fontSize$ = this.store.select(getFontSize);
+
   private onDestroy$ = new Subject<void>();
 
-  constructor(private store: Store<IAppState>, private router: Router) {}
+  constructor(
+    private store: Store<IAppState>,
+    private router: Router,
+  ) {}
 
   @HostListener('swipeleft')
   swipeLeft() {
@@ -31,7 +36,6 @@ export class MainSoundComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart), map(s => s) );
-
     navigate$
       .pipe(
         withLatestFrom(this.store.select(getShowMenu)),

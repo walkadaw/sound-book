@@ -3,6 +3,7 @@ import { Store } from '@ngrx/store';
 import { setFavoriteAction } from '../../redux/actions/favorite.actions';
 import {
   changeFontSizeAction,
+  changeNoSleepAction,
   changeShowMenuAction,
   chordPositionAction,
   showChordAction,
@@ -59,6 +60,7 @@ export class StartUpService {
       const showChord = window.localStorage.getItem('showChord') === '1';
       const chordPosition = (window.localStorage.getItem('chordPosition') as ChordPosition) || defaultChordPosition();
       const showSongNumber = window.localStorage.getItem('showSongNumber') === '1';
+      const enabledNoSleep = window.localStorage.getItem('enableNoSleep') === '1';
       const showMenu = window.location.pathname === '/';
 
       this.store.dispatch(changeFontSizeAction(fontSize));
@@ -66,6 +68,7 @@ export class StartUpService {
       this.store.dispatch(chordPositionAction(chordPosition));
       this.store.dispatch(showSongNumberAction(showSongNumber));
       this.store.dispatch(changeShowMenuAction(showMenu));
+      this.store.dispatch(changeNoSleepAction(enabledNoSleep));
       resolve();
     }).catch((e) => {
       console.log('Cant load settings');

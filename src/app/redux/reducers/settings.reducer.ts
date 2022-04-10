@@ -2,6 +2,7 @@ import { MainSettings } from '../models/settings.state';
 import { createReducer, on } from '@ngrx/store';
 import {
   changeFontSizeAction,
+  changeNoSleepAction,
   changeShowMenuAction,
   chordPositionAction,
   showChordAction,
@@ -14,6 +15,7 @@ const SETTINGS_STATE_DEFAULT: MainSettings = {
   chordPosition: 'right',
   showSongNumber: false,
   showMenu: true,
+  enableNoSleep: false,
 };
 
 export const settingsReducer = createReducer(
@@ -22,5 +24,6 @@ export const settingsReducer = createReducer(
   on(chordPositionAction, (state, { chordPosition }) => ({ ...state, chordPosition })),
   on(showSongNumberAction, (state, { showSongNumber }) => ({ ...state, showSongNumber })),
   on(changeFontSizeAction, (state, { fontSize }) => ({ ...state, fontSize })),
-  on(changeShowMenuAction, (state, { showMenu }) => ({ ...state, showMenu }))
+  on(changeShowMenuAction, (state, { showMenu }) => ({ ...state, showMenu })),
+  on(changeNoSleepAction, (state, { enableNoSleep }) => ({ ...state, enableNoSleep })),
 );

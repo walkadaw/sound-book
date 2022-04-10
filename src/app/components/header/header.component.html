@@ -8,6 +8,12 @@
 
 <mat-menu #settings="matMenu">
   <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
+    <span>Пастаянна актыўны экран:</span>
+    <div class="right">
+      <mat-checkbox [checked]="enableNoSleep" (change)="toggleNoSleep($event)"></mat-checkbox>
+    </div>
+  </button>
+  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
     <span>Адлюстроўваць нумар песні:</span>
     <div class="right">
       <mat-checkbox [checked]="showSongNumber" (change)="toggleSongNumber($event)"></mat-checkbox>
@@ -41,10 +47,10 @@
     <span>Версия песен:</span>
     <div class="right">{{ songService.songVersion ? (songService.songVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
   </button>
-  <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="updateSong($event)">
+  <!-- <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="updateSong($event)">
     <span>Версия слайдов:</span>
     <div class="right">{{ songService.songSlideVersion ? (songService.songSlideVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
-  </button>
+  </button> -->
 </mat-menu>
 
 <mat-menu #menu="matMenu">

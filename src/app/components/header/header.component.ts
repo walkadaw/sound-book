@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 import { clearSearchAction } from '../../redux/actions/search.actions';
 import {
   changeFontSizeAction,
+  changeNoSleepAction,
   changeShowMenuAction,
   chordPositionAction,
   showChordAction,
@@ -15,6 +16,7 @@ import { IAppState } from '../../redux/models/IAppState';
 import {
   getChordPosition,
   getFontSize,
+  getEnableNoSleep,
   getShowChord,
   getShowMenu,
   getShowSongNumber,
@@ -32,6 +34,7 @@ const DEFAULT_FONT_SIZE = 1;
 })
 export class HeaderComponent {
   showChord = getCurrentValue(this.store, getShowChord);
+  enableNoSleep = getCurrentValue(this.store, getEnableNoSleep);
   chordPosition = getCurrentValue(this.store, getChordPosition);
   showSongNumber = getCurrentValue(this.store, getShowSongNumber);
   fontSize = Math.floor(getCurrentValue(this.store, getFontSize) * 100);
@@ -50,6 +53,12 @@ export class HeaderComponent {
     this.showChord = event.checked;
     window.localStorage.setItem('showChord', this.showChord ? '1' : '0');
     this.store.dispatch(showChordAction(this.showChord));
+  }
+
+  toggleNoSleep(event: MatCheckboxChange): void {
+    this.enableNoSleep = event.checked;
+    window.localStorage.setItem('enableNoSleep', this.enableNoSleep ? '1' : '0');
+    this.store.dispatch(changeNoSleepAction(this.enableNoSleep));
   }
 
   changeFontSize(plus: boolean, defaultSize = false) {

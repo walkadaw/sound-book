@@ -5,4 +5,5 @@ export interface MainSettings {
   showSongNumber?: boolean;
   fontSize?: number;
   showMenu?: boolean;
+  enableNoSleep?: boolean;
 }

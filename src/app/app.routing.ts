@@ -10,16 +10,27 @@ import { MainSoundComponent } from './application/main-sound/main-sound.componen
 import { FavoriteComponent } from './components/favorite/favorite.component';
 import { GadzinkiComponent } from './components/gadzinki/gadzinki.component';
 import { AboutComponent } from './components/about/about.component';
+import { WakeLockService } from './services/wakelock/wake-lock.service';
 
 const soundRoutes: Routes = [
-  { path: 'song/:id/:title', component: SongDetailsComponent, canActivate: [HasSongGuard] },
-  { path: 'song/:id', component: SongDetailsComponent, canActivate: [HasSongGuard] },
+  { path: '', component: MainPageComponent, pathMatch: 'full' },
+  { 
+    path: 'song/:id/:title', 
+    component: SongDetailsComponent, 
+    canActivate: [HasSongGuard, WakeLockService],
+    canDeactivate: [WakeLockService],
+  },
+  { 
+    path: 'song/:id', 
+    component: SongDetailsComponent, 
+    canActivate: [HasSongGuard, WakeLockService],
+    canDeactivate: [WakeLockService],
+  },
   { path: 'generator/docx', component: PaperGeneratorComponent },
   { path: 'liturgy', component: LiturgyComponent },
   { path: 'favorite', component: FavoriteComponent },
   { path: 'gadzinki', component: GadzinkiComponent },
   { path: 'about', component: AboutComponent },
-  { path: '', component: MainPageComponent, pathMatch: 'full' },
   { path: '404', component: PageNotFoundComponent },
   { path: '**', component: PageNotFoundComponent },
 ];

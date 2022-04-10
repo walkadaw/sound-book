@@ -9,4 +9,7 @@ export const showSongNumberAction = createAction('[settings] song number', (show
   showSongNumber,
 }));
 export const changeFontSizeAction = createAction('[settings] change font size', (fontSize: number) => ({ fontSize }));
-export const changeShowMenuAction = createAction('[settings] change show menu', (showMenu: boolean) => ({ showMenu }));
+export const changeNoSleepAction = createAction('[settings] always on screen', (enableNoSleep: boolean) => ({ enableNoSleep }));
+
+
+export const changeShowMenuAction = createAction('[UI] change show menu', (showMenu: boolean) => ({ showMenu }));
