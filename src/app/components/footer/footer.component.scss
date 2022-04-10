@@ -8,6 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 .jesus {
   background-image: url('/assets/img/jesus.png');
@@ -50,6 +51,7 @@
   left: 50%;
   bottom: 62px;
   transform: translate(-50%, 0);
+  max-width: 90%;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -60,16 +62,17 @@
     border: 2px solid #666;
     background: #fff;
     border-radius: 18px;
-    padding: 2px 5px;
+    padding: 5px 7px;
     min-width: 50px;
     font-size: 0.9em;
+    color: #000;
   }
 
   .alias {
     display: inline-block;
     float: right;
     font-weight: bold;
-    font-size: 0.9em;
+    font-size: 1em;
   }
 
   .close {

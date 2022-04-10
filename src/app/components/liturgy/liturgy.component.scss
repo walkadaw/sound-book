@@ -1,6 +1,7 @@
 app-liturgy {
     .divider {
-        display: none;
+        opacity: 0;
+        display: block;
     }
 
     mat-spinner {

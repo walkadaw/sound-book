@@ -8,8 +8,10 @@ import { SlideList } from '../../interfaces/slide';
 
 @Injectable()
 export class LiturgyService {
-  constructor(private http: HttpClient) {}
   slideLiturgy: SlideList[];
+
+  constructor(private http: HttpClient) {}
+
   getLiturgy(): Observable<Liturgy> {
     return this.http.get<Liturgy>(`${environment.baseUrl}/liturgy/get`).pipe(catchError(() => of(null)));
   }

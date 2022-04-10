@@ -56,4 +56,12 @@ h1.entry-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    column-gap: 15px;
+
+    &__actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 10px 0;
+    }
 }

@@ -5,8 +5,33 @@
         <ng-container *ngIf="showSongNumber$ | async">{{ selectedSong.id }}. </ng-container>
         {{selectedSong?.title}}
       </h1>
+      <div class="title-container__actions">
+        <button 
+          mat-icon-button 
+          (click)="toggleFavorite(selectedSong.id)"
+        >
+          <mat-icon>{{ (isFavoriteSong$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
+        </button>
+        
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>dialpad</mat-icon>
+            <span>Redial</span>
+          </button>
+          <button mat-menu-item disabled>
+            <mat-icon>voicemail</mat-icon>
+            <span>Check voice mail</span>
+          </button>
+          <button mat-menu-item>
+            <mat-icon>notifications_off</mat-icon>
+            <span>Disable alerts</span>
+          </button>
+        </mat-menu>
 
-      <mat-icon (click)="toggleFavorite(selectedSong.id)">{{ (isFavoriteSong$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
+      </div>
     </div>
     <h2 class="entry-title-meta" *ngIf="!isArray(selectedSong.tag)">Тэгі:
       <ng-container *ngFor="let item of selectedSong.tag | keyvalue">

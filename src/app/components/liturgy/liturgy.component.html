@@ -2,7 +2,7 @@
     <h2>{{liturgy.title}}</h2>
     
     
-    <div [innerHTML]="liturgy.article"></div>
+    <div [innerHTML]="getTrustArticle(liturgy.article)"></div>
 
     <i>Тэкст літургіі узяты з сайта <a href="https://catholic.by" target="_blank">Catholic.by</a></i>
 </article>
