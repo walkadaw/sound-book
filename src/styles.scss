@@ -81,3 +81,64 @@ main {
 		}
 	}
 }
+
+.songs-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding: 8px 0;
+
+    @media (max-width: 768px) {
+        margin: 0 -15px;
+    }
+}
+.songs-list .song-container,
+.cdk-drag-preview.song-container {
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: .93em;
+    cursor: pointer;
+    align-items: center;
+    border-bottom: 1px solid #cccccc30;
+    
+    .favorite {
+      flex: 0 0 auto;
+      display: flex;
+      padding: 0 10px;
+    }
+
+    .song-title {
+      flex: 1 1 auto;
+      padding: 10px 10px 10px 0;
+    }
+
+    .dashes {
+        flex: 1 1 auto;
+        border-bottom: 2px dashed #555;
+        margin: 8px;
+    }
+
+    .actions {
+        display: none;
+        flex: 0 0 auto;
+        align-self: center;
+
+        @media (max-width: 768px) {
+            display: block;
+        }
+    
+    }
+
+    &:hover {
+        .actions {
+            display: block;
+        }
+    }
+    
+    &.active {
+        background-color: #cccccc30;
+    }
+}

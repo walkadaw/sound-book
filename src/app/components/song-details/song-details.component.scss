@@ -16,8 +16,9 @@
 }
 
 h1.entry-title {
-    font-size: 1.6em !important;
+    font-size: 1.40em !important;
     color: #333 !important;
+    margin-top: 0;
 }
 
 .lyrics {
@@ -57,11 +58,11 @@ h1.entry-title {
     justify-content: space-between;
     align-items: center;
     column-gap: 15px;
+    margin-top: 15px;
 
     &__actions {
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin: 10px 0;
     }
 }

@@ -4,17 +4,26 @@
 <ng-container *ngIf="songFavoriteList.length; else noFavoriteSong">
     <div class="song-container" 
         *ngFor="let song of songFavoriteList; trackBy: trackBySong"
-        [routerLink]="['/song', song.id, song.title | replaceSpace]">
-    <span class="favorite">
-        <mat-icon (click)="toggleFavorite($event, song.id)">favorite</mat-icon>
-    </span>
-    <span class="song-title">
-        <ng-container *ngIf="showSongNumber$ | async">{{ song.id }}. </ng-container>
-        {{ song.title }}
-    </span>
-    <div class="action">
-        <mat-icon>add</mat-icon>
-    </div>
+        [routerLink]="['/song', song.id, song.title | replaceSpace]"
+    >
+        <span class="favorite">
+            <mat-icon (click)="toggleFavorite($event, song.id)">favorite</mat-icon>
+        </span>
+        <span class="song-title">
+            <ng-container *ngIf="showSongNumber$ | async">{{ song.id }}. </ng-container>
+            {{ song.title }}
+        </span>
+        <div class="title-container__actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu">
+                <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #selectedSongMenu="matMenu">
+                <app-playlist-menu 
+                [songId]="song.id"
+                (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, song.id)"
+                ></app-playlist-menu>
+            </mat-menu>
+        </div>
     </div>
 </ng-container>
 <ng-template #noFavoriteSong>

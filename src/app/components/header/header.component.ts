@@ -2,7 +2,9 @@ import { Component } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { PlayList } from 'src/app/services/playlist/playlist.service';
 import { clearSearchAction } from '../../redux/actions/search.actions';
 import {
   changeFontSizeAction,
@@ -10,16 +12,13 @@ import {
   changeShowMenuAction,
   chordPositionAction,
   showChordAction,
-  showSongNumberAction,
+  showSongNumberAction
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import {
-  getChordPosition,
-  getFontSize,
-  getEnableNoSleep,
-  getShowChord,
+  getChordPosition, getEnableNoSleep, getFontSize, getShowChord,
   getShowMenu,
-  getShowSongNumber,
+  getShowSongNumber
 } from '../../redux/selector/settings.selector';
 import { SongService } from '../../services/song-service/song.service';
 import { getCurrentValue } from '../utils/redux.utils';
@@ -41,7 +40,12 @@ export class HeaderComponent {
 
   searchInputInFocus: boolean = false;
 
-  constructor(public songService: SongService, private store: Store<IAppState>, private snackBar: MatSnackBar) {}
+  constructor(
+    public songService: SongService,
+    private store: Store<IAppState>,
+    private snackBar: MatSnackBar,
+    private router: Router,
+  ) {}
 
   toggleSongNumber(event: MatCheckboxChange): void {
     this.showSongNumber = event.checked;
@@ -118,5 +122,9 @@ export class HeaderComponent {
           duration: 2000,
         });
       });
+  }
+
+  goToPlaylist(playlist: PlayList) {
+    this.router.navigate(['/playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')])
   }
 }

@@ -11,6 +11,9 @@ import { FavoriteComponent } from './components/favorite/favorite.component';
 import { GadzinkiComponent } from './components/gadzinki/gadzinki.component';
 import { AboutComponent } from './components/about/about.component';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
+import { AddPlaylistComponent } from './components/playlist/add-playlist/add-playlist.component';
+import { PlaylistComponent } from './components/playlist/playlist.component';
+import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-playlist.component';
 
 const soundRoutes: Routes = [
   { path: '', component: MainPageComponent, pathMatch: 'full' },
@@ -25,6 +28,42 @@ const soundRoutes: Routes = [
     component: SongDetailsComponent, 
     canActivate: [HasSongGuard, WakeLockService],
     canDeactivate: [WakeLockService],
+  },
+  { 
+    path: 'playlist', 
+    children: [
+      {
+        path: '', 
+        component: PlaylistComponent,
+        pathMatch: 'full'
+      },
+      {
+        path: 'add', 
+        component: AddPlaylistComponent, 
+      },
+      {
+        path: 'add/:songId', 
+        component: AddPlaylistComponent, 
+      },
+      {
+        path: 'edit/:playlistId', 
+        component: AddPlaylistComponent, 
+      },
+      {
+        path: ':createdDate/:name', 
+        children: [
+          {
+            path: '', 
+            component: ViewPlaylistComponent,
+            pathMatch: 'full'
+          },
+          {
+            path: ':songList', 
+            component: ViewPlaylistComponent,
+          },
+        ]
+      },
+    ]
   },
   { path: 'generator/docx', component: PaperGeneratorComponent },
   { path: 'liturgy', component: LiturgyComponent },

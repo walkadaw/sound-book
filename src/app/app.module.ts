@@ -32,6 +32,10 @@ import { LiturgyModule } from './services/liturgy-service/liturgy.module';
 import { SongModule } from './services/song-service/song.module';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
+import { PlaylistComponent } from './components/playlist/playlist.component';
+import { AddPlaylistComponent } from './components/playlist/add-playlist/add-playlist.component';
+import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-playlist.component';
+import { PlaylistMenuModule } from './components/playlist/playlist-menu/playlist-menu.module';
 
 @NgModule({
   declarations: [
@@ -47,6 +51,9 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     FavoriteComponent,
     AboutComponent,
     GadzinkiComponent,
+    PlaylistComponent,
+    AddPlaylistComponent,
+    ViewPlaylistComponent,
   ],
   imports: [
     BrowserModule,
@@ -68,6 +75,7 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     HammerModule,
     HeaderModule,
+    PlaylistMenuModule,
   ],
   providers: [
     {

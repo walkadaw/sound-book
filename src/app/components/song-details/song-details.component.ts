@@ -10,6 +10,8 @@ import { Store } from '@ngrx/store';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { ChordPosition } from '../../redux/models/settings.state';
+import { PlayList, PlaylistService } from 'src/app/services/playlist/playlist.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface SelectedSong {
   id: number;
@@ -31,10 +33,17 @@ export class SongDetailsComponent implements OnInit {
   isFavoriteSong$: Observable<boolean>;
   showSongNumber$ = this.store.select(getShowSongNumber);
   showChord$ = this.store.select(getShowChord);
+  playLists: PlayList[] = this.playlistService.getAllPlaylists();
 
   readonly tagNameById = TagNameById;
 
-  constructor(private songService: SongService, private router: ActivatedRoute, private store: Store<IAppState>) {}
+  constructor(
+    private songService: SongService, 
+    private router: ActivatedRoute, 
+    private store: Store<IAppState>,
+    private snackBar: MatSnackBar,
+    private playlistService: PlaylistService,
+  ) {}
 
   ngOnInit(): void {
     this.selectedSong$ = combineLatest([
@@ -66,5 +75,12 @@ export class SongDetailsComponent implements OnInit {
 
   toggleFavorite(songID: number): void {
     this.store.dispatch(toggleFavoriteAction(songID));
+  }
+
+  addedSongToPlaylist(idPlaylist: string,songId: number) {
+    const playlist = this.playlistService.getPlaylist(idPlaylist);
+    this.playlistService.addSongToPlaylist(idPlaylist, songId.toString());
+
+    this.snackBar.open(`Песня дададзена ў плэйліст: ${playlist.name}`, 'Зачыніць', { duration: 2000 });
   }
 }

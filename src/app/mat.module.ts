@@ -18,6 +18,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import {ClipboardModule} from '@angular/cdk/clipboard';
 
 @NgModule({
   imports: [
@@ -39,6 +41,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatButtonToggleModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    DragDropModule,
+    ClipboardModule,
   ],
   exports: [
     MatListModule,
@@ -60,6 +64,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatButtonToggleModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    DragDropModule,
+    ClipboardModule,
   ],
 })
 export class MatModule {}

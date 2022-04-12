@@ -45,9 +45,13 @@ app-search-song {
             }
         }
     }
+
+    .mat-select-value-text mat-select-trigger mat-icon {
+        display: block;
+    }
 }
 
-.search-tag-mat-menu {
+.search-tag-mat-menu {    
     &.mat-select-panel {
         max-height: none;
 

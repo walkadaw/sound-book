@@ -63,6 +63,11 @@
     <span>Закладкі</span>
   </button>
   <mat-divider></mat-divider>
+  <button mat-menu-item [matMenuTriggerFor]="collections">
+    <mat-icon>queue_music</mat-icon>
+    <span>Плэйлісты</span>
+  </button>
+  <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/liturgy">
     <mat-icon>auto_stories</mat-icon>
     <span>Чытанне дня</span>
@@ -95,4 +100,8 @@
     <mat-icon>accessibility_new</mat-icon>
     <span>Пра нас</span>
   </button>
+</mat-menu>
+
+<mat-menu #collections="matMenu">
+  <app-playlist-menu (selectedPlaylist)="goToPlaylist($event)"></app-playlist-menu>
 </mat-menu>

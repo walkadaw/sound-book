@@ -1,15 +1,17 @@
-import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
-import { SongFavorite } from '../../interfaces/song';
-import { combineLatest, Observable, Subject } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
+import { combineLatest, Observable, Subject } from 'rxjs';
+import { debounceTime, map, takeUntil } from 'rxjs/operators';
+import { PlaylistService } from 'src/app/services/playlist/playlist.service';
+import { SongFavorite } from '../../interfaces/song';
+import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
+import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
+import { getShowMenu, getShowSongNumber } from '../../redux/selector/settings.selector';
 import { FuseService } from '../../services/fuse-service/fuse.service';
 import { SongService } from '../../services/song-service/song.service';
-import { getShowMenu, getShowSongNumber } from '../../redux/selector/settings.selector';
-import { getFavoriteState } from '../../redux/selector/favorite.selector';
-import { debounceTime, map, takeUntil } from 'rxjs/operators';
-import { setSelectedTagAction } from '../../redux/actions/search.actions';
 
 @Component({
   selector: 'app-main-page',
@@ -26,13 +28,19 @@ export class MainPageComponent implements OnInit, OnDestroy {
   private contentScrollYPosition: number;
   private onDestroy$ = new Subject<void>();
 
-  constructor(private fuseService: FuseService, private songService: SongService, private store: Store<IAppState>) {}
+  constructor(
+    private fuseService: FuseService,
+    private songService: SongService,
+    private store: Store<IAppState>,
+    private playlistService: PlaylistService,
+    private snackBar: MatSnackBar,
+  ) {}
 
   ngOnInit(): void {
     const filteredSong$ = this.fuseService.getFilteredSong(
       this.selectedTag$,
       this.store.select(getSearchTerm),
-      this.songService.songList
+      this.songService.songList,
     );
 
     this.songListFiltered$ = combineLatest([filteredSong$, this.store.select(getFavoriteState)]).pipe(
@@ -71,4 +79,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
   onClick() {
     this.menuScrollYPosition = window.scrollY;
   }
+
+  addedSongToPlaylist(idPlaylist: string, songId: number) {
+    const playlist = this.playlistService.getPlaylist(idPlaylist);
+    this.playlistService.addSongToPlaylist(idPlaylist, songId.toString());
+
+    this.snackBar.open(`Песня дададзена ў плэйліст: ${playlist.name}`, 'Зачыніць', { duration: 2000 });
+  }
+
 }

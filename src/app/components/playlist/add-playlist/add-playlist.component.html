@@ -1,0 +1,18 @@
+<article class="content">
+  <h2>{{ playlistId ? 'Рэдагаванне плэйліста' : 'Даданне плэйліста' }}</h2>
+  
+  <div class="add-form" >
+    <mat-form-field appearance="standard">
+      <mat-label>Назва плэйліста</mat-label>
+      <input type="text" matInput [formControl]="playlistControl" placeholder="Песні для імшы" [maxlength]="60">
+      
+      <mat-error *ngIf="playlistControl.hasError('required')">
+        Назва <strong>абавязкова</strong>
+      </mat-error>
+    </mat-form-field>
+
+
+    <button mat-raised-button (click)="submitForm()">{{ playlistId ? 'Змяніць' : 'Стварыць' }}</button>
+  </div>
+</article>
+
