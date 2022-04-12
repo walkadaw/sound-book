@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, AfterViewInit, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, AfterViewInit, OnInit, Renderer2, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { SongService } from '../../services/song-service/song.service';
@@ -19,7 +19,7 @@ import { take, filter } from 'rxjs/operators';
   ],
   encapsulation: ViewEncapsulation.None,
 })
-export class PresentationComponent implements OnInit, AfterViewInit {
+export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   slideList: SlideList[];
 
   private isDataLoaded$ = new BehaviorSubject(false);
@@ -29,11 +29,17 @@ export class PresentationComponent implements OnInit, AfterViewInit {
     private songService: SongService,
     private liturgyService: LiturgyService,
     private location: Location,
-    private reveal: RevealService
+    private reveal: RevealService,
+    private render: Renderer2,
   ) {}
 
   ngOnInit() {
     this.loadSlide();
+    this.render.addClass(document.body, 'reveal');
+  }
+
+  ngOnDestroy(): void {
+    this.render.removeClass(document.body, 'reveal');
   }
 
   ngAfterViewInit(): void {
