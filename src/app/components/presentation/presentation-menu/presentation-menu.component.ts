@@ -10,13 +10,17 @@ import {
   ElementRef,
   AfterViewInit,
 } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import {
+  Observable, Subject, fromEvent, BehaviorSubject,
+} from 'rxjs';
+import {
+  takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map,
+} from 'rxjs/operators';
 import { TagList } from '../../../interfaces/tag-list';
 import { TAGS_LIST } from '../../../constants/tag-list';
-import { FormControl } from '@angular/forms';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
-import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
 import { Song } from '../../../interfaces/song';
-import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
@@ -69,7 +73,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
         filter((event) => event && event.data && event.source !== window.self),
         map((event) => JSON.parse(event.data)),
         filter((data) => data && data.namespace === 'reveal-menu'),
-        takeUntil(this.onDestroy$)
+        takeUntil(this.onDestroy$),
       )
       .subscribe((data) => {
         switch (data.type) {
@@ -170,7 +174,11 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   fullScreen() {
-    document.fullscreenElement ? document.exitFullscreen() : this.enterFullscreen();
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      this.enterFullscreen();
+    }
   }
 
   togglePause(): void {
@@ -195,12 +203,11 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     const element: any = document.documentElement;
 
     // Check which implementation is available
-    const requestMethod =
-      element.requestFullscreen ||
-      element.webkitRequestFullscreen ||
-      element.webkitRequestFullScreen ||
-      element.mozRequestFullScreen ||
-      element.msRequestFullscreen;
+    const requestMethod = element.requestFullscreen
+      || element.webkitRequestFullscreen
+      || element.webkitRequestFullScreen
+      || element.mozRequestFullScreen
+      || element.msRequestFullscreen;
 
     if (requestMethod) {
       requestMethod.apply(element);
@@ -226,9 +233,11 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.search.valueChanges
       .pipe(
         takeUntil(this.onDestroy$),
-        filter(() => this.openSelectedTag)
+        filter(() => this.openSelectedTag),
       )
-      .subscribe(() => (this.openSelectedTag = false));
+      .subscribe(() => {
+        this.openSelectedTag = false;
+      });
   }
 
   private initHighlightCurrentSlide() {

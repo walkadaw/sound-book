@@ -1,14 +1,10 @@
 <article class="content">
   <h2>Вашы плэйлісты</h2>
 
-  <div
-    class="songs-list" 
-    cdkDropList
-    [cdkDropListData]="playlists"
-    (cdkDropListDropped)="drop($event)"
-  >
-    <div class="song-container" 
-      *ngFor="let playlist of playlists" 
+  <div class="songs-list" cdkDropList [cdkDropListData]="playlists" (cdkDropListDropped)="drop($event)">
+    <div
+      class="song-container"
+      *ngFor="let playlist of playlists"
       [routerLink]="[playlist.dateCreate, playlist.name, playlist.songList.join(',')]"
       cdkDrag
     >
@@ -16,14 +12,12 @@
         <!-- <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon> -->
       </span>
       <div class="song-title">
-        <div class="playlist_title"> {{ playlist.name }}</div>
+        <div class="playlist_title">{{ playlist.name }}</div>
         <div class="date">
+          <div class="playlist_info">Спевау: {{ playlist.songList.length }}</div>
           <div class="playlist_info">
-            Спевау: {{ playlist.songList.length }}
-          </div>
-          <div class="playlist_info">
-            {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:'}}
-            {{ playlist.lastChange | date}}
+            {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
+            {{ playlist.lastChange | date }}
           </div>
         </div>
       </div>

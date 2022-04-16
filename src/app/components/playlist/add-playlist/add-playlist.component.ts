@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PlaylistService } from 'src/app/services/playlist/playlist.service';
+import { PlaylistService } from '../../../services/playlist/playlist.service';
 
 @Component({
   selector: 'app-add-playlist',
   templateUrl: './add-playlist.component.html',
-  styleUrls: ['./add-playlist.component.scss']
+  styleUrls: ['./add-playlist.component.scss'],
 })
 export class AddPlaylistComponent implements OnInit {
   playlistControl = new FormControl('', [Validators.required, Validators.maxLength(60)]);
@@ -36,7 +36,7 @@ export class AddPlaylistComponent implements OnInit {
       this.playlistControl.markAllAsTouched();
       return;
     }
-    
+
     if (this.playlistId) {
       this.edit();
     } else {
@@ -46,20 +46,19 @@ export class AddPlaylistComponent implements OnInit {
 
   private create() {
     const songId: string = this.route.snapshot?.params?.songId;
-    const playlist = this.playlistService.createPlaylist(this.playlistControl.value, songId ? [songId]: []);
+    const playlist = this.playlistService.createPlaylist(this.playlistControl.value, songId ? [songId] : []);
 
-    this.router.navigate(['/', 'playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')])
+    this.router.navigate(['/', 'playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')]);
   }
 
   private edit() {
     const playlist = {
       ...this.playlistService.getPlaylist(this.playlistId),
-      name: this.playlistControl.value
+      name: this.playlistControl.value,
     };
 
     this.playlistService.updatePlaylist(playlist);
 
-    this.router.navigate(['/', 'playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')])
+    this.router.navigate(['/', 'playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')]);
   }
-
 }

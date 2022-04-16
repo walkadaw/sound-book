@@ -11,7 +11,7 @@ export interface PlayList {
 const PLAYLIST_KEY = 'playlists';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PlaylistService {
   playlists$: BehaviorSubject<PlayList[]> = new BehaviorSubject(this.getAllPlaylists());
@@ -20,11 +20,14 @@ export class PlaylistService {
     return this.playlists$.value;
   }
 
-  getAllPlaylists(): PlayList[]  {
-    let result: PlayList[] = [];
+  getAllPlaylists(): PlayList[] {
+    let result: PlayList[];
+
     try {
       result = JSON.parse(window.localStorage.getItem(PLAYLIST_KEY)) || [];
-    } catch (error) { }
+    } catch (error) {
+      result = [];
+    }
 
     return result;
   }
@@ -39,7 +42,7 @@ export class PlaylistService {
       dateCreate: new Date().getTime().toString(),
       lastChange: new Date().getTime().toString(),
       songList,
-    }
+    };
 
     const playlists = [playlist, ...this.getAllPlaylists()];
 
@@ -49,7 +52,7 @@ export class PlaylistService {
   }
 
   addSongToPlaylist(id: string, songId: string) {
-    const playlists = this.getAllPlaylists().map(playlist => {
+    const playlists = this.getAllPlaylists().map((playlist) => {
       if (playlist.dateCreate.toString() !== id.toString()) {
         return playlist;
       }
@@ -57,15 +60,15 @@ export class PlaylistService {
       return {
         ...playlist,
         lastChange: new Date().getTime().toString(),
-        songList: [...playlist.songList, songId]
-      }
+        songList: [...playlist.songList, songId],
+      };
     });
 
     this.updateLocalStorage(playlists);
   }
 
   updatePlaylist(updatedPlaylist: PlayList) {
-    const playlists = this.getAllPlaylists().map(playlist => {
+    const playlists = this.getAllPlaylists().map((playlist) => {
       if (playlist.dateCreate.toString() !== updatedPlaylist.dateCreate.toString()) {
         return playlist;
       }
@@ -88,6 +91,6 @@ export class PlaylistService {
 
   private updateLocalStorage(playlists: PlayList[]) {
     window.localStorage.setItem(PLAYLIST_KEY, JSON.stringify(playlists));
-    this.playlists$.next(playlists)
+    this.playlists$.next(playlists);
   }
 }

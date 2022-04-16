@@ -26,7 +26,7 @@
   <div class="column-full" *ngIf="!songListForm.get('allSong').value && selectedSongList$ | async as selectedSongList">
     <mat-form-field class="example-form-field">
       <mat-label>Пошук</mat-label>
-      <input matInput formControlName="search" type="text">
+      <input matInput formControlName="search" type="text" />
       <button mat-button matSuffix mat-icon-button aria-label="очистить" (click)="clearFilterSong()">
         <mat-icon>close</mat-icon>
       </button>
@@ -40,26 +40,26 @@
             </div>
           </ng-container>
           <ng-template #noSongResult>
-            <div>
-              Не адна песня не знойдзена па вашаму запыту.
-            </div>
+            <div>Не адна песня не знойдзена па вашаму запыту.</div>
           </ng-template>
         </cdk-virtual-scroll-viewport>
       </mat-tab>
       <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
         <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
           <ng-container *ngIf="selectedSongList.length; else noSongResult">
-            <div class="song-container" *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0">
-              <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)">{{ song.title }}
+            <div
+              class="song-container"
+              *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0"
+            >
+              <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)"
+                >{{ song.title }}
               </mat-checkbox>
             </div>
           </ng-container>
           <ng-template #noSongResult>
-            <div>
-              Няма выбраных песень.
-            </div>
+            <div>Няма выбраных песень.</div>
           </ng-template>
-        </cdk-virtual-scroll-viewport >
+        </cdk-virtual-scroll-viewport>
       </mat-tab>
     </mat-tab-group>
   </div>

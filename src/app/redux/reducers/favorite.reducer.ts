@@ -9,8 +9,7 @@ export const favoriteReducer = createReducer(
   on(toggleFavoriteAction, (state, { songId }) => {
     if (!state.includes(songId)) {
       return [...state, songId];
-    } else {
-      return state.filter((id) => id !== songId);
     }
-  })
+    return state.filter((id) => id !== songId);
+  }),
 );

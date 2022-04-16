@@ -14,8 +14,6 @@ import { ChordPosition } from '../../redux/models/settings.state';
 import { MatIconRegistryService } from '../mat-icon-registry-service/mat-icon-registry.service';
 import { SongService } from '../song-service/song.service';
 
-export const startUpFactory = (startUpService: StartUpService) => () => startUpService.load();
-
 @Injectable({
   providedIn: 'root',
 })
@@ -23,7 +21,7 @@ export class StartUpService {
   constructor(
     private matRegisterIcon: MatIconRegistryService,
     private songService: SongService,
-    private store: Store<IAppState>
+    private store: Store<IAppState>,
   ) {}
 
   load(): Promise<any> {
@@ -45,7 +43,7 @@ export class StartUpService {
         }
       }
       resolve();
-    }).catch((e) => {
+    }).catch(() => {
       console.log('Cant load favorite');
     });
   }
@@ -70,8 +68,10 @@ export class StartUpService {
       this.store.dispatch(changeShowMenuAction(showMenu));
       this.store.dispatch(changeNoSleepAction(enabledNoSleep));
       resolve();
-    }).catch((e) => {
+    }).catch(() => {
       console.log('Cant load settings');
     });
   }
 }
+
+export const startUpFactory = (startUpService: StartUpService) => () => startUpService.load();

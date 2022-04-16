@@ -4,35 +4,34 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import NoSleep from 'nosleep.js';
 import { firstValueFrom, fromEvent, Observable } from 'rxjs';
-import { filter, map, switchMap, take, tap } from 'rxjs/operators';
-import { changeNoSleepAction, changeShowMenuAction } from 'src/app/redux/actions/settings.actions';
-import { IAppState } from 'src/app/redux/models/IAppState';
-import { getEnableNoSleep, getSettingsState } from 'src/app/redux/selector/settings.selector';
+import {
+  filter, map, switchMap, take, tap,
+} from 'rxjs/operators';
+import { changeNoSleepAction, changeShowMenuAction } from '../../redux/actions/settings.actions';
+import { IAppState } from '../../redux/models/IAppState';
+import { getEnableNoSleep, getSettingsState } from '../../redux/selector/settings.selector';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WakeLockService implements CanActivate, CanDeactivate<any> {
   private noSleep = new NoSleep();
 
   liveHookNoSleep$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(changeNoSleepAction, changeShowMenuAction),
-        switchMap(() => this.store.select(getSettingsState).pipe(take(1))),
-        tap(({ enableNoSleep, showMenu }) => {
+    () => this.actions$.pipe(
+      ofType(changeNoSleepAction, changeShowMenuAction),
+      switchMap(() => this.store.select(getSettingsState).pipe(take(1))),
+      tap(({ enableNoSleep, showMenu }) => {
+        if (!enableNoSleep || showMenu || !this.hasWakeLockGuard()) {
+          this.disable();
+          return;
+        }
 
-          if(!enableNoSleep || showMenu || !this.hasWakeLockGuard()) {
-            this.disable();
-            return;
-          }
-
-          this.enable();
-        }),
-      ),
-    { dispatch: false }
+        this.enable();
+      }),
+    ),
+    { dispatch: false },
   );
-
 
   constructor(
     private store: Store<IAppState>,
@@ -49,7 +48,7 @@ export class WakeLockService implements CanActivate, CanDeactivate<any> {
       if (document.visibilityState === 'hidden') {
         await firstValueFrom(fromEvent(document, 'visibilitychange').pipe(
           filter(() => document.visibilityState === 'visible'),
-          take(1)
+          take(1),
         ));
       }
 
@@ -64,7 +63,7 @@ export class WakeLockService implements CanActivate, CanDeactivate<any> {
   }
 
   canActivate(): Observable<boolean> {
-    return this.store.select(getEnableNoSleep).pipe(map(enable => {
+    return this.store.select(getEnableNoSleep).pipe(map((enable) => {
       if (enable && !this.isEnabled) {
         this.enable();
       }
@@ -74,7 +73,7 @@ export class WakeLockService implements CanActivate, CanDeactivate<any> {
   }
 
   canDeactivate(): Observable<boolean> {
-    return this.store.select(getEnableNoSleep).pipe(map(enable => {
+    return this.store.select(getEnableNoSleep).pipe(map((enable) => {
       if (enable && this.isEnabled) {
         this.disable();
       }
@@ -90,12 +89,12 @@ export class WakeLockService implements CanActivate, CanDeactivate<any> {
       }
 
       if (!route?.routeConfig) {
-        return false
+        return false;
       }
 
       const { canActivate = [], canDeactivate = [] } = route.routeConfig;
 
-      return canActivate.concat(canDeactivate).some(guard => guard === WakeLockService)
+      return canActivate.concat(canDeactivate).some((guard) => guard === WakeLockService);
     }
 
     return lastRoute(this.route);

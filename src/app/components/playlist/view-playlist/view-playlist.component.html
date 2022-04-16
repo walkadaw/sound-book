@@ -44,33 +44,26 @@
               <span>Выдаліць плэйліст</span>
             </button>
           </ng-container>
-          
         </mat-menu>
-        
       </div>
     </div>
+    <div class="playlist_info">Спевау: {{ playlist.songs.length }}</div>
     <div class="playlist_info">
-      Спевау: {{ playlist.songs.length }}
-    </div>
-    <div class="playlist_info">
-      {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:'}}
+      {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
       {{ playlist.lastChange | date }}
     </div>
     <div class="playlist_copy" *ngIf="!playlist.dateCreate">
       <button mat-raised-button (click)="copy(playlist)">Захаваць сабе</button>
     </div>
   </header>
-  <div
-    class="songs-list" 
-    cdkDropList
-    [cdkDropListData]="playlist.songs"
-    (cdkDropListDropped)="drop($event)">
+  <div class="songs-list" cdkDropList [cdkDropListData]="playlist.songs" (cdkDropListDropped)="drop($event)">
     <ng-container *ngIf="playlist.songs.length; else noSong">
-      <div class="song-container" 
+      <div
+        class="song-container"
         *ngFor="let song of playlist.songs; trackBy: trackBySong; let index = index"
         routerLinkActive="active"
         cdkDrag
-        [routerLink]="['/song', song.id, song.title | replaceSpace]"   
+        [routerLink]="['/song', song.id, song.title | replaceSpace]"
       >
         <span class="favorite">
           <!-- <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon> -->
@@ -87,14 +80,11 @@
           <button mat-icon-button (click)="deleteSong(index)">
             <mat-icon>delete</mat-icon>
           </button>
-
         </div>
       </div>
     </ng-container>
     <ng-template #noSong>
-      <div>
-        Плэйліст пусты, самы час напоўніць яго жыццём
-      </div>
+      <div>Плэйліст пусты, самы час напоўніць яго жыццём</div>
     </ng-template>
   </div>
 </article>

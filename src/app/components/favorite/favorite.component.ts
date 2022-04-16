@@ -3,12 +3,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PlaylistService } from 'src/app/services/playlist/playlist.service';
 import { SongFavorite } from '../../interfaces/song';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getShowSongNumber } from '../../redux/selector/settings.selector';
+import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 
 @Component({
@@ -21,7 +21,7 @@ export class FavoriteComponent implements OnInit {
   showSongNumber$ = this.store.select(getShowSongNumber);
 
   constructor(
-    private songService: SongService, 
+    private songService: SongService,
     private store: Store<IAppState>,
     private snackBar: MatSnackBar,
     private playlistService: PlaylistService,

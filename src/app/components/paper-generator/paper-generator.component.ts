@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
-import { SongService } from '../../services/song-service/song.service';
-import { Song } from '../../interfaces/song';
 import { Observable, of } from 'rxjs';
-import { FuseService } from '../../services/fuse-service/fuse.service';
 import { map, startWith } from 'rxjs/operators';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { SongService } from '../../services/song-service/song.service';
+import { Song } from '../../interfaces/song';
+import { FuseService } from '../../services/fuse-service/fuse.service';
 
 @Component({
   selector: 'app-paper-generator',
@@ -35,16 +35,14 @@ export class PaperGeneratorComponent implements OnInit {
     this.songListFiltered$ = this.fuseService.getFilteredSong(
       of(0),
       search.valueChanges.pipe(startWith(search.value)),
-      this.songService.songList
+      this.songService.songList,
     );
 
     this.selectedSongList$ = this.songListForm.get('selectedSong').valueChanges.pipe(
       startWith(this.songListForm.get('selectedSong').value),
-      map((selectedSong) => {
-        return Object.entries(selectedSong)
-          .filter(([key, value]) => value)
-          .map(([key]) => this.songService.getSong(key));
-      })
+      map((selectedSong) => Object.entries(selectedSong)
+        .filter(([, value]) => value)
+        .map(([key]) => this.songService.getSong(key))),
     );
   }
 

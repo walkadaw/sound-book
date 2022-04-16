@@ -9,11 +9,13 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
-import { IAppState } from '../../redux/models/IAppState';
+import {
+  debounceTime, distinctUntilChanged, filter, takeUntil,
+} from 'rxjs/operators';
 import { Store } from '@ngrx/store';
-import { setSearchTermAction, clearSearchAction, setSelectedTagAction } from '../../redux/actions/search.actions';
 import { Subject } from 'rxjs';
+import { IAppState } from '../../redux/models/IAppState';
+import { setSearchTermAction, clearSearchAction, setSelectedTagAction } from '../../redux/actions/search.actions';
 import { TagList } from '../../interfaces/tag-list';
 import { TAGS_LIST } from '../../constants/tag-list';
 import { getCurrentValue } from '../utils/redux.utils';
@@ -41,6 +43,7 @@ export class SearchSongComponent implements OnInit, OnDestroy {
     },
     ...TAGS_LIST,
   ];
+
   private onDestroy$ = new Subject<void>();
 
   constructor(private store: Store<IAppState>) {}

@@ -1,16 +1,16 @@
 <div class="reveal" [class.speakerNotes]="this.isSpeakerNotes()">
   <div class="slides">
     <ng-container *ngIf="slideList && slideList.length; else noSlide">
-      <ng-container *ngFor="let slides of slideList; trackBy: trackBySlides" >
+      <ng-container *ngFor="let slides of slideList; trackBy: trackBySlides">
         <section *ngFor="let slide of slides.slides" [style.font-size.px]="slide.fontSize">
-          {{slide.text}}
+          {{ slide.text }}
 
           <aside class="notes" *ngIf="slides.chord || slides.text">
             <div class="lyrics">
-                <span>{{ slides.text }}</span>
-          
-                <span class="chord">{{ slides.chord }}</span>
-              </div>
+              <span>{{ slides.text }}</span>
+
+              <span class="chord">{{ slides.chord }}</span>
+            </div>
           </aside>
         </section>
       </ng-container>
@@ -19,15 +19,10 @@
     <ng-template #noSlide>
       <section>Ня дададзены ні адзін слайд</section>
     </ng-template>
-  
   </div>
 </div>
 
 <ng-container *ngIf="isReady()">
-
-  <app-presentation-menu 
-    [slideList]="slideList"
-    (addedSong)="addSlide($event)"
-    (removeSong)="removeSlide($event)">
+  <app-presentation-menu [slideList]="slideList" (addedSong)="addSlide($event)" (removeSong)="removeSlide($event)">
   </app-presentation-menu>
 </ng-container>

@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 // @ts-expect-error no ts
 import Reveal from 'reveal.js';
-// @ts-expect-error no ts
-import RevealNotes from '../../../assets/plugin/notes/notes.esm';
 import { fromEvent, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
+// @ts-expect-error no ts
+import RevealNotes from '../../../assets/plugin/notes/notes.esm';
+
 interface NotesPlugin {
   open: () => void;
 }
 
 @Injectable()
 export class RevealService {
-  private reveal: any;
-
-  constructor() {}
+  private reveal: Reveal;
 
   isReady(): boolean {
     return !!this.reveal && this.reveal.isReady();
@@ -61,7 +60,7 @@ export class RevealService {
   onSlideChange(): Observable<number> {
     return fromEvent(this.reveal.getRevealElement(), 'slidechanged').pipe(
       filter<any>((event) => !!event && event.indexh >= 0),
-      map(({ indexh }) => indexh)
+      map(({ indexh }) => indexh),
     );
   }
 

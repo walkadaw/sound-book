@@ -1,17 +1,17 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { SongService } from '../../services/song-service/song.service';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SongService } from '../../services/song-service/song.service';
 import { TagNameById } from '../../interfaces/tag-list';
 import { IAppState } from '../../redux/models/IAppState';
 import { getChordPosition, getShowChord, getShowSongNumber } from '../../redux/selector/settings.selector';
-import { Store } from '@ngrx/store';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { ChordPosition } from '../../redux/models/settings.state';
-import { PlayList, PlaylistService } from 'src/app/services/playlist/playlist.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 
 interface SelectedSong {
   id: number;
@@ -38,8 +38,8 @@ export class SongDetailsComponent implements OnInit {
   readonly tagNameById = TagNameById;
 
   constructor(
-    private songService: SongService, 
-    private router: ActivatedRoute, 
+    private songService: SongService,
+    private router: ActivatedRoute,
     private store: Store<IAppState>,
     private snackBar: MatSnackBar,
     private playlistService: PlaylistService,
@@ -56,16 +56,18 @@ export class SongDetailsComponent implements OnInit {
         if (chordPosition === 'inText') {
           const text = song.text.split('\n').map((value) => value.trim());
           const chord = song.chord.split('\n').map((value) => value.trim());
-          return { ...song, text, chord, chordPosition };
+          return {
+            ...song, text, chord, chordPosition,
+          };
         }
 
         return { ...song, chordPosition };
-      })
+      }),
     );
 
     this.isFavoriteSong$ = combineLatest([this.store.select(getFavoriteState), this.selectedSong$]).pipe(
       filter(([favorite, song]) => favorite && !!song),
-      map(([favorite, song]) => favorite.has(song.id))
+      map(([favorite, song]) => favorite.has(song.id)),
     );
   }
 
@@ -77,7 +79,7 @@ export class SongDetailsComponent implements OnInit {
     this.store.dispatch(toggleFavoriteAction(songID));
   }
 
-  addedSongToPlaylist(idPlaylist: string,songId: number) {
+  addedSongToPlaylist(idPlaylist: string, songId: number) {
     const playlist = this.playlistService.getPlaylist(idPlaylist);
     this.playlistService.addSongToPlaylist(idPlaylist, songId.toString());
 

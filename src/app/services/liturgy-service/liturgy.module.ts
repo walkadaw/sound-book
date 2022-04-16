@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
-import { LiturgyService } from './liturgy.service';
 import { HttpClientModule } from '@angular/common/http';
+import { LiturgyService } from './liturgy.service';
 
 @NgModule({
   imports: [HttpClientModule],

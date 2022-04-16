@@ -1,3 +1,8 @@
+export interface Slide {
+  fontSize: string;
+  text: string;
+}
+
 export interface SlideList {
   id: string;
   title: string;
@@ -6,9 +11,4 @@ export interface SlideList {
   endIndex?: number;
   text?: string;
   chord?: string;
-}
-
-export interface Slide {
-  fontSize: string;
-  text: string;
 }

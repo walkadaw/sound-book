@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { of, Observable, throwError } from 'rxjs';
+import {
+  catchError, tap, map, switchMap,
+} from 'rxjs/operators';
 import { Song, SongRequest } from '../../interfaces/song';
-import { catchError, tap, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { SlideList } from '../../interfaces/slide';
 
@@ -38,26 +40,24 @@ export class SongService {
       switchMap((songList) => {
         // TODO Нужно добавить проверку на целостность данных
         if (requeuedRequest || !songList || !songList.songs || !songList.slides.length) {
-          return throwError('WrongData');
+          return throwError(() => 'WrongData');
         }
 
         this.songSlideList = songList.slides;
-        this.songSlideVersion = songList.last_update + '000';
+        this.songSlideVersion = `${songList.last_update}000`;
         return of(songList);
       }),
-      catchError((error) =>
-        this.http
-          .get<SongRequest>(`${environment.baseUrl}/song/get?slide=true`)
-          .pipe(tap((songListResponse) => localStorage.setItem('songListSlide', JSON.stringify(songListResponse))))
-      ),
+      catchError(() => this.http
+        .get<SongRequest>(`${environment.baseUrl}/song/get?slide=true`)
+        .pipe(tap((songListResponse) => localStorage.setItem('songListSlide', JSON.stringify(songListResponse))))),
       tap((songListResponse) => {
         this.songSlideList = songListResponse.slides;
-        this.songSlideVersion = songListResponse.last_update + '000';
+        this.songSlideVersion = `${songListResponse.last_update}000`;
       }),
       catchError((error) => {
         console.error('loadSlideSongs', error);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -68,26 +68,24 @@ export class SongService {
         switchMap((songList) => {
           // TODO Нужно добавить проверку на целостность данных
           if (requeuedRequest || !songList || !songList.songs || !songList.songs.length) {
-            return throwError('WrongData');
+            return throwError(() => 'WrongData');
           }
 
           this.songList = songList.songs;
-          this.songVersion = songList.last_update + '000';
+          this.songVersion = `${songList.last_update}000`;
           return of(songList);
         }),
-        catchError((error) =>
-          this.http
-            .get<SongRequest>(`${environment.baseUrl}/song/get`)
-            .pipe(tap((songListResponse) => localStorage.setItem('songList', JSON.stringify(songListResponse))))
-        ),
+        catchError(() => this.http
+          .get<SongRequest>(`${environment.baseUrl}/song/get`)
+          .pipe(tap((songListResponse) => localStorage.setItem('songList', JSON.stringify(songListResponse))))),
         tap((songListResponse) => {
           this.songList = songListResponse.songs;
-          this.songVersion = songListResponse.last_update + '000';
+          this.songVersion = `${songListResponse.last_update}000`;
         }),
         catchError((error) => {
           console.error('loadSongs', error);
           return of(null);
-        })
+        }),
       )
       .toPromise();
   }

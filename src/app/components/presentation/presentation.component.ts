@@ -1,13 +1,15 @@
-import { Component, ViewEncapsulation, AfterViewInit, OnInit, Renderer2, OnDestroy } from '@angular/core';
+import {
+  Component, ViewEncapsulation, AfterViewInit, OnInit, Renderer2, OnDestroy,
+} from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { forkJoin, BehaviorSubject } from 'rxjs';
+import { take, filter } from 'rxjs/operators';
 import { SongService } from '../../services/song-service/song.service';
 import { LITURGY_ACRONYM } from '../../constants/liturgy-acronym';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { SlideList } from '../../interfaces/slide';
 import { RevealService } from '../../services/reveal-service/reveal.service';
-import { forkJoin, BehaviorSubject } from 'rxjs';
-import { take, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-presentation',
@@ -46,7 +48,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isDataLoaded$
       .pipe(
         filter((v) => !!v),
-        take(1)
+        take(1),
       )
       .subscribe(() => {
         this.reveal.init();
@@ -76,7 +78,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       if (!this.reveal.isSpeakerNotes()) {
-        this.location.replaceState('/presentation/' + this.slideList.map((slide) => slide.id).toString());
+        this.location.replaceState(`/presentation/${this.slideList.map((slide) => slide.id).toString()}`);
       }
       this.reveal.updateRevealState();
     }
@@ -88,14 +90,15 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       .map((slide, index, slideList) => {
         if (index >= removedIndex) {
           const lastIndex = index > 0 ? slideList[index - 1].endIndex : -1;
-          slide.startIndex = lastIndex + 1;
-          slide.endIndex = lastIndex + slide.slides.length;
+
+          return { ...slide, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length };
         }
+
         return slide;
       });
 
     if (!this.reveal.isSpeakerNotes()) {
-      this.location.replaceState('/presentation/' + this.slideList.map((slide) => slide.id).toString());
+      this.location.replaceState(`/presentation/${this.slideList.map((slide) => slide.id).toString()}`);
     }
     this.reveal.updateRevealState();
   }
@@ -119,7 +122,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
         let chord: string;
         let text: string;
 
-        if (isNaN(parseInt(id, 10))) {
+        if (Number.isNaN(parseInt(id, 10))) {
           if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
             slide = this.liturgyService.getSlideLiturgy(id);
           }
@@ -132,7 +135,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (slide) {
           const lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
-          acc.push({ ...slide, chord, text, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length });
+          acc.push({
+            ...slide, chord, text, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length,
+          });
         }
 
         return acc;

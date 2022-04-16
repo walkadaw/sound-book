@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import Fuse from 'fuse.js';
-import { Song } from '../../interfaces/song';
 import { Observable } from 'rxjs';
-import { map, tap, switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {
+  map, tap, switchMap, debounceTime, distinctUntilChanged,
+} from 'rxjs/operators';
+import { Song } from '../../interfaces/song';
 
 const REPLACE_SIMILAR_CHAR: { [key: string]: string } = {
   і: 'и',
@@ -24,7 +26,7 @@ export class FuseService {
   getFilteredSong(
     selectedTags$: Observable<number>,
     search$: Observable<string>,
-    allSongList: Song[]
+    allSongList: Song[],
   ): Observable<Song[]> {
     return selectedTags$.pipe(
       map((selectedTags) => {
@@ -35,20 +37,18 @@ export class FuseService {
       }),
       tap((songList) => this.fuse.setCollection(songList)),
       debounceTime(100),
-      switchMap((songList) =>
-        search$.pipe(
-          debounceTime(100),
-          distinctUntilChanged(),
-          map((searchTest) => {
-            if (!Number.isNaN(Number(searchTest))) {
-              return songList.filter(({ id }) => id.toString().includes(searchTest));
-            } else if (searchTest) {
-              return this.fuse.search(this.replaceChar(searchTest)).map((fuseItem) => fuseItem.item);
-            }
-            return songList;
-          })
-        )
-      )
+      switchMap((songList) => search$.pipe(
+        debounceTime(100),
+        distinctUntilChanged(),
+        map((searchTest) => {
+          if (!Number.isNaN(Number(searchTest))) {
+            return songList.filter(({ id }) => id.toString().includes(searchTest));
+          } if (searchTest) {
+            return this.fuse.search(this.replaceChar(searchTest)).map((fuseItem) => fuseItem.item);
+          }
+          return songList;
+        }),
+      )),
     );
   }
 

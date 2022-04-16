@@ -1,5 +1,5 @@
-import { IAppState } from '../models/IAppState';
 import { createSelector } from '@ngrx/store';
+import { IAppState } from '../models/IAppState';
 
 export const getSettingsState = (state: IAppState) => state.settings || {};
 

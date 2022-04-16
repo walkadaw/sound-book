@@ -1,10 +1,14 @@
-import { Directive, Inject, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+// eslint-disable-next-line max-classes-per-file
+import {
+  Directive, Inject, Input, TemplateRef, ViewContainerRef,
+} from '@angular/core';
 
 export interface IContextWithImplicit<T> {
   $implicit: T;
 }
 
 export class LetContext<T> implements IContextWithImplicit<T> {
+  // eslint-disable-next-line no-use-before-define
   constructor(private readonly internalDirectiveInstance: LetDirective<T>) {}
 
   get $implicit(): T {
@@ -24,11 +28,11 @@ export class LetContext<T> implements IContextWithImplicit<T> {
 })
 export class LetDirective<T> {
   @Input()
-  appLet: T;
+    appLet: T;
 
   constructor(
-    @Inject(ViewContainerRef) viewContainer: ViewContainerRef,
-    @Inject(TemplateRef) templateRef: TemplateRef<LetContext<T>>
+  @Inject(ViewContainerRef) viewContainer: ViewContainerRef,
+    @Inject(TemplateRef) templateRef: TemplateRef<LetContext<T>>,
   ) {
     viewContainer.createEmbeddedView(templateRef, new LetContext<T>(this));
   }

@@ -4,7 +4,6 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { PlayList } from 'src/app/services/playlist/playlist.service';
 import { clearSearchAction } from '../../redux/actions/search.actions';
 import {
   changeFontSizeAction,
@@ -12,16 +11,18 @@ import {
   changeShowMenuAction,
   chordPositionAction,
   showChordAction,
-  showSongNumberAction
+  showSongNumberAction,
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import {
   getChordPosition, getEnableNoSleep, getFontSize, getShowChord,
   getShowMenu,
-  getShowSongNumber
+  getShowSongNumber,
 } from '../../redux/selector/settings.selector';
+import { PlayList } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 import { getCurrentValue } from '../utils/redux.utils';
+
 const MIN_FONT_SIZE = 0.4;
 const MAX_FONT_SIZE = 2;
 const DEFAULT_FONT_SIZE = 1;
@@ -38,7 +39,7 @@ export class HeaderComponent {
   showSongNumber = getCurrentValue(this.store, getShowSongNumber);
   fontSize = Math.floor(getCurrentValue(this.store, getFontSize) * 100);
 
-  searchInputInFocus: boolean = false;
+  searchInputInFocus = false;
 
   constructor(
     public songService: SongService,
@@ -125,6 +126,6 @@ export class HeaderComponent {
   }
 
   goToPlaylist(playlist: PlayList) {
-    this.router.navigate(['/playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')])
+    this.router.navigate(['/playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')]);
   }
 }

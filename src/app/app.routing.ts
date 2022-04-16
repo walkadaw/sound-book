@@ -17,53 +17,53 @@ import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-
 
 const soundRoutes: Routes = [
   { path: '', component: MainPageComponent, pathMatch: 'full' },
-  { 
-    path: 'song/:id/:title', 
-    component: SongDetailsComponent, 
+  {
+    path: 'song/:id/:title',
+    component: SongDetailsComponent,
     canActivate: [HasSongGuard, WakeLockService],
     canDeactivate: [WakeLockService],
   },
-  { 
-    path: 'song/:id', 
-    component: SongDetailsComponent, 
+  {
+    path: 'song/:id',
+    component: SongDetailsComponent,
     canActivate: [HasSongGuard, WakeLockService],
     canDeactivate: [WakeLockService],
   },
-  { 
-    path: 'playlist', 
+  {
+    path: 'playlist',
     children: [
       {
-        path: '', 
+        path: '',
         component: PlaylistComponent,
-        pathMatch: 'full'
+        pathMatch: 'full',
       },
       {
-        path: 'add', 
-        component: AddPlaylistComponent, 
+        path: 'add',
+        component: AddPlaylistComponent,
       },
       {
-        path: 'add/:songId', 
-        component: AddPlaylistComponent, 
+        path: 'add/:songId',
+        component: AddPlaylistComponent,
       },
       {
-        path: 'edit/:playlistId', 
-        component: AddPlaylistComponent, 
+        path: 'edit/:playlistId',
+        component: AddPlaylistComponent,
       },
       {
-        path: ':createdDate/:name', 
+        path: ':createdDate/:name',
         children: [
           {
-            path: '', 
+            path: '',
             component: ViewPlaylistComponent,
-            pathMatch: 'full'
+            pathMatch: 'full',
           },
           {
-            path: ':songList', 
+            path: ':songList',
             component: ViewPlaylistComponent,
           },
-        ]
+        ],
       },
-    ]
+    ],
   },
   { path: 'generator/docx', component: PaperGeneratorComponent },
   { path: 'liturgy', component: LiturgyComponent },

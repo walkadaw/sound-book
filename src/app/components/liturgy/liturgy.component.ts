@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { Liturgy } from '../../interfaces/liturgy';
-import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
+import {
+  ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation,
+} from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
+import { Liturgy } from '../../interfaces/liturgy';
 
 @Component({
   selector: 'app-liturgy',
@@ -18,11 +20,13 @@ export class LiturgyComponent implements OnInit {
 
   constructor(
     private liturgyService: LiturgyService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
-    this.liturgy$ = this.liturgyService.getLiturgy().pipe(tap(() => (this.isLoading = false)));
+    this.liturgy$ = this.liturgyService.getLiturgy().pipe(tap(() => {
+      this.isLoading = false;
+    }));
   }
 
   getTrustArticle(article: string): SafeHtml {

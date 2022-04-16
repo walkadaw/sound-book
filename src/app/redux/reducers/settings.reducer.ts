@@ -1,5 +1,5 @@
-import { MainSettings } from '../models/settings.state';
 import { createReducer, on } from '@ngrx/store';
+import { MainSettings } from '../models/settings.state';
 import {
   changeFontSizeAction,
   changeNoSleepAction,

@@ -1,6 +1,6 @@
+import { createSelector } from '@ngrx/store';
 import { IAppState } from '../models/IAppState';
 import { SearchInput } from '../models/search.state';
-import { createSelector } from '@ngrx/store';
 
 const getSearchState = (state: IAppState) => state.searchInput || {};
 

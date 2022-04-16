@@ -1,9 +1,12 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component, HostListener, OnDestroy, OnInit,
+} from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
-import { filter, map, startWith, takeUntil, withLatestFrom } from 'rxjs/operators';
-import { WakeLockService } from 'src/app/services/wakelock/wake-lock.service';
+import {
+  filter, map, startWith, takeUntil, withLatestFrom,
+} from 'rxjs/operators';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
@@ -35,12 +38,12 @@ export class MainSoundComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart), map(s => s) );
+    const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart), map((s) => s));
     navigate$
       .pipe(
         withLatestFrom(this.store.select(getShowMenu)),
         filter(([, showMenu]) => showMenu),
-        takeUntil(this.onDestroy$)
+        takeUntil(this.onDestroy$),
       )
       .subscribe(() => {
         this.store.dispatch(changeShowMenuAction(false));
@@ -52,7 +55,7 @@ export class MainSoundComponent implements OnInit, OnDestroy {
         // FIXME: type
         map((value: any) => value.url),
         startWith(window.location.pathname),
-        map((url) => url === '/')
+        map((url) => url === '/'),
       ),
     ]).pipe(map(([showMenu, rootUrl]) => showMenu || rootUrl));
   }

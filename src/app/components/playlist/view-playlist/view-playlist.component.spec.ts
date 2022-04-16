@@ -8,9 +8,9 @@ describe('ViewPlaylistComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ViewPlaylistComponent ]
+      declarations: [ViewPlaylistComponent],
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

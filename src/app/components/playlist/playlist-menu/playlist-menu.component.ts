@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, EventEmitter, Input, Output,
+} from '@angular/core';
 import { Observable } from 'rxjs';
-import { PlayList, PlaylistService } from 'src/app/services/playlist/playlist.service';
+import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
 
 @Component({
   selector: 'app-playlist-menu',
@@ -14,7 +16,7 @@ export class PlaylistMenuComponent {
   playLists$: Observable<PlayList[]> = this.playlistService.playlists$;
 
   constructor(private playlistService: PlaylistService) {}
-  
+
   clickOnPlayList(playlist: PlayList) {
     this.selectedPlaylist.emit(playlist);
   }

@@ -45,7 +45,7 @@
   <mat-divider></mat-divider>
   <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="updateSong($event)">
     <span>Версия песен:</span>
-    <div class="right">{{ songService.songVersion ? (songService.songVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
+    <div class="right">{{ songService.songVersion ? (songService.songVersion | date: 'dd/MM/yyyy') : 'unknown' }}</div>
   </button>
   <!-- <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="updateSong($event)">
     <span>Версия слайдов:</span>

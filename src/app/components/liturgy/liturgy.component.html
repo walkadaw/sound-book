@@ -1,16 +1,15 @@
 <article class="content" *ngIf="liturgy$ | async as liturgy; else noLiturgy">
-    <h2>{{liturgy.title}}</h2>
-    
-    
-    <div [innerHTML]="getTrustArticle(liturgy.article)"></div>
+  <h2>{{ liturgy.title }}</h2>
 
-    <i>Тэкст літургіі узяты з сайта <a href="https://catholic.by" target="_blank">Catholic.by</a></i>
+  <div [innerHTML]="getTrustArticle(liturgy.article)"></div>
+
+  <i>Тэкст літургіі узяты з сайта <a href="https://catholic.by" target="_blank">Catholic.by</a></i>
 </article>
 
 <ng-template #noLiturgy>
-    <mat-spinner *ngIf="isLoading; else errorLoading"></mat-spinner>
-    <ng-template #errorLoading>
-        <h3>Не атрымалася атрымаць сэгдошене чытанне!</h3>
-        <p>Праверце сваё злучэнне з інтэрнэтам або паспрабуйце пазней.</p>
-    </ng-template>
+  <mat-spinner *ngIf="isLoading; else errorLoading"></mat-spinner>
+  <ng-template #errorLoading>
+    <h3>Не атрымалася атрымаць сэгдошене чытанне!</h3>
+    <p>Праверце сваё злучэнне з інтэрнэтам або паспрабуйце пазней.</p>
+  </ng-template>
 </ng-template>

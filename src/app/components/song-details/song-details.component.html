@@ -4,36 +4,37 @@
       <div class="name-contaner">
         <h1 class="entry-title" itemprop="name">
           <ng-container *ngIf="showSongNumber$ | async">{{ selectedSong.id }}. </ng-container>
-          {{selectedSong?.title}}
+          {{ selectedSong?.title }}
         </h1>
-        <h2 class="entry-title-meta" *ngIf="!isArray(selectedSong.tag)">Тэгі:
+        <h2 class="entry-title-meta" *ngIf="!isArray(selectedSong.tag)">
+          Тэгі:
           <span *ngFor="let item of selectedSong.tag | keyvalue">{{ tagNameById[item.key] }}, </span>
         </h2>
       </div>
 
       <div class="title-container__actions">
-        <button 
-          mat-icon-button 
-          (click)="toggleFavorite(selectedSong.id)"
-        >
+        <button mat-icon-button (click)="toggleFavorite(selectedSong.id)">
           <mat-icon>{{ (isFavoriteSong$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
         </button>
-        
+
         <button mat-icon-button [matMenuTriggerFor]="menu">
           <mat-icon>more_horiz</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <app-playlist-menu 
+          <app-playlist-menu
             [songId]="selectedSong.id"
             (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, selectedSong.id)"
           ></app-playlist-menu>
         </mat-menu>
-
       </div>
     </div>
   </header>
 
-  <div class="lyrics" [class.chord-right]="selectedSong.chordPosition === 'right'" *appLet="showChord$ | async as showChord">
+  <div
+    class="lyrics"
+    [class.chord-right]="selectedSong.chordPosition === 'right'"
+    *appLet="showChord$ | async as showChord"
+  >
     <ng-container *ngIf="selectedSong.chordPosition === 'inText'; else chordRight">
       <ng-container *ngFor="let line of selectedSong.text; let i = index">
         <span class="chord" *ngIf="showChord && selectedSong.chord[i]">{{ selectedSong.chord[i] }}</span>
@@ -42,10 +43,9 @@
     </ng-container>
 
     <ng-template #chordRight>
-      <span [class.without-chord]="!showChord">{{selectedSong?.text}}</span>
+      <span [class.without-chord]="!showChord">{{ selectedSong?.text }}</span>
 
-      <span class="chord" *ngIf="showChord">{{selectedSong?.chord}}</span>
-    </ng-template>    
+      <span class="chord" *ngIf="showChord">{{ selectedSong?.chord }}</span>
+    </ng-template>
   </div>
-
 </article>

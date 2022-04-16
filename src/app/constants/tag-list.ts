@@ -1,4 +1,5 @@
 import { TagList } from '../interfaces/tag-list';
+
 export const TAGS_LIST: TagList[] = [
   {
     id: 1,

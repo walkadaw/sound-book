@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy, Component, OnDestroy, OnInit,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
 import { debounceTime, map, takeUntil } from 'rxjs/operators';
-import { PlaylistService } from 'src/app/services/playlist/playlist.service';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -11,6 +12,7 @@ import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
 import { getShowMenu, getShowSongNumber } from '../../redux/selector/settings.selector';
 import { FuseService } from '../../services/fuse-service/fuse.service';
+import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 
 @Component({
@@ -44,7 +46,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     );
 
     this.songListFiltered$ = combineLatest([filteredSong$, this.store.select(getFavoriteState)]).pipe(
-      map(([songs, favoriteList]) => songs.map((song) => ({ ...song, favorite: favoriteList.has(song.id) })))
+      map(([songs, favoriteList]) => songs.map((song) => ({ ...song, favorite: favoriteList.has(song.id) }))),
     );
 
     filteredSong$.pipe(takeUntil(this.onDestroy$)).subscribe(() => window.scrollTo(0, 0));
@@ -86,5 +88,4 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
     this.snackBar.open(`Песня дададзена ў плэйліст: ${playlist.name}`, 'Зачыніць', { duration: 2000 });
   }
-
 }
