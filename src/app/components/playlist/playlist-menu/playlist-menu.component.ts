@@ -13,6 +13,8 @@ export class PlaylistMenuComponent {
   @Input() songId?: number;
   @Output() selectedPlaylist = new EventEmitter<PlayList>();
 
+  SHOW_MAX_PLAYLIST = 8;
+
   playLists$: Observable<PlayList[]> = this.playlistService.playlists$;
 
   constructor(private playlistService: PlaylistService) {}

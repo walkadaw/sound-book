@@ -3,20 +3,28 @@
     <mat-icon>playlist_add</mat-icon>
     <span>{{ songId ? 'Дадаць песню ў новы плэйліст' : 'Стварыць новы плэйліст' }}</span>
   </button>
-  <mat-divider></mat-divider>
-  <button mat-menu-item *ngIf="playLists.length > 0" [disabled]="songId" routerLink="/playlist">
-    <span *ngIf="songId; else allPlaylist">Дадать у выбраны плэйліст</span>
-    <ng-template #allPlaylist>
-      <mat-icon>list_alt</mat-icon>
-      <span>Усе плэйлісты</span>
-    </ng-template>
-  </button>
-  <mat-divider></mat-divider>
-  <button mat-menu-item *ngFor="let playList of playLists | slice: 0:8" (click)="clickOnPlayList(playList)">
+
+  <ng-container *ngIf="playLists.length > 0">
+    <mat-divider></mat-divider>
+    <button mat-menu-item [disabled]="songId" routerLink="/playlist">
+      <span *ngIf="songId; else allPlaylist">Дадать у выбраны плэйліст</span>
+      <ng-template #allPlaylist>
+        <mat-icon>list_alt</mat-icon>
+        <span>Усе плэйлісты</span>
+      </ng-template>
+    </button>
+    <mat-divider></mat-divider>
+  </ng-container>
+
+  <button
+    mat-menu-item
+    *ngFor="let playList of playLists | slice: 0:SHOW_MAX_PLAYLIST"
+    (click)="clickOnPlayList(playList)"
+  >
     <mat-icon>lyrics</mat-icon>
     <span>{{ playList.name }}</span>
   </button>
-  <button mat-menu-item routerLink="/playlist" *ngIf="!songId && playLists.length > 8">
+  <button mat-menu-item routerLink="/playlist" *ngIf="!songId && playLists.length > SHOW_MAX_PLAYLIST">
     <span>...</span>
   </button>
 </ng-container>
