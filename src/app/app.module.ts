@@ -15,10 +15,15 @@ import { FavoriteComponent } from './components/favorite/favorite.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { GadzinkiComponent } from './components/gadzinki/gadzinki.component';
 import { HeaderModule } from './components/header/header.module';
+import { ChordModule } from './components/kit/chord/chord.module';
 import { LiturgyComponent } from './components/liturgy/liturgy.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
+import { AddPlaylistComponent } from './components/playlist/add-playlist/add-playlist.component';
+import { PlaylistMenuModule } from './components/playlist/playlist-menu/playlist-menu.module';
+import { PlaylistComponent } from './components/playlist/playlist.component';
+import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-playlist.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
 import { LetDirectiveModule } from './directives/let-directive/app-let.module';
 import { MatModule } from './mat.module';
@@ -32,10 +37,6 @@ import { LiturgyModule } from './services/liturgy-service/liturgy.module';
 import { SongModule } from './services/song-service/song.module';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
-import { PlaylistComponent } from './components/playlist/playlist.component';
-import { AddPlaylistComponent } from './components/playlist/add-playlist/add-playlist.component';
-import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-playlist.component';
-import { PlaylistMenuModule } from './components/playlist/playlist-menu/playlist-menu.module';
 
 @NgModule({
   declarations: [
@@ -76,6 +77,7 @@ import { PlaylistMenuModule } from './components/playlist/playlist-menu/playlist
     HammerModule,
     HeaderModule,
     PlaylistMenuModule,
+    ChordModule,
   ],
   providers: [
     {

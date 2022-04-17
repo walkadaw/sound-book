@@ -1,0 +1,126 @@
+<svg width="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 80 70">
+  <g transform="translate(13, 13)">
+    <g>
+      <path
+        stroke="#444"
+        stroke-width="0.25"
+        stroke-linecap="square"
+        stroke-linejoin="square"
+        [attr.d]="getNeckPath(data.strings, data.fretsOnChord)"
+      ></path>
+      <path
+        *ngIf="data.baseFret === 1"
+        stroke="#444"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        [attr.d]="'M ' + offsets[data.strings].x + ' 0 H ' + offsets[data.strings].length"
+      ></path>
+      <text
+        *ngIf="data.baseFret !== 1"
+        font-size="0.25rem"
+        fill="#444"
+        font-family="Verdana"
+        [attr.x]="getBarreOffset(data.strings, data.frets, data.baseFret, data.capo)"
+        y="8"
+      >
+        {{ data.baseFret }}fr
+      </text>
+      <g>
+        <text
+          *ngFor="let note of data.tuning; let index = index"
+          font-size="0.3rem"
+          fill="#444"
+          font-family="Verdana"
+          text-anchor="middle"
+          [attr.x]="offsets[data.strings].x + index * 10"
+          y="53"
+        >
+          {{ note }}
+        </text>
+      </g>
+    </g>
+    <g *ngFor="let barre of data.barres">
+      <g>
+        <g
+          [attr.transform]="
+            'translate(' +
+            getStringPosition(data.frets.length, data.frets.length) +
+            ', ' +
+            positions.fret[barre.barreFrets[0].value] +
+            ')'
+          "
+        >
+          <path d="M 0, 0 m -4, 0 a 4,4 0 1,1 8,0 " fill="#555" fill-opacity="0.2" transform="rotate(-90)"></path>
+        </g>
+        <rect
+          fill="#555"
+          [attr.x]="fretXPosition[data.frets.length][0]"
+          [attr.y]="fretYPosition[barre.barre - 1]"
+          [attr.width]="barre.width"
+          fill-opacity="0.2"
+          height="8.25"
+        ></rect>
+        <g
+          [attr.transform]="
+            'translate(' +
+            getStringPosition(1, data.frets.length) +
+            ', ' +
+            positions.fret[barre.barreFrets[0].value] +
+            ')'
+          "
+        >
+          <path d="M 0, 0 m -4, 0 a 4,4 0 1,1 8,0" fill="#555" fill-opacity="0.2" transform="rotate(90)"></path>
+        </g>
+      </g>
+      <circle
+        *ngFor="let fret of barre.barreFrets"
+        stroke-width="0.25"
+        stroke="#444"
+        fill="#444"
+        [attr.cx]="getStringPosition(data.frets.length - fret.position, data.frets.length)"
+        [attr.cy]="positions.fret[fret.value]"
+        r="4"
+      ></circle>
+      <rect
+        fill="#444"
+        [attr.x]="fretXPosition[data.frets.length][barre.barreFrets[0].position]"
+        [attr.y]="fretYPosition[barre.barre - 1]"
+        [attr.width]="barre.width"
+        height="8.25"
+      ></rect>
+      <text
+        *ngFor="let fret of barre.barreFrets"
+        font-size="3pt"
+        font-family="Verdana"
+        text-anchor="middle"
+        fill="white"
+        [attr.x]="getStringPosition(data.frets.length - fret.position, data.frets.length)"
+        [attr.y]="positions.finger[fret.value]"
+      >
+        {{ fret.position }}
+      </text>
+    </g>
+    <g *ngFor="let dot of data.dots">
+      <circle
+        *ngIf="dot.fret !== -1"
+        stroke-width="0.25"
+        stroke="#444"
+        [attr.fill]="dot.fret === 0 ? 'transparent' : '#444'"
+        [attr.cx]="getStringPosition(dot.string, dot.strings)"
+        [attr.cy]="positions.fret[dot.fret]"
+        [attr.r]="dot.fret === 0 ? radius['open'] : radius['fret']"
+      ></circle>
+      <text
+        [attr.font-size]="dot.fret === -1 ? '0.7rem' : '3pt'"
+        font-family="Verdana"
+        text-anchor="middle"
+        fill="white"
+        [attr.x]="getStringPosition(dot.string, dot.strings)"
+        [attr.y]="dot.fret === -1 ? '-2' : positions.finger[dot.fret]"
+      >
+        {{ dot.finger }}
+      </text>
+    </g>
+  </g>
+</svg>
