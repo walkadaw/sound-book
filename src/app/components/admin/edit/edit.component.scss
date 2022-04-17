@@ -1,0 +1,45 @@
+.edit-content {
+  display: flex;
+
+  .textarea  {
+    margin: 0;
+    padding: 10px 0;
+    height: 75vh;
+    border-radius: 0;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+
+    :focus-visible {
+      outline:none;
+    }
+      
+    &__edit {
+      padding-left: 5px;
+      width:100%;
+      /* Determine appearance of code editor */
+      // background-color:#272822;
+      border-color:#272822;
+
+      &_chord {
+        flex: 0 0 200px;
+      }
+    }
+
+    &__line-counter {
+      display: flex;
+      flex: 0 0 auto;
+      border-color: transparent;
+      overflow-y: hidden;
+      text-align: right;
+      box-shadow: none;
+      color: #707070;
+      background-color: #d8d8d8;
+      width: 3.5rem;
+      /* Determine appearance of line counter */
+      background-color:#3E3D32;
+      border-color:#3E3D32;
+      color:#928869;
+    }
+  }
+}
