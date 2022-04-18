@@ -1,43 +1,28 @@
-<div class="" [formGroup]="songDataForm">
-  <mat-form-field class="example-full-width" appearance="fill">
+<div class="edit-form" [formGroup]="songDataForm">
+  <mat-form-field class="song-name" appearance="fill">
     <mat-label>Назва спеву</mat-label>
     <input type="text" matInput formControlName="title" />
   </mat-form-field>
-  <div class="edit-content">
-    <textarea
-      #lineCounter
-      class="textarea textarea__line-counter"
-      wrap="off"
-      readonly
-      *ngIf="lineCounter$ | async as lines"
-      >{{ lines }}</textarea
-    >
-    <textarea
-      #textEditor
-      class="textarea textarea__edit textarea__edit_text"
-      wrap="off"
-      formControlName="text"
-      (blur)="fillLines()"
-    ></textarea>
 
-    <textarea
-      #chordEditor
-      class="textarea textarea__edit textarea__edit_chord"
-      wrap="off"
-      formControlName="chord"
-      (blur)="fillLines()"
-    ></textarea>
-  </div>
-  <div class="">
-    <section class="example-section" formGroupName="tags">
-      <h4>Select your toppings:</h4>
-      <mat-checkbox [formControlName]="tag.id" *ngFor="let tag of tagList">
-        <mat-icon [svgIcon]="tag.icon"></mat-icon>
-        {{ tag.title }}
-      </mat-checkbox>
-    </section>
-    <div class="action">
-      <button mat-raised-button (click)="onSave()">Создать</button>
+  <div class="song-details__container">
+    <app-edit-song
+      class="song-details__container_song"
+      formControlName="text"
+      placeholder="Тест песни:&#10;Пример:&#10;C a \\Аккорды&#10;Сонца ўжо зайшло, думкі-мары прыходзяць,&#10;d G&#10;Цемра ахінае, як коўдра зямлю. &#10;Хочацца ўстаць, штосьці добрае зробіць, &#10;"
+    ></app-edit-song>
+
+    <div class="select-tags" formGroupName="tags">
+      <h5>Выберете теги:</h5>
+      <div class="select-tags__items">
+        <mat-checkbox [formControlName]="tag.id" *ngFor="let tag of tagList">
+          <mat-icon [svgIcon]="tag.icon"></mat-icon>
+          {{ tag.title }}
+        </mat-checkbox>
+      </div>
     </div>
+  </div>
+
+  <div class="action">
+    <button mat-raised-button (click)="onSave()">Создать</button>
   </div>
 </div>

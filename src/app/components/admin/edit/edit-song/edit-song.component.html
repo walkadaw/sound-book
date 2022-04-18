@@ -1,0 +1,27 @@
+<div class="edit-form">
+  <div class="edit-content">
+    <textarea
+      #lineCounter
+      class="textarea textarea__line-counter"
+      wrap="off"
+      readonly
+      *ngIf="lineCounter$ | async as lines"
+      >{{ lines }}</textarea
+    >
+    <!-- <pre
+      #content
+      class="textarea__conteiner"
+      contenteditable="true"
+      *ngIf="songDataForm.controls.text.valueChanges | async as foos"
+      [innerHtml]="foo(foos)"
+    ></pre> -->
+    <textarea
+      #textEditor
+      class="textarea textarea__edit textarea__edit_text"
+      wrap="off"
+      (focus)="onTouched()"
+      [placeholder]="placeholder"
+      [formControl]="textForm"
+    ></textarea>
+  </div>
+</div>

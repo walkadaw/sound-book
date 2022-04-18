@@ -1,11 +1,13 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { AdminComponent } from './admin/admin.component';
-import { EditComponent } from './edit/edit.component';
-import { AddComponent } from './add/add.component';
 import { MainAdminComponent } from '../../application/main-admin/main-admin.component';
+import { MatModule } from '../../mat.module';
 import { HeaderModule } from '../header/header.module';
+import { AdminComponent } from './admin/admin.component';
+import { EditSongComponent } from './edit/edit-song/edit-song.component';
+import { EditComponent } from './edit/edit.component';
 
 const adminRoutes: Routes = [
   {
@@ -13,14 +15,25 @@ const adminRoutes: Routes = [
     component: MainAdminComponent,
     children: [
       { path: 'edit/:id', component: EditComponent },
-      { path: 'add', component: AddComponent },
+      { path: 'add', component: EditComponent },
       { path: '', component: AdminComponent, pathMatch: 'full' },
     ],
   },
 ];
 
 @NgModule({
-  declarations: [MainAdminComponent, AdminComponent, EditComponent, AddComponent],
-  imports: [CommonModule, RouterModule.forChild(adminRoutes), HeaderModule],
+  declarations: [
+    MainAdminComponent,
+    AdminComponent,
+    EditComponent,
+    EditSongComponent,
+  ],
+  imports: [
+    CommonModule,
+    RouterModule.forChild(adminRoutes),
+    HeaderModule,
+    ReactiveFormsModule,
+    MatModule,
+  ],
 })
 export class AdminModule {}

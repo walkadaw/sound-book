@@ -89,4 +89,8 @@ export class SongService {
       )
       .toPromise();
   }
+
+  addEditSong(song: Song) {
+    return this.http.post(`${environment.baseUrl}/song/add`, song);
+  }
 }
