@@ -1,0 +1,11 @@
+<ng-template ngFor let-lines [ngForOf]="chordList"
+  ><ng-template ngFor let-tag [ngForOf]="lines"
+    ><b *ngIf="tag.type === 'chord'; else text" (click)="showChords(tag.text)" [matMenuTriggerFor]="showChord">{{
+      tag.text
+    }}</b
+    ><ng-template #text>{{ tag.text }}</ng-template></ng-template
+  >{{ '\n' }}</ng-template
+>
+<mat-menu #showChord>
+  <app-chord-variation *ngIf="selectedChord" [chord]="selectedChord"></app-chord-variation>
+</mat-menu>

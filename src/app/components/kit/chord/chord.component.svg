@@ -1,4 +1,4 @@
-<svg width="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 80 70">
+<svg *ngIf="data" width="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 80 70">
   <g transform="translate(13, 13)">
     <g>
       <path
@@ -57,7 +57,7 @@
           fill="#555"
           [attr.x]="fretXPosition[data.frets.length][0]"
           [attr.y]="fretYPosition[barre.barre - 1]"
-          [attr.width]="barre.width"
+          [attr.width]="(data.strings - 1) * 10"
           fill-opacity="0.2"
           height="8.25"
         ></rect>
@@ -98,10 +98,18 @@
         [attr.x]="getStringPosition(data.frets.length - fret.position, data.frets.length)"
         [attr.y]="positions.finger[fret.value]"
       >
-        {{ fret.position }}
+        {{ barre.finger }}
       </text>
     </g>
     <g *ngFor="let dot of data.dots">
+      <text 
+        *ngIf="dot.fret === -1"
+        font-size="0.7rem" 
+        fill="#444" 
+        font-family="Verdana" 
+        text-anchor="middle" 
+        [attr.x]="getStringPosition(dot.string, dot.strings)"
+        y="-2">x</text>
       <circle
         *ngIf="dot.fret !== -1"
         stroke-width="0.25"
@@ -112,6 +120,7 @@
         [attr.r]="dot.fret === 0 ? radius['open'] : radius['fret']"
       ></circle>
       <text
+        *ngIf="dot.finger > 0"
         [attr.font-size]="dot.fret === -1 ? '0.7rem' : '3pt'"
         font-family="Verdana"
         text-anchor="middle"

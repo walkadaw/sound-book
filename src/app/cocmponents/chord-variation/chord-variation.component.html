@@ -1,0 +1,21 @@
+<div class="chord" *ngIf="chord">
+  <span class="chord__name">
+    {{ chord.key + chord.suffix }}
+    <span class="chord_version" *ngIf="chord.positions[selectedVariant].baseFret > 1">
+      ({{ chord.positions[selectedVariant].baseFret }})
+    </span>
+  </span>
+
+  <button mat-icon-button class="chord__arrow-left" *ngIf="selectedVariant > 0" (click)="prevChord($event)">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <app-chord class="chord__content" [chord]="chord.positions[selectedVariant]"></app-chord>
+  <button
+    mat-icon-button
+    class="chord__arrow-right"
+    *ngIf="selectedVariant < chord.positions.length - 1"
+    (click)="nextChord($event)"
+  >
+    <mat-icon>navigate_next</mat-icon>
+  </button>
+</div>

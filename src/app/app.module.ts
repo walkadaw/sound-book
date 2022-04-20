@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app.routing';
 import { AppComponent } from './application/app.component';
 import { MainSoundComponent } from './application/main-sound/main-sound.component';
 import { AboutComponent } from './components/about/about.component';
+import { ChordListComponent } from './components/chord-list/chord-list.component';
 import { FavoriteComponent } from './components/favorite/favorite.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { GadzinkiComponent } from './components/gadzinki/gadzinki.component';
@@ -37,6 +38,7 @@ import { LiturgyModule } from './services/liturgy-service/liturgy.module';
 import { SongModule } from './services/song-service/song.module';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
+import { ChordVariationComponent } from './cocmponents/chord-variation/chord-variation.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +57,8 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     PlaylistComponent,
     AddPlaylistComponent,
     ViewPlaylistComponent,
+    ChordListComponent,
+    ChordVariationComponent,
   ],
   imports: [
     BrowserModule,

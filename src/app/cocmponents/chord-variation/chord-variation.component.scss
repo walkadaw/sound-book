@@ -1,0 +1,37 @@
+.chord {
+  position: relative;
+
+  &__name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  &__content {
+    display: flex;
+    width: 95%;
+    margin: 0 auto;
+  }
+
+  &__arrow-right,
+  &__arrow-left {
+    position: absolute;
+    top: 120px;
+    width: 50px;
+    height: 50px;
+    color: #444;
+
+    .mat-icon {
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      font-size: 50px;
+    }
+  }
+
+  &__arrow-right {
+    right: 0;
+  }
+}

@@ -37,7 +37,11 @@
   >
     <ng-container *ngIf="selectedSong.chordPosition === 'inText'; else chordRight">
       <ng-container *ngFor="let line of selectedSong.text; let i = index">
-        <span class="chord" *ngIf="showChord && selectedSong.chord[i]">{{ selectedSong.chord[i] }}</span>
+        <app-chord-list
+          class="chord"
+          *ngIf="showChord && selectedSong.chord[i]"
+          [chords]="selectedSong.chord[i]"
+        ></app-chord-list>
         <span>{{ line }}</span>
       </ng-container>
     </ng-container>
@@ -45,7 +49,7 @@
     <ng-template #chordRight>
       <span [class.without-chord]="!showChord">{{ selectedSong?.text }}</span>
 
-      <span class="chord" *ngIf="showChord">{{ selectedSong?.chord }}</span>
+      <app-chord-list class="chord" *ngIf="showChord" [chords]="selectedSong?.chord"></app-chord-list>
     </ng-template>
   </div>
 </article>

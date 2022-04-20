@@ -1,6 +1,8 @@
 import {
   ChangeDetectionStrategy, Component, Input,
 } from '@angular/core';
+import { CHORD_DATA } from '../../../services/chord/chord-list';
+import { Position } from '../../../services/chord/chord.interface';
 
 interface Barre {
   key: number;
@@ -33,15 +35,6 @@ interface ChordData {
   dots: Dot[],
 }
 
-interface Chord {
-  frets: number[];
-  fingers: number[];
-  barres: number[];
-  capo: boolean;
-  baseFret: number;
-  midi: number[];
-}
-
 function onlyBarres(frets: number[], barre: number) {
   return frets.map((f, index) => ({
     position: index,
@@ -49,7 +42,7 @@ function onlyBarres(frets: number[], barre: number) {
   })).filter((f) => f.value === barre);
 }
 
-function onlyDots(chord: Chord) {
+function onlyDots(chord: Position) {
   return chord.frets.map((f, index) => ({
     position: index,
     value: f,
@@ -62,22 +55,14 @@ function onlyDots(chord: Chord) {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChordComponent {
-  @Input() set chord(chord: Chord) {
+  @Input() set chord(chord: Position) {
     if (!chord) {
       this.data = null;
+      return;
     }
 
     this.setData(chord);
   }
-
-  instrument = {
-    strings: 6,
-    fretsOnChord: 4,
-    name: 'Guitar',
-    tunings: {
-      standard: ['E', 'A', 'D', 'G', 'B', 'E'],
-    },
-  };
 
   data: ChordData;
 
@@ -115,6 +100,8 @@ export class ChordComponent {
       length: 50,
     },
   };
+
+  private instrument = CHORD_DATA.main;
 
   getStringPosition(string: number, strings: number) {
     return this.positions.string[string + this.offset[strings]];
@@ -163,9 +150,9 @@ export class ChordComponent {
     return `M ${this.offsets[strings].y + pos * 10} 0 V 48`;
   }
 
-  private setData(chord: Chord) {
+  private setData(chord: Position) {
     this.data = {
-      tuning: this.instrument.tunings.standard,
+      tuning: CHORD_DATA.tunings.standard,
       strings: this.instrument.strings,
       frets: chord.frets,
       capo: chord.capo,
