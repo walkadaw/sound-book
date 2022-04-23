@@ -4,7 +4,7 @@ import { of, Observable, throwError } from 'rxjs';
 import {
   catchError, tap, map, switchMap,
 } from 'rxjs/operators';
-import { Song, SongRequest } from '../../interfaces/song';
+import { Song, SongAdd, SongRequest } from '../../interfaces/song';
 import { environment } from '../../../environments/environment';
 import { SlideList } from '../../interfaces/slide';
 
@@ -61,7 +61,7 @@ export class SongService {
     );
   }
 
-  loadSongs(requeuedRequest?: boolean): Promise<SongRequest> {
+  loadSongs(requeuedRequest?: boolean): Observable<SongRequest> {
     return of(localStorage.getItem('songList'))
       .pipe(
         map<string, SongRequest>((songList) => JSON.parse(songList)),
@@ -86,11 +86,16 @@ export class SongService {
           console.error('loadSongs', error);
           return of(null);
         }),
-      )
-      .toPromise();
+      );
   }
 
-  addEditSong(song: Song) {
-    return this.http.post(`${environment.baseUrl}/song/add`, song);
+  getSongWithoutCache(id: string): Observable<Song> {
+    return this.http.get<Song>(`${environment.baseUrl}/song/get`, { params: { id } });
+  }
+
+  updateSong(song: SongAdd): Observable<number> {
+    return this.http.post<{ id: number}>(`${environment.baseUrl}/song/update`, song).pipe(
+      switchMap((value) => this.loadSongs(true).pipe(map(() => value.id))),
+    );
   }
 }

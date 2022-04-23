@@ -4,7 +4,7 @@ import {
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
   distinctUntilChanged, fromEvent,
-  map, Subject, takeUntil,
+  map, merge, of, Subject, takeUntil,
 } from 'rxjs';
 
 @Component({
@@ -25,9 +25,11 @@ export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValue
 
   textForm = new FormControl('');
 
-  lineCounter$ = this.textForm.valueChanges.pipe(
-    map((value: string) => value.split('\n')),
-    distinctUntilChanged((a, b) => a.length === b.length),
+  lineCounter$ = merge(
+    of(Array(50).fill('')),
+    this.textForm.valueChanges.pipe(map((value: string) => value.split('\n'))),
+  ).pipe(
+    distinctUntilChanged((a, b) => a.length > b.length),
     map((lines) => lines.map((_, index) => `${index + 1}.`).join('\n')),
   );
 

@@ -63,6 +63,11 @@
       "url": "/favorite"
     },
     {
+      "name": "Вашы плэйлісты",
+      "description": "Адкрыць вашы плэйлісты",
+      "url": "/playlist"
+    },
+    {
       "name": "Чытанне дня",
       "description": "Адкрыць читанне дня",
       "url": "/liturgy"

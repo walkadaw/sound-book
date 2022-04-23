@@ -1,7 +1,7 @@
 <div class="edit-form" [formGroup]="songDataForm">
   <mat-form-field class="song-name" appearance="fill">
     <mat-label>Назва спеву</mat-label>
-    <input type="text" matInput formControlName="title" />
+    <input type="text" matInput formControlName="title" maxlength="120" />
   </mat-form-field>
 
   <div class="song-details__container">
@@ -25,4 +25,13 @@
   <div class="action">
     <button mat-raised-button (click)="onSave()">Создать</button>
   </div>
+</div>
+<div style="white-space: pre">
+  <ng-container *ngFor="let change of diff">
+    <ng-container *ngIf="change.removed && change.value.trim()"
+      ><span style="color: red">{{ change.value }}</span></ng-container
+    ><ng-container *ngIf="change.added">
+      <span style="color: green">{{ change.value }}</span></ng-container
+    ><ng-container *ngIf="!change.added && !change.removed">{{ change.value }}</ng-container>
+  </ng-container>
 </div>

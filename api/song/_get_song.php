@@ -1,5 +1,37 @@
 <?php
 
+// get By ID
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET["id"])) {
+    $id = intval($_GET['id']);
+
+    $sth = $db->prepare("SELECT * FROM `sound_list` WHERE id=?");
+    $sth->execute([$id]);
+    $row = $sth->fetch();
+
+    if (!$row) {
+        http_response_code(404);
+        exit(404);
+    }
+
+    $tag = explode(",", rtrim($row["tag"], ", "));
+    $tags = [];
+
+    foreach ($tag as $value) {
+        if( $value > 0 ) $tags[$value] = 1;
+    }
+
+    echo gzencode(json_encode([
+        "id" => $row["id"],
+        "title" => $row["title"],
+        "text" => $row["text"],
+        "chord" => $row["chord"],
+        "tag" => $tags
+      ], JSON_UNESCAPED_UNICODE));
+    
+    exit();
+}
+
+// GET ALL SONGS WITH CACHE
 $version_request = intval($_GET["last_update"]);
 
 $sql = $db->query("SELECT last_update FROM ad_options where id = '1'");

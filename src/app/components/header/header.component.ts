@@ -4,6 +4,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { catchError, EMPTY } from 'rxjs';
 import { clearSearchAction } from '../../redux/actions/search.actions';
 import {
   changeFontSizeAction,
@@ -112,17 +113,19 @@ export class HeaderComponent {
   updateSong(event: MouseEvent) {
     event.preventDefault();
 
-    Promise.all([this.songService.loadSongs(true), this.songService.loadSlideSongs(true)])
-      .then(() => {
-        this.snackBar.open('Дадзеныя паспяхова абноўленыя', 'Зачыніць', {
-          duration: 2000,
-        });
-      })
-      .catch(() => {
+    this.songService.loadSongs(true).pipe(
+      catchError(() => {
         this.snackBar.open('Адбылася памылка падчас абнаўлення', 'Зачыніць', {
           duration: 2000,
         });
+
+        return EMPTY;
+      }),
+    ).subscribe(() => {
+      this.snackBar.open('Дадзеныя паспяхова абноўленыя', 'Зачыніць', {
+        duration: 2000,
       });
+    });
   }
 
   goToPlaylist(playlist: PlayList) {

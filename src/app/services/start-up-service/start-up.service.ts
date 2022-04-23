@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { firstValueFrom } from 'rxjs';
 import { setFavoriteAction } from '../../redux/actions/favorite.actions';
 import {
   changeFontSizeAction,
@@ -26,7 +27,7 @@ export class StartUpService {
 
   load(): Promise<any> {
     return Promise.all([
-      this.songService.loadSongs(),
+      firstValueFrom(this.songService.loadSongs()),
       this.matRegisterIcon.register(),
       this.loadFavorite(),
       this.loadSettings(),

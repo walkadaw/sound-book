@@ -102,6 +102,43 @@ export class ChordService {
     }, []));
   }
 
+  getTextAndChord(text: string) {
+    let addEmptyLineChord = 0;
+
+    return this.getChordsList(text.split('\n')).reduce((acc, item) => {
+      let lineSong = '';
+      let chord = '';
+      let result = '';
+
+      item.forEach((value) => {
+        if (value.type === 'text') {
+          lineSong += value.text.trim();
+        } else {
+          chord += value.text.trim();
+        }
+
+        result += value.text;
+      });
+
+      if (!result.trim()) {
+        acc.text += '\n';
+        addEmptyLineChord += 1;
+      } else if (lineSong.length > chord.length) {
+        acc.text += `${result.trimRight()}\n`;
+        addEmptyLineChord += 1;
+      } else {
+        acc.chord += `${result.trimRight()}\n`;
+        addEmptyLineChord = 0;
+      }
+
+      if (addEmptyLineChord > 1) {
+        acc.chord += '\n';
+      }
+
+      return acc;
+    }, { text: '', chord: '' });
+  }
+
   private getBaseChord(chord: string): string {
     const base = chord.slice(0, 2);
 

@@ -8,6 +8,14 @@ export interface Song {
   tag: { [key: string]: number };
 }
 
+export interface SongAdd {
+  id: number;
+  title: string;
+  text: string;
+  chord: string;
+  tag: string;
+}
+
 export interface SongFavorite extends Song {
   favorite?: boolean;
 }
