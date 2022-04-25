@@ -35,7 +35,7 @@ export class PaperGeneratorComponent implements OnInit {
     this.songListFiltered$ = this.fuseService.getFilteredSong(
       of(0),
       search.valueChanges.pipe(startWith(search.value)),
-      this.songService.songList,
+      this.songService.songList$,
     );
 
     this.selectedSongList$ = this.songListForm.get('selectedSong').valueChanges.pipe(

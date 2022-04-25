@@ -229,7 +229,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private initSearch() {
     const search$ = this.search.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged());
 
-    this.songListFiltered$ = this.fuseService.getFilteredSong(this.selectedTag$, search$, this.songService.songList);
+    this.songListFiltered$ = this.fuseService.getFilteredSong(this.selectedTag$, search$, this.songService.songList$);
     this.search.valueChanges
       .pipe(
         takeUntil(this.onDestroy$),

@@ -27,7 +27,7 @@ export class StartUpService {
 
   load(): Promise<any> {
     return Promise.all([
-      firstValueFrom(this.songService.loadSongs()),
+      firstValueFrom(this.songService.loadSongFromCache()),
       this.matRegisterIcon.register(),
       this.loadFavorite(),
       this.loadSettings(),

@@ -113,7 +113,7 @@ export class HeaderComponent {
   updateSong(event: MouseEvent) {
     event.preventDefault();
 
-    this.songService.loadSongs(true).pipe(
+    this.songService.loadSongs().pipe(
       catchError(() => {
         this.snackBar.open('Адбылася памылка падчас абнаўлення', 'Зачыніць', {
           duration: 2000,

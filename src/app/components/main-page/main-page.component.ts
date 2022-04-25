@@ -42,7 +42,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     const filteredSong$ = this.fuseService.getFilteredSong(
       this.selectedTag$,
       this.store.select(getSearchTerm),
-      this.songService.songList,
+      this.songService.songList$,
     );
 
     this.songListFiltered$ = combineLatest([filteredSong$, this.store.select(getFavoriteState)]).pipe(

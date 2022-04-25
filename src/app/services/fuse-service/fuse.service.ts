@@ -26,14 +26,18 @@ export class FuseService {
   getFilteredSong(
     selectedTags$: Observable<number>,
     search$: Observable<string>,
-    allSongList: Song[],
+    allSongList$: Observable<Song[]>,
   ): Observable<Song[]> {
     return selectedTags$.pipe(
-      map((selectedTags) => {
+      switchMap((selectedTags) => {
         if (selectedTags) {
-          return allSongList.filter((song) => song.tag && Object.keys(song.tag).some((tag) => selectedTags === +tag));
+          return allSongList$.pipe(
+            map((songs) => songs.filter(
+              (song) => song.tag && Object.keys(song.tag).some((tag) => selectedTags === +tag),
+            )),
+          );
         }
-        return allSongList;
+        return allSongList$;
       }),
       tap((songList) => this.fuse.setCollection(songList)),
       debounceTime(100),
