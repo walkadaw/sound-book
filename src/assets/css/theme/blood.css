@@ -298,13 +298,13 @@ body.reveal {
   vertical-align: baseline; }
 
 
-.white{
+body.white{
   background-color: #fff;
 }
-.white .reveal{
+body.white .reveal{
   color: #000;
 }
-.white .reveal .controls {
+body.white .reveal .controls {
   color: #222;
 }
 .reveal .controls {
