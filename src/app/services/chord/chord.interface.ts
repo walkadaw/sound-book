@@ -32,7 +32,7 @@ export interface Chords {
   F: Chord[];
   Fsharp: Chord[];
   G: Chord[];
-  Ab: Chord[];
+  Gsharp: Chord[];
   A: Chord[];
   Bb: Chord[];
   B: Chord[];

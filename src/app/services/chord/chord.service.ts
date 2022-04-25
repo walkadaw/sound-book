@@ -24,6 +24,7 @@ const SHORT_MAP: {[key: string]: string} = {
   ab: 'Abm',
   b: 'Bm',
   bb: 'Bbm',
+  Ab: 'G#',
 };
 
 @Injectable({
@@ -35,7 +36,7 @@ export class ChordService {
   }
 
   getChord(dirtyChord: string): Chord {
-    const chord = this.convertShortChordToNormal(this.cleanUpChord(dirtyChord));
+    const chord = this.convertAlias(this.cleanUpChord(dirtyChord));
     const base = this.getBaseChord(chord) || '';
     const baseChord = CHORD_DATA.chords[base.replace('#', 'sharp') as keyof Chords];
 
@@ -149,7 +150,7 @@ export class ChordService {
     return CHORD_DATA.keys.find((value) => value === base[0]);
   }
 
-  private convertShortChordToNormal(chord: string) {
+  private convertAlias(chord: string) {
     if (chord.length > 2 && SHORT_MAP[chord.slice(0, 3)]) {
       return SHORT_MAP[chord.slice(0, 3)] + chord.slice(3);
     }

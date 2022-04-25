@@ -1,1 +1,20 @@
-<p>admin works!</p>
+<div *ngIf="songWithoutChord.length">
+  <h3>Песни без аккордов</h3>
+  <ul>
+    <li [routerLink]="['/admin/edit', song.id]" *ngFor="let song of songWithoutChord">{{ song.title }}</li>
+  </ul>
+</div>
+
+<div *ngIf="songChordMistake.length">
+  <h3>Песни с нераспознанными аккордами</h3>
+  <ul>
+    <li [routerLink]="['/song', song.id]" *ngFor="let song of songChordMistake">{{ song.title }}</li>
+  </ul>
+</div>
+
+<div *ngIf="songWithoutTag.length">
+  <h3>Песни без Тегов</h3>
+  <ul>
+    <li [routerLink]="['/admin/edit', song.id]" *ngFor="let song of songWithoutTag">{{ song.title }}</li>
+  </ul>
+</div>

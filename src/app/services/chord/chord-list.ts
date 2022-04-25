@@ -10,7 +10,7 @@ export const CHORD_DATA: ChordData = {
   tunings: {
     standard: ['E', 'A', 'D', 'G', 'B', 'E']
   },
-  keys: ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
+  keys: ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
   suffixes: [
     'major',
     'minor',
@@ -11579,9 +11579,9 @@ export const CHORD_DATA: ChordData = {
         ],
       },
     ],
-    Ab: [
+    Gsharp: [
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'major',
         positions: [
           {
@@ -11615,7 +11615,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'minor',
         positions: [
           {
@@ -11647,7 +11647,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'dim',
         positions: [
           {
@@ -11677,7 +11677,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'dim7',
         positions: [
           {
@@ -11709,7 +11709,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'sus2',
         positions: [
           {
@@ -11742,7 +11742,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'sus4',
         positions: [
           {
@@ -11776,7 +11776,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '7sus4',
         positions: [
           {
@@ -11810,7 +11810,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'alt',
         positions: [
           {
@@ -11841,7 +11841,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'aug',
         positions: [
           {
@@ -11874,7 +11874,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '5',
         positions: [
           {
@@ -11898,7 +11898,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '6',
         positions: [
           {
@@ -11930,7 +11930,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '69',
         positions: [
           {
@@ -11963,7 +11963,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '7',
         positions: [
           {
@@ -11997,7 +11997,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '7b5',
         positions: [
           {
@@ -12029,7 +12029,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'aug7',
         positions: [
           {
@@ -12060,7 +12060,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '9',
         positions: [
           {
@@ -12092,7 +12092,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '9b5',
         positions: [
           {
@@ -12125,7 +12125,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'aug9',
         positions: [
           {
@@ -12156,7 +12156,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '7b9',
         positions: [
           {
@@ -12188,7 +12188,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '7#9',
         positions: [
           {
@@ -12219,7 +12219,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '11',
         positions: [
           {
@@ -12253,7 +12253,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '9#11',
         positions: [
           {
@@ -12285,7 +12285,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: '13',
         positions: [
           {
@@ -12318,7 +12318,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'maj7',
         positions: [
           {
@@ -12351,7 +12351,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'maj7b5',
         positions: [
           {
@@ -12383,7 +12383,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'maj7#5',
         positions: [
           {
@@ -12414,7 +12414,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'maj9',
         positions: [
           {
@@ -12447,7 +12447,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'maj11',
         positions: [
           {
@@ -12480,7 +12480,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'maj13',
         positions: [
           {
@@ -12514,7 +12514,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'm6',
         positions: [
           {
@@ -12547,7 +12547,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'm7',
         positions: [
           {
@@ -12581,7 +12581,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'm7b5',
         positions: [
           {
@@ -12611,7 +12611,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'm9',
         positions: [
           {
@@ -12642,7 +12642,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'm69',
         positions: [
           {
@@ -12674,7 +12674,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'm11',
         positions: [
           {
@@ -12708,7 +12708,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'mmaj7',
         positions: [
           {
@@ -12742,7 +12742,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'mmaj7b5',
         positions: [
           {
@@ -12773,7 +12773,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'mmaj9',
         positions: [
           {
@@ -12805,7 +12805,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'mmaj11',
         positions: [
           {
@@ -12839,7 +12839,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'add9',
         positions: [
           {
@@ -12870,7 +12870,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Ab',
+        key: 'G#',
         suffix: 'madd9',
         positions: [
           {
