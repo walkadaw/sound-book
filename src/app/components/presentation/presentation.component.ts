@@ -1,15 +1,16 @@
-import {
-  Component, ViewEncapsulation, AfterViewInit, OnInit, Renderer2, OnDestroy,
-} from '@angular/core';
 import { Location } from '@angular/common';
+import {
+  AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin, BehaviorSubject } from 'rxjs';
-import { take, filter } from 'rxjs/operators';
-import { SongService } from '../../services/song-service/song.service';
+import { BehaviorSubject, forkJoin } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { LITURGY_ACRONYM } from '../../constants/liturgy-acronym';
-import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { SlideList } from '../../interfaces/slide';
+import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { RevealService } from '../../services/reveal-service/reveal.service';
+import { SlidesService } from '../../services/slides/slides.service';
+import { SongService } from '../../services/song-service/song.service';
 
 @Component({
   selector: 'app-presentation',
@@ -33,10 +34,13 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     private location: Location,
     private reveal: RevealService,
     private render: Renderer2,
+    private slidesService: SlidesService,
   ) {}
 
   ngOnInit() {
-    this.loadSlide();
+    this.slidesService.init$.pipe(take(1)).subscribe(() => {
+      this.loadSlide();
+    });
     this.render.addClass(document.body, 'reveal');
   }
 
@@ -64,17 +68,21 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addSlide(idSong: string) {
-    if (this.songService.hasSlideSong(idSong)) {
-      const newSlide = this.songService.getSlideSong(idSong);
-      const { text, chord } = this.songService.getSong(idSong);
+    if (this.songService.hasSong(idSong)) {
+      const {
+        id, title, text, chord,
+      } = this.songService.getSong(idSong);
+      const slides = this.slidesService.getSongSlide(text);
 
       const lastIndex = this.slideList.length ? this.slideList[this.slideList.length - 1].endIndex : -1;
       this.slideList.push({
-        ...newSlide,
+        id: id.toString(),
+        slides,
+        title,
         text,
         chord,
         startIndex: lastIndex + 1,
-        endIndex: lastIndex + newSlide.slides.length,
+        endIndex: lastIndex + slides.length,
       });
 
       if (!this.reveal.isSpeakerNotes()) {
@@ -108,11 +116,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadSlide() {
-    const idParams: string = this.activatedRoute.snapshot.params.id || '';
-    const listID = idParams.split(',');
+    const listID = (this.activatedRoute.snapshot.params.id as string || '').split(',');
     forkJoin([
       this.liturgyService.loadSlideForLiturgy(),
-      this.songService.loadSlideSongs(),
       this.songService.loadSongs(),
     ]).subscribe(() => {
       this.isDataLoaded$.next(true);
@@ -126,9 +132,14 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
           if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
             slide = this.liturgyService.getSlideLiturgy(id);
           }
-        } else if (this.songService.hasSlideSong(id)) {
-          slide = this.songService.getSlideSong(id);
+        } else if (this.songService.hasSong(id)) {
           const song = this.songService.getSong(id);
+
+          slide = {
+            id: song.id.toString(),
+            title: song.title,
+            slides: this.slidesService.getSongSlide(song.text),
+          };
           chord = song.chord;
           text = song.text;
         }

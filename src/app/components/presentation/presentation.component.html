@@ -3,13 +3,11 @@
     <ng-container *ngIf="slideList && slideList.length; else noSlide">
       <ng-container *ngFor="let slides of slideList; trackBy: trackBySlides">
         <section *ngFor="let slide of slides.slides" [style.font-size.px]="slide.fontSize">
-          {{ slide.text }}
-
+          <span>{{ slide.text }}</span>
           <aside class="notes" *ngIf="slides.chord || slides.text">
             <div class="lyrics">
-              <span>{{ slides.text }}</span>
-
-              <span class="chord">{{ slides.chord }}</span>
+              <span>{{ slides.text }}</span
+              ><span class="chord">{{ slides.chord }}</span>
             </div>
           </aside>
         </section>
