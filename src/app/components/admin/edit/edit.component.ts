@@ -7,9 +7,8 @@ import {
   EMPTY,
   filter, pluck, Subject, switchMap, takeUntil,
 } from 'rxjs';
-import { TAGS_LIST } from '../../../constants/tag-list';
+import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { Song, SongAdd } from '../../../interfaces/song';
-import { TagList } from '../../../interfaces/tag-list';
 import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
 

@@ -1,4 +1,8 @@
-import { TagList } from '../interfaces/tag-list';
+export interface TagList {
+  id: number;
+  title: string;
+  icon: string;
+}
 
 export const TAGS_LIST: TagList[] = [
   {
@@ -45,5 +49,10 @@ export const TAGS_LIST: TagList[] = [
     id: 9,
     title: 'Велікодныя',
     icon: 'icon-easter',
+  },
+  {
+    id: 10,
+    title: 'Часткі імшы',
+    icon: 'icon-parts-of-mass',
   },
 ];

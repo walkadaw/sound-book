@@ -17,8 +17,7 @@ import {
 import {
   takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map,
 } from 'rxjs/operators';
-import { TagList } from '../../../interfaces/tag-list';
-import { TAGS_LIST } from '../../../constants/tag-list';
+import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
 import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';

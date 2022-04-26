@@ -107,19 +107,9 @@ export class ChordService {
     let addEmptyLineChord = 0;
 
     return this.getChordsList(text.split('\n')).reduce((acc, item) => {
-      let lineSong = '';
-      let chord = '';
-      let result = '';
-
-      item.forEach((value) => {
-        if (value.type === 'text') {
-          lineSong += value.text.trim();
-        } else {
-          chord += value.text.trim();
-        }
-
-        result += value.text;
-      });
+      const lineSong = item.filter((value) => value.type === 'text' && value.text.trim());
+      const chord = item.filter((value) => value.type === 'chord');
+      const result = item.map((value) => value.text).join('');
 
       if (!result.trim()) {
         acc.text += '\n';

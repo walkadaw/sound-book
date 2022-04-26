@@ -12,6 +12,7 @@ export const svgMatIcons = {
   'icon-christmas': 'assets/icons/icon-christmas.svg',
   'icon-fasting': 'assets/icons/icon-fasting.svg',
   'icon-easter': 'assets/icons/icon-easter.svg',
+  'icon-parts-of-mass': 'assets/icons/icon-parts-of-mass.svg',
 };
 
 @Injectable({
