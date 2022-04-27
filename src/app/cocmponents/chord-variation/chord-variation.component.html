@@ -1,4 +1,4 @@
-<div class="chord" *ngIf="chord">
+<div class="chord" *ngIf="chord" (click)="$event.stopPropagation()">
   <span class="chord__name">
     {{ chord.key + chordService.getReadableSuffix(chord.suffix) }}
     <span class="chord_version" *ngIf="chord.positions[selectedVariant].baseFret > 1">
@@ -6,7 +6,7 @@
     </span>
   </span>
 
-  <button mat-icon-button class="chord__arrow-left" *ngIf="selectedVariant > 0" (click)="prevChord($event)">
+  <button mat-icon-button class="chord__arrow-left" *ngIf="selectedVariant > 0" (click)="prevChord()">
     <mat-icon>chevron_left</mat-icon>
   </button>
   <app-chord class="chord__content" [chord]="chord.positions[selectedVariant]"></app-chord>
@@ -14,7 +14,7 @@
     mat-icon-button
     class="chord__arrow-right"
     *ngIf="selectedVariant < chord.positions.length - 1"
-    (click)="nextChord($event)"
+    (click)="nextChord()"
   >
     <mat-icon>navigate_next</mat-icon>
   </button>

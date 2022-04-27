@@ -10,6 +10,9 @@ app-search-song {
     }
     .mat-select {
         width: 40px;
+        height: 26px;
+        display: flex;
+        align-items: center;
         
         .mat-select-value {
             max-width: none;

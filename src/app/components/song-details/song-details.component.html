@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <div class="guitar-controls">
+    <div class="guitar-controls" *ngIf="showChord$ | async">
       <app-song-key [(selectedTranspilation)]="selectedTranspilation"></app-song-key>
     </div>
   </header>

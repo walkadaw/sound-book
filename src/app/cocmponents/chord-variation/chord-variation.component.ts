@@ -21,13 +21,11 @@ export class ChordVariationComponent implements OnChanges {
     this.selectedVariant = 0;
   }
 
-  prevChord(event: Event) {
-    event.stopPropagation();
+  prevChord() {
     this.selectedVariant -= 1;
   }
 
-  nextChord(event: Event) {
-    event.stopPropagation();
+  nextChord() {
     this.selectedVariant += 1;
   }
 }
