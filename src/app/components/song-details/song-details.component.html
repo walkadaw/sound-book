@@ -28,6 +28,10 @@
         </mat-menu>
       </div>
     </div>
+
+    <div class="guitar-controls">
+      <app-song-key [(selectedTranspilation)]="selectedTranspilation"></app-song-key>
+    </div>
   </header>
 
   <div
@@ -41,6 +45,7 @@
           class="chord"
           *ngIf="showChord && selectedSong.chord[i]"
           [chords]="selectedSong.chord[i]"
+          [transpilation]="selectedTranspilation"
         ></app-chord-list>
         <span>{{ line }}</span>
       </ng-container>
@@ -49,7 +54,12 @@
     <ng-template #chordRight>
       <span [class.without-chord]="!showChord">{{ selectedSong?.text }}</span>
 
-      <app-chord-list class="chord" *ngIf="showChord" [chords]="selectedSong?.chord"></app-chord-list>
+      <app-chord-list
+        class="chord"
+        *ngIf="showChord"
+        [chords]="selectedSong?.chord"
+        [transpilation]="selectedTranspilation"
+      ></app-chord-list>
     </ng-template>
   </div>
 </article>

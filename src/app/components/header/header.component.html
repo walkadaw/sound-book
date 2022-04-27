@@ -10,19 +10,19 @@
   <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
     <span>Пастаянна актыўны экран:</span>
     <div class="right">
-      <mat-checkbox [checked]="enableNoSleep" (change)="toggleNoSleep($event)"></mat-checkbox>
+      <mat-slide-toggle name="as" [checked]="enableNoSleep" (change)="toggleNoSleep($event)"></mat-slide-toggle>
     </div>
   </button>
   <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
     <span>Адлюстроўваць нумар песні:</span>
     <div class="right">
-      <mat-checkbox [checked]="showSongNumber" (change)="toggleSongNumber($event)"></mat-checkbox>
+      <mat-slide-toggle [checked]="showSongNumber" (change)="toggleSongNumber($event)"></mat-slide-toggle>
     </div>
   </button>
   <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
     <span>Паказваць акорды:</span>
     <div class="right">
-      <mat-checkbox [checked]="showChord" (change)="toggleChord($event)"></mat-checkbox>
+      <mat-slide-toggle [checked]="showChord" (change)="toggleChord($event)"></mat-slide-toggle>
     </div>
   </button>
   <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">

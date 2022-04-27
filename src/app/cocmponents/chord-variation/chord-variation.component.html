@@ -1,6 +1,6 @@
 <div class="chord" *ngIf="chord">
   <span class="chord__name">
-    {{ chord.key + chord.suffix }}
+    {{ chord.key + chordService.getReadableSuffix(chord.suffix) }}
     <span class="chord_version" *ngIf="chord.positions[selectedVariant].baseFret > 1">
       ({{ chord.positions[selectedVariant].baseFret }})
     </span>

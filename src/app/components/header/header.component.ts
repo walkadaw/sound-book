@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -49,19 +49,19 @@ export class HeaderComponent {
     private router: Router,
   ) {}
 
-  toggleSongNumber(event: MatCheckboxChange): void {
+  toggleSongNumber(event: MatSlideToggleChange): void {
     this.showSongNumber = event.checked;
     window.localStorage.setItem('showSongNumber', this.showSongNumber ? '1' : '0');
     this.store.dispatch(showSongNumberAction(this.showSongNumber));
   }
 
-  toggleChord(event: MatCheckboxChange): void {
+  toggleChord(event: MatSlideToggleChange): void {
     this.showChord = event.checked;
     window.localStorage.setItem('showChord', this.showChord ? '1' : '0');
     this.store.dispatch(showChordAction(this.showChord));
   }
 
-  toggleNoSleep(event: MatCheckboxChange): void {
+  toggleNoSleep(event: MatSlideToggleChange): void {
     this.enableNoSleep = event.checked;
     window.localStorage.setItem('enableNoSleep', this.enableNoSleep ? '1' : '0');
     this.store.dispatch(changeNoSleepAction(this.enableNoSleep));

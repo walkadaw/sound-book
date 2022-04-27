@@ -39,6 +39,7 @@ import { SongModule } from './services/song-service/song.module';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
 import { ChordVariationComponent } from './cocmponents/chord-variation/chord-variation.component';
+import { SongKeyComponent } from './components/song-key/song-key.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { ChordVariationComponent } from './cocmponents/chord-variation/chord-var
     ViewPlaylistComponent,
     ChordListComponent,
     ChordVariationComponent,
+    SongKeyComponent,
   ],
   imports: [
     BrowserModule,

@@ -34,6 +34,7 @@ export class SongDetailsComponent implements OnInit {
   showSongNumber$ = this.store.select(getShowSongNumber);
   showChord$ = this.store.select(getShowChord);
   playLists: PlayList[] = this.playlistService.getAllPlaylists();
+  selectedTranspilation = 0;
 
   readonly tagNameById = TagNameById;
 
@@ -52,6 +53,7 @@ export class SongDetailsComponent implements OnInit {
     ]).pipe(
       map(([songId, chordPosition]) => {
         const song = this.songService.getSong(songId);
+        this.selectedTranspilation = 0;
 
         if (chordPosition === 'inText') {
           const text = song.text.split('\n').map((value) => value.trim());

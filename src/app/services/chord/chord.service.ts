@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CHORD_DATA } from './chord-list';
+import { CHORD_TRANSPILATION } from './chord-transpitaliton';
 import { Chord, Chords } from './chord.interface';
 
 export interface ChordList {
@@ -130,7 +131,7 @@ export class ChordService {
     }, { text: '', chord: '' });
   }
 
-  private getBaseChord(chord: string): string {
+  getBaseChord(chord: string): string {
     const base = chord.slice(0, 2);
 
     if (CHORD_DATA.keys.some((value) => value === base)) {
@@ -140,7 +141,7 @@ export class ChordService {
     return CHORD_DATA.keys.find((value) => value === base[0]);
   }
 
-  private convertAlias(chord: string) {
+  convertAlias(chord: string) {
     if (chord.length > 2 && SHORT_MAP[chord.slice(0, 3)]) {
       return SHORT_MAP[chord.slice(0, 3)] + chord.slice(3);
     }
@@ -156,8 +157,42 @@ export class ChordService {
     return chord;
   }
 
-  private cleanUpChord(dirtyChord: string): string {
+  cleanUpChord(dirtyChord: string): string {
     return this.replaceBimole(dirtyChord).replace(CHORD_CLEAN_UP, '');
+  }
+
+  transpilationChord(baseChord: string, transpilation: number) {
+    const index = CHORD_TRANSPILATION.indexOf(baseChord);
+    const allowedSteps = CHORD_TRANSPILATION.length;
+
+    if (index === -1) {
+      // this not chord
+      return baseChord;
+    }
+
+    let newPosition: number;
+
+    if (transpilation < 0 && index + transpilation < 0) {
+      newPosition = allowedSteps + index + transpilation;
+    } else if (transpilation > 0 && index + transpilation >= allowedSteps) {
+      newPosition = index + transpilation - allowedSteps;
+    } else {
+      newPosition = index + transpilation;
+    }
+
+    return CHORD_TRANSPILATION[newPosition];
+  }
+
+  getReadableSuffix(suffix: string) {
+    if (suffix === 'minor') {
+      return 'm';
+    }
+
+    if (suffix === 'major') {
+      return '';
+    }
+
+    return suffix;
   }
 
   private replaceBimole(chord: string): string {
