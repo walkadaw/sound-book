@@ -25,13 +25,15 @@ export class StartUpService {
     private store: Store<IAppState>,
   ) {}
 
-  load(): Promise<any> {
-    return Promise.all([
+  async load(): Promise<void> {
+    await Promise.all([
       firstValueFrom(this.songService.loadSongFromCache()),
       this.matRegisterIcon.register(),
       this.loadFavorite(),
       this.loadSettings(),
     ]);
+
+    firstValueFrom(this.songService.loadSongs());
   }
 
   loadFavorite(): Promise<void> {
