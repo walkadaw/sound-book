@@ -1,9 +1,12 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   touch-action: pan-y !important;
 
   main {
-    min-height: calc(100vh - 136px);
+    flex: 1 1 100%;
+    margin: 0;
   }
 
   .fixed-menu {
