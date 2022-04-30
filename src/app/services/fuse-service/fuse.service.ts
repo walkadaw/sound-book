@@ -17,17 +17,12 @@ const REPLACE_SIMILAR_CHAR_REGEXP = new RegExp(`[${Object.keys(REPLACE_SIMILAR_C
   providedIn: 'root',
 })
 export class FuseService {
-  private fuse: Fuse<Song>;
-
-  constructor() {
-    this.fuse = new Fuse([], this.getOptions());
-  }
-
   getFilteredSong(
     selectedTags$: Observable<number>,
     search$: Observable<string>,
     allSongList$: Observable<Song[]>,
   ): Observable<Song[]> {
+    const fuse = new Fuse([], this.getOptions());
     return selectedTags$.pipe(
       switchMap((selectedTags) => {
         if (selectedTags) {
@@ -39,7 +34,7 @@ export class FuseService {
         }
         return allSongList$;
       }),
-      tap((songList) => this.fuse.setCollection(songList)),
+      tap((songList) => fuse.setCollection(songList)),
       debounceTime(100),
       switchMap((songList) => search$.pipe(
         debounceTime(100),
@@ -48,7 +43,7 @@ export class FuseService {
           if (!Number.isNaN(Number(searchTest))) {
             return songList.filter(({ id }) => id.toString().includes(searchTest));
           } if (searchTest) {
-            return this.fuse.search(this.replaceChar(searchTest)).map((fuseItem) => fuseItem.item);
+            return fuse.search(this.replaceChar(searchTest)).map((fuseItem) => fuseItem.item);
           }
           return songList;
         }),
