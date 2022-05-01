@@ -41,7 +41,7 @@ export class ChordService {
     const base = this.getBaseChord(chord) || '';
     const baseChord = CHORD_DATA.chords[base.replace('#', 'sharp') as keyof Chords];
 
-    if (!baseChord) {
+    if (!baseChord || REPLACE_BIMOLE.test(dirtyChord[0])) {
       return null;
     }
 
@@ -60,7 +60,7 @@ export class ChordService {
 
   getChordsList(lins: string[]): ChordList[][] {
     return lins.map((line) => line.split(/[\s]/).reduce<ChordList[]>((acc, text, indexLine, array) => {
-      const clear = this.cleanUpChord(text.trim());
+      const clear = text.trim().replace(CHORD_CLEAN_UP, '');
       let tmpText = text;
       if (indexLine !== array.length - 1) {
         tmpText += ' ';

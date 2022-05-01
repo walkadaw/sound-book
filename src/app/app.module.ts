@@ -38,7 +38,7 @@ import { LiturgyModule } from './services/liturgy-service/liturgy.module';
 import { SongModule } from './services/song-service/song.module';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
-import { ChordVariationComponent } from './cocmponents/chord-variation/chord-variation.component';
+import { ChordVariationComponent } from './components/chord-variation/chord-variation.component';
 import { SongKeyComponent } from './components/song-key/song-key.component';
 
 @NgModule({

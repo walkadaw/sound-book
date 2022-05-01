@@ -1,0 +1,19 @@
+<div class="chord" *ngIf="chord" (click)="$event.stopPropagation()">
+  <button mat-icon-button class="chord__arrow-left" [disabled]="selectedVariant <= 0" (click)="prevChord()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <span class="chord__name">
+    {{ chord.key + chordService.getReadableSuffix(chord.suffix) }}
+    <span class="chord_version">({{ selectedVariant + 1 }} из {{ chord.positions.length }})</span>
+  </span>
+  <button
+    mat-icon-button
+    class="chord__arrow-right"
+    [disabled]="selectedVariant >= chord.positions.length - 1"
+    (click)="nextChord()"
+  >
+    <mat-icon>navigate_next</mat-icon>
+  </button>
+
+  <app-chord class="chord__content" [chord]="chord.positions[selectedVariant]"></app-chord>
+</div>

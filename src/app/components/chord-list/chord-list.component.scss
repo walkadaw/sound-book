@@ -1,4 +1,35 @@
-b:hover {
-  cursor: pointer;
-  text-decoration: underline;
+:host {
+  font-size: 0.85em;
+  
+  .chord {
+    font-weight: 700;
+    cursor: default;
+    display: inline-block;
+    padding: .1em .5em .15em;
+    margin: -.1em -.3em -.15em;
+    border-radius: 2px;
+    position: relative;
+
+    + .chord {
+      margin-left: -0.05em;
+    }
+
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      top: .2em;
+      bottom: .2em;
+      left: .25em;
+      right: .25em;
+      border-radius: 2px;
+      background: currentColor;
+      opacity: .05;
+    }
+  }
 }
