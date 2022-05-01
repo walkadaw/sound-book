@@ -19,16 +19,16 @@ export class UserService implements CanActivate {
     private router: Router,
   ) { }
 
-  isLoginIn(): Observable<void> {
+  isLoginIn(): Observable<string> {
     if (!localStorage.getItem(checkAuth)) {
-      return EMPTY;
+      return of('');
     }
 
-    return this.http.get<void>(`${environment.baseUrl}/auth/check`).pipe(
+    return this.http.get<string>(`${environment.baseUrl}/auth/check`).pipe(
       tap(() => this.isAuth$.next(true)),
       catchError(() => {
         localStorage.removeItem(checkAuth);
-        return of();
+        return of('');
       }),
     );
   }
