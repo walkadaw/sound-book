@@ -10,7 +10,7 @@ export interface ChordList {
 
 const MINOR = 'm';
 const REPLACE_BIMOLE = /♭/g;
-const CHORD_CLEAN_UP = /[^\w+/#]/g;
+const CHORD_CLEAN_UP = /[^\w+/#♭]/g;
 const SHORT_MAP: {[key: string]: string} = {
   c: 'Cm',
   'c#': 'C#m',
@@ -69,7 +69,7 @@ export class ChordService {
       if (clear) {
         const chordList = this.hasChord(clear) ? [clear] : this.findChordInText(clear);
         chordList.forEach((chord) => {
-          const index = this.replaceBimole(tmpText).indexOf(chord);
+          const index = tmpText.indexOf(chord);
 
           if (index > 0) {
             acc.push({

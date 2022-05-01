@@ -6,6 +6,8 @@
 
   main {
     flex: 1 1 100%;
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .fixed-menu {
