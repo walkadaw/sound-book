@@ -14,6 +14,7 @@ import { IAppState } from '../../redux/models/IAppState';
 import { ChordPosition } from '../../redux/models/settings.state';
 import { MatIconRegistryService } from '../mat-icon-registry-service/mat-icon-registry.service';
 import { SongService } from '../song-service/song.service';
+import { UserService } from '../user/user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ export class StartUpService {
   constructor(
     private matRegisterIcon: MatIconRegistryService,
     private songService: SongService,
+    private userService: UserService,
     private store: Store<IAppState>,
   ) {}
 
@@ -31,6 +33,7 @@ export class StartUpService {
       this.matRegisterIcon.register(),
       this.loadFavorite(),
       this.loadSettings(),
+      firstValueFrom(this.userService.isLoginIn()),
     ]);
 
     firstValueFrom(this.songService.loadSongs());

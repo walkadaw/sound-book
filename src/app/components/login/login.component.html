@@ -1,0 +1,13 @@
+<form class="login-form" [formGroup]="loginForm">
+  <mat-form-field appearance="fill">
+    <mat-label>Логин</mat-label>
+    <input matInput type="text" formControlName="username" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Пароль</mat-label>
+    <input matInput type="password" formControlName="password" />
+  </mat-form-field>
+  <mat-error *ngIf="loginForm.hasError('failedError')">{{ loginForm.getError('failedError') }}</mat-error>
+
+  <button mat-raised-button [disabled]="!loginForm.valid" (click)="onLogin()">Авторизоватся</button>
+</form>

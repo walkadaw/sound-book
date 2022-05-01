@@ -47,10 +47,10 @@
     <span>Версия песен:</span>
     <div class="right">{{ songService.songVersion ? (songService.songVersion | date: 'dd/MM/yyyy') : 'unknown' }}</div>
   </button>
-  <!-- <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="updateSong($event)">
-    <span>Версия слайдов:</span>
-    <div class="right">{{ songService.songSlideVersion ? (songService.songSlideVersion | date:'dd/MM/yyyy') : 'unknown' }}</div>
-  </button> -->
+  <button class="checkbox-menu__version" mat-menu-item routerLink="/login">
+    <mat-icon>lock</mat-icon>
+    <span>Аўтарызацыя</span>
+  </button>
 </mat-menu>
 
 <mat-menu #menu="matMenu">

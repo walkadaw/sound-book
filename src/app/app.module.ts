@@ -40,6 +40,7 @@ import { startUpFactory, StartUpService } from './services/start-up-service/star
 import { WakeLockService } from './services/wakelock/wake-lock.service';
 import { ChordVariationComponent } from './components/chord-variation/chord-variation.component';
 import { SongKeyComponent } from './components/song-key/song-key.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { SongKeyComponent } from './components/song-key/song-key.component';
     ChordListComponent,
     ChordVariationComponent,
     SongKeyComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,

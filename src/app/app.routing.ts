@@ -14,6 +14,8 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
 import { AddPlaylistComponent } from './components/playlist/add-playlist/add-playlist.component';
 import { PlaylistComponent } from './components/playlist/playlist.component';
 import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-playlist.component';
+import { LoginComponent } from './components/login/login.component';
+import { UserService } from './services/user/user.service';
 
 const soundRoutes: Routes = [
   { path: '', component: MainPageComponent, pathMatch: 'full' },
@@ -70,6 +72,7 @@ const soundRoutes: Routes = [
   { path: 'favorite', component: FavoriteComponent },
   { path: 'gadzinki', component: GadzinkiComponent },
   { path: 'about', component: AboutComponent },
+  { path: 'login', component: LoginComponent },
   { path: '404', component: PageNotFoundComponent },
   { path: '**', component: PageNotFoundComponent },
 ];
@@ -82,6 +85,7 @@ const appRoutes: Routes = [
   {
     path: 'admin',
     loadChildren: () => import('./components/admin/admin.module').then((m) => m.AdminModule),
+    canActivate: [UserService],
   },
   { path: '', component: MainSoundComponent, children: soundRoutes },
 ];

@@ -20,12 +20,16 @@ $page = trim($_GET["mpage"], "/");
 
 switch($page){
 	case "liturgy/get-slide": include("liturgy/_get_slide.php"); break;		
-	case "liturgy/get": include("liturgy/_get.php"); break;		
+	case "liturgy/get": include("liturgy/_get.php"); break;	
+
 	case "song/get":  include("song/_get_song.php"); break; 
 	case "song/update":  include("song/_set_song.php"); break; 
+
+	case "auth/login":  include("auth/_login.php"); break; 
+	case "auth/check":  include("auth/_check.php"); break; 
+
 	// case "song/update-slide":  include("song/_get_song.php"); break; 
 	# 403 error by default
 	default: header('HTTP/1.1 403 Forbidden'); break;
 
 }
-	

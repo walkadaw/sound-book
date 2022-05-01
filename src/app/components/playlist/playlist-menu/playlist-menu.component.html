@@ -1,3 +1,10 @@
+<ng-container *ngIf="songId && isAuth$ | async">
+  <button mat-menu-item [routerLink]="['/admin', 'edit', songId]">
+    <mat-icon>edit</mat-icon>
+    <span>Рэдагаваць</span>
+  </button>
+  <mat-divider></mat-divider>
+</ng-container>
 <ng-container *ngIf="playLists$ | async as playLists">
   <button mat-menu-item [routerLink]="['/playlist', 'add', songId || '']">
     <mat-icon>playlist_add</mat-icon>
