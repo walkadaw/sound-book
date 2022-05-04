@@ -5,7 +5,6 @@
       *ngFor="let song of songListFiltered; trackBy: trackBySong"
       routerLinkActive="active"
       [routerLink]="['/song', song.id, song.title | replaceSpace]"
-      (click)="onClick()"
     >
       <span class="favorite">
         <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>

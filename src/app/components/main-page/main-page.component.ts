@@ -3,8 +3,12 @@ import {
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
-import { combineLatest, Observable, Subject } from 'rxjs';
-import { debounceTime, map, takeUntil } from 'rxjs/operators';
+import {
+  combineLatest, fromEvent, Observable, Subject,
+} from 'rxjs';
+import {
+  debounceTime, filter, map, takeUntil, withLatestFrom,
+} from 'rxjs/operators';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -62,6 +66,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
           window.scrollTo(0, this.contentScrollYPosition);
         }
       });
+
+    this.initScrollListener();
   }
 
   ngOnDestroy() {
@@ -78,8 +84,15 @@ export class MainPageComponent implements OnInit, OnDestroy {
     return `${item.id}-${item.favorite}`;
   }
 
-  onClick() {
-    this.menuScrollYPosition = window.scrollY;
+  initScrollListener() {
+    fromEvent(window, 'scroll').pipe(
+      withLatestFrom(this.store.select(getShowMenu)),
+      filter(([, showMenu]) => showMenu),
+      debounceTime(50),
+      takeUntil(this.onDestroy$),
+    ).subscribe(() => {
+      this.menuScrollYPosition = window.scrollY;
+    });
   }
 
   addedSongToPlaylist(idPlaylist: string, songId: number) {
