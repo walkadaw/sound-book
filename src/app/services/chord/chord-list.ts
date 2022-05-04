@@ -10,7 +10,7 @@ export const CHORD_DATA: ChordData = {
   tunings: {
     standard: ['E', 'A', 'D', 'G', 'B', 'E']
   },
-  keys: ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
+  keys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
   suffixes: [
     'major',
     'minor',
@@ -4244,9 +4244,9 @@ export const CHORD_DATA: ChordData = {
         ],
       },
     ],
-    Eb: [
+    Dsharp: [
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'major',
         positions: [
           {
@@ -4278,7 +4278,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'minor',
         positions: [
           {
@@ -4310,7 +4310,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'dim',
         positions: [
           {
@@ -4340,7 +4340,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'dim7',
         positions: [
           {
@@ -4371,7 +4371,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'sus2',
         positions: [
           {
@@ -4405,7 +4405,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'sus4',
         positions: [
           {
@@ -4437,7 +4437,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'sus2sus4',
         positions: [
           {
@@ -4463,7 +4463,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '7sus4',
         positions: [
           {
@@ -4496,7 +4496,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'alt',
         positions: [
           {
@@ -4527,7 +4527,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'aug',
         positions: [
           {
@@ -4559,7 +4559,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '5',
         positions: [
           {
@@ -4583,7 +4583,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '6',
         positions: [
           {
@@ -4613,7 +4613,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '69',
         positions: [
           {
@@ -4646,7 +4646,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '7',
         positions: [
           {
@@ -4679,7 +4679,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '7b5',
         positions: [
           {
@@ -4710,7 +4710,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'aug7',
         positions: [
           {
@@ -4741,7 +4741,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '9',
         positions: [
           {
@@ -4772,7 +4772,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '9b5',
         positions: [
           {
@@ -4805,7 +4805,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'aug9',
         positions: [
           {
@@ -4836,7 +4836,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '7b9',
         positions: [
           {
@@ -4867,7 +4867,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '7#9',
         positions: [
           {
@@ -4898,7 +4898,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '11',
         positions: [
           {
@@ -4932,7 +4932,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '9#11',
         positions: [
           {
@@ -4965,7 +4965,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: '13',
         positions: [
           {
@@ -4997,7 +4997,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'maj7',
         positions: [
           {
@@ -5029,7 +5029,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'maj7b5',
         positions: [
           {
@@ -5062,7 +5062,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'maj7#5',
         positions: [
           {
@@ -5093,7 +5093,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'maj9',
         positions: [
           {
@@ -5124,7 +5124,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'maj11',
         positions: [
           {
@@ -5157,7 +5157,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'maj13',
         positions: [
           {
@@ -5189,7 +5189,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'm6',
         positions: [
           {
@@ -5222,7 +5222,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'm7',
         positions: [
           {
@@ -5254,7 +5254,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'm7b5',
         positions: [
           {
@@ -5284,7 +5284,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'm9',
         positions: [
           {
@@ -5315,7 +5315,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'm69',
         positions: [
           {
@@ -5346,7 +5346,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'm11',
         positions: [
           {
@@ -5380,7 +5380,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'mmaj7',
         positions: [
           {
@@ -5412,7 +5412,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'mmaj7b5',
         positions: [
           {
@@ -5443,7 +5443,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'mmaj9',
         positions: [
           {
@@ -5475,7 +5475,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'mmaj11',
         positions: [
           {
@@ -5509,7 +5509,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'add9',
         positions: [
           {
@@ -5540,7 +5540,7 @@ export const CHORD_DATA: ChordData = {
         ],
       },
       {
-        key: 'Eb',
+        key: 'D#',
         suffix: 'madd9',
         positions: [
           {

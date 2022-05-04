@@ -27,7 +27,7 @@ export interface Chords {
   C: Chord[];
   Csharp: Chord[];
   D: Chord[];
-  Eb: Chord[];
+  Dsharp: Chord[];
   E: Chord[];
   F: Chord[];
   Fsharp: Chord[];
