@@ -1,4 +1,5 @@
 <div class="chord" *ngIf="chord" (click)="$event.stopPropagation()">
+  <app-chord class="chord__content" [chord]="chord.positions[selectedVariant]"></app-chord>
   <button mat-icon-button class="chord__arrow-left" [disabled]="selectedVariant <= 0" (click)="prevChord()">
     <mat-icon>chevron_left</mat-icon>
   </button>
@@ -14,6 +15,4 @@
   >
     <mat-icon>navigate_next</mat-icon>
   </button>
-
-  <app-chord class="chord__content" [chord]="chord.positions[selectedVariant]"></app-chord>
 </div>

@@ -27,6 +27,7 @@ const SHORT_MAP: {[key: string]: string} = {
   bb: 'Bbm',
   Ab: 'G#',
   Eb: 'D#',
+  'A#': 'Bb',
 };
 
 @Injectable({
