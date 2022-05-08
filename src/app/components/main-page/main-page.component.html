@@ -14,15 +14,9 @@
         {{ song.title }}
       </span>
       <div class="actions" (click)="$event.stopPropagation()">
-        <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu">
+        <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu" [matMenuTriggerData]="song">
           <mat-icon>more_horiz</mat-icon>
         </button>
-        <mat-menu #selectedSongMenu="matMenu">
-          <app-playlist-menu
-            [songId]="song.id"
-            (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, song.id)"
-          ></app-playlist-menu>
-        </mat-menu>
       </div>
     </div>
   </ng-container>
@@ -35,3 +29,12 @@
     </div>
   </ng-template>
 </div>
+
+<mat-menu #selectedSongMenu="matMenu">
+  <ng-template matMenuContent let-songId="id">
+    <app-playlist-menu
+      [songId]="songId"
+      (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, songId)"
+    ></app-playlist-menu>
+  </ng-template>
+</mat-menu>

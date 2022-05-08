@@ -7,7 +7,7 @@ import {
   combineLatest, fromEvent, Observable, Subject,
 } from 'rxjs';
 import {
-  debounceTime, filter, map, takeUntil, withLatestFrom,
+  debounceTime, filter, map, shareReplay, takeUntil, withLatestFrom,
 } from 'rxjs/operators';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
@@ -27,7 +27,7 @@ import { SongService } from '../../services/song-service/song.service';
 })
 export class MainPageComponent implements OnInit, OnDestroy {
   songListFiltered$: Observable<SongFavorite[]>;
-  showSongNumber$ = this.store.select(getShowSongNumber);
+  showSongNumber$ = this.store.select(getShowSongNumber).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
   selectedTag$ = this.store.select(getSelectedTag);
 
   private menuScrollYPosition: number;
@@ -47,7 +47,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
       this.selectedTag$,
       this.store.select(getSearchTerm),
       this.songService.songList$,
-    );
+    ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
 
     this.songListFiltered$ = combineLatest([filteredSong$, this.store.select(getFavoriteState)]).pipe(
       map(([songs, favoriteList]) => songs.map((song) => ({ ...song, favorite: favoriteList.has(song.id) }))),
