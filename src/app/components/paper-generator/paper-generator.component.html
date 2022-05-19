@@ -11,16 +11,16 @@
 
   <div class="column">
     <label>Дадатковыя опцыі</label>
-    <mat-checkbox formControlName="chord" color="primary">
+    <mat-checkbox formControlName="isShowChord" color="primary">
       Акорды
       <mat-icon matTooltip="Адлюстраванне акордаў у створаным варыянце">info</mat-icon>
     </mat-checkbox>
-    <mat-checkbox formControlName="showTag" color="primary">
+    <mat-checkbox formControlName="isShowTag" color="primary">
       Тэгі
       <mat-icon matTooltip="Паказваць тэгі ў створаным варыянце">info</mat-icon>
     </mat-checkbox>
-    <mat-checkbox formControlName="chastki" color="primary">Часткі Імшы</mat-checkbox>
-    <mat-checkbox formControlName="gadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
+    <mat-checkbox formControlName="isAddChastki" color="primary">Часткі Імшы</mat-checkbox>
+    <mat-checkbox formControlName="isAddGadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
   </div>
 
   <div class="column-full" *ngIf="!songListForm.get('allSong').value && selectedSongList$ | async as selectedSongList">
@@ -64,7 +64,7 @@
     </mat-tab-group>
   </div>
 
-  <button mat-raised-button color="primary" class="download-button">
+  <button mat-raised-button color="primary" class="download-button" (click)="generateDocx()">
     <mat-icon>get_app</mat-icon>
     Спампаваць
   </button>

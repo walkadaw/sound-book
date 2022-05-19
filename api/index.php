@@ -28,6 +28,8 @@ switch($page){
 	case "auth/login":  include("auth/_login.php"); break; 
 	case "auth/check":  include("auth/_check.php"); break; 
 
+	case "generator/docx":  include("generator/_docx.php"); break; 
+
 	// case "song/update-slide":  include("song/_get_song.php"); break; 
 	# 403 error by default
 	default: header('HTTP/1.1 403 Forbidden'); break;

@@ -6,6 +6,8 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { SongService } from '../../services/song-service/song.service';
 import { Song } from '../../interfaces/song';
 import { FuseService } from '../../services/fuse-service/fuse.service';
+import { GeneratorService } from '../../services/generator-service/generator.service';
+import { TAGS_LIST } from '../../constants/tag-list';
 
 @Component({
   selector: 'app-paper-generator',
@@ -17,16 +19,21 @@ export class PaperGeneratorComponent implements OnInit {
   songListFiltered$: Observable<Song[]>;
   selectedSongList$: Observable<Song[]>;
 
-  constructor(private formBuilder: FormBuilder, private songService: SongService, private fuseService: FuseService) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private songService: SongService,
+    private fuseService: FuseService,
+    private generatorService: GeneratorService,
+  ) {}
 
   ngOnInit() {
     this.songListForm = this.formBuilder.group({
       allSong: [true, Validators.required],
       selectedSong: {},
-      chord: [true],
-      showTag: [true],
-      chastki: [false],
-      gadzinki: [false],
+      isShowChord: [true],
+      isShowTag: [true],
+      isAddChastki: [false],
+      isAddGadzinki: [false],
       search: '',
       selectedTabId: 0,
     });
@@ -61,5 +68,30 @@ export class PaperGeneratorComponent implements OnInit {
 
   trackBy(index: number, song: Song): number {
     return song.id;
+  }
+
+  generateDocx() {
+    const {
+      allSong,
+      selectedSong,
+      isShowChord,
+      isShowTag,
+      isAddChastki,
+      isAddGadzinki,
+    } = this.songListForm.value;
+
+    let songList = this.songService.songList$.value.filter((song) => !song.tag[TAGS_LIST[9].id]).map(({ id }) => +id);
+    if (!allSong) {
+      songList = Object.keys(selectedSong)
+        .filter((key) => selectedSong[key] && this.songService.hasSong(key))
+        .map((key) => +key);
+    }
+
+    this.generatorService.getDocX(songList, {
+      isShowChord,
+      isShowTag,
+      isAddChastki,
+      isAddGadzinki,
+    });
   }
 }
