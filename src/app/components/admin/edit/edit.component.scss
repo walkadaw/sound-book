@@ -7,11 +7,8 @@
   column-gap: 20px;
   width: 100%;
   margin-bottom: 20px;
+  flex-direction: column;
   
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
-
   &_song {
     flex: 1;
   }
@@ -19,11 +16,7 @@
 
 .select-tags__items {
   display: grid;
-  grid-template-columns: 1fr;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-  }
+  grid-template-columns: 1fr 1fr;
 
   @media (max-width: 450px) {
     grid-template-columns: 1fr;

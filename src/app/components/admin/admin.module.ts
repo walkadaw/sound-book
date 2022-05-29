@@ -2,19 +2,18 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { MainAdminComponent } from '../../application/main-admin/main-admin.component';
 import { MatModule } from '../../mat.module';
 import { HeaderModule } from '../header/header.module';
 import { AdminComponent } from './admin/admin.component';
 import { EditSongComponent } from './edit/edit-song/edit-song.component';
 import { EditComponent } from './edit/edit.component';
+import { LoadSongResolver } from './edit/load-song.resolver';
 
 const adminRoutes: Routes = [
   {
     path: '',
-    component: MainAdminComponent,
     children: [
-      { path: 'edit/:id', component: EditComponent },
+      { path: 'edit/:id', component: EditComponent, resolve: { song: LoadSongResolver } },
       { path: 'add', component: EditComponent },
       { path: '', component: AdminComponent, pathMatch: 'full' },
     ],
@@ -23,7 +22,6 @@ const adminRoutes: Routes = [
 
 @NgModule({
   declarations: [
-    MainAdminComponent,
     AdminComponent,
     EditComponent,
     EditSongComponent,

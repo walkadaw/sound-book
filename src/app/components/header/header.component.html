@@ -86,11 +86,18 @@
     <mat-icon>notifications_off</mat-icon>
     <span>Генератор прізентаціі</span>
   </button> -->
-  <button mat-menu-item routerLink="/generator/docx">
+  <!-- <button mat-menu-item routerLink="/generator/docx">
     <mat-icon>notifications_off</mat-icon>
     <span>Создание бумажней версии</span>
-  </button>
+  </button> -->
   <mat-divider></mat-divider>
+  <ng-container *ngIf="isAuth$ | async">
+    <button mat-menu-item routerLink="/admin/add">
+      <mat-icon>add</mat-icon>
+      <span>Дадать спеу</span>
+    </button>
+    <mat-divider></mat-divider>
+  </ng-container>
   <button mat-menu-item [matMenuTriggerFor]="settings">
     <mat-icon>settings</mat-icon>
     <span>Налады</span>

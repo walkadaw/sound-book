@@ -12,12 +12,14 @@ import { AppComponent } from './application/app.component';
 import { MainSoundComponent } from './application/main-sound/main-sound.component';
 import { AboutComponent } from './components/about/about.component';
 import { ChordListComponent } from './components/chord-list/chord-list.component';
+import { ChordVariationComponent } from './components/chord-variation/chord-variation.component';
 import { FavoriteComponent } from './components/favorite/favorite.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { GadzinkiComponent } from './components/gadzinki/gadzinki.component';
 import { HeaderModule } from './components/header/header.module';
 import { ChordModule } from './components/kit/chord/chord.module';
 import { LiturgyComponent } from './components/liturgy/liturgy.component';
+import { LoginComponent } from './components/login/login.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
@@ -26,6 +28,7 @@ import { PlaylistMenuModule } from './components/playlist/playlist-menu/playlist
 import { PlaylistComponent } from './components/playlist/playlist.component';
 import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-playlist.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
+import { SongKeyComponent } from './components/song-key/song-key.component';
 import { LetDirectiveModule } from './directives/let-directive/app-let.module';
 import { MatModule } from './mat.module';
 import { ReplaceSpacePipe } from './pipes/replace-space/replace-space.pipe';
@@ -38,9 +41,6 @@ import { LiturgyModule } from './services/liturgy-service/liturgy.module';
 import { SongModule } from './services/song-service/song.module';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
-import { ChordVariationComponent } from './components/chord-variation/chord-variation.component';
-import { SongKeyComponent } from './components/song-key/song-key.component';
-import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [

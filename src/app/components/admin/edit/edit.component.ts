@@ -3,9 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
 import {
-  catchError,
-  EMPTY,
-  filter, pluck, Subject, switchMap, takeUntil,
+  filter, pluck, Subject, takeUntil,
 } from 'rxjs';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { Song, SongAdd } from '../../../interfaces/song';
@@ -73,20 +71,11 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   private initLoadData() {
-    this.route.params.pipe(
-      pluck('id'),
+    this.route.data.pipe(
+      pluck('song'),
       filter(Boolean),
-      switchMap((id) => this.songService.getSongWithoutCache(id)),
-      catchError(() => {
-        this.router.navigate(['/404'], { skipLocationChange: true });
-        return EMPTY;
-      }),
       takeUntil(this.onDestroy$),
     ).subscribe((song) => {
-      if (!song) {
-        this.router.navigate(['/404'], { skipLocationChange: true });
-        return;
-      }
       this.songDataForm.setValue({
         title: song.title,
         text: this.mergeChordWidthText(song), // update with chord

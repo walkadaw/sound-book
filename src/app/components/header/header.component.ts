@@ -22,6 +22,7 @@ import {
 } from '../../redux/selector/settings.selector';
 import { PlayList } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
+import { UserService } from '../../services/user/user.service';
 import { getCurrentValue } from '../utils/redux.utils';
 
 const MIN_FONT_SIZE = 0.4;
@@ -40,11 +41,13 @@ export class HeaderComponent {
   chordPosition = getCurrentValue(this.store, getChordPosition);
   showSongNumber = getCurrentValue(this.store, getShowSongNumber);
   fontSize = Math.floor(getCurrentValue(this.store, getFontSize) * 100);
+  isAuth$ = this.userService.isAuth$;
 
   searchInputInFocus = false;
 
   constructor(
     public songService: SongService,
+    private userService: UserService,
     private store: Store<IAppState>,
     private snackBar: MatSnackBar,
     private router: Router,
