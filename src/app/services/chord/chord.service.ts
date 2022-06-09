@@ -107,26 +107,23 @@ export class ChordService {
   }
 
   getTextAndChord(text: string) {
-    let addEmptyLineChord = 0;
-
+    let lastIsChord = false;
     return this.getChordsList(text.split('\n')).reduce((acc, item) => {
       const lineSong = item.filter((value) => value.type === 'text' && value.text.trim());
       const chord = item.filter((value) => value.type === 'chord');
       const result = item.map((value) => value.text).join('');
 
-      if (!result.trim()) {
-        acc.text += '\n';
-        addEmptyLineChord += 1;
-      } else if (lineSong.length > chord.length) {
-        acc.text += `${result.trimRight()}\n`;
-        addEmptyLineChord += 1;
+      if (!result.trim() || lineSong.length > chord.length) {
+        acc.text += `${result.trim()}\n`;
+
+        if (!lastIsChord) {
+          acc.chord += '\n';
+        }
+
+        lastIsChord = false;
       } else {
         acc.chord += `${result.trimRight()}\n`;
-        addEmptyLineChord = 0;
-      }
-
-      if (addEmptyLineChord > 1) {
-        acc.chord += '\n';
+        lastIsChord = true;
       }
 
       return acc;
