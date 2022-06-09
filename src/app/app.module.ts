@@ -23,6 +23,7 @@ import { LoginComponent } from './components/login/login.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
+import { PartOfMassComponent } from './components/part-of-mass/part-of-mass.component';
 import { AddPlaylistComponent } from './components/playlist/add-playlist/add-playlist.component';
 import { PlaylistMenuModule } from './components/playlist/playlist-menu/playlist-menu.module';
 import { PlaylistComponent } from './components/playlist/playlist.component';
@@ -63,6 +64,7 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     ChordVariationComponent,
     SongKeyComponent,
     LoginComponent,
+    PartOfMassComponent,
   ],
   imports: [
     BrowserModule,

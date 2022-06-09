@@ -1,0 +1,20 @@
+<article class="content" *appLet="showChord$ | async as showChord">
+  <h2>Частки имшы</h2>
+
+  <div class="lyrics" [class.chord-right]="song.chordPosition === 'right'" *ngFor="let song of songs$ | async">
+    <h5 class="entry-title" itemprop="name">
+      {{ song?.title }}
+    </h5>
+    <ng-container *ngFor="let line of song.text; let i = index">
+      <div class="line-container">
+        <app-chord-list
+          class="chord"
+          *ngIf="showChord && song.chord[i]"
+          [chords]="song.chord[i]"
+          [transpilation]="0"
+        ></app-chord-list>
+        <span>{{ line }}</span>
+      </div>
+    </ng-container>
+  </div>
+</article>

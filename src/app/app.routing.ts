@@ -9,6 +9,7 @@ import { LoginComponent } from './components/login/login.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PaperGeneratorComponent } from './components/paper-generator/paper-generator.component';
+import { PartOfMassComponent } from './components/part-of-mass/part-of-mass.component';
 import { AddPlaylistComponent } from './components/playlist/add-playlist/add-playlist.component';
 import { PlaylistComponent } from './components/playlist/playlist.component';
 import { ViewPlaylistComponent } from './components/playlist/view-playlist/view-playlist.component';
@@ -69,6 +70,7 @@ const soundRoutes: Routes = [
   },
   { path: 'generator/docx', component: PaperGeneratorComponent },
   { path: 'liturgy', component: LiturgyComponent },
+  { path: 'part-of-mass', component: PartOfMassComponent },
   { path: 'favorite', component: FavoriteComponent },
   { path: 'gadzinki', component: GadzinkiComponent },
   { path: 'about', component: AboutComponent },

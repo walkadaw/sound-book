@@ -13,7 +13,7 @@ import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { ChordPosition } from '../../redux/models/settings.state';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 
-interface SelectedSong {
+export interface SelectedSong {
   id: number;
   title: string;
   text: string | string[];
