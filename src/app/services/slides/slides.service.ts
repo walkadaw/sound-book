@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
-  filter, Subject, takeUntil, timer,
+  BehaviorSubject,
+  filter, takeUntil, timer,
 } from 'rxjs';
 import { Slide } from '../../interfaces/slide';
 
@@ -18,7 +19,7 @@ export class SlidesService {
 
   fontSizePx = 60;
   lineHeight = 1.15;
-  init$ = new Subject<boolean>();
+  init$ = new BehaviorSubject<boolean>(false);
 
   private container: HTMLElement;
 
@@ -33,7 +34,7 @@ export class SlidesService {
     timer(100, 50).pipe(
       // TODO magic init fonts
       filter(() => this.container.offsetHeight > 100),
-      takeUntil(this.init$),
+      takeUntil(this.init$.pipe(filter(Boolean))),
     ).subscribe(() => {
       this.init$.next(true);
     });

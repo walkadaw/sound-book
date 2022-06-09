@@ -63,7 +63,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.isShowControls = this.reveal.isShowControls();
     this.isSpeakerNotes = this.reveal.isSpeakerNotes();
 
-    if (!this.slideList.length) {
+    if (!this.slideList?.length) {
       this.toggleMenu();
     }
 

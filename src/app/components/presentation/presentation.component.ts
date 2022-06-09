@@ -3,8 +3,8 @@ import {
   AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, forkJoin } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
+import { filter, take, takeUntil } from 'rxjs/operators';
 import { LITURGY_ACRONYM } from '../../constants/liturgy-acronym';
 import { SlideList } from '../../interfaces/slide';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
@@ -26,6 +26,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   slideList: SlideList[];
 
   private isDataLoaded$ = new BehaviorSubject(false);
+  private onDestroy$ = new Subject<void>();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -38,9 +39,14 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.slidesService.init$.pipe(take(1)).subscribe(() => {
+    this.slidesService.init$.pipe(
+      filter(Boolean),
+      take(1),
+      takeUntil(this.onDestroy$),
+    ).subscribe(() => {
       this.loadSlide();
     });
+
     this.render.addClass(document.body, 'reveal');
   }
 
@@ -53,6 +59,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         filter((v) => !!v),
         take(1),
+        takeUntil(this.onDestroy$),
       )
       .subscribe(() => {
         this.reveal.init();
@@ -120,7 +127,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     forkJoin([
       this.liturgyService.loadSlideForLiturgy(),
       this.songService.loadSongFromCache(),
-    ]).subscribe(() => {
+    ]).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
       this.isDataLoaded$.next(true);
 
       this.slideList = listID.reduce<SlideList[]>((acc, id) => {
