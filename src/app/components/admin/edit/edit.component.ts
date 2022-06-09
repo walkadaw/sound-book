@@ -66,7 +66,7 @@ export class EditComponent implements OnInit, OnDestroy {
     };
 
     this.songService.updateSong(song).pipe(takeUntil(this.onDestroy$)).subscribe((id) => {
-      this.router.navigate(['edit', id], { relativeTo: this.route.root.firstChild });
+      this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
     });
   }
 
