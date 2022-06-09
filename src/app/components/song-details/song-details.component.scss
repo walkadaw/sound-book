@@ -23,6 +23,7 @@ h1.entry-title {
 
 .lyrics {
     margin-top: 20px;
+    line-height: 1.25;
 
     span {
         display: block;
@@ -31,22 +32,21 @@ h1.entry-title {
             content: "\200b"; // unicode zero width space character
         }
     }
-
-    &.chord-right {
-        display: flex;
-        white-space: pre-wrap;
-        white-space: -moz-pre-wrap;
-        white-space: -o-pre-wrap;
-        span {
-            flex: 1 1 80%;
-            &.without-chord {
-                 flex: 1 1 100%;
-            }
-            &.chord {
-                flex: 1 1 20%;
-            }
+ 
+    &.chord-right .line-container {
+        display: grid;
+        grid-template-columns: 80% 20%;
+        align-items: baseline;
+        column-gap: 5px;
+        
+        > span {
+            order: 1;
+        }
+        .chord {
+            order: 2;
         }
     }
+
 }
 
 .title-container {

@@ -39,8 +39,8 @@
     [class.chord-right]="selectedSong.chordPosition === 'right'"
     *appLet="showChord$ | async as showChord"
   >
-    <ng-container *ngIf="selectedSong.chordPosition === 'inText'; else chordRight">
-      <ng-container *ngFor="let line of selectedSong.text; let i = index">
+    <ng-container *ngFor="let line of selectedSong.text; let i = index">
+      <div class="line-container">
         <app-chord-list
           class="chord"
           *ngIf="showChord && selectedSong.chord[i]"
@@ -48,18 +48,7 @@
           [transpilation]="selectedTranspilation"
         ></app-chord-list>
         <span>{{ line }}</span>
-      </ng-container>
+      </div>
     </ng-container>
-
-    <ng-template #chordRight>
-      <span [class.without-chord]="!showChord">{{ selectedSong?.text }}</span>
-
-      <app-chord-list
-        class="chord"
-        *ngIf="showChord"
-        [chords]="selectedSong?.chord"
-        [transpilation]="selectedTranspilation"
-      ></app-chord-list>
-    </ng-template>
   </div>
 </article>

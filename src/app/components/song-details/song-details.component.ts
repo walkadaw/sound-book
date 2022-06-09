@@ -55,15 +55,11 @@ export class SongDetailsComponent implements OnInit {
         const song = this.songService.getSong(songId);
         this.selectedTranspilation = 0;
 
-        if (chordPosition === 'inText') {
-          const text = song.text.split('\n').map((value) => value.trim());
-          const chord = song.chord.split('\n').map((value) => value.trim());
-          return {
-            ...song, text, chord, chordPosition,
-          };
-        }
-
-        return { ...song, chordPosition };
+        const text = song.text.split('\n').map((value) => value.trim());
+        const chord = song.chord.split('\n').map((value) => value.trim());
+        return {
+          ...song, text, chord, chordPosition,
+        };
       }),
     );
 
