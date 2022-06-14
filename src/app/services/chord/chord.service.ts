@@ -8,26 +8,55 @@ export interface ChordList {
   type: 'text' | 'chord';
 }
 
-const MINOR = 'm';
 const REPLACE_BIMOLE = /♭/g;
 const CHORD_CLEAN_UP = /[^\w+/#♭]/g;
 const SHORT_MAP: {[key: string]: string} = {
   c: 'Cm',
+  cb: 'Cbm',
+  cis: 'C#',
   'c#': 'C#m',
+
   d: 'Dm',
+  db: 'Dbm',
+  dis: 'D#',
+  'd#': 'D#m',
+
   e: 'Em',
   eb: 'Ebm',
+  eis: 'E#',
+  'e#': 'E#m',
+
   f: 'Fm',
-  'f#': 'F#m',
+  fb: 'Fbm',
   fis: 'F#',
+  'f#': 'F#m',
+
   g: 'Gm',
+  gb: 'Gbm',
+  gis: 'G#',
+  'g#': 'G#m',
+
   a: 'Am',
   ab: 'Abm',
+  ais: 'A#',
+  'a#': 'A#m',
+
   b: 'Bm',
   bb: 'Bbm',
+  bis: 'B#',
+  'b#': 'B#m',
+};
+
+const ALIAS_MAP: {[key: string]: string} = {
   Ab: 'G#',
   Eb: 'D#',
+  Db: 'C#',
   'A#': 'Bb',
+};
+
+const ALIAS_SUFFIX: {[key: string]: string} = {
+  sus: 'sus4',
+  m: 'minor',
 };
 
 @Injectable({
@@ -47,15 +76,7 @@ export class ChordService {
       return null;
     }
 
-    let suffix = chord.slice(base.length);
-
-    if (!suffix) {
-      suffix = 'major';
-    }
-
-    if (suffix === MINOR) {
-      suffix = 'minor';
-    }
+    const suffix = this.normalizeSuffix(chord.slice(base.length));
 
     return baseChord.find((item) => item.suffix === suffix);
   }
@@ -141,16 +162,16 @@ export class ChordService {
   }
 
   convertAlias(chord: string) {
-    if (chord.length > 2 && SHORT_MAP[chord.slice(0, 3)]) {
-      return SHORT_MAP[chord.slice(0, 3)] + chord.slice(3);
+    if (chord.length > 2 && this.normalizeChord(chord.slice(0, 3))) {
+      return this.normalizeChord(chord.slice(0, 3)) + chord.slice(3);
     }
 
-    if (chord.length > 1 && SHORT_MAP[chord.slice(0, 2)]) {
-      return SHORT_MAP[chord.slice(0, 2)] + chord.slice(2);
+    if (chord.length > 1 && this.normalizeChord(chord.slice(0, 2))) {
+      return this.normalizeChord(chord.slice(0, 2)) + chord.slice(2);
     }
 
-    if (SHORT_MAP[chord.slice(0, 1)]) {
-      return SHORT_MAP[chord.slice(0, 1)] + chord.slice(1);
+    if (this.normalizeChord(chord.slice(0, 1))) {
+      return this.normalizeChord(chord.slice(0, 1)) + chord.slice(1);
     }
 
     return chord;
@@ -216,5 +237,31 @@ export class ChordService {
     }
 
     return acc;
+  }
+
+  private normalizeChord(baseChord: string): string {
+    let result: string;
+
+    if (SHORT_MAP[baseChord]) {
+      result = SHORT_MAP[baseChord];
+    }
+
+    if (ALIAS_MAP[result || baseChord]) {
+      result = ALIAS_MAP[result || baseChord];
+    }
+
+    return result;
+  }
+
+  private normalizeSuffix(suffix: string) {
+    if (!suffix) {
+      return 'major';
+    }
+
+    if (ALIAS_SUFFIX[suffix]) {
+      return ALIAS_SUFFIX[suffix];
+    }
+
+    return suffix;
   }
 }
