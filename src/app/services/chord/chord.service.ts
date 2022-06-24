@@ -49,9 +49,13 @@ const SHORT_MAP: {[key: string]: string} = {
 
 const ALIAS_MAP: {[key: string]: string} = {
   Ab: 'G#',
+  Abm: 'G#m',
   Eb: 'D#',
+  Ebm: 'D#m',
   Db: 'C#',
+  Dbm: 'C#m',
   'A#': 'Bb',
+  'A#m': 'Bbm',
 };
 
 const ALIAS_SUFFIX: {[key: string]: string} = {
