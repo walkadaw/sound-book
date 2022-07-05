@@ -15,6 +15,7 @@ import { PlayList, PlaylistService } from '../../services/playlist/playlist.serv
 
 export interface SelectedSong {
   id: number;
+  songId: number;
   title: string;
   text: string | string[];
   chord: string | string[];

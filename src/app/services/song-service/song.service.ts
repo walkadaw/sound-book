@@ -29,8 +29,7 @@ export class SongService {
       .pipe(
         tap((songListResponse) => {
           localStorage.setItem('songList', JSON.stringify(songListResponse));
-          this.songList$.next(songListResponse.songs);
-          this.songVersion = `${songListResponse.last_update}000`;
+          this.setSong(songListResponse);
         }),
         catchError((error) => {
           console.error('loadSongs', error);
@@ -49,8 +48,7 @@ export class SongService {
             return throwError(() => 'WrongData');
           }
 
-          this.songList$.next(songList.songs);
-          this.songVersion = `${songList.last_update}000`;
+          this.setSong(songList);
           return of(songList);
         }),
         catchError(() => this.loadSongs()),
@@ -65,5 +63,14 @@ export class SongService {
     return this.http.post<{ id: number}>(`${environment.baseUrl}/song/update`, song).pipe(
       switchMap((value) => this.loadSongs().pipe(map(() => value.id))),
     );
+  }
+
+  private setSong(songList: SongRequest): void {
+    this.songList$.next(
+      songList.songs.sort(
+        (a, b) => a.title.localeCompare(b.title, 'en'),
+      ).map((song, index) => ({ ...song, songId: index + 1 })),
+    );
+    this.songVersion = `${songList.last_update}000`;
   }
 }

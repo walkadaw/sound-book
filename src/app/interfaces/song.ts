@@ -2,6 +2,7 @@ import { SlideList } from './slide';
 
 export interface Song {
   id: number;
+  songId: number;
   title: string;
   text: string;
   chord: string;

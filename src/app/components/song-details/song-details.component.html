@@ -3,7 +3,7 @@
     <div class="title-container">
       <div class="name-contaner">
         <h1 class="entry-title" itemprop="name">
-          <ng-container *ngIf="showSongNumber$ | async">{{ selectedSong.id }}. </ng-container>
+          <ng-container *ngIf="showSongNumber$ | async">{{ selectedSong.songId }}. </ng-container>
           {{ selectedSong?.title }}
         </h1>
         <h2 class="entry-title-meta" *ngIf="!isArray(selectedSong.tag)">

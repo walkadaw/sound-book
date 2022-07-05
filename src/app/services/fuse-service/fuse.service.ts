@@ -41,7 +41,7 @@ export class FuseService {
         distinctUntilChanged(),
         map((searchTest) => {
           if (!Number.isNaN(Number(searchTest))) {
-            return songList.filter(({ id }) => id.toString().includes(searchTest));
+            return songList.filter(({ songId }) => songId.toString().includes(searchTest));
           } if (searchTest) {
             return fuse.search(this.replaceChar(searchTest)).map((fuseItem) => fuseItem.item);
           }
