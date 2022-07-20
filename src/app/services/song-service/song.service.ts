@@ -68,7 +68,17 @@ export class SongService {
   private setSong(songList: SongRequest): void {
     this.songList$.next(
       songList.songs.sort(
-        (a, b) => a.title.localeCompare(b.title, 'en'),
+        (a, b) => {
+          if ((a.tag[10] !== 1 && b.tag[10] === 1)) {
+            return -1;
+          }
+
+          if ((a.tag[10] === 1 && b.tag[10] !== 1)) {
+            return 1;
+          }
+
+          return a.title.localeCompare(b.title, 'en');
+        },
       ).map((song, index) => ({ ...song, songId: index + 1 })),
     );
     this.songVersion = `${songList.last_update}000`;
