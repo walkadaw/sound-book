@@ -16,3 +16,5 @@ export const LITURGY_ACRONYM = new Set([
   'es', // Акламация
   'e', // Евангелие
 ]);
+
+export const ALL_LITURGY = 'l';

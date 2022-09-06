@@ -5,7 +5,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
-import { LITURGY_ACRONYM } from '../../constants/liturgy-acronym';
+import { ALL_LITURGY, LITURGY_ACRONYM } from '../../constants/liturgy-acronym';
 import { SlideList } from '../../interfaces/slide';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { RevealService } from '../../services/reveal-service/reveal.service';
@@ -131,30 +131,39 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isDataLoaded$.next(true);
 
       this.slideList = listID.reduce<SlideList[]>((acc, id) => {
-        let slide: SlideList;
-        let chord: string;
-        let text: string;
+        let lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
 
         if (Number.isNaN(parseInt(id, 10))) {
-          if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
-            slide = this.liturgyService.getSlideLiturgy(id);
+          if (id === ALL_LITURGY) {
+            const liturgys = (this.liturgyService.slideLiturgy || []).map((liturgy) => {
+              const startIndex = lastIndex + 1;
+              lastIndex += liturgy.slides.length;
+
+              return { ...liturgy, startIndex, endIndex: lastIndex };
+            });
+
+            acc.push(...liturgys);
+          } else if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
+            const slide = this.liturgyService.getSlideLiturgy(id);
+
+            acc.push({
+              ...slide,
+              startIndex: lastIndex + 1,
+              endIndex: lastIndex + slide.slides.length,
+            });
           }
         } else if (this.songService.hasSong(id)) {
           const song = this.songService.getSong(id);
+          const slide = this.slidesService.getSongSlide(song.text);
 
-          slide = {
+          acc.push({
             id: song.id.toString(),
             title: song.title,
-            slides: this.slidesService.getSongSlide(song.text),
-          };
-          chord = song.chord;
-          text = song.text;
-        }
-
-        if (slide) {
-          const lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
-          acc.push({
-            ...slide, chord, text, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length,
+            slides: slide,
+            chord: song.chord,
+            text: song.text,
+            startIndex: lastIndex + 1,
+            endIndex: lastIndex + slide.length,
           });
         }
 
