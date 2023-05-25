@@ -29,7 +29,7 @@ jobs:
         node-version: 18
         cache: 'npm'
     - run: npm ci
-    - run: npm run build-prod
+    - run: npm run build-prod -- --base-href=/sound-book/
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
