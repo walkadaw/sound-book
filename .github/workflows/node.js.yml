@@ -38,11 +38,16 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2.1.1
+        with:
+          name: dist-aftifact
+          path: dist
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: '.'
+          path: './dist/sound-book'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
