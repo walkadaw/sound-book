@@ -1,0 +1,9 @@
+<div style="white-space: pre">
+  <ng-container *ngFor="let change of diff">
+    <ng-container *ngIf="change.removed && change.value.trim()"
+      ><span style="color: red">{{ change.value }}</span></ng-container
+    ><ng-container *ngIf="change.added">
+      <span style="color: green">{{ change.value }}</span></ng-container
+    ><ng-container *ngIf="!change.added && !change.removed">{{ change.value }}</ng-container>
+  </ng-container>
+</div>

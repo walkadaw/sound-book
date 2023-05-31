@@ -27,15 +27,15 @@ export class MainSoundComponent implements OnInit, OnDestroy {
     private router: Router,
   ) {}
 
-  @HostListener('swipeleft')
-  swipeLeft() {
-    this.store.dispatch(changeShowMenuAction(false));
-  }
+  // @HostListener('swipeleft')
+  // swipeLeft() {
+  //   this.store.dispatch(changeShowMenuAction(false));
+  // }
 
-  @HostListener('swiperight')
-  swipeRight() {
-    this.store.dispatch(changeShowMenuAction(true));
-  }
+  // @HostListener('swiperight')
+  // swipeRight() {
+  //   this.store.dispatch(changeShowMenuAction(true));
+  // }
 
   ngOnInit() {
     const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart), map((s) => s));

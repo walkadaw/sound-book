@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Song } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
+import { DuplicateService } from '../../../services/duplicate/duplicate.service';
 
 @Component({
   selector: 'app-admin',
@@ -12,10 +13,12 @@ export class AdminComponent implements OnInit {
   songWithoutChord: Song[] = [];
   songWithoutTag: Song[] = [];
   songChordMistake: Song[] = [];
+  songDuplicate: [Song, Song[]][];
 
   constructor(
     private songService: SongService,
     private chordService: ChordService,
+    private duplicateService: DuplicateService,
   ) {}
 
   ngOnInit(): void {
@@ -33,5 +36,18 @@ export class AdminComponent implements OnInit {
         this.songChordMistake.push(song);
       }
     });
+  }
+
+  checkDuplication() {
+    this.songDuplicate = [...this.songService.songList$.value.reduce((acc, song) => {
+      const result = this.songService.songList$.value.filter(
+        (songY) => song !== songY && !acc.has(songY) && this.duplicateService.isSimilar(song.text, songY.text),
+      );
+
+      if (result.length > 0) {
+        acc.set(song, result);
+      }
+      return acc;
+    }, new Map<Song, Song[]>())];
   }
 }

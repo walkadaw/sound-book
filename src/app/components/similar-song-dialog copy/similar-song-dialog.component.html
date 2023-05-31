@@ -1,0 +1,10 @@
+<h3>Разница текстов</h3>
+<ng-container *ngFor="let item of diffs">
+  <h5>{{ item.song.title }}</h5>
+  <app-diff-result [diff]="item.diff"></app-diff-result>
+</ng-container>
+
+<div class="action">
+  <button mat-raised-button mat-dialog-close>Отменить</button>
+  <button mat-raised-button color="warn" [mat-dialog-close]="data.song">!!!Все равно создать!!!</button>
+</div>

@@ -1,20 +1,41 @@
 <div *ngIf="songWithoutChord.length">
   <h3>Песни без аккордов</h3>
   <ul>
-    <li [routerLink]="['/admin/edit', song.id]" *ngFor="let song of songWithoutChord">{{ song.title }}</li>
+    <li *ngFor="let song of songWithoutChord">
+      <a [routerLink]="['/admin/edit', song.id]">{{ song.title }}</a>
+    </li>
   </ul>
 </div>
 
 <div *ngIf="songChordMistake.length">
   <h3>Песни с нераспознанными аккордами</h3>
   <ul>
-    <li [routerLink]="['/song', song.id]" *ngFor="let song of songChordMistake">{{ song.title }}</li>
+    <li *ngFor="let song of songChordMistake">
+      <a [routerLink]="['/admin/edit', song.id]">{{ song.title }}</a>
+    </li>
   </ul>
 </div>
 
 <div *ngIf="songWithoutTag.length">
   <h3>Песни без Тегов</h3>
   <ul>
-    <li [routerLink]="['/admin/edit', song.id]" *ngFor="let song of songWithoutTag">{{ song.title }}</li>
+    <li *ngFor="let song of songWithoutTag">
+      <a [routerLink]="['/admin/edit', song.id]">{{ song.title }}</a>
+    </li>
+  </ul>
+</div>
+
+<div>
+  <h3>Похожие(дубликаты) песни</h3>
+  <button *ngIf="!songDuplicate" (click)="checkDuplication()">Проверить</button>
+
+  <ul *ngIf="songDuplicate?.length">
+    <li *ngFor="let song of songDuplicate">
+      <a [routerLink]="['/song', song[0].id]">{{ song[0].title }}</a>
+      :
+      <a [routerLink]="['/song', dbl.id]" *ngFor="let dbl of song[1]">
+        {{ dbl.title }}
+      </a>
+    </li>
   </ul>
 </div>

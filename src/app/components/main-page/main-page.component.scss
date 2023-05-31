@@ -2,3 +2,12 @@
     position: sticky;
     top: 0;
 }
+
+.song-link {
+    text-decoration: none;
+    color:  inherit !important;
+
+    &:visited {
+        color:  inherit !important;
+    }
+}

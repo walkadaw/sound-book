@@ -23,15 +23,7 @@
   </div>
 
   <div class="action">
-    <button mat-raised-button (click)="onSave()">Создать</button>
+    <button mat-raised-button (click)="onSave()">{{ songID ? 'Изменить' : 'Создать' }}</button>
   </div>
 </div>
-<div style="white-space: pre">
-  <ng-container *ngFor="let change of diff">
-    <ng-container *ngIf="change.removed && change.value.trim()"
-      ><span style="color: red">{{ change.value }}</span></ng-container
-    ><ng-container *ngIf="change.added">
-      <span style="color: green">{{ change.value }}</span></ng-container
-    ><ng-container *ngIf="!change.added && !change.removed">{{ change.value }}</ng-container>
-  </ng-container>
-</div>
+<app-diff-result [diff]="diff"></app-diff-result>

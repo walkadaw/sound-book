@@ -3,12 +3,19 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
 import {
-  filter, pluck, Subject, takeUntil,
+  pluck, Subject, takeUntil,
 } from 'rxjs';
+import {
+  filter,
+} from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { Song, SongAdd } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
+import { DuplicateService } from '../../../services/duplicate/duplicate.service';
+import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/similar-song-dialog.component';
 
 @Component({
   selector: 'app-edit',
@@ -27,11 +34,18 @@ export class EditComponent implements OnInit, OnDestroy {
   diff: Change[];
   private onDestroy$ = new Subject<void>();
 
+  get songID(): number {
+    return +this.route.snapshot.params.id;
+  }
+
   constructor(
     private songService: SongService,
     private chordService: ChordService,
     private route: ActivatedRoute,
     private router: Router,
+    private duplicateService: DuplicateService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +62,7 @@ export class EditComponent implements OnInit, OnDestroy {
       title, text, tags,
     } = this.songDataForm.value;
 
-    const songID = this.route.snapshot.params.id;
+    const { songID } = this;
     const content = this.chordService.getTextAndChord(text);
 
     if (songID) {
@@ -65,7 +79,29 @@ export class EditComponent implements OnInit, OnDestroy {
       tag: Object.keys(tags).filter((key) => tags[key]).join(','),
     };
 
+    const duplication = this.songService.songList$.value.filter(
+      (originSong) => +originSong.id !== +song.id && this.duplicateService.isSimilar(originSong.text, song.text),
+    );
+
+    if (duplication.length) {
+      this.dialog.open(SimilarSongDialogComponent, { data: { song, duplication } })
+        .afterClosed().pipe(filter((newSong) => !!newSong)).subscribe((newSong) => {
+          this.saveSong(newSong);
+        });
+      return;
+    }
+
+    this.saveSong(song);
+  }
+
+  private saveSong(song: SongAdd): void {
     this.songService.updateSong(song).pipe(takeUntil(this.onDestroy$)).subscribe((id) => {
+      this.snackBar.open(
+        song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена',
+        'Зачыніць',
+        { duration: 2000 },
+      );
+
       this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
     });
   }
