@@ -2,8 +2,8 @@
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $songs = json_decode($_POST['songs'], JSON_UNESCAPED_UNICODE);
-    $option = json_decode($_POST['$option'], JSON_UNESCAPED_UNICODE);
-    
+    $options = json_decode($_POST['options'], JSON_UNESCAPED_UNICODE);
+
 	$song_list = "";
 	foreach ($songs as $value) {
 		$id = intval($value);
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
    
-    $file = $docx->genDocX($data, $option);
+    $file = $docx->genDocX($data, $options);
     if($file){
         header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         header('Content-Disposition: attachment; filename="SongBook.docx"');

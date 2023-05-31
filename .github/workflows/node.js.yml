@@ -5,7 +5,7 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["master"]
-
+  
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
@@ -32,6 +32,7 @@ jobs:
   
   deploy:
     needs: build
+    environment: github-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,15 +42,16 @@ jobs:
         with:
           name: dist-artifact
           path: dist
-      - run: sed -i 's/$UserDB = ".*"/$UserDB = "${{ secrets.DB_USER }}"/g' ./api/classes/_class.db.php
-      - run: sed -i 's/$BaseDB = ".*"/$BaseDB = "${{ secrets.DB_USER }}"/g' ./api/classes/_class.db.php
-      - run: sed -i 's/$PassDB = ".*";/$PassDB = "${{ secrets.DB_PASSWORD }}";/g' ./api/classes/_class.db.php
+      - run: sed -i 's/$UserDB = ".*"/$UserDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/api/classes/_class.db.php
+      - run: sed -i 's/$BaseDB = ".*"/$BaseDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/api/classes/_class.db.php
+      - run: sed -i 's/$PassDB = ".*";/$PassDB = "${{ secrets.DB_PASSWORD }}";/g' ./dist/sound-book/api/classes/_class.db.php
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: bixbox0i.beget.tech
           username: bixbox0i_ciaccount
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: './dist/sound-book'
-          server-dir: './'
+          local-dir: './dist/sound-book/'
           dangerous-clean-slate: true
+          exclude: |
+            **/api/tmp/**

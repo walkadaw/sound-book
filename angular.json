@@ -31,7 +31,11 @@
               "src/assets",
               "src/manifest.webmanifest",
               "src/.htaccess",
-              "api"
+              {
+                "glob": "**/*",
+                "input": "./api/",
+                "output": "/api/"
+              }
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
