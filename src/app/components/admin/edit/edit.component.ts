@@ -103,6 +103,11 @@ export class EditComponent implements OnInit, OnDestroy {
       );
 
       this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
+      this.songDataForm.setValue({
+        title: song.title,
+        text: this.mergeChordWidthText(song as unknown as Song), // update with chord
+        tags: this.setTag((arg) => !!song.tag[arg.id]),
+      });
     });
   }
 

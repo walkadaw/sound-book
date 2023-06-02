@@ -2,66 +2,14 @@ import { Injectable } from '@angular/core';
 import { CHORD_DATA } from './chord-list';
 import { CHORD_TRANSPILATION } from './chord-transpitaliton';
 import { Chord, Chords } from './chord.interface';
+import {
+  ALIAS_MAP, ALIAS_SUFFIX, CHORD_CLEAN_UP, REPLACE_BIMOLE, SHORT_MAP, TO_SHORT_MAP,
+} from './chord.model';
 
 export interface ChordList {
   text: string;
   type: 'text' | 'chord';
 }
-
-const REPLACE_BIMOLE = /♭/g;
-const CHORD_CLEAN_UP = /[^\w+/#♭]/g;
-const SHORT_MAP: {[key: string]: string} = {
-  c: 'Cm',
-  cb: 'Cbm',
-  cis: 'C#',
-  'c#': 'C#m',
-
-  d: 'Dm',
-  db: 'Dbm',
-  dis: 'D#',
-  'd#': 'D#m',
-
-  e: 'Em',
-  eb: 'Ebm',
-  eis: 'E#',
-  'e#': 'E#m',
-
-  f: 'Fm',
-  fb: 'Fbm',
-  fis: 'F#',
-  'f#': 'F#m',
-
-  g: 'Gm',
-  gb: 'Gbm',
-  gis: 'G#',
-  'g#': 'G#m',
-
-  a: 'Am',
-  ab: 'Abm',
-  ais: 'A#',
-  'a#': 'A#m',
-
-  b: 'Bm',
-  bb: 'Bbm',
-  bis: 'B#',
-  'b#': 'B#m',
-};
-
-const ALIAS_MAP: {[key: string]: string} = {
-  Ab: 'G#',
-  Abm: 'G#m',
-  Eb: 'D#',
-  Ebm: 'D#m',
-  Db: 'C#',
-  Dbm: 'C#m',
-  'A#': 'Bb',
-  'A#m': 'Bbm',
-};
-
-const ALIAS_SUFFIX: {[key: string]: string} = {
-  sus: 'sus4',
-  m: 'minor',
-};
 
 @Injectable({
   providedIn: 'root',
@@ -146,8 +94,19 @@ export class ChordService {
         }
 
         lastIsChord = false;
-      } else {
-        acc.chord += `${result.trimRight()}\n`;
+      } else if (result) {
+        const chordlist = result.trim().split(/\s+/g).map((data) => {
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const chord = this.getChord(data);
+
+          if (!chord) {
+            return data;
+          }
+
+          return this.getShortChord(chord);
+        });
+
+        acc.chord += `${chordlist.join(' ')}\n`;
         lastIsChord = true;
       }
 
@@ -163,6 +122,21 @@ export class ChordService {
     }
 
     return CHORD_DATA.keys.find((value) => value === base[0]);
+  }
+
+  getShortChord(chord: Chord): string {
+    const suffix = this.getReadableSuffix(chord.suffix);
+    let data = chord.key;
+
+    if (suffix[0] === 'm' && suffix.slice(0, 3) !== 'maj') {
+      data += 'm';
+    }
+
+    if (TO_SHORT_MAP[data]) {
+      return TO_SHORT_MAP[data] + suffix.slice(1);
+    }
+
+    return `${chord.key}${suffix}`;
   }
 
   convertAlias(chord: string) {
