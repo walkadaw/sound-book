@@ -13,7 +13,7 @@
         <ng-container *ngIf="showSongNumber$ | async">{{ song.songId }}. </ng-container>
         {{ song.title | uppercase }}
       </span>
-      <div class="actions" (click)="$event.stopPropagation()">
+      <div class="actions" (click)="$event.stopPropagation(); $event.preventDefault()">
         <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu" [matMenuTriggerData]="song">
           <mat-icon>more_horiz</mat-icon>
         </button>
