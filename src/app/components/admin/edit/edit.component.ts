@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
 import {
@@ -25,10 +25,10 @@ import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/simil
 export class EditComponent implements OnInit, OnDestroy {
   readonly tagList = TAGS_LIST;
 
-  songDataForm = new FormGroup({
-    title: new FormControl('', [Validators.required, Validators.maxLength(120)]),
-    text: new FormControl('', Validators.required),
-    tags: new FormGroup(this.setTag(() => new FormControl(false))),
+  songDataForm = new UntypedFormGroup({
+    title: new UntypedFormControl('', [Validators.required, Validators.maxLength(120)]),
+    text: new UntypedFormControl('', Validators.required),
+    tags: new UntypedFormGroup(this.setTag(() => new UntypedFormControl(false))),
   });
 
   diff: Change[];
