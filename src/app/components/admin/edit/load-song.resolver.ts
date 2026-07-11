@@ -7,7 +7,7 @@ import { Song } from '../../../interfaces/song';
 import { SongService } from '../../../services/song-service/song.service';
 
 @Injectable({
-  providedIn: 'any',
+  providedIn: 'root',
 })
 export class LoadSongResolver implements Resolve<Song> {
   constructor(

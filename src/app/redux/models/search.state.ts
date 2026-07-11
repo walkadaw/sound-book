@@ -1,4 +1,4 @@
 export interface SearchInput {
-  searchTerm?: string;
+  searchTerm: string;
   selectedTag?: number;
 }

@@ -1,7 +1,7 @@
 import { createSelector } from '@ngrx/store';
 import { IAppState } from '../models/IAppState';
 
-export const getSettingsState = (state: IAppState) => state.settings || {};
+export const getSettingsState = (state: IAppState) => state.settings;
 
 export const getShowChord = createSelector(getSettingsState, (state) => state.showChord);
 export const getChordPosition = createSelector(getSettingsState, (state) => state.chordPosition);
