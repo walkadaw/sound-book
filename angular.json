@@ -84,19 +84,19 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "sound-book:build",
-            "proxyConfig": "dev-proxy.config.json"
+            "proxyConfig": "dev-proxy.config.json",
+            "buildTarget": "sound-book:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "sound-book:build:production"
+              "buildTarget": "sound-book:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "sound-book:build"
+            "buildTarget": "sound-book:build"
           }
         },
         "test": {
