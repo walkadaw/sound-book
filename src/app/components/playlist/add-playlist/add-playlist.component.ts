@@ -1,12 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
+import { MatButton } from '@angular/material/button';
+import { NgIf } from '@angular/common';
+import { MatInput } from '@angular/material/input';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-add-playlist',
-  templateUrl: './add-playlist.component.html',
-  styleUrls: ['./add-playlist.component.scss'],
+    selector: 'app-add-playlist',
+    templateUrl: './add-playlist.component.html',
+    styleUrls: ['./add-playlist.component.scss'],
+    standalone: true,
+    imports: [
+        MatFormField,
+        MatLabel,
+        MatInput,
+        ReactiveFormsModule,
+        NgIf,
+        MatError,
+        MatButton,
+    ],
 })
 export class AddPlaylistComponent implements OnInit {
   playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);

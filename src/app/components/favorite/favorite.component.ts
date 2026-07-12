@@ -10,11 +10,31 @@ import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getShowSongNumber } from '../../redux/selector/settings.selector';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
+import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
+import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-favorite',
-  templateUrl: './favorite.component.html',
-  styleUrls: ['./favorite.component.scss'],
+    selector: 'app-favorite',
+    templateUrl: './favorite.component.html',
+    styleUrls: ['./favorite.component.scss'],
+    standalone: true,
+    imports: [
+        NgIf,
+        NgFor,
+        RouterLink,
+        MatIcon,
+        MatIconButton,
+        MatMenuTrigger,
+        MatMenu,
+        PlaylistMenuComponent,
+        AsyncPipe,
+        ReplaceSpacePipe,
+    ],
 })
 export class FavoriteComponent implements OnInit {
   songFavoriteList$: Observable<SongFavorite[]>;

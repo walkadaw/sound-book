@@ -1,4 +1,4 @@
-import { Location } from '@angular/common';
+import { Location, NgIf, NgFor } from '@angular/common';
 import {
   AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation,
 } from '@angular/core';
@@ -11,16 +11,23 @@ import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { RevealService } from '../../services/reveal-service/reveal.service';
 import { SlidesService } from '../../services/slides/slides.service';
 import { SongService } from '../../services/song-service/song.service';
+import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
 
 @Component({
-  selector: 'app-presentation',
-  templateUrl: './presentation.component.html',
-  styleUrls: [
-    './presentation.component.scss',
-    '../../../assets/css/reveal.scss',
-    '../../../assets/css/theme/blood.css',
-  ],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-presentation',
+    templateUrl: './presentation.component.html',
+    styleUrls: [
+        './presentation.component.scss',
+        '../../../assets/css/reveal.scss',
+        '../../../assets/css/theme/blood.css',
+    ],
+    encapsulation: ViewEncapsulation.None,
+    standalone: true,
+    imports: [
+        NgIf,
+        NgFor,
+        PresentationMenuComponent,
+    ],
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   slideList: SlideList[];

@@ -8,8 +8,8 @@ describe('PresentationMenuComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [PresentationMenuComponent],
-    })
+    imports: [PresentationMenuComponent],
+})
       .compileComponents();
   }));
 

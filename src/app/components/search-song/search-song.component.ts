@@ -8,7 +8,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   debounceTime, distinctUntilChanged, filter, takeUntil,
 } from 'rxjs/operators';
@@ -21,12 +21,36 @@ import { getCurrentValue } from '../utils/redux.utils';
 import { getShowMenu } from '../../redux/selector/settings.selector';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
+import { MatSuffix } from '@angular/material/form-field';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatInput } from '@angular/material/input';
+import { MatOption } from '@angular/material/core';
+import { MatIcon } from '@angular/material/icon';
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { MatSelect, MatSelectTrigger } from '@angular/material/select';
+import { LetDirective } from '../../directives/let-directive/app-let.directive';
 
 @Component({
-  selector: 'app-search-song',
-  templateUrl: './search-song.component.html',
-  styleUrls: ['./search-song.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-search-song',
+    templateUrl: './search-song.component.html',
+    styleUrls: ['./search-song.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: true,
+    imports: [
+        LetDirective,
+        MatSelect,
+        MatSelectTrigger,
+        NgIf,
+        MatIcon,
+        NgFor,
+        MatOption,
+        MatInput,
+        ReactiveFormsModule,
+        MatButton,
+        MatIconButton,
+        MatSuffix,
+        AsyncPipe,
+    ],
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
   @ViewChild('search', { read: ElementRef }) searchElement: ElementRef<HTMLElement>;

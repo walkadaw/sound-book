@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
 import {
@@ -16,11 +16,32 @@ import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { DuplicateService } from '../../../services/duplicate/duplicate.service';
 import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/similar-song-dialog.component';
+import { DiffResultComponent } from '../../diff-result/diff-result.component';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { NgFor } from '@angular/common';
+import { EditSongComponent } from './edit-song/edit-song.component';
+import { MatInput } from '@angular/material/input';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-edit',
-  templateUrl: './edit.component.html',
-  styleUrls: ['./edit.component.scss'],
+    selector: 'app-edit',
+    templateUrl: './edit.component.html',
+    styleUrls: ['./edit.component.scss'],
+    standalone: true,
+    imports: [
+        ReactiveFormsModule,
+        MatFormField,
+        MatLabel,
+        MatInput,
+        EditSongComponent,
+        NgFor,
+        MatCheckbox,
+        MatIcon,
+        MatButton,
+        DiffResultComponent,
+    ],
 })
 export class EditComponent implements OnInit, OnDestroy {
   readonly tagList = TAGS_LIST;

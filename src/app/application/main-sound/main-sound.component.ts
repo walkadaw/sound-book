@@ -1,7 +1,7 @@
 import {
   Component, HostListener, OnDestroy, OnInit,
 } from '@angular/core';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
 import {
@@ -10,11 +10,24 @@ import {
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
+import { FooterComponent } from '../../components/footer/footer.component';
+import { NgIf, AsyncPipe } from '@angular/common';
+import { MainPageComponent } from '../../components/main-page/main-page.component';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
-  selector: 'app-main-sound',
-  templateUrl: './main-sound.component.html',
-  styleUrls: ['./main-sound.component.scss'],
+    selector: 'app-main-sound',
+    templateUrl: './main-sound.component.html',
+    styleUrls: ['./main-sound.component.scss'],
+    standalone: true,
+    imports: [
+        HeaderComponent,
+        MainPageComponent,
+        NgIf,
+        RouterOutlet,
+        FooterComponent,
+        AsyncPipe,
+    ],
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
   showMenu$: Observable<boolean>;

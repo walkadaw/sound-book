@@ -8,8 +8,8 @@ describe('LiturgyComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [LiturgyComponent],
-    })
+    imports: [LiturgyComponent],
+})
       .compileComponents();
   }));
 

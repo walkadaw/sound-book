@@ -7,14 +7,25 @@ import { IAppState } from '../../redux/models/IAppState';
 import { getChordPosition, getShowChord } from '../../redux/selector/settings.selector';
 import { SongService } from '../../services/song-service/song.service';
 import { SelectedSong } from '../song-details/song-details.component';
+import { ChordListComponent } from '../chord-list/chord-list.component';
+import { NgFor, NgIf, AsyncPipe } from '@angular/common';
+import { LetDirective } from '../../directives/let-directive/app-let.directive';
 
 const TAG_PAST_OF_MASS = 10;
 
 @Component({
-  selector: 'app-part-of-mass',
-  templateUrl: './part-of-mass.component.html',
-  styleUrls: ['./part-of-mass.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-part-of-mass',
+    templateUrl: './part-of-mass.component.html',
+    styleUrls: ['./part-of-mass.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        LetDirective,
+        NgFor,
+        NgIf,
+        ChordListComponent,
+        AsyncPipe,
+    ],
 })
 export class PartOfMassComponent implements OnInit {
   showChord$ = this.store.select(getShowChord);

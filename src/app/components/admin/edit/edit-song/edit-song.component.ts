@@ -1,22 +1,29 @@
 import {
   AfterViewInit, Component, ElementRef, forwardRef, Input, OnDestroy, ViewChild,
 } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import {
   distinctUntilChanged, fromEvent,
   map, merge, of, Subject, takeUntil,
 } from 'rxjs';
+import { NgIf, AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-edit-song',
-  templateUrl: './edit-song.component.html',
-  styleUrls: ['./edit-song.component.scss'],
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    // eslint-disable-next-line no-use-before-define
-    useExisting: forwardRef(() => EditSongComponent),
-    multi: true,
-  }],
+    selector: 'app-edit-song',
+    templateUrl: './edit-song.component.html',
+    styleUrls: ['./edit-song.component.scss'],
+    providers: [{
+            provide: NG_VALUE_ACCESSOR,
+            // eslint-disable-next-line no-use-before-define
+            useExisting: forwardRef(() => EditSongComponent),
+            multi: true,
+        }],
+    standalone: true,
+    imports: [
+        NgIf,
+        ReactiveFormsModule,
+        AsyncPipe,
+    ],
 })
 export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
   @ViewChild('lineCounter') lineCounter: ElementRef<HTMLTextAreaElement>;

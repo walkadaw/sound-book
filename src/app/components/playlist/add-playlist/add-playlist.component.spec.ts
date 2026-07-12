@@ -8,8 +8,8 @@ describe('AddPlaylistComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AddPlaylistComponent],
-    })
+    imports: [AddPlaylistComponent],
+})
       .compileComponents();
   });
 

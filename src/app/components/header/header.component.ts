@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatButtonToggleChange } from '@angular/material/button-toggle';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatButtonToggleChange, MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
+import { MatSlideToggleChange, MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { catchError, EMPTY } from 'rxjs';
 import { clearSearchAction } from '../../redux/actions/search.actions';
@@ -24,16 +24,39 @@ import { PlayList } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 import { UserService } from '../../services/user/user.service';
 import { getCurrentValue } from '../utils/redux.utils';
+import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
+import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { MatDivider } from '@angular/material/divider';
+import { SearchSongComponent } from '../search-song/search-song.component';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatIcon } from '@angular/material/icon';
 
 const MIN_FONT_SIZE = 0.4;
 const MAX_FONT_SIZE = 2;
 const DEFAULT_FONT_SIZE = 1;
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        MatIcon,
+        MatMenuTrigger,
+        SearchSongComponent,
+        MatMenu,
+        MatMenuItem,
+        MatSlideToggle,
+        MatButtonToggleGroup,
+        MatButtonToggle,
+        MatDivider,
+        RouterLink,
+        NgIf,
+        PlaylistMenuComponent,
+        AsyncPipe,
+        DatePipe,
+    ],
 })
 export class HeaderComponent {
   showChord = getCurrentValue(this.store, getShowChord);

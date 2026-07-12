@@ -4,11 +4,27 @@ import {
 import { Observable } from 'rxjs';
 import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
 import { UserService } from '../../../services/user/user.service';
+import { MatDivider } from '@angular/material/divider';
+import { MatIcon } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { MatMenuItem } from '@angular/material/menu';
+import { NgIf, NgFor, AsyncPipe, SlicePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-playlist-menu',
-  templateUrl: './playlist-menu.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-playlist-menu',
+    templateUrl: './playlist-menu.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        MatMenuItem,
+        RouterLink,
+        MatIcon,
+        MatDivider,
+        NgFor,
+        AsyncPipe,
+        SlicePipe,
+    ],
 })
 export class PlaylistMenuComponent {
   @Input() songId?: number;

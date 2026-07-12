@@ -10,7 +10,7 @@ import {
   ElementRef,
   AfterViewInit,
 } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   Observable, Subject, fromEvent, BehaviorSubject,
 } from 'rxjs';
@@ -23,12 +23,25 @@ import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
+import { LetDirective } from '../../../directives/let-directive/app-let.directive';
+import { NgIf, NgTemplateOutlet, NgFor, AsyncPipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-presentation-menu',
-  templateUrl: './presentation-menu.component.html',
-  styleUrls: ['./presentation-menu.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-presentation-menu',
+    templateUrl: './presentation-menu.component.html',
+    styleUrls: ['./presentation-menu.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: true,
+    imports: [
+        MatIcon,
+        NgIf,
+        ReactiveFormsModule,
+        NgTemplateOutlet,
+        NgFor,
+        LetDirective,
+        AsyncPipe,
+    ],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() slideList: SlideList[];

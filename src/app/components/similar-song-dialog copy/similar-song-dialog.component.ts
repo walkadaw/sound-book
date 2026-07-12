@@ -1,9 +1,12 @@
 import {
   Component, ChangeDetectionStrategy, Inject, OnInit,
 } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
 import { Change, diffWords } from 'diff';
 import { Song } from '../../interfaces/song';
+import { MatButton } from '@angular/material/button';
+import { DiffResultComponent } from '../diff-result/diff-result.component';
+import { NgFor } from '@angular/common';
 
 interface SimilarData {
   song: Song,
@@ -16,10 +19,17 @@ interface DiffResult {
 }
 
 @Component({
-  selector: 'app-similar-song-dialog',
-  templateUrl: './similar-song-dialog.component.html',
-  styleUrls: ['./similar-song-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-similar-song-dialog',
+    templateUrl: './similar-song-dialog.component.html',
+    styleUrls: ['./similar-song-dialog.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgFor,
+        DiffResultComponent,
+        MatButton,
+        MatDialogClose,
+    ],
 })
 export class SimilarSongDialogComponent implements OnInit {
   diffs: DiffResult[];

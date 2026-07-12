@@ -8,8 +8,8 @@ describe('ChordVariationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ChordVariationComponent ]
-    })
+    imports: [ChordVariationComponent]
+})
     .compileComponents();
   });
 

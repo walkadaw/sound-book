@@ -1,18 +1,49 @@
 import { Component, OnInit } from '@angular/core';
-import { Validators, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { Validators, UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckbox } from '@angular/material/checkbox';
 import { SongService } from '../../services/song-service/song.service';
 import { Song } from '../../interfaces/song';
 import { FuseService } from '../../services/fuse-service/fuse.service';
 import { GeneratorService } from '../../services/generator-service/generator.service';
 import { TAGS_LIST } from '../../constants/tag-list';
+import { CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf } from '@angular/cdk/scrolling';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatInput } from '@angular/material/input';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { NgIf, AsyncPipe } from '@angular/common';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
 
 @Component({
-  selector: 'app-paper-generator',
-  templateUrl: './paper-generator.component.html',
-  styleUrls: ['./paper-generator.component.scss'],
+    selector: 'app-paper-generator',
+    templateUrl: './paper-generator.component.html',
+    styleUrls: ['./paper-generator.component.scss'],
+    standalone: true,
+    imports: [
+        ReactiveFormsModule,
+        MatRadioGroup,
+        MatRadioButton,
+        MatCheckbox,
+        MatIcon,
+        MatTooltip,
+        NgIf,
+        MatFormField,
+        MatLabel,
+        MatInput,
+        MatButton,
+        MatIconButton,
+        MatSuffix,
+        MatTabGroup,
+        MatTab,
+        CdkVirtualScrollViewport,
+        CdkFixedSizeVirtualScroll,
+        CdkVirtualForOf,
+        AsyncPipe,
+    ],
 })
 export class PaperGeneratorComponent implements OnInit {
   songListForm: UntypedFormGroup;

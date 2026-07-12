@@ -1,8 +1,8 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -11,12 +11,38 @@ import { IAppState } from '../../../redux/models/IAppState';
 import { getShowChord, getShowSongNumber } from '../../../redux/selector/settings.selector';
 import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
 import { SongService } from '../../../services/song-service/song.service';
+import { ReplaceSpacePipe } from '../../../pipes/replace-space/replace-space.pipe';
+import { MatDivider } from '@angular/material/divider';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-view-playlist',
-  templateUrl: './view-playlist.component.html',
-  styleUrls: ['./view-playlist.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-view-playlist',
+    templateUrl: './view-playlist.component.html',
+    styleUrls: ['./view-playlist.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        MatIconButton,
+        MatMenuTrigger,
+        MatIcon,
+        MatMenu,
+        MatMenuItem,
+        MatDivider,
+        RouterLink,
+        MatButton,
+        CdkDropList,
+        NgFor,
+        RouterLinkActive,
+        CdkDrag,
+        CdkDragHandle,
+        AsyncPipe,
+        DatePipe,
+        ReplaceSpacePipe,
+    ],
 })
 export class ViewPlaylistComponent implements OnInit {
   playlistData$: Observable<PlayList & { songs: Song[] }>;

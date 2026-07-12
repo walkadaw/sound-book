@@ -6,13 +6,21 @@ import { tap } from 'rxjs/operators';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { Liturgy } from '../../interfaces/liturgy';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { NgIf, AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-liturgy',
-  templateUrl: './liturgy.component.html',
-  styleUrls: ['./liturgy.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-liturgy',
+    templateUrl: './liturgy.component.html',
+    styleUrls: ['./liturgy.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        MatProgressSpinner,
+        AsyncPipe,
+    ],
 })
 export class LiturgyComponent implements OnInit {
   liturgy$: Observable<Liturgy>;

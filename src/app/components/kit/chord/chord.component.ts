@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { CHORD_DATA } from '../../../services/chord/chord-list';
 import { Position } from '../../../services/chord/chord.interface';
+import { NgIf, NgFor } from '@angular/common';
 
 interface Barre {
   key: number;
@@ -50,9 +51,11 @@ function onlyDots(chord: Position) {
 }
 
 @Component({
-  selector: 'app-chord',
-  templateUrl: './chord.component.svg',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-chord',
+    templateUrl: './chord.component.svg',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgIf, NgFor],
 })
 export class ChordComponent {
   @Input() set chord(chord: Position) {

@@ -2,12 +2,16 @@ import {
   ChangeDetectionStrategy,
   Component, EventEmitter, Input, Output,
 } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-  selector: 'app-song-key',
-  templateUrl: './song-key.component.html',
-  styleUrls: ['./song-key.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-song-key',
+    templateUrl: './song-key.component.html',
+    styleUrls: ['./song-key.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [MatButton, MatIcon],
 })
 export class SongKeyComponent {
   @Input() selectedTranspilation = 0;

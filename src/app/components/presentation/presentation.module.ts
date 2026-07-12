@@ -5,10 +5,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes } from '@angular/router';
 import { PresentationComponent } from './presentation.component';
 import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
-import { MatModule } from '../../mat.module';
+
 import { SongModule } from '../../services/song-service/song.module';
 import { RevealService } from '../../services/reveal-service/reveal.service';
-import { LetDirectiveModule } from '../../directives/let-directive/app-let.module';
+
 import { LiturgyModule } from '../../services/liturgy-service/liturgy.module';
 
 const presentationRoutes: Routes = [
@@ -17,17 +17,15 @@ const presentationRoutes: Routes = [
 ];
 
 @NgModule({
-  declarations: [PresentationComponent, PresentationMenuComponent],
-  imports: [
+    imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatModule,
     SongModule,
     LiturgyModule,
     HttpClientModule,
-    LetDirectiveModule,
     RouterModule.forChild(presentationRoutes),
-  ],
-  providers: [RevealService],
+    PresentationComponent, PresentationMenuComponent,
+],
+    providers: [RevealService],
 })
 export class PresentationModule {}

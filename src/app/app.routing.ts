@@ -84,21 +84,10 @@ const soundRoutes: Routes = [
   { path: '**', component: PageNotFoundComponent },
 ];
 
-const appRoutes: Routes = [
+export const appRoutes: Routes = [
   {
     path: 'presentation',
     loadChildren: () => import('./components/presentation/presentation.module').then((m) => m.PresentationModule),
   },
   { path: '', component: MainSoundComponent, children: soundRoutes },
 ];
-
-@NgModule({
-  imports: [
-    RouterModule.forRoot(appRoutes, {
-    scrollPositionRestoration: 'enabled',
-    onSameUrlNavigation: 'reload'
-}),
-  ],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}
