@@ -20,7 +20,7 @@ import { DiffResultComponent } from '../../diff-result/diff-result.component';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { NgFor } from '@angular/common';
+
 import { EditSongComponent } from './edit-song/edit-song.component';
 import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -31,17 +31,16 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
     styleUrls: ['./edit.component.scss'],
     standalone: true,
     imports: [
-        ReactiveFormsModule,
-        MatFormField,
-        MatLabel,
-        MatInput,
-        EditSongComponent,
-        NgFor,
-        MatCheckbox,
-        MatIcon,
-        MatButton,
-        DiffResultComponent,
-    ],
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    EditSongComponent,
+    MatCheckbox,
+    MatIcon,
+    MatButton,
+    DiffResultComponent
+],
 })
 export class EditComponent implements OnInit, OnDestroy {
   readonly tagList = TAGS_LIST;

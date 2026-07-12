@@ -16,7 +16,7 @@ import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatIconButton, MatButton } from '@angular/material/button';
-import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-view-playlist',
@@ -25,24 +25,22 @@ import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgIf,
-        MatIconButton,
-        MatMenuTrigger,
-        MatIcon,
-        MatMenu,
-        MatMenuItem,
-        MatDivider,
-        RouterLink,
-        MatButton,
-        CdkDropList,
-        NgFor,
-        RouterLinkActive,
-        CdkDrag,
-        CdkDragHandle,
-        AsyncPipe,
-        DatePipe,
-        ReplaceSpacePipe,
-    ],
+    MatIconButton,
+    MatMenuTrigger,
+    MatIcon,
+    MatMenu,
+    MatMenuItem,
+    MatDivider,
+    RouterLink,
+    MatButton,
+    CdkDropList,
+    RouterLinkActive,
+    CdkDrag,
+    CdkDragHandle,
+    AsyncPipe,
+    DatePipe,
+    ReplaceSpacePipe
+],
 })
 export class ViewPlaylistComponent implements OnInit {
   playlistData$: Observable<PlayList & { songs: Song[] }>;

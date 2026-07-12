@@ -4,7 +4,7 @@ import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { DuplicateService } from '../../../services/duplicate/duplicate.service';
 import { RouterLink } from '@angular/router';
-import { NgIf, NgFor } from '@angular/common';
+
 
 @Component({
     selector: 'app-admin',
@@ -12,10 +12,8 @@ import { NgIf, NgFor } from '@angular/common';
     styleUrls: ['./admin.component.scss'],
     standalone: true,
     imports: [
-        NgIf,
-        NgFor,
-        RouterLink,
-    ],
+    RouterLink
+],
 })
 export class AdminComponent implements OnInit {
   songWithoutChord: Song[] = [];

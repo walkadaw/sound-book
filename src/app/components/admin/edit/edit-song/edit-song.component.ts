@@ -6,7 +6,7 @@ import {
   distinctUntilChanged, fromEvent,
   map, merge, of, Subject, takeUntil,
 } from 'rxjs';
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
     selector: 'app-edit-song',
@@ -20,10 +20,9 @@ import { NgIf, AsyncPipe } from '@angular/common';
         }],
     standalone: true,
     imports: [
-        NgIf,
-        ReactiveFormsModule,
-        AsyncPipe,
-    ],
+    ReactiveFormsModule,
+    AsyncPipe
+],
 })
 export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
   @ViewChild('lineCounter') lineCounter: ElementRef<HTMLTextAreaElement>;

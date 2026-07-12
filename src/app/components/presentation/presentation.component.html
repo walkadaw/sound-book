@@ -1,26 +1,29 @@
 <div class="reveal" [class.speakerNotes]="this.isSpeakerNotes()">
   <div class="slides">
-    <ng-container *ngIf="slideList && slideList.length; else noSlide">
-      <ng-container *ngFor="let slides of slideList; trackBy: trackBySlides">
-        <section *ngFor="let slide of slides.slides" [style.font-size.px]="slide.fontSize">
-          <span>{{ slide.text }}</span>
-          <aside class="notes" *ngIf="slides.chord || slides.text">
-            <div class="lyrics">
-              <span>{{ slides.text }}</span
-              ><span class="chord">{{ slides.chord }}</span>
-            </div>
-          </aside>
-        </section>
-      </ng-container>
-    </ng-container>
+    @if (slideList && slideList.length) {
+      @for (slides of slideList; track trackBySlides($index, slides)) {
+        @for (slide of slides.slides; track slide) {
+          <section [style.font-size.px]="slide.fontSize">
+            <span>{{ slide.text }}</span>
+            @if (slides.chord || slides.text) {
+              <aside class="notes">
+                <div class="lyrics">
+                  <span>{{ slides.text }}</span
+                    ><span class="chord">{{ slides.chord }}</span>
+                  </div>
+                </aside>
+              }
+            </section>
+          }
+        }
+      } @else {
+        <section>Не дададзены ні адзін слайд</section>
+      }
 
-    <ng-template #noSlide>
-      <section>Не дададзены ні адзін слайд</section>
-    </ng-template>
+    </div>
   </div>
-</div>
 
-<ng-container *ngIf="isReady()">
-  <app-presentation-menu [slideList]="slideList" (addedSong)="addSlide($event)" (removeSong)="removeSlide($event)">
-  </app-presentation-menu>
-</ng-container>
+  @if (isReady()) {
+    <app-presentation-menu [slideList]="slideList" (addedSong)="addSlide($event)" (removeSong)="removeSlide($event)">
+    </app-presentation-menu>
+  }

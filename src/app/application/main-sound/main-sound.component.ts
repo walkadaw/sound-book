@@ -11,7 +11,7 @@ import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { MainPageComponent } from '../../components/main-page/main-page.component';
 import { HeaderComponent } from '../../components/header/header.component';
 
@@ -21,13 +21,12 @@ import { HeaderComponent } from '../../components/header/header.component';
     styleUrls: ['./main-sound.component.scss'],
     standalone: true,
     imports: [
-        HeaderComponent,
-        MainPageComponent,
-        NgIf,
-        RouterOutlet,
-        FooterComponent,
-        AsyncPipe,
-    ],
+    HeaderComponent,
+    MainPageComponent,
+    RouterOutlet,
+    FooterComponent,
+    AsyncPipe
+],
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
   showMenu$: Observable<boolean>;

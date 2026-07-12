@@ -5,7 +5,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
-import { NgIf } from '@angular/common';
+
 
 interface JesusSay {
   content: string,
@@ -18,7 +18,7 @@ interface JesusSay {
     styleUrls: ['./footer.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf, MatIcon],
+    imports: [MatIcon],
 })
 export class FooterComponent implements OnInit, OnDestroy {
   words!: JesusSay | null;

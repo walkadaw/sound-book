@@ -6,7 +6,9 @@
       <mat-label>Назва плэйліста</mat-label>
       <input type="text" matInput [formControl]="playlistControl" placeholder="Песні для імшы" [maxlength]="60" />
 
-      <mat-error *ngIf="playlistControl.hasError('required')"> Назва <strong>абавязкова</strong> </mat-error>
+      @if (playlistControl.hasError('required')) {
+        <mat-error> Назва <strong>абавязкова</strong> </mat-error>
+      }
     </mat-form-field>
 
     <button mat-raised-button (click)="submitForm()">{{ playlistId ? 'Змяніць' : 'Стварыць' }}</button>

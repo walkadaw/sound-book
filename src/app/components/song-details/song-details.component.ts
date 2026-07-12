@@ -19,7 +19,7 @@ import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.c
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
-import { NgIf, NgFor, AsyncPipe, KeyValuePipe } from '@angular/common';
+import { AsyncPipe, KeyValuePipe } from '@angular/common';
 
 export interface SelectedSong {
   id: number;
@@ -38,19 +38,17 @@ export interface SelectedSong {
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgIf,
-        NgFor,
-        MatIconButton,
-        MatIcon,
-        MatMenuTrigger,
-        MatMenu,
-        PlaylistMenuComponent,
-        SongKeyComponent,
-        LetDirective,
-        ChordListComponent,
-        AsyncPipe,
-        KeyValuePipe,
-    ],
+    MatIconButton,
+    MatIcon,
+    MatMenuTrigger,
+    MatMenu,
+    PlaylistMenuComponent,
+    SongKeyComponent,
+    LetDirective,
+    ChordListComponent,
+    AsyncPipe,
+    KeyValuePipe
+],
 })
 export class SongDetailsComponent implements OnInit {
   selectedSong$: Observable<SelectedSong>;

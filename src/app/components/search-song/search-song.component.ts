@@ -26,7 +26,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { MatOption } from '@angular/material/core';
 import { MatIcon } from '@angular/material/icon';
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { LetDirective } from '../../directives/let-directive/app-let.directive';
 
@@ -37,20 +37,18 @@ import { LetDirective } from '../../directives/let-directive/app-let.directive';
     encapsulation: ViewEncapsulation.None,
     standalone: true,
     imports: [
-        LetDirective,
-        MatSelect,
-        MatSelectTrigger,
-        NgIf,
-        MatIcon,
-        NgFor,
-        MatOption,
-        MatInput,
-        ReactiveFormsModule,
-        MatButton,
-        MatIconButton,
-        MatSuffix,
-        AsyncPipe,
-    ],
+    LetDirective,
+    MatSelect,
+    MatSelectTrigger,
+    MatIcon,
+    MatOption,
+    MatInput,
+    ReactiveFormsModule,
+    MatButton,
+    MatIconButton,
+    MatSuffix,
+    AsyncPipe
+],
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
   @ViewChild('search', { read: ElementRef }) searchElement: ElementRef<HTMLElement>;

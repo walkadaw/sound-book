@@ -4,7 +4,7 @@ import { PlayList, PlaylistService } from '../../services/playlist/playlist.serv
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
-import { NgFor, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-playlist',
@@ -12,15 +12,14 @@ import { NgFor, DatePipe } from '@angular/common';
     styleUrls: ['./playlist.component.scss'],
     standalone: true,
     imports: [
-        CdkDropList,
-        NgFor,
-        CdkDrag,
-        RouterLink,
-        MatIconButton,
-        CdkDragHandle,
-        MatIcon,
-        DatePipe,
-    ],
+    CdkDropList,
+    CdkDrag,
+    RouterLink,
+    MatIconButton,
+    CdkDragHandle,
+    MatIcon,
+    DatePipe
+],
 })
 export class PlaylistComponent {
   playlists: PlayList[] = this.playlistService.playlists;

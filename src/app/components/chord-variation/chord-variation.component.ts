@@ -7,7 +7,7 @@ import { ChordService } from '../../services/chord/chord.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { ChordComponent } from '../kit/chord/chord.component';
-import { NgIf } from '@angular/common';
+
 
 @Component({
     selector: 'app-chord-variation',
@@ -16,11 +16,10 @@ import { NgIf } from '@angular/common';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgIf,
-        ChordComponent,
-        MatIconButton,
-        MatIcon,
-    ],
+    ChordComponent,
+    MatIconButton,
+    MatIcon
+],
 })
 export class ChordVariationComponent implements OnChanges {
   @Input() chord: Chord;

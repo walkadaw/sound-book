@@ -24,7 +24,7 @@ import { MatMenuTrigger, MatMenu, MatMenuContent } from '@angular/material/menu'
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLinkActive, RouterLink } from '@angular/router';
-import { NgIf, NgFor, AsyncPipe, UpperCasePipe } from '@angular/common';
+import { AsyncPipe, UpperCasePipe } from '@angular/common';
 
 @Component({
     selector: 'app-main-page',
@@ -33,20 +33,18 @@ import { NgIf, NgFor, AsyncPipe, UpperCasePipe } from '@angular/common';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgIf,
-        NgFor,
-        RouterLinkActive,
-        RouterLink,
-        MatIcon,
-        MatIconButton,
-        MatMenuTrigger,
-        MatMenu,
-        MatMenuContent,
-        PlaylistMenuComponent,
-        AsyncPipe,
-        UpperCasePipe,
-        ReplaceSpacePipe,
-    ],
+    RouterLinkActive,
+    RouterLink,
+    MatIcon,
+    MatIconButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuContent,
+    PlaylistMenuComponent,
+    AsyncPipe,
+    UpperCasePipe,
+    ReplaceSpacePipe
+],
 })
 export class MainPageComponent implements OnInit, OnDestroy {
   songListFiltered$: Observable<SongFavorite[]>;

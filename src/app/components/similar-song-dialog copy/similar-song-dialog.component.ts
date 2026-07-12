@@ -6,7 +6,7 @@ import { Change, diffWords } from 'diff';
 import { Song } from '../../interfaces/song';
 import { MatButton } from '@angular/material/button';
 import { DiffResultComponent } from '../diff-result/diff-result.component';
-import { NgFor } from '@angular/common';
+
 
 interface SimilarData {
   song: Song,
@@ -25,11 +25,10 @@ interface DiffResult {
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgFor,
-        DiffResultComponent,
-        MatButton,
-        MatDialogClose,
-    ],
+    DiffResultComponent,
+    MatButton,
+    MatDialogClose
+],
 })
 export class SimilarSongDialogComponent implements OnInit {
   diffs: DiffResult[];

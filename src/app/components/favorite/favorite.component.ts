@@ -16,7 +16,7 @@ import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
     selector: 'app-favorite',
@@ -24,17 +24,15 @@ import { NgIf, NgFor, AsyncPipe } from '@angular/common';
     styleUrls: ['./favorite.component.scss'],
     standalone: true,
     imports: [
-        NgIf,
-        NgFor,
-        RouterLink,
-        MatIcon,
-        MatIconButton,
-        MatMenuTrigger,
-        MatMenu,
-        PlaylistMenuComponent,
-        AsyncPipe,
-        ReplaceSpacePipe,
-    ],
+    RouterLink,
+    MatIcon,
+    MatIconButton,
+    MatMenuTrigger,
+    MatMenu,
+    PlaylistMenuComponent,
+    AsyncPipe,
+    ReplaceSpacePipe
+],
 })
 export class FavoriteComponent implements OnInit {
   songFavoriteList$: Observable<SongFavorite[]>;

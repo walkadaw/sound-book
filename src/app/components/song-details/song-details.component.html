@@ -1,54 +1,61 @@
-<article *ngIf="selectedSong$ | async as selectedSong">
-  <header class="entry-header">
-    <div class="title-container">
-      <div class="name-contaner">
-        <h1 class="entry-title" itemprop="name">
-          <ng-container *ngIf="showSongNumber$ | async">{{ selectedSong.songId }}. </ng-container>
-          {{ selectedSong?.title }}
-        </h1>
-        <h2 class="entry-title-meta" *ngIf="!isArray(selectedSong.tag)">
-          Тэгі:
-          <span *ngFor="let item of selectedSong.tag | keyvalue">{{ tagNameById[item.key] }}, </span>
-        </h2>
+@if (selectedSong$ | async; as selectedSong) {
+  <article>
+    <header class="entry-header">
+      <div class="title-container">
+        <div class="name-contaner">
+          <h1 class="entry-title" itemprop="name">
+            @if (showSongNumber$ | async) {
+              {{ selectedSong.songId }}.
+            }
+            {{ selectedSong?.title }}
+          </h1>
+          @if (!isArray(selectedSong.tag)) {
+            <h2 class="entry-title-meta">
+              Тэгі:
+              @for (item of selectedSong.tag | keyvalue; track item) {
+                <span>{{ tagNameById[item.key] }}, </span>
+              }
+            </h2>
+          }
+        </div>
+        <div class="title-container__actions">
+          <button mat-icon-button (click)="toggleFavorite(selectedSong.id)">
+            <mat-icon>{{ (isFavoriteSong$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <app-playlist-menu
+              [songId]="selectedSong.id"
+              (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, selectedSong.id)"
+            ></app-playlist-menu>
+          </mat-menu>
+        </div>
       </div>
-
-      <div class="title-container__actions">
-        <button mat-icon-button (click)="toggleFavorite(selectedSong.id)">
-          <mat-icon>{{ (isFavoriteSong$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
-        </button>
-
-        <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>more_horiz</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <app-playlist-menu
-            [songId]="selectedSong.id"
-            (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, selectedSong.id)"
-          ></app-playlist-menu>
-        </mat-menu>
-      </div>
+      @if (showChord$ | async) {
+        <div class="guitar-controls">
+          <app-song-key [(selectedTranspilation)]="selectedTranspilation"></app-song-key>
+        </div>
+      }
+    </header>
+    <div
+      class="lyrics"
+      [class.chord-right]="selectedSong.chordPosition === 'right'"
+      *appLet="showChord$ | async as showChord"
+      >
+      @for (line of selectedSong.text; track line; let i = $index) {
+        <div class="line-container">
+          @if (showChord && selectedSong.chord[i]) {
+            <app-chord-list
+              class="chord"
+              [chords]="selectedSong.chord[i]"
+              [transpilation]="selectedTranspilation"
+            ></app-chord-list>
+          }
+          <span>{{ line }}</span>
+        </div>
+      }
     </div>
-
-    <div class="guitar-controls" *ngIf="showChord$ | async">
-      <app-song-key [(selectedTranspilation)]="selectedTranspilation"></app-song-key>
-    </div>
-  </header>
-
-  <div
-    class="lyrics"
-    [class.chord-right]="selectedSong.chordPosition === 'right'"
-    *appLet="showChord$ | async as showChord"
-  >
-    <ng-container *ngFor="let line of selectedSong.text; let i = index">
-      <div class="line-container">
-        <app-chord-list
-          class="chord"
-          *ngIf="showChord && selectedSong.chord[i]"
-          [chords]="selectedSong.chord[i]"
-          [transpilation]="selectedTranspilation"
-        ></app-chord-list>
-        <span>{{ line }}</span>
-      </div>
-    </ng-container>
-  </div>
-</article>
+  </article>
+}

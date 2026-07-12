@@ -1,14 +1,15 @@
 <div class="edit-form">
   <div class="edit-content">
-    <textarea
-      #lineCounter
-      class="textarea textarea__line-counter"
-      wrap="off"
-      readonly
-      *ngIf="lineCounter$ | async as lines"
-      >{{ lines }}</textarea
-    >
-    <!-- <pre
+    @if (lineCounter$ | async; as lines) {
+      <textarea
+        #lineCounter
+        class="textarea textarea__line-counter"
+        wrap="off"
+        readonly
+        >{{ lines }}</textarea
+        >
+      }
+      <!-- <pre
       #content
       class="textarea__conteiner"
       contenteditable="true"

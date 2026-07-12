@@ -8,7 +8,7 @@ import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { MatMenuItem } from '@angular/material/menu';
-import { NgIf, NgFor, AsyncPipe, SlicePipe } from '@angular/common';
+import { AsyncPipe, SlicePipe } from '@angular/common';
 
 @Component({
     selector: 'app-playlist-menu',
@@ -16,15 +16,13 @@ import { NgIf, NgFor, AsyncPipe, SlicePipe } from '@angular/common';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgIf,
-        MatMenuItem,
-        RouterLink,
-        MatIcon,
-        MatDivider,
-        NgFor,
-        AsyncPipe,
-        SlicePipe,
-    ],
+    MatMenuItem,
+    RouterLink,
+    MatIcon,
+    MatDivider,
+    AsyncPipe,
+    SlicePipe
+],
 })
 export class PlaylistMenuComponent {
   @Input() songId?: number;

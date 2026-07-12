@@ -1,10 +1,12 @@
 <footer class="site-footer">
-  <div class="say-block" *ngIf="words">
-    <div class="text">
-      {{ words.content }}
-      <div class="alias">{{ words.alias }}</div>
-      <div class="close" (click)="close()"><mat-icon>close</mat-icon></div>
+  @if (words) {
+    <div class="say-block">
+      <div class="text">
+        {{ words.content }}
+        <div class="alias">{{ words.alias }}</div>
+        <div class="close" (click)="close()"><mat-icon>close</mat-icon></div>
+      </div>
     </div>
-  </div>
+  }
   <div class="jesus" [class.say]="words" (click)="onClick()"></div>
 </footer>

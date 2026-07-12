@@ -8,7 +8,7 @@ import { getChordPosition, getShowChord } from '../../redux/selector/settings.se
 import { SongService } from '../../services/song-service/song.service';
 import { SelectedSong } from '../song-details/song-details.component';
 import { ChordListComponent } from '../chord-list/chord-list.component';
-import { NgFor, NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { LetDirective } from '../../directives/let-directive/app-let.directive';
 
 const TAG_PAST_OF_MASS = 10;
@@ -20,12 +20,10 @@ const TAG_PAST_OF_MASS = 10;
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        LetDirective,
-        NgFor,
-        NgIf,
-        ChordListComponent,
-        AsyncPipe,
-    ],
+    LetDirective,
+    ChordListComponent,
+    AsyncPipe
+],
 })
 export class PartOfMassComponent implements OnInit {
   showChord$ = this.store.select(getShowChord);

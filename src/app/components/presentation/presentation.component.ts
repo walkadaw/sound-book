@@ -1,4 +1,4 @@
-import { Location, NgIf, NgFor } from '@angular/common';
+import { Location } from '@angular/common';
 import {
   AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation,
 } from '@angular/core';
@@ -24,10 +24,8 @@ import { PresentationMenuComponent } from './presentation-menu/presentation-menu
     encapsulation: ViewEncapsulation.None,
     standalone: true,
     imports: [
-        NgIf,
-        NgFor,
-        PresentationMenuComponent,
-    ],
+    PresentationMenuComponent
+],
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   slideList: SlideList[];

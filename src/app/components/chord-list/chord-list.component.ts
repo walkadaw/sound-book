@@ -3,7 +3,7 @@ import { Chord } from '../../services/chord/chord.interface';
 import { ChordList, ChordService } from '../../services/chord/chord.service';
 import { ChordVariationComponent } from '../chord-variation/chord-variation.component';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
-import { NgFor, NgIf } from '@angular/common';
+
 
 @Component({
     selector: 'app-chord-list',
@@ -11,12 +11,10 @@ import { NgFor, NgIf } from '@angular/common';
     styleUrls: ['./chord-list.component.scss'],
     standalone: true,
     imports: [
-        NgFor,
-        NgIf,
-        MatMenuTrigger,
-        MatMenu,
-        ChordVariationComponent,
-    ],
+    MatMenuTrigger,
+    MatMenu,
+    ChordVariationComponent
+],
 })
 export class ChordListComponent {
   @Input() set chords(list: string | string[]) {

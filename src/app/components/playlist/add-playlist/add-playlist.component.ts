@@ -3,7 +3,7 @@ import { UntypedFormControl, Validators, ReactiveFormsModule } from '@angular/fo
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
 import { MatButton } from '@angular/material/button';
-import { NgIf } from '@angular/common';
+
 import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 
@@ -13,14 +13,13 @@ import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
     styleUrls: ['./add-playlist.component.scss'],
     standalone: true,
     imports: [
-        MatFormField,
-        MatLabel,
-        MatInput,
-        ReactiveFormsModule,
-        NgIf,
-        MatError,
-        MatButton,
-    ],
+    MatFormField,
+    MatLabel,
+    MatInput,
+    ReactiveFormsModule,
+    MatError,
+    MatButton
+],
 })
 export class AddPlaylistComponent implements OnInit {
   playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);

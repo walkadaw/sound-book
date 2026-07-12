@@ -25,7 +25,7 @@ import { SongService } from '../../services/song-service/song.service';
 import { UserService } from '../../services/user/user.service';
 import { getCurrentValue } from '../utils/redux.utils';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
-import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { MatDivider } from '@angular/material/divider';
 import { SearchSongComponent } from '../search-song/search-song.component';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
@@ -42,21 +42,20 @@ const DEFAULT_FONT_SIZE = 1;
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        MatIcon,
-        MatMenuTrigger,
-        SearchSongComponent,
-        MatMenu,
-        MatMenuItem,
-        MatSlideToggle,
-        MatButtonToggleGroup,
-        MatButtonToggle,
-        MatDivider,
-        RouterLink,
-        NgIf,
-        PlaylistMenuComponent,
-        AsyncPipe,
-        DatePipe,
-    ],
+    MatIcon,
+    MatMenuTrigger,
+    SearchSongComponent,
+    MatMenu,
+    MatMenuItem,
+    MatSlideToggle,
+    MatButtonToggleGroup,
+    MatButtonToggle,
+    MatDivider,
+    RouterLink,
+    PlaylistMenuComponent,
+    AsyncPipe,
+    DatePipe
+],
 })
 export class HeaderComponent {
   showChord = getCurrentValue(this.store, getShowChord);

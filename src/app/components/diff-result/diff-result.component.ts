@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
 import { Change } from 'diff';
-import { NgFor, NgIf } from '@angular/common';
+
 
 @Component({
     selector: 'app-diff-result',
@@ -8,7 +8,7 @@ import { NgFor, NgIf } from '@angular/common';
     styleUrls: ['./diff-result.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgFor, NgIf],
+    imports: [],
 })
 export class DiffResultComponent {
   @Input() diff: Change[];

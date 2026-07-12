@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, EMPTY } from 'rxjs';
 import { UserService } from '../../services/user/user.service';
 import { MatButton } from '@angular/material/button';
-import { NgIf } from '@angular/common';
+
 import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 
@@ -14,14 +14,13 @@ import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
     styleUrls: ['./login.component.scss'],
     standalone: true,
     imports: [
-        ReactiveFormsModule,
-        MatFormField,
-        MatLabel,
-        MatInput,
-        NgIf,
-        MatError,
-        MatButton,
-    ],
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatError,
+    MatButton
+],
 })
 export class LoginComponent implements OnInit {
   loginForm = new UntypedFormGroup({

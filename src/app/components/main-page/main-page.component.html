@@ -1,34 +1,38 @@
-<div class="songs-list" *ngIf="songListFiltered$ | async as songListFiltered">
-  <ng-container *ngIf="songListFiltered.length; else noSongResult">
-    <a
-      class="song-container song-link"
-      *ngFor="let song of songListFiltered; trackBy: trackBySong; let index = index"
-      routerLinkActive="active"
-      [routerLink]="['/song', song.id, song.title | replaceSpace]"
-    >
-      <span class="favorite">
-        <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
-      </span>
-      <span class="song-title">
-        <ng-container *ngIf="showSongNumber$ | async">{{ song.songId }}. </ng-container>
-        {{ song.title | uppercase }}
-      </span>
-      <div class="actions" (click)="$event.stopPropagation(); $event.preventDefault()">
-        <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu" [matMenuTriggerData]="song">
-          <mat-icon>more_horiz</mat-icon>
-        </button>
+@if (songListFiltered$ | async; as songListFiltered) {
+  <div class="songs-list">
+    @if (songListFiltered.length) {
+      @for (song of songListFiltered; track trackBySong(index, song); let index = $index) {
+        <a
+          class="song-container song-link"
+          routerLinkActive="active"
+          [routerLink]="['/song', song.id, song.title | replaceSpace]"
+          >
+          <span class="favorite">
+            <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </span>
+          <span class="song-title">
+            @if (showSongNumber$ | async) {
+              {{ song.songId }}.
+            }
+            {{ song.title | uppercase }}
+          </span>
+          <div class="actions" (click)="$event.stopPropagation(); $event.preventDefault()">
+            <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu" [matMenuTriggerData]="song">
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+          </div>
+        </a>
+      }
+    } @else {
+      <div>
+        Не адна песня не знойдзена па вашаму запыту.
+        @if ((selectedTag$ | async) > 0) {
+          <a (click)="resetSelectedTag($event)">Паспрабаваць без фільтра па тэгу</a>
+        }
       </div>
-    </a>
-  </ng-container>
-  <ng-template #noSongResult>
-    <div>
-      Не адна песня не знойдзена па вашаму запыту.
-      <ng-container *ngIf="(selectedTag$ | async) > 0">
-        <a (click)="resetSelectedTag($event)">Паспрабаваць без фільтра па тэгу</a>
-      </ng-container>
-    </div>
-  </ng-template>
-</div>
+    }
+  </div>
+}
 
 <mat-menu #selectedSongMenu="matMenu">
   <ng-template matMenuContent let-songId="id">

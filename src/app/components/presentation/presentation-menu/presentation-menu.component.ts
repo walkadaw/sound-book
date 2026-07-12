@@ -24,7 +24,7 @@ import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { LetDirective } from '../../../directives/let-directive/app-let.directive';
-import { NgIf, NgTemplateOutlet, NgFor, AsyncPipe } from '@angular/common';
+import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
@@ -34,14 +34,12 @@ import { MatIcon } from '@angular/material/icon';
     encapsulation: ViewEncapsulation.None,
     standalone: true,
     imports: [
-        MatIcon,
-        NgIf,
-        ReactiveFormsModule,
-        NgTemplateOutlet,
-        NgFor,
-        LetDirective,
-        AsyncPipe,
-    ],
+    MatIcon,
+    ReactiveFormsModule,
+    NgTemplateOutlet,
+    LetDirective,
+    AsyncPipe
+],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() slideList: SlideList[];
