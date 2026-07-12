@@ -26,6 +26,7 @@
     "@angular/router": "^22.0.6",
     "@angular/service-worker": "^22.0.6",
     "@ngrx/effects": "^21.1.1",
+    "@ngrx/operators": "^21.1.1",
     "@ngrx/store": "^21.1.1",
     "diff": "^5.0.0",
     "fastest-levenshtein": "^1.0.16",
@@ -35,8 +36,7 @@
     "reveal.js": "^4.3.1",
     "rxjs": "^7.5.5",
     "tslib": "^2.3.1",
-    "zone.js": "~0.15.1",
-    "@ngrx/operators": "^21.1.1"
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^22.0.6",
@@ -69,7 +69,6 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
     "prettier-eslint": "^13.0.0",
-    "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "typescript": "~6.0.3"
   }
