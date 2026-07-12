@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { SongService } from './song.service';
 
-@NgModule({
-  imports: [HttpClientModule],
-  providers: [SongService],
-})
+@NgModule({ imports: [], providers: [SongService, provideHttpClient(withInterceptorsFromDi())] })
 export class SongModule {}
