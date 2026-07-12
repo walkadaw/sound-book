@@ -34,31 +34,29 @@
     <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
       <mat-tab label="Пошук песен">
         <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content" *ngIf="songListFiltered$ | async as songList">
-          <ng-container *ngIf="songList.length; else noSongResult">
-            <div class="song-container" *cdkVirtualFor="let song of songList; trackBy: trackBy; templateCacheSize: 0">
-              <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
-            </div>
-          </ng-container>
-          <ng-template #noSongResult>
-            <div>Не адна песня не знойдзена па вашаму запыту.</div>
-          </ng-template>
+          @if (songList.length) {
+          <div class="song-container" *cdkVirtualFor="let song of songList; trackBy: trackBy; templateCacheSize: 0">
+            <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
+          </div>
+          } @else {
+          <div>Не адна песня не знойдзена па вашаму запыту.</div>
+          }
         </cdk-virtual-scroll-viewport>
       </mat-tab>
       <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
         <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
-          <ng-container *ngIf="selectedSongList.length; else noSongResult">
-            <div
-              class="song-container"
-              *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0"
-            >
-              <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)"
-                >{{ song.title }}
-              </mat-checkbox>
-            </div>
-          </ng-container>
-          <ng-template #noSongResult>
-            <div>Няма выбраных песень.</div>
-          </ng-template>
+          @if (selectedSongList.length){
+          <div
+            class="song-container"
+            *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0"
+          >
+            <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)"
+              >{{ song.title }}
+            </mat-checkbox>
+          </div>
+          } @else {
+          <div>Няма выбраных песень.</div>
+          }
         </cdk-virtual-scroll-viewport>
       </mat-tab>
     </mat-tab-group>
