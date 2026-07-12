@@ -22,7 +22,6 @@ import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
     selector: 'app-paper-generator',
     templateUrl: './paper-generator.component.html',
     styleUrls: ['./paper-generator.component.scss'],
-    standalone: true,
     imports: [
         ReactiveFormsModule,
         MatRadioGroup,
@@ -43,7 +42,7 @@ import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
         CdkFixedSizeVirtualScroll,
         CdkVirtualForOf,
         AsyncPipe,
-    ],
+    ]
 })
 export class PaperGeneratorComponent implements OnInit {
   private formBuilder = inject(UntypedFormBuilder);

@@ -11,15 +11,14 @@ import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
     selector: 'app-add-playlist',
     templateUrl: './add-playlist.component.html',
     styleUrls: ['./add-playlist.component.scss'],
-    standalone: true,
     imports: [
-    MatFormField,
-    MatLabel,
-    MatInput,
-    ReactiveFormsModule,
-    MatError,
-    MatButton
-],
+        MatFormField,
+        MatLabel,
+        MatInput,
+        ReactiveFormsModule,
+        MatError,
+        MatButton
+    ]
 })
 export class AddPlaylistComponent implements OnInit {
   private route = inject(ActivatedRoute);

@@ -9,12 +9,11 @@ import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
     selector: 'app-chord-list',
     templateUrl: './chord-list.component.html',
     styleUrls: ['./chord-list.component.scss'],
-    standalone: true,
     imports: [
-    MatMenuTrigger,
-    MatMenu,
-    ChordVariationComponent
-],
+        MatMenuTrigger,
+        MatMenu,
+        ChordVariationComponent
+    ]
 })
 export class ChordListComponent {
   private chordService = inject(ChordService);

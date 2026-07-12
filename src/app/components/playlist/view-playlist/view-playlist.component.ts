@@ -23,24 +23,23 @@ import { AsyncPipe, DatePipe } from '@angular/common';
     templateUrl: './view-playlist.component.html',
     styleUrls: ['./view-playlist.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    MatIconButton,
-    MatMenuTrigger,
-    MatIcon,
-    MatMenu,
-    MatMenuItem,
-    MatDivider,
-    RouterLink,
-    MatButton,
-    CdkDropList,
-    RouterLinkActive,
-    CdkDrag,
-    CdkDragHandle,
-    AsyncPipe,
-    DatePipe,
-    ReplaceSpacePipe
-],
+        MatIconButton,
+        MatMenuTrigger,
+        MatIcon,
+        MatMenu,
+        MatMenuItem,
+        MatDivider,
+        RouterLink,
+        MatButton,
+        CdkDropList,
+        RouterLinkActive,
+        CdkDrag,
+        CdkDragHandle,
+        AsyncPipe,
+        DatePipe,
+        ReplaceSpacePipe
+    ]
 })
 export class ViewPlaylistComponent implements OnInit {
   private route = inject(ActivatedRoute);

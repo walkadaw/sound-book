@@ -15,8 +15,7 @@ interface JesusSay {
     templateUrl: './footer.component.html',
     styleUrls: ['./footer.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
-    imports: [MatIcon],
+    imports: [MatIcon]
 })
 export class FooterComponent implements OnInit, OnDestroy {
   private router = inject(Router);

@@ -1,4 +1,4 @@
-import { enableProdMode, APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import { enableProdMode, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
 import { environment } from './environments/environment';
 import { AppComponent } from './app/application/app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -40,12 +40,10 @@ bootstrapApplication(AppComponent, {
       SongModule,
       ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
     ),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: startUpFactory,
-      deps: [StartUpService],
-      multi: true,
-    },
+    provideAppInitializer(() => {
+        const initializerFn = (startUpFactory)(inject(StartUpService));
+        return initializerFn();
+      }),
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: HammerConfig,

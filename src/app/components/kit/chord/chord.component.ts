@@ -54,8 +54,7 @@ function onlyDots(chord: Position) {
     selector: 'app-chord',
     templateUrl: './chord.component.svg',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
-    imports: [NgIf, NgFor],
+    imports: [NgIf, NgFor]
 })
 export class ChordComponent {
   @Input() set chord(chord: Position) {

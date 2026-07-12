@@ -16,12 +16,11 @@ const TAG_PAST_OF_MASS = 10;
     templateUrl: './part-of-mass.component.html',
     styleUrls: ['./part-of-mass.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    LetDirective,
-    ChordListComponent,
-    AsyncPipe
-],
+        LetDirective,
+        ChordListComponent,
+        AsyncPipe
+    ]
 })
 export class PartOfMassComponent implements OnInit {
   private store = inject<Store<IAppState>>(Store);

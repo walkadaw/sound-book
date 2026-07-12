@@ -18,11 +18,10 @@ import { AsyncPipe } from '@angular/common';
             useExisting: forwardRef(() => EditSongComponent),
             multi: true,
         }],
-    standalone: true,
     imports: [
-    ReactiveFormsModule,
-    AsyncPipe
-],
+        ReactiveFormsModule,
+        AsyncPipe
+    ]
 })
 export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
   @ViewChild('lineCounter') lineCounter: ElementRef<HTMLTextAreaElement>;

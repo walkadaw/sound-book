@@ -12,15 +12,14 @@ import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
-    standalone: true,
     imports: [
-    ReactiveFormsModule,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatError,
-    MatButton
-],
+        ReactiveFormsModule,
+        MatFormField,
+        MatLabel,
+        MatInput,
+        MatError,
+        MatButton
+    ]
 })
 export class LoginComponent implements OnInit {
   private userService = inject(UserService);

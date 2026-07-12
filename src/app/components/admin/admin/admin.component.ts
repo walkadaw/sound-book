@@ -10,10 +10,9 @@ import { RouterLink } from '@angular/router';
     selector: 'app-admin',
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.scss'],
-    standalone: true,
     imports: [
-    RouterLink
-],
+        RouterLink
+    ]
 })
 export class AdminComponent implements OnInit {
   private songService = inject(SongService);

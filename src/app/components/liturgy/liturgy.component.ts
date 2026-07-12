@@ -13,11 +13,10 @@ import { AsyncPipe } from '@angular/common';
     styleUrls: ['./liturgy.component.scss'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    MatProgressSpinner,
-    AsyncPipe
-],
+        MatProgressSpinner,
+        AsyncPipe
+    ]
 })
 export class LiturgyComponent implements OnInit {
   private liturgyService = inject(LiturgyService);

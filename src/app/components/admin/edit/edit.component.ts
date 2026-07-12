@@ -29,18 +29,17 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
     selector: 'app-edit',
     templateUrl: './edit.component.html',
     styleUrls: ['./edit.component.scss'],
-    standalone: true,
     imports: [
-    ReactiveFormsModule,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    EditSongComponent,
-    MatCheckbox,
-    MatIcon,
-    MatButton,
-    DiffResultComponent
-],
+        ReactiveFormsModule,
+        MatFormField,
+        MatLabel,
+        MatInput,
+        EditSongComponent,
+        MatCheckbox,
+        MatIcon,
+        MatButton,
+        DiffResultComponent
+    ]
 })
 export class EditComponent implements OnInit, OnDestroy {
   private songService = inject(SongService);

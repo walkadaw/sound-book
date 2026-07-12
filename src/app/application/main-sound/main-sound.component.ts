@@ -17,14 +17,13 @@ import { HeaderComponent } from '../../components/header/header.component';
     selector: 'app-main-sound',
     templateUrl: './main-sound.component.html',
     styleUrls: ['./main-sound.component.scss'],
-    standalone: true,
     imports: [
-    HeaderComponent,
-    MainPageComponent,
-    RouterOutlet,
-    FooterComponent,
-    AsyncPipe
-],
+        HeaderComponent,
+        MainPageComponent,
+        RouterOutlet,
+        FooterComponent,
+        AsyncPipe
+    ]
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
   private store = inject<Store<IAppState>>(Store);

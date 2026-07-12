@@ -36,19 +36,18 @@ export interface SelectedSong {
     templateUrl: './song-details.component.html',
     styleUrls: ['./song-details.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    MatIconButton,
-    MatIcon,
-    MatMenuTrigger,
-    MatMenu,
-    PlaylistMenuComponent,
-    SongKeyComponent,
-    LetDirective,
-    ChordListComponent,
-    AsyncPipe,
-    KeyValuePipe
-],
+        MatIconButton,
+        MatIcon,
+        MatMenuTrigger,
+        MatMenu,
+        PlaylistMenuComponent,
+        SongKeyComponent,
+        LetDirective,
+        ChordListComponent,
+        AsyncPipe,
+        KeyValuePipe
+    ]
 })
 export class SongDetailsComponent implements OnInit {
   private songService = inject(SongService);

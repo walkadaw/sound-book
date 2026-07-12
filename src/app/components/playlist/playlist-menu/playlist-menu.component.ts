@@ -12,15 +12,14 @@ import { AsyncPipe, SlicePipe } from '@angular/common';
     selector: 'app-playlist-menu',
     templateUrl: './playlist-menu.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    MatMenuItem,
-    RouterLink,
-    MatIcon,
-    MatDivider,
-    AsyncPipe,
-    SlicePipe
-],
+        MatMenuItem,
+        RouterLink,
+        MatIcon,
+        MatDivider,
+        AsyncPipe,
+        SlicePipe
+    ]
 })
 export class PlaylistMenuComponent {
   private playlistService = inject(PlaylistService);

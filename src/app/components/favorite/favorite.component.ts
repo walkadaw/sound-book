@@ -22,17 +22,16 @@ import { AsyncPipe } from '@angular/common';
     selector: 'app-favorite',
     templateUrl: './favorite.component.html',
     styleUrls: ['./favorite.component.scss'],
-    standalone: true,
     imports: [
-    RouterLink,
-    MatIcon,
-    MatIconButton,
-    MatMenuTrigger,
-    MatMenu,
-    PlaylistMenuComponent,
-    AsyncPipe,
-    ReplaceSpacePipe
-],
+        RouterLink,
+        MatIcon,
+        MatIconButton,
+        MatMenuTrigger,
+        MatMenu,
+        PlaylistMenuComponent,
+        AsyncPipe,
+        ReplaceSpacePipe
+    ]
 })
 export class FavoriteComponent implements OnInit {
   private songService = inject(SongService);

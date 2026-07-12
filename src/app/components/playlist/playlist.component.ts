@@ -10,16 +10,15 @@ import { DatePipe } from '@angular/common';
     selector: 'app-playlist',
     templateUrl: './playlist.component.html',
     styleUrls: ['./playlist.component.scss'],
-    standalone: true,
     imports: [
-    CdkDropList,
-    CdkDrag,
-    RouterLink,
-    MatIconButton,
-    CdkDragHandle,
-    MatIcon,
-    DatePipe
-],
+        CdkDropList,
+        CdkDrag,
+        RouterLink,
+        MatIconButton,
+        CdkDragHandle,
+        MatIcon,
+        DatePipe
+    ]
 })
 export class PlaylistComponent {
   private playlistService = inject(PlaylistService);

@@ -21,14 +21,13 @@ import { MatIcon } from '@angular/material/icon';
     templateUrl: './presentation-menu.component.html',
     styleUrls: ['./presentation-menu.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: true,
     imports: [
-    MatIcon,
-    ReactiveFormsModule,
-    NgTemplateOutlet,
-    LetDirective,
-    AsyncPipe
-],
+        MatIcon,
+        ReactiveFormsModule,
+        NgTemplateOutlet,
+        LetDirective,
+        AsyncPipe
+    ]
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   private fuseService = inject(FuseService);

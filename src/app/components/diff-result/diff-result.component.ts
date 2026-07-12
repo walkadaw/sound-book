@@ -7,8 +7,7 @@ import { Change } from 'diff';
     templateUrl: './diff-result.component.html',
     styleUrls: ['./diff-result.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
-    imports: [],
+    imports: []
 })
 export class DiffResultComponent {
   @Input() diff: Change[];

@@ -20,10 +20,9 @@ import { PresentationMenuComponent } from './presentation-menu/presentation-menu
         '../../../assets/css/theme/blood.css',
     ],
     encapsulation: ViewEncapsulation.None,
-    standalone: true,
     imports: [
-    PresentationMenuComponent
-],
+        PresentationMenuComponent
+    ]
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);

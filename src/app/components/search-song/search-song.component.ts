@@ -26,20 +26,19 @@ import { LetDirective } from '../../directives/let-directive/app-let.directive';
     templateUrl: './search-song.component.html',
     styleUrls: ['./search-song.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: true,
     imports: [
-    LetDirective,
-    MatSelect,
-    MatSelectTrigger,
-    MatIcon,
-    MatOption,
-    MatInput,
-    ReactiveFormsModule,
-    MatButton,
-    MatIconButton,
-    MatSuffix,
-    AsyncPipe
-],
+        LetDirective,
+        MatSelect,
+        MatSelectTrigger,
+        MatIcon,
+        MatOption,
+        MatInput,
+        ReactiveFormsModule,
+        MatButton,
+        MatIconButton,
+        MatSuffix,
+        AsyncPipe
+    ]
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
   private store = inject<Store<IAppState>>(Store);

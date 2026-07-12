@@ -40,22 +40,21 @@ const DEFAULT_FONT_SIZE = 1;
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    MatIcon,
-    MatMenuTrigger,
-    SearchSongComponent,
-    MatMenu,
-    MatMenuItem,
-    MatSlideToggle,
-    MatButtonToggleGroup,
-    MatButtonToggle,
-    MatDivider,
-    RouterLink,
-    PlaylistMenuComponent,
-    AsyncPipe,
-    DatePipe
-],
+        MatIcon,
+        MatMenuTrigger,
+        SearchSongComponent,
+        MatMenu,
+        MatMenuItem,
+        MatSlideToggle,
+        MatButtonToggleGroup,
+        MatButtonToggle,
+        MatDivider,
+        RouterLink,
+        PlaylistMenuComponent,
+        AsyncPipe,
+        DatePipe
+    ]
 })
 export class HeaderComponent {
   songService = inject(SongService);

@@ -29,20 +29,19 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
     templateUrl: './main-page.component.html',
     styleUrls: ['./main-page.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    RouterLinkActive,
-    RouterLink,
-    MatIcon,
-    MatIconButton,
-    MatMenuTrigger,
-    MatMenu,
-    MatMenuContent,
-    PlaylistMenuComponent,
-    AsyncPipe,
-    UpperCasePipe,
-    ReplaceSpacePipe
-],
+        RouterLinkActive,
+        RouterLink,
+        MatIcon,
+        MatIconButton,
+        MatMenuTrigger,
+        MatMenu,
+        MatMenuContent,
+        PlaylistMenuComponent,
+        AsyncPipe,
+        UpperCasePipe,
+        ReplaceSpacePipe
+    ]
 })
 export class MainPageComponent implements OnInit, OnDestroy {
   private fuseService = inject(FuseService);

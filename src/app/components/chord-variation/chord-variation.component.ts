@@ -11,12 +11,11 @@ import { ChordComponent } from '../kit/chord/chord.component';
     templateUrl: './chord-variation.component.html',
     styleUrls: ['./chord-variation.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    ChordComponent,
-    MatIconButton,
-    MatIcon
-],
+        ChordComponent,
+        MatIconButton,
+        MatIcon
+    ]
 })
 export class ChordVariationComponent implements OnChanges {
   chordService = inject(ChordService);

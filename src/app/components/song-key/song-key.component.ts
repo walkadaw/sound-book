@@ -10,8 +10,7 @@ import { MatButton } from '@angular/material/button';
     templateUrl: './song-key.component.html',
     styleUrls: ['./song-key.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
-    imports: [MatButton, MatIcon],
+    imports: [MatButton, MatIcon]
 })
 export class SongKeyComponent {
   @Input() selectedTranspilation = 0;

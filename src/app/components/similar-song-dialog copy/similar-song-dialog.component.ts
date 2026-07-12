@@ -21,12 +21,11 @@ interface DiffResult {
     templateUrl: './similar-song-dialog.component.html',
     styleUrls: ['./similar-song-dialog.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [
-    DiffResultComponent,
-    MatButton,
-    MatDialogClose
-],
+        DiffResultComponent,
+        MatButton,
+        MatDialogClose
+    ]
 })
 export class SimilarSongDialogComponent implements OnInit {
   data = inject<SimilarData>(MAT_DIALOG_DATA);
