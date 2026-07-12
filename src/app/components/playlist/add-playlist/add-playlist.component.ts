@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
@@ -8,17 +8,11 @@ import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 
 @Component({
-    selector: 'app-add-playlist',
-    templateUrl: './add-playlist.component.html',
-    styleUrls: ['./add-playlist.component.scss'],
-    imports: [
-        MatFormField,
-        MatLabel,
-        MatInput,
-        ReactiveFormsModule,
-        MatError,
-        MatButton
-    ]
+  selector: 'app-add-playlist',
+  templateUrl: './add-playlist.component.html',
+  styleUrls: ['./add-playlist.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatError, MatButton],
 })
 export class AddPlaylistComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -27,8 +21,6 @@ export class AddPlaylistComponent implements OnInit {
 
   playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);
   playlistId = this.route.snapshot?.params?.playlistId;
-
-
 
   ngOnInit(): void {
     if (this.playlistId) {

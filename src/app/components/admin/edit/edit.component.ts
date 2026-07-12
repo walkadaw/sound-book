@@ -1,13 +1,9 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
-import {
-  pluck, Subject, takeUntil,
-} from 'rxjs';
-import {
-  filter,
-} from 'rxjs/operators';
+import { pluck, Subject, takeUntil } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
@@ -26,20 +22,21 @@ import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 
 @Component({
-    selector: 'app-edit',
-    templateUrl: './edit.component.html',
-    styleUrls: ['./edit.component.scss'],
-    imports: [
-        ReactiveFormsModule,
-        MatFormField,
-        MatLabel,
-        MatInput,
-        EditSongComponent,
-        MatCheckbox,
-        MatIcon,
-        MatButton,
-        DiffResultComponent
-    ]
+  selector: 'app-edit',
+  templateUrl: './edit.component.html',
+  styleUrls: ['./edit.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    EditSongComponent,
+    MatCheckbox,
+    MatIcon,
+    MatButton,
+    DiffResultComponent,
+  ],
 })
 export class EditComponent implements OnInit, OnDestroy {
   private songService = inject(SongService);
@@ -75,9 +72,7 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
-    const {
-      title, text, tags,
-    } = this.songDataForm.value;
+    const { title, text, tags } = this.songDataForm.value;
 
     const { songID } = this;
     const content = this.chordService.getTextAndChord(text);
@@ -93,16 +88,21 @@ export class EditComponent implements OnInit, OnDestroy {
       title: title.trim(),
       text: content.text.trimRight(),
       chord: content.chord.trimRight(),
-      tag: Object.keys(tags).filter((key) => tags[key]).join(','),
+      tag: Object.keys(tags)
+        .filter((key) => tags[key])
+        .join(','),
     };
 
     const duplication = this.songService.songList$.value.filter(
-      (originSong) => +originSong.id !== +song.id && this.duplicateService.isSimilar(originSong.text, song.text),
+      (originSong) => +originSong.id !== +song.id && this.duplicateService.isSimilar(originSong.text, song.text)
     );
 
     if (duplication.length) {
-      this.dialog.open(SimilarSongDialogComponent, { data: { song, duplication } })
-        .afterClosed().pipe(filter((newSong) => !!newSong)).subscribe((newSong) => {
+      this.dialog
+        .open(SimilarSongDialogComponent, { data: { song, duplication } })
+        .afterClosed()
+        .pipe(filter((newSong) => !!newSong))
+        .subscribe((newSong) => {
           this.saveSong(newSong);
         });
       return;
@@ -112,28 +112,25 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   private saveSong(song: SongAdd): void {
-    this.songService.updateSong(song).pipe(takeUntil(this.onDestroy$)).subscribe((id) => {
-      this.snackBar.open(
-        song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена',
-        'Зачыніць',
-        { duration: 2000 },
-      );
+    this.songService
+      .updateSong(song)
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe((id) => {
+        this.snackBar.open(song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена', 'Зачыніць', {
+          duration: 2000,
+        });
 
-      this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
-      this.songDataForm.setValue({
-        title: song.title,
-        text: this.mergeChordWidthText(song as unknown as Song), // update with chord
-        tags: this.setTag((arg) => !!song.tag[arg.id]),
+        this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
+        this.songDataForm.setValue({
+          title: song.title,
+          text: this.mergeChordWidthText(song as unknown as Song), // update with chord
+          tags: this.setTag((arg) => !!song.tag[arg.id]),
+        });
       });
-    });
   }
 
   private initLoadData() {
-    this.route.data.pipe(
-      pluck('song'),
-      filter(Boolean),
-      takeUntil(this.onDestroy$),
-    ).subscribe((song) => {
+    this.route.data.pipe(pluck('song'), filter(Boolean), takeUntil(this.onDestroy$)).subscribe((song) => {
       this.songDataForm.setValue({
         title: song.title,
         text: this.mergeChordWidthText(song), // update with chord
@@ -142,8 +139,8 @@ export class EditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setTag<T extends(arg: TagList) => any>(getValue: T) {
-    return TAGS_LIST.reduce<{[key: string]: ReturnType<T>}>((acc, tag) => {
+  private setTag<T extends (arg: TagList) => any>(getValue: T) {
+    return TAGS_LIST.reduce<{ [key: string]: ReturnType<T> }>((acc, tag) => {
       acc[tag.id.toString()] = getValue(tag);
 
       return acc;
@@ -155,12 +152,14 @@ export class EditComponent implements OnInit, OnDestroy {
     const chord = song.chord.split('\n');
     const item = text.length > chord.length ? text : chord;
 
-    return item.map((_, index) => {
-      if (chord[index]?.trim()) {
-        return `${chord[index]}\n${text[index]}`;
-      }
+    return item
+      .map((_, index) => {
+        if (chord[index]?.trim()) {
+          return `${chord[index]}\n${text[index]}`;
+        }
 
-      return text[index];
-    }).join('\n');
+        return text[index];
+      })
+      .join('\n');
   }
 }

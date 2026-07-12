@@ -1,11 +1,20 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  ViewEncapsulation,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
-import {
-  Observable, Subject, fromEvent, BehaviorSubject,
-} from 'rxjs';
-import {
-  takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map,
-} from 'rxjs/operators';
+import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
+import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
 import { Song } from '../../../interfaces/song';
@@ -17,17 +26,12 @@ import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-presentation-menu',
-    templateUrl: './presentation-menu.component.html',
-    styleUrls: ['./presentation-menu.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-        MatIcon,
-        ReactiveFormsModule,
-        NgTemplateOutlet,
-        LetDirective,
-        AsyncPipe
-    ]
+  selector: 'app-presentation-menu',
+  templateUrl: './presentation-menu.component.html',
+  styleUrls: ['./presentation-menu.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, LetDirective, AsyncPipe],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   private fuseService = inject(FuseService);
@@ -58,8 +62,6 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private revealNotes = this.reveal.getNotesPlugin();
   private onDestroy$ = new Subject<void>();
 
-
-
   ngOnInit(): void {
     this.initTag();
     this.initSearch();
@@ -75,7 +77,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
         filter((event) => event && event.data && event.source !== window.self),
         map((event) => JSON.parse(event.data)),
         filter((data) => data && data.namespace === 'reveal-menu'),
-        takeUntil(this.onDestroy$),
+        takeUntil(this.onDestroy$)
       )
       .subscribe((data) => {
         switch (data.type) {
@@ -205,11 +207,12 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     const element: any = document.documentElement;
 
     // Check which implementation is available
-    const requestMethod = element.requestFullscreen
-      || element.webkitRequestFullscreen
-      || element.webkitRequestFullScreen
-      || element.mozRequestFullScreen
-      || element.msRequestFullscreen;
+    const requestMethod =
+      element.requestFullscreen ||
+      element.webkitRequestFullscreen ||
+      element.webkitRequestFullScreen ||
+      element.mozRequestFullScreen ||
+      element.msRequestFullscreen;
 
     if (requestMethod) {
       requestMethod.apply(element);
@@ -235,7 +238,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.search.valueChanges
       .pipe(
         takeUntil(this.onDestroy$),
-        filter(() => this.openSelectedTag),
+        filter(() => this.openSelectedTag)
       )
       .subscribe(() => {
         this.openSelectedTag = false;

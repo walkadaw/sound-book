@@ -1,8 +1,17 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewChild, ElementRef, Output, EventEmitter, inject } from '@angular/core';
-import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import {
-  debounceTime, distinctUntilChanged, filter, takeUntil,
-} from 'rxjs/operators';
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewEncapsulation,
+  ViewChild,
+  ElementRef,
+  Output,
+  EventEmitter,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { IAppState } from '../../redux/models/IAppState';
@@ -22,23 +31,24 @@ import { MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { LetDirective } from '../../directives/let-directive/app-let.directive';
 
 @Component({
-    selector: 'app-search-song',
-    templateUrl: './search-song.component.html',
-    styleUrls: ['./search-song.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-        LetDirective,
-        MatSelect,
-        MatSelectTrigger,
-        MatIcon,
-        MatOption,
-        MatInput,
-        ReactiveFormsModule,
-        MatButton,
-        MatIconButton,
-        MatSuffix,
-        AsyncPipe
-    ]
+  selector: 'app-search-song',
+  templateUrl: './search-song.component.html',
+  styleUrls: ['./search-song.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    LetDirective,
+    MatSelect,
+    MatSelectTrigger,
+    MatIcon,
+    MatOption,
+    MatInput,
+    ReactiveFormsModule,
+    MatButton,
+    MatIconButton,
+    MatSuffix,
+    AsyncPipe,
+  ],
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
   private store = inject<Store<IAppState>>(Store);
@@ -58,8 +68,6 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   ];
 
   private onDestroy$ = new Subject<void>();
-
-
 
   ngOnInit() {
     this.store

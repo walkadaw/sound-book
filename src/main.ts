@@ -18,7 +18,7 @@ import { settingsReducer } from './app/redux/reducers/settings.reducer';
 import { searchReducer } from './app/redux/reducers/search.reducer';
 import { StoreModule } from '@ngrx/store';
 import { appRoutes } from './app/app.routing';
-import { withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
+import { withInterceptorsFromDi, provideHttpClient, withXhr } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { HammerConfig } from './app/services/hammer-config/hammer-config.service';
@@ -56,7 +56,7 @@ bootstrapApplication(AppComponent, {
       useClass: HammerConfig,
     },
     provideAnimations(),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
     provideRouter(
       appRoutes,
       withRouterConfig({

@@ -1,10 +1,8 @@
-import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
-import {
-  filter, map, startWith, takeUntil, withLatestFrom,
-} from 'rxjs/operators';
+import { filter, map, startWith, takeUntil, withLatestFrom } from 'rxjs/operators';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
@@ -14,16 +12,11 @@ import { MainPageComponent } from '../../components/main-page/main-page.componen
 import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
-    selector: 'app-main-sound',
-    templateUrl: './main-sound.component.html',
-    styleUrls: ['./main-sound.component.scss'],
-    imports: [
-        HeaderComponent,
-        MainPageComponent,
-        RouterOutlet,
-        FooterComponent,
-        AsyncPipe
-    ]
+  selector: 'app-main-sound',
+  templateUrl: './main-sound.component.html',
+  styleUrls: ['./main-sound.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [HeaderComponent, MainPageComponent, RouterOutlet, FooterComponent, AsyncPipe],
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
   private store = inject<Store<IAppState>>(Store);
@@ -45,12 +38,15 @@ export class MainSoundComponent implements OnInit, OnDestroy {
   // }
 
   ngOnInit() {
-    const navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart), map((s) => s));
+    const navigate$ = this.router.events.pipe(
+      filter((event) => event instanceof NavigationStart),
+      map((s) => s)
+    );
     navigate$
       .pipe(
         withLatestFrom(this.store.select(getShowMenu)),
         filter(([, showMenu]) => showMenu),
-        takeUntil(this.onDestroy$),
+        takeUntil(this.onDestroy$)
       )
       .subscribe(() => {
         this.store.dispatch(changeShowMenuAction(false));
@@ -62,7 +58,7 @@ export class MainSoundComponent implements OnInit, OnDestroy {
         // FIXME: type
         map((value: any) => value.url),
         startWith(window.location.pathname),
-        map((url) => url === '/'),
+        map((url) => url === '/')
       ),
     ]).pipe(map(([showMenu, rootUrl]) => showMenu || rootUrl));
   }

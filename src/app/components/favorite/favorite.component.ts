@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -19,19 +19,20 @@ import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-favorite',
-    templateUrl: './favorite.component.html',
-    styleUrls: ['./favorite.component.scss'],
-    imports: [
-        RouterLink,
-        MatIcon,
-        MatIconButton,
-        MatMenuTrigger,
-        MatMenu,
-        PlaylistMenuComponent,
-        AsyncPipe,
-        ReplaceSpacePipe
-    ]
+  selector: 'app-favorite',
+  templateUrl: './favorite.component.html',
+  styleUrls: ['./favorite.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    RouterLink,
+    MatIcon,
+    MatIconButton,
+    MatMenuTrigger,
+    MatMenu,
+    PlaylistMenuComponent,
+    AsyncPipe,
+    ReplaceSpacePipe,
+  ],
 })
 export class FavoriteComponent implements OnInit {
   private songService = inject(SongService);

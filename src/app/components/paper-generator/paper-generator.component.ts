@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Validators, UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -22,6 +22,7 @@ import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
   selector: 'app-paper-generator',
   templateUrl: './paper-generator.component.html',
   styleUrls: ['./paper-generator.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatRadioGroup,

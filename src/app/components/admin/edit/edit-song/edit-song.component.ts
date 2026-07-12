@@ -1,27 +1,31 @@
 import {
-  AfterViewInit, Component, ElementRef, forwardRef, Input, OnDestroy, ViewChild,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  forwardRef,
+  Input,
+  OnDestroy,
+  ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import {
-  distinctUntilChanged, fromEvent,
-  map, merge, of, Subject, takeUntil,
-} from 'rxjs';
+import { distinctUntilChanged, fromEvent, map, merge, of, Subject, takeUntil } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-edit-song',
-    templateUrl: './edit-song.component.html',
-    styleUrls: ['./edit-song.component.scss'],
-    providers: [{
-            provide: NG_VALUE_ACCESSOR,
-            // eslint-disable-next-line no-use-before-define
-            useExisting: forwardRef(() => EditSongComponent),
-            multi: true,
-        }],
-    imports: [
-        ReactiveFormsModule,
-        AsyncPipe
-    ]
+  selector: 'app-edit-song',
+  templateUrl: './edit-song.component.html',
+  styleUrls: ['./edit-song.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      // eslint-disable-next-line no-use-before-define
+      useExisting: forwardRef(() => EditSongComponent),
+      multi: true,
+    },
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [ReactiveFormsModule, AsyncPipe],
 })
 export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
   @ViewChild('lineCounter') lineCounter: ElementRef<HTMLTextAreaElement>;
@@ -32,10 +36,10 @@ export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValue
 
   lineCounter$ = merge(
     of(Array(50).fill('')),
-    this.textForm.valueChanges.pipe(map((value: string) => value.split('\n'))),
+    this.textForm.valueChanges.pipe(map((value: string) => value.split('\n')))
   ).pipe(
     distinctUntilChanged((a, b) => a.length > b.length),
-    map((lines) => lines.map((_, index) => `${index + 1}.`).join('\n')),
+    map((lines) => lines.map((_, index) => `${index + 1}.`).join('\n'))
   );
 
   onTouched: () => void;
@@ -45,9 +49,7 @@ export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValue
   ngAfterViewInit(): void {
     this.bindScroll();
 
-    this.textForm.valueChanges.pipe(
-      takeUntil(this.onDestroy$),
-    ).subscribe((value) => this.onChange(value));
+    this.textForm.valueChanges.pipe(takeUntil(this.onDestroy$)).subscribe((value) => this.onChange(value));
   }
 
   ngOnDestroy(): void {
@@ -56,11 +58,11 @@ export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValue
   }
 
   private bindScroll() {
-    fromEvent(this.textEditor.nativeElement, 'scroll').pipe(
-      takeUntil(this.onDestroy$),
-    ).subscribe(() => {
-      this.lineCounter.nativeElement.scroll({ top: this.textEditor.nativeElement.scrollTop });
-    });
+    fromEvent(this.textEditor.nativeElement, 'scroll')
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(() => {
+        this.lineCounter.nativeElement.scroll({ top: this.textEditor.nativeElement.scrollTop });
+      });
   }
 
   registerOnChange(fn: any): void {

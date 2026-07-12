@@ -4,25 +4,23 @@
   *appLet="selected$ | async as selected"
   [value]="selected"
   (valueChange)="tagToggle($event)"
-  >
+>
   <mat-select-trigger>
     @if (tagsList[selected]?.icon) {
-      <mat-icon [svgIcon]="tagsList[selected]?.icon"></mat-icon>
-    }
-    @if (!tagsList[selected]?.icon) {
-      <mat-icon>search</mat-icon>
+    <mat-icon [svgIcon]="$safeNavigationMigration(tagsList[selected]?.icon)"></mat-icon>
+    } @if (!tagsList[selected]?.icon) {
+    <mat-icon>search</mat-icon>
     }
   </mat-select-trigger>
   @for (tagList of tagsList; track tagList; let i = $index) {
-    <mat-option [value]="i">
-      @if (tagList.icon) {
-        <mat-icon [svgIcon]="tagList.icon"></mat-icon>
-      }
-      @if (!tagList.icon) {
-        <mat-icon>search</mat-icon>
-      }
-      {{ tagList.title }}
-    </mat-option>
+  <mat-option [value]="i">
+    @if (tagList.icon) {
+    <mat-icon [svgIcon]="tagList.icon"></mat-icon>
+    } @if (!tagList.icon) {
+    <mat-icon>search</mat-icon>
+    }
+    {{ tagList.title }}
+  </mat-option>
   }
 </mat-select>
 
@@ -35,16 +33,9 @@
   [formControl]="searchTerm"
   (blur)="onBlurInput()"
   (focus)="onFocusInput()"
-  />
+/>
 @if (searchTerm.value) {
-  <button
-    mat-button
-    class="clear-icon"
-    matSuffix
-    mat-icon-button
-    aria-label="Clear"
-    (click)="onClear()"
-    >
-    <mat-icon>close</mat-icon>
-  </button>
+<button mat-button class="clear-icon" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
+  <mat-icon>close</mat-icon>
+</button>
 }

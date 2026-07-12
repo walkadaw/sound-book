@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, EMPTY } from 'rxjs';
@@ -9,17 +9,11 @@ import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss'],
-    imports: [
-        ReactiveFormsModule,
-        MatFormField,
-        MatLabel,
-        MatInput,
-        MatError,
-        MatButton
-    ]
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatButton],
 })
 export class LoginComponent implements OnInit {
   private userService = inject(UserService);
@@ -41,14 +35,17 @@ export class LoginComponent implements OnInit {
 
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
-      this.userService.login(username, password).pipe(
-        catchError(() => {
-          this.loginForm.setErrors({ failedError: 'Лагін ці пароль няправільныя' });
-          return EMPTY;
-        }),
-      ).subscribe(() => {
-        this.router.navigate(['/admin']);
-      });
+      this.userService
+        .login(username, password)
+        .pipe(
+          catchError(() => {
+            this.loginForm.setErrors({ failedError: 'Лагін ці пароль няправільныя' });
+            return EMPTY;
+          })
+        )
+        .subscribe(() => {
+          this.router.navigate(['/admin']);
+        });
     }
   }
 }

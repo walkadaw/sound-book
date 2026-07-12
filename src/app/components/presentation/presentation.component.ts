@@ -1,5 +1,14 @@
 import { Location } from '@angular/common';
-import { AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewEncapsulation,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
@@ -12,17 +21,16 @@ import { SongService } from '../../services/song-service/song.service';
 import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
 
 @Component({
-    selector: 'app-presentation',
-    templateUrl: './presentation.component.html',
-    styleUrls: [
-        './presentation.component.scss',
-        '../../../assets/css/reveal.scss',
-        '../../../assets/css/theme/blood.css',
-    ],
-    encapsulation: ViewEncapsulation.None,
-    imports: [
-        PresentationMenuComponent
-    ]
+  selector: 'app-presentation',
+  templateUrl: './presentation.component.html',
+  styleUrls: [
+    './presentation.component.scss',
+    '../../../assets/css/reveal.scss',
+    '../../../assets/css/theme/blood.css',
+  ],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [PresentationMenuComponent],
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
@@ -38,14 +46,8 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private isDataLoaded$ = new BehaviorSubject(false);
   private onDestroy$ = new Subject<void>();
 
-
-
   ngOnInit() {
-    this.slidesService.init$.pipe(
-      filter(Boolean),
-      take(1),
-      takeUntil(this.onDestroy$),
-    ).subscribe(() => {
+    this.slidesService.init$.pipe(filter(Boolean), take(1), takeUntil(this.onDestroy$)).subscribe(() => {
       this.loadSlide();
     });
 
@@ -61,7 +63,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(
         filter((v) => !!v),
         take(1),
-        takeUntil(this.onDestroy$),
+        takeUntil(this.onDestroy$)
       )
       .subscribe(() => {
         this.reveal.init();
@@ -78,9 +80,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   addSlide(idSong: string) {
     if (this.songService.hasSong(idSong)) {
-      const {
-        id, title, text, chord,
-      } = this.songService.getSong(idSong);
+      const { id, title, text, chord } = this.songService.getSong(idSong);
       const slides = this.slidesService.getSongSlide(text);
 
       const lastIndex = this.slideList.length ? this.slideList[this.slideList.length - 1].endIndex : -1;
@@ -125,52 +125,51 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadSlide() {
-    const listID = (this.activatedRoute.snapshot.params.id as string || '').split(',');
-    forkJoin([
-      this.liturgyService.loadSlideForLiturgy(),
-      this.songService.loadSongFromCache(),
-    ]).pipe(takeUntil(this.onDestroy$)).subscribe(() => {
-      this.isDataLoaded$.next(true);
+    const listID = ((this.activatedRoute.snapshot.params.id as string) || '').split(',');
+    forkJoin([this.liturgyService.loadSlideForLiturgy(), this.songService.loadSongFromCache()])
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(() => {
+        this.isDataLoaded$.next(true);
 
-      this.slideList = listID.reduce<SlideList[]>((acc, id) => {
-        let lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
+        this.slideList = listID.reduce<SlideList[]>((acc, id) => {
+          let lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
 
-        if (Number.isNaN(parseInt(id, 10))) {
-          if (id === ALL_LITURGY) {
-            const liturgys = (this.liturgyService.slideLiturgy || []).map((liturgy) => {
-              const startIndex = lastIndex + 1;
-              lastIndex += liturgy.slides.length;
+          if (Number.isNaN(parseInt(id, 10))) {
+            if (id === ALL_LITURGY) {
+              const liturgys = (this.liturgyService.slideLiturgy || []).map((liturgy) => {
+                const startIndex = lastIndex + 1;
+                lastIndex += liturgy.slides.length;
 
-              return { ...liturgy, startIndex, endIndex: lastIndex };
-            });
+                return { ...liturgy, startIndex, endIndex: lastIndex };
+              });
 
-            acc.push(...liturgys);
-          } else if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
-            const slide = this.liturgyService.getSlideLiturgy(id);
+              acc.push(...liturgys);
+            } else if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
+              const slide = this.liturgyService.getSlideLiturgy(id);
+
+              acc.push({
+                ...slide,
+                startIndex: lastIndex + 1,
+                endIndex: lastIndex + slide.slides.length,
+              });
+            }
+          } else if (this.songService.hasSong(id)) {
+            const song = this.songService.getSong(id);
+            const slide = this.slidesService.getSongSlide(song.text);
 
             acc.push({
-              ...slide,
+              id: song.id.toString(),
+              title: song.title,
+              slides: slide,
+              chord: song.chord,
+              text: song.text,
               startIndex: lastIndex + 1,
-              endIndex: lastIndex + slide.slides.length,
+              endIndex: lastIndex + slide.length,
             });
           }
-        } else if (this.songService.hasSong(id)) {
-          const song = this.songService.getSong(id);
-          const slide = this.slidesService.getSongSlide(song.text);
 
-          acc.push({
-            id: song.id.toString(),
-            title: song.title,
-            slides: slide,
-            chord: song.chord,
-            text: song.text,
-            startIndex: lastIndex + 1,
-            endIndex: lastIndex + slide.length,
-          });
-        }
-
-        return acc;
-      }, []);
-    });
+          return acc;
+        }, []);
+      });
   }
 }
