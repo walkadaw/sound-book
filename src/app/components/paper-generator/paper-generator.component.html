@@ -23,7 +23,8 @@
     <mat-checkbox formControlName="isAddGadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
   </div>
 
-  <div class="column-full" *ngIf="!songListForm.get('allSong').value && selectedSongList$ | async as selectedSongList">
+  @if (!songListForm.get('allSong').value && selectedSongList$ | async; as selectedSongList) {
+  <div class="column-full">
     <mat-form-field class="example-form-field">
       <mat-label>Пошук</mat-label>
       <input matInput formControlName="search" type="text" />
@@ -33,7 +34,8 @@
     </mat-form-field>
     <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
       <mat-tab label="Пошук песен">
-        <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content" *ngIf="songListFiltered$ | async as songList">
+        @if (songListFiltered$ | async; as songList) {
+        <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
           @if (songList.length) {
           <div class="song-container" *cdkVirtualFor="let song of songList; trackBy: trackBy; templateCacheSize: 0">
             <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
@@ -42,6 +44,7 @@
           <div>Не адна песня не знойдзена па вашаму запыту.</div>
           }
         </cdk-virtual-scroll-viewport>
+        }
       </mat-tab>
       <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
         <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
@@ -61,6 +64,7 @@
       </mat-tab>
     </mat-tab-group>
   </div>
+  }
 
   <button mat-raised-button color="primary" class="download-button" (click)="generateDocx()">
     <mat-icon>get_app</mat-icon>

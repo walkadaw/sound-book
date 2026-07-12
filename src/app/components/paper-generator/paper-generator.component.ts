@@ -13,36 +13,35 @@ import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
 import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
 
 @Component({
-    selector: 'app-paper-generator',
-    templateUrl: './paper-generator.component.html',
-    styleUrls: ['./paper-generator.component.scss'],
-    imports: [
-        ReactiveFormsModule,
-        MatRadioGroup,
-        MatRadioButton,
-        MatCheckbox,
-        MatIcon,
-        MatTooltip,
-        NgIf,
-        MatFormField,
-        MatLabel,
-        MatInput,
-        MatButton,
-        MatIconButton,
-        MatSuffix,
-        MatTabGroup,
-        MatTab,
-        CdkVirtualScrollViewport,
-        CdkFixedSizeVirtualScroll,
-        CdkVirtualForOf,
-        AsyncPipe,
-    ]
+  selector: 'app-paper-generator',
+  templateUrl: './paper-generator.component.html',
+  styleUrls: ['./paper-generator.component.scss'],
+  imports: [
+    ReactiveFormsModule,
+    MatRadioGroup,
+    MatRadioButton,
+    MatCheckbox,
+    MatIcon,
+    MatTooltip,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatButton,
+    MatIconButton,
+    MatSuffix,
+    MatTabGroup,
+    MatTab,
+    CdkVirtualScrollViewport,
+    CdkFixedSizeVirtualScroll,
+    CdkVirtualForOf,
+    AsyncPipe,
+  ],
 })
 export class PaperGeneratorComponent implements OnInit {
   private formBuilder = inject(UntypedFormBuilder);
@@ -53,8 +52,6 @@ export class PaperGeneratorComponent implements OnInit {
   songListForm: UntypedFormGroup;
   songListFiltered$: Observable<Song[]>;
   selectedSongList$: Observable<Song[]>;
-
-
 
   ngOnInit() {
     this.songListForm = this.formBuilder.group({
@@ -72,14 +69,16 @@ export class PaperGeneratorComponent implements OnInit {
     this.songListFiltered$ = this.fuseService.getFilteredSong(
       of(0),
       search.valueChanges.pipe(startWith(search.value)),
-      this.songService.songList$,
+      this.songService.songList$
     );
 
     this.selectedSongList$ = this.songListForm.get('selectedSong').valueChanges.pipe(
       startWith(this.songListForm.get('selectedSong').value),
-      map((selectedSong) => Object.entries(selectedSong)
-        .filter(([, value]) => value)
-        .map(([key]) => this.songService.getSong(key))),
+      map((selectedSong) =>
+        Object.entries(selectedSong)
+          .filter(([, value]) => value)
+          .map(([key]) => this.songService.getSong(key))
+      )
     );
   }
 
@@ -101,14 +100,7 @@ export class PaperGeneratorComponent implements OnInit {
   }
 
   generateDocx() {
-    const {
-      allSong,
-      selectedSong,
-      isShowChord,
-      isShowTag,
-      isAddChastki,
-      isAddGadzinki,
-    } = this.songListForm.value;
+    const { allSong, selectedSong, isShowChord, isShowTag, isAddChastki, isAddGadzinki } = this.songListForm.value;
 
     let songList = this.songService.songList$.value.filter((song) => !song.tag[TAGS_LIST[9].id]).map(({ id }) => +id);
     if (!allSong) {

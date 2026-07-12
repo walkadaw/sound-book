@@ -1,4 +1,10 @@
-import { enableProdMode, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
+import {
+  enableProdMode,
+  importProvidersFrom,
+  inject,
+  provideAppInitializer,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { environment } from './environments/environment';
 import { AppComponent } from './app/application/app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -26,6 +32,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideZoneChangeDetection(),
     importProvidersFrom(
       BrowserModule,
       ReactiveFormsModule,
@@ -41,9 +48,9 @@ bootstrapApplication(AppComponent, {
       ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
     ),
     provideAppInitializer(() => {
-        const initializerFn = (startUpFactory)(inject(StartUpService));
-        return initializerFn();
-      }),
+      const initializerFn = startUpFactory(inject(StartUpService));
+      return initializerFn();
+    }),
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: HammerConfig,
