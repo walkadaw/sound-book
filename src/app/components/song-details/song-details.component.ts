@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
@@ -51,6 +51,12 @@ export interface SelectedSong {
 ],
 })
 export class SongDetailsComponent implements OnInit {
+  private songService = inject(SongService);
+  private router = inject(ActivatedRoute);
+  private store = inject<Store<IAppState>>(Store);
+  private snackBar = inject(MatSnackBar);
+  private playlistService = inject(PlaylistService);
+
   selectedSong$: Observable<SelectedSong>;
   isFavoriteSong$: Observable<boolean>;
   showSongNumber$ = this.store.select(getShowSongNumber);
@@ -60,13 +66,7 @@ export class SongDetailsComponent implements OnInit {
 
   readonly tagNameById = TagNameById;
 
-  constructor(
-    private songService: SongService,
-    private router: ActivatedRoute,
-    private store: Store<IAppState>,
-    private snackBar: MatSnackBar,
-    private playlistService: PlaylistService,
-  ) {}
+
 
   ngOnInit(): void {
     this.selectedSong$ = combineLatest([

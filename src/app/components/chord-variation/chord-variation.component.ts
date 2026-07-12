@@ -1,7 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component, Input, OnChanges,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, inject } from '@angular/core';
 import { Chord } from '../../services/chord/chord.interface';
 import { ChordService } from '../../services/chord/chord.service';
 import { MatIcon } from '@angular/material/icon';
@@ -22,10 +19,10 @@ import { ChordComponent } from '../kit/chord/chord.component';
 ],
 })
 export class ChordVariationComponent implements OnChanges {
+  chordService = inject(ChordService);
+
   @Input() chord: Chord;
   selectedVariant = 0;
-
-  constructor(public chordService: ChordService) {}
 
   ngOnChanges(): void {
     this.selectedVariant = 0;

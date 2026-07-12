@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Song } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
@@ -16,16 +16,14 @@ import { RouterLink } from '@angular/router';
 ],
 })
 export class AdminComponent implements OnInit {
+  private songService = inject(SongService);
+  private chordService = inject(ChordService);
+  private duplicateService = inject(DuplicateService);
+
   songWithoutChord: Song[] = [];
   songWithoutTag: Song[] = [];
   songChordMistake: Song[] = [];
   songDuplicate: [Song, Song[]][];
-
-  constructor(
-    private songService: SongService,
-    private chordService: ChordService,
-    private duplicateService: DuplicateService,
-  ) {}
 
   ngOnInit(): void {
     this.songService.songList$.value.forEach((song) => {

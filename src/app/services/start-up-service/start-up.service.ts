@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 import { setFavoriteAction } from '../../redux/actions/favorite.actions';
@@ -20,12 +20,12 @@ import { UserService } from '../user/user.service';
   providedIn: 'root',
 })
 export class StartUpService {
-  constructor(
-    private matRegisterIcon: MatIconRegistryService,
-    private songService: SongService,
-    private userService: UserService,
-    private store: Store<IAppState>,
-  ) {}
+  private matRegisterIcon = inject(MatIconRegistryService);
+  private songService = inject(SongService);
+  private userService = inject(UserService);
+  private store = inject<Store<IAppState>>(Store);
+
+
 
   async load(): Promise<void> {
     await Promise.all([

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Chord } from '../../services/chord/chord.interface';
 import { ChordList, ChordService } from '../../services/chord/chord.service';
 import { ChordVariationComponent } from '../chord-variation/chord-variation.component';
@@ -17,6 +17,8 @@ import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 ],
 })
 export class ChordListComponent {
+  private chordService = inject(ChordService);
+
   @Input() set chords(list: string | string[]) {
     this.originalChordList = this.chordService.getChordsList(!Array.isArray(list) ? list.split('\n') : list);
     this.chordList = this.originalChordList;
@@ -44,10 +46,6 @@ export class ChordListComponent {
   private originalChordList: ChordList[][];
   chordList: ChordList[][];
   selectedChord: Chord;
-
-  constructor(
-    private chordService: ChordService,
-  ) {}
 
   showChords(chord: string) {
     this.selectedChord = this.chordService.getChord(chord);

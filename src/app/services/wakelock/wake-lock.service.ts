@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRoute, CanActivate, CanDeactivate } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
@@ -15,6 +15,10 @@ import { getEnableNoSleep, getSettingsState } from '../../redux/selector/setting
   providedIn: 'root',
 })
 export class WakeLockService implements CanActivate, CanDeactivate<any> {
+  private store = inject<Store<IAppState>>(Store);
+  private route = inject(ActivatedRoute);
+  private actions$ = inject(Actions);
+
   private noSleep = new NoSleep();
 
   liveHookNoSleep$ = createEffect(
@@ -33,11 +37,7 @@ export class WakeLockService implements CanActivate, CanDeactivate<any> {
     { dispatch: false },
   );
 
-  constructor(
-    private store: Store<IAppState>,
-    private route: ActivatedRoute,
-    private actions$: Actions,
-  ) { }
+
 
   get isEnabled(): boolean {
     return this.noSleep.isEnabled;

@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -43,6 +43,14 @@ import { AsyncPipe, DatePipe } from '@angular/common';
 ],
 })
 export class ViewPlaylistComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private songService = inject(SongService);
+  private store = inject<Store<IAppState>>(Store);
+  private playListService = inject(PlaylistService);
+  private clipboard = inject(Clipboard);
+  private snackBar = inject(MatSnackBar);
+
   playlistData$: Observable<PlayList & { songs: Song[] }>;
 
   showSongNumber$ = this.store.select(getShowSongNumber);
@@ -50,15 +58,7 @@ export class ViewPlaylistComponent implements OnInit {
 
   canShare = !!navigator.share;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private songService: SongService,
-    private store: Store<IAppState>,
-    private playListService: PlaylistService,
-    private clipboard: Clipboard,
-    private snackBar: MatSnackBar,
-  ) { }
+
 
   ngOnInit(): void {
     this.playlistData$ = this.route.params.pipe(

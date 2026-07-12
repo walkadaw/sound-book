@@ -1,15 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  Output,
-  EventEmitter,
-  ViewEncapsulation,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   Observable, Subject, fromEvent, BehaviorSubject,
@@ -42,6 +31,10 @@ import { MatIcon } from '@angular/material/icon';
 ],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
+  private fuseService = inject(FuseService);
+  private songService = inject(SongService);
+  private reveal = inject(RevealService);
+
   @Input() slideList: SlideList[];
 
   @Output() addedSong = new EventEmitter<string>();
@@ -66,7 +59,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private revealNotes = this.reveal.getNotesPlugin();
   private onDestroy$ = new Subject<void>();
 
-  constructor(private fuseService: FuseService, private songService: SongService, private reveal: RevealService) {}
+
 
   ngOnInit(): void {
     this.initTag();

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonToggleChange, MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
 import { MatSlideToggleChange, MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -58,6 +58,12 @@ const DEFAULT_FONT_SIZE = 1;
 ],
 })
 export class HeaderComponent {
+  songService = inject(SongService);
+  private userService = inject(UserService);
+  private store = inject<Store<IAppState>>(Store);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+
   showChord = getCurrentValue(this.store, getShowChord);
   enableNoSleep = getCurrentValue(this.store, getEnableNoSleep);
   chordPosition = getCurrentValue(this.store, getChordPosition);
@@ -66,14 +72,6 @@ export class HeaderComponent {
   isAuth$ = this.userService.isAuth$;
 
   searchInputInFocus = false;
-
-  constructor(
-    public songService: SongService,
-    private userService: UserService,
-    private store: Store<IAppState>,
-    private snackBar: MatSnackBar,
-    private router: Router,
-  ) {}
 
   toggleSongNumber(event: MatSlideToggleChange): void {
     this.showSongNumber = event.checked;

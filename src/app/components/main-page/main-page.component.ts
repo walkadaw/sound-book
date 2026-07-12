@@ -1,6 +1,4 @@
-import {
-  ChangeDetectionStrategy, Component, OnDestroy, OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import {
@@ -47,6 +45,12 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 ],
 })
 export class MainPageComponent implements OnInit, OnDestroy {
+  private fuseService = inject(FuseService);
+  private songService = inject(SongService);
+  private store = inject<Store<IAppState>>(Store);
+  private playlistService = inject(PlaylistService);
+  private snackBar = inject(MatSnackBar);
+
   songListFiltered$: Observable<SongFavorite[]>;
   showSongNumber$ = this.store.select(getShowSongNumber).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
   selectedTag$ = this.store.select(getSelectedTag);
@@ -55,13 +59,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
   private contentScrollYPosition: number;
   private onDestroy$ = new Subject<void>();
 
-  constructor(
-    private fuseService: FuseService,
-    private songService: SongService,
-    private store: Store<IAppState>,
-    private playlistService: PlaylistService,
-    private snackBar: MatSnackBar,
-  ) {}
+
 
   ngOnInit(): void {
     const filteredSong$ = this.fuseService.getFilteredSong(

@@ -1,7 +1,5 @@
 import { Location } from '@angular/common';
-import {
-  AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation,
-} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
@@ -28,20 +26,20 @@ import { PresentationMenuComponent } from './presentation-menu/presentation-menu
 ],
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
+  private activatedRoute = inject(ActivatedRoute);
+  private songService = inject(SongService);
+  private liturgyService = inject(LiturgyService);
+  private location = inject(Location);
+  private reveal = inject(RevealService);
+  private render = inject(Renderer2);
+  private slidesService = inject(SlidesService);
+
   slideList: SlideList[];
 
   private isDataLoaded$ = new BehaviorSubject(false);
   private onDestroy$ = new Subject<void>();
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private songService: SongService,
-    private liturgyService: LiturgyService,
-    private location: Location,
-    private reveal: RevealService,
-    private render: Renderer2,
-    private slidesService: SlidesService,
-  ) {}
+
 
   ngOnInit() {
     this.slidesService.init$.pipe(

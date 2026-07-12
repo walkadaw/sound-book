@@ -1,6 +1,4 @@
-import {
-  ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -22,13 +20,13 @@ import { AsyncPipe } from '@angular/common';
 ],
 })
 export class LiturgyComponent implements OnInit {
+  private liturgyService = inject(LiturgyService);
+  private sanitizer = inject(DomSanitizer);
+
   liturgy$: Observable<Liturgy>;
   isLoading = true;
 
-  constructor(
-    private liturgyService: LiturgyService,
-    private sanitizer: DomSanitizer,
-  ) {}
+
 
   ngOnInit(): void {
     this.liturgy$ = this.liturgyService.getLiturgy().pipe(tap(() => {

@@ -1,7 +1,5 @@
 // eslint-disable-next-line max-classes-per-file
-import {
-  Directive, Inject, Input, TemplateRef, ViewContainerRef,
-} from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, inject } from '@angular/core';
 
 export interface IContextWithImplicit<T> {
   $implicit: T;
@@ -31,10 +29,10 @@ export class LetDirective<T> {
   @Input()
     appLet: T;
 
-  constructor(
-  @Inject(ViewContainerRef) viewContainer: ViewContainerRef,
-    @Inject(TemplateRef) templateRef: TemplateRef<LetContext<T>>,
-  ) {
+  constructor() {
+    const viewContainer = inject<ViewContainerRef>(ViewContainerRef);
+    const templateRef = inject<TemplateRef<LetContext<T>>>(TemplateRef);
+
     viewContainer.createEmbeddedView(templateRef, new LetContext<T>(this));
   }
 }

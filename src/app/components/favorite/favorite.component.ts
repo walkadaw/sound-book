@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -35,15 +35,13 @@ import { AsyncPipe } from '@angular/common';
 ],
 })
 export class FavoriteComponent implements OnInit {
+  private songService = inject(SongService);
+  private store = inject<Store<IAppState>>(Store);
+  private snackBar = inject(MatSnackBar);
+  private playlistService = inject(PlaylistService);
+
   songFavoriteList$: Observable<SongFavorite[]>;
   showSongNumber$ = this.store.select(getShowSongNumber);
-
-  constructor(
-    private songService: SongService,
-    private store: Store<IAppState>,
-    private snackBar: MatSnackBar,
-    private playlistService: PlaylistService,
-  ) {}
 
   ngOnInit(): void {
     this.songFavoriteList$ = this.store

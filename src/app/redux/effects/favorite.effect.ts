@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { tap, withLatestFrom } from 'rxjs/operators';
@@ -8,6 +8,9 @@ import { getFavoriteState } from '../selector/favorite.selector';
 
 @Injectable()
 export class FavoriteEffects {
+  private actions$ = inject(Actions);
+  private store = inject<Store<IAppState>>(Store);
+
   saveFavorite$ = createEffect(
     () => this.actions$.pipe(
       ofType(toggleFavoriteAction),
@@ -19,5 +22,5 @@ export class FavoriteEffects {
     { dispatch: false },
   );
 
-  constructor(private actions$: Actions, private store: Store<IAppState>) {}
+
 }

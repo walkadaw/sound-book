@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   ActivatedRouteSnapshot, Resolve, Router,
 } from '@angular/router';
@@ -10,10 +10,8 @@ import { SongService } from '../../../services/song-service/song.service';
   providedIn: 'root',
 })
 export class LoadSongResolver implements Resolve<Song> {
-  constructor(
-    private songService: SongService,
-    private router: Router,
-  ) { }
+  private songService = inject(SongService);
+  private router = inject(Router);
 
   resolve(route: ActivatedRouteSnapshot): Observable<Song> {
     const id = route.paramMap.get('id');

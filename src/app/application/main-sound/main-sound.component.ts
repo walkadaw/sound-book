@@ -1,6 +1,4 @@
-import {
-  Component, HostListener, OnDestroy, OnInit,
-} from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
@@ -29,15 +27,13 @@ import { HeaderComponent } from '../../components/header/header.component';
 ],
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
+  private store = inject<Store<IAppState>>(Store);
+  private router = inject(Router);
+
   showMenu$: Observable<boolean>;
   fontSize$ = this.store.select(getFontSize);
 
   private onDestroy$ = new Subject<void>();
-
-  constructor(
-    private store: Store<IAppState>,
-    private router: Router,
-  ) {}
 
   // @HostListener('swipeleft')
   // swipeLeft() {

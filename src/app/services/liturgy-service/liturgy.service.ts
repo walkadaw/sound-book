@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, switchMap } from 'rxjs/operators';
 import { of, Observable, iif } from 'rxjs';
@@ -8,9 +8,11 @@ import { SlideList } from '../../interfaces/slide';
 
 @Injectable()
 export class LiturgyService {
+  private http = inject(HttpClient);
+
   slideLiturgy: SlideList[];
 
-  constructor(private http: HttpClient) {}
+
 
   getLiturgy(): Observable<Liturgy> {
     return this.http.get<Liturgy>(`${environment.baseUrl}/liturgy/get`).pipe(catchError(() => of(null)));

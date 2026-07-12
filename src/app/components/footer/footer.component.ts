@@ -1,6 +1,4 @@
-import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
@@ -21,6 +19,9 @@ interface JesusSay {
     imports: [MatIcon],
 })
 export class FooterComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
   words!: JesusSay | null;
   /* eslint-disable max-len */
   private listWords: JesusSay[] = [
@@ -76,11 +77,6 @@ export class FooterComponent implements OnInit, OnDestroy {
   /* eslint-enabled max-len */
 
   private onDestroy$ = new Subject<void>();
-
-  constructor(
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-  ) {}
 
   ngOnInit() {
     this.router.events.pipe(

@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
@@ -22,11 +22,11 @@ import { DatePipe } from '@angular/common';
 ],
 })
 export class PlaylistComponent {
+  private playlistService = inject(PlaylistService);
+
   playlists: PlayList[] = this.playlistService.playlists;
 
-  constructor(
-    private playlistService: PlaylistService,
-  ) { }
+
 
   drop(event: CdkDragDrop<PlayList[]>) {
     moveItemInArray(this.playlists, event.previousIndex, event.currentIndex);

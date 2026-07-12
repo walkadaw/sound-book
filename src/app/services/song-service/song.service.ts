@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   BehaviorSubject, Observable, of, throwError,
 } from 'rxjs';
@@ -11,10 +11,12 @@ import { Song, SongAdd, SongRequest } from '../../interfaces/song';
 
 @Injectable()
 export class SongService {
+  private http = inject(HttpClient);
+
   songList$ = new BehaviorSubject<Song[]>([]);
   songVersion: string = null;
 
-  constructor(private http: HttpClient) {}
+
 
   hasSong(songId: string | number): boolean {
     return this.songList$.value.some(({ id }) => id.toString() === songId.toString());

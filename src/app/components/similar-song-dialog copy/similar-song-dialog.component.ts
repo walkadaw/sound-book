@@ -1,6 +1,4 @@
-import {
-  Component, ChangeDetectionStrategy, Inject, OnInit,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
 import { Change, diffWords } from 'diff';
 import { Song } from '../../interfaces/song';
@@ -31,8 +29,9 @@ interface DiffResult {
 ],
 })
 export class SimilarSongDialogComponent implements OnInit {
+  data = inject<SimilarData>(MAT_DIALOG_DATA);
+
   diffs: DiffResult[];
-  constructor(@Inject(MAT_DIALOG_DATA) public data: SimilarData) {}
 
   ngOnInit(): void {
     this.diffs = this.data.duplication.map((song) => ({ song, diff: diffWords(song.text, this.data.song.text) }));

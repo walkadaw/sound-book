@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Validators, UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -46,16 +46,16 @@ import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
     ],
 })
 export class PaperGeneratorComponent implements OnInit {
+  private formBuilder = inject(UntypedFormBuilder);
+  private songService = inject(SongService);
+  private fuseService = inject(FuseService);
+  private generatorService = inject(GeneratorService);
+
   songListForm: UntypedFormGroup;
   songListFiltered$: Observable<Song[]>;
   selectedSongList$: Observable<Song[]>;
 
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private songService: SongService,
-    private fuseService: FuseService,
-    private generatorService: GeneratorService,
-  ) {}
+
 
   ngOnInit() {
     this.songListForm = this.formBuilder.group({

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { UntypedFormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
@@ -22,14 +22,14 @@ import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 ],
 })
 export class AddPlaylistComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private playlistService = inject(PlaylistService);
+  private router = inject(Router);
+
   playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);
   playlistId = this.route.snapshot?.params?.playlistId;
 
-  constructor(
-    private route: ActivatedRoute,
-    private playlistService: PlaylistService,
-    private router: Router,
-  ) { }
+
 
   ngOnInit(): void {
     if (this.playlistId) {

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 import {
   BehaviorSubject, catchError, EMPTY, map, Observable, of, tap,
@@ -12,12 +12,12 @@ const checkAuth = 'auth';
   providedIn: 'root',
 })
 export class UserService implements CanActivate {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
   isAuth$ = new BehaviorSubject<boolean>(false);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-  ) { }
+
 
   isLoginIn(): Observable<string> {
     if (!localStorage.getItem(checkAuth)) {

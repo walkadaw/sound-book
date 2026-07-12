@@ -1,6 +1,4 @@
-import {
-  ChangeDetectionStrategy, Component, OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest, map, Observable } from 'rxjs';
 import { IAppState } from '../../redux/models/IAppState';
@@ -26,13 +24,13 @@ const TAG_PAST_OF_MASS = 10;
 ],
 })
 export class PartOfMassComponent implements OnInit {
+  private store = inject<Store<IAppState>>(Store);
+  private songService = inject(SongService);
+
   showChord$ = this.store.select(getShowChord);
   songs$: Observable<SelectedSong[]>;
 
-  constructor(
-    private store: Store<IAppState>,
-    private songService: SongService,
-  ) {}
+
 
   ngOnInit(): void {
     this.songs$ = combineLatest([

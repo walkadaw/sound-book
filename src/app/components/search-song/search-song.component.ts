@@ -1,13 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ViewEncapsulation,
-  ViewChild,
-  ElementRef,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewChild, ElementRef, Output, EventEmitter, inject } from '@angular/core';
 import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   debounceTime, distinctUntilChanged, filter, takeUntil,
@@ -51,6 +42,8 @@ import { LetDirective } from '../../directives/let-directive/app-let.directive';
 ],
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
+  private store = inject<Store<IAppState>>(Store);
+
   @ViewChild('search', { read: ElementRef }) searchElement: ElementRef<HTMLElement>;
   @Output() isFocusInput = new EventEmitter<boolean>();
 
@@ -67,7 +60,7 @@ export class SearchSongComponent implements OnInit, OnDestroy {
 
   private onDestroy$ = new Subject<void>();
 
-  constructor(private store: Store<IAppState>) {}
+
 
   ngOnInit() {
     this.store

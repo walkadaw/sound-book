@@ -1,6 +1,4 @@
-import {
-  ChangeDetectionStrategy, Component, EventEmitter, Input, Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
 import { UserService } from '../../../services/user/user.service';
@@ -25,6 +23,9 @@ import { AsyncPipe, SlicePipe } from '@angular/common';
 ],
 })
 export class PlaylistMenuComponent {
+  private playlistService = inject(PlaylistService);
+  private userService = inject(UserService);
+
   @Input() songId?: number;
   @Output() selectedPlaylist = new EventEmitter<PlayList>();
 
@@ -33,10 +34,7 @@ export class PlaylistMenuComponent {
   playLists$: Observable<PlayList[]> = this.playlistService.playlists$;
   isAuth$: Observable<boolean> = this.userService.isAuth$;
 
-  constructor(
-    private playlistService: PlaylistService,
-    private userService: UserService,
-  ) {}
+
 
   clickOnPlayList(playlist: PlayList) {
     this.selectedPlaylist.emit(playlist);

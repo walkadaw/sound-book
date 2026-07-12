@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
@@ -43,6 +43,14 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 ],
 })
 export class EditComponent implements OnInit, OnDestroy {
+  private songService = inject(SongService);
+  private chordService = inject(ChordService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private duplicateService = inject(DuplicateService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+
   readonly tagList = TAGS_LIST;
 
   songDataForm = new UntypedFormGroup({
@@ -57,16 +65,6 @@ export class EditComponent implements OnInit, OnDestroy {
   get songID(): number {
     return +this.route.snapshot.params.id;
   }
-
-  constructor(
-    private songService: SongService,
-    private chordService: ChordService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private duplicateService: DuplicateService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-  ) {}
 
   ngOnInit(): void {
     this.initLoadData();

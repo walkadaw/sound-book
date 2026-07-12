@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, EMPTY } from 'rxjs';
@@ -23,15 +23,13 @@ import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 ],
 })
 export class LoginComponent implements OnInit {
+  private userService = inject(UserService);
+  private router = inject(Router);
+
   loginForm = new UntypedFormGroup({
     username: new UntypedFormControl('', Validators.required),
     password: new UntypedFormControl('', Validators.required),
   });
-
-  constructor(
-    private userService: UserService,
-    private router: Router,
-  ) { }
 
   ngOnInit(): void {
     if (this.userService.isAuth$.value) {
