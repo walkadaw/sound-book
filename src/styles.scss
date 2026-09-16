@@ -54,11 +54,11 @@ a, a:visited, a:active {
     color: #284a66 !important;
 }
 
-.mat-flat-button.mat-primary, .mat-raised-button.mat-primary, .mat-fab.mat-primary, .mat-mini-fab.mat-primary {
+.mat-mdc-unelevated-button.mat-primary, .mat-mdc-raised-button.mat-primary, .mat-mdc-fab.mat-primary, .mat-mdc-mini-fab.mat-primary {
     background-color: #444;
 }
 
-.overflow-hidden .mat-dialog-container {
+.overflow-hidden .mat-mdc-dialog-container {
 	overflow: hidden;
 }
 
@@ -72,9 +72,11 @@ main {
 }
 
 .chord-position {
+	/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
+	/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
 	mat-button-toggle {
 		line-height: normal;
-	
+		/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
 		.mat-button-toggle-label-content {
 		line-height: normal;
 		padding: 4px;

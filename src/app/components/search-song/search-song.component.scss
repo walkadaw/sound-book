@@ -8,12 +8,12 @@ app-search-song {
         flex: 0 1 100%;
         display: block;
     }
-    .mat-select {
+    .mat-mdc-select {
         width: 40px;
         height: 26px;
         display: flex;
         align-items: center;
-        
+        /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
         .mat-select-value {
             max-width: none;
         }
@@ -48,17 +48,19 @@ app-search-song {
             }
         }
     }
-
+    /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
     .mat-select-value-text mat-select-trigger mat-icon {
         display: block;
     }
 }
 
-.search-tag-mat-menu {    
-    &.mat-select-panel {
+/* TODO(mdc-migration): The following rule targets internal classes of menu that may no longer apply for the MDC version. */
+/* TODO(mdc-migration): The following rule targets internal classes of menu that may no longer apply for the MDC version. */
+.search-tag-mat-menu {
+    &.mat-mdc-select-panel {
         max-height: none;
 
-        .mat-option {
+        .mat-mdc-option {
             height: 40px;
             line-height: 40px;
         }
