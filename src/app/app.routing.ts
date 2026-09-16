@@ -95,10 +95,9 @@ const appRoutes: Routes = [
 @NgModule({
   imports: [
     RouterModule.forRoot(appRoutes, {
-      scrollPositionRestoration: 'enabled',
-      onSameUrlNavigation: 'reload',
-      relativeLinkResolution: 'legacy',
-    }),
+    scrollPositionRestoration: 'enabled',
+    onSameUrlNavigation: 'reload'
+}),
   ],
   exports: [RouterModule],
 })
