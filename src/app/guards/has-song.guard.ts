@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { SongService } from '../services/song-service/song.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class HasSongGuard implements CanActivate {
+export class HasSongGuard {
   constructor(private songService: SongService, private route: Router) {}
 
   canActivate(next: ActivatedRouteSnapshot): boolean {

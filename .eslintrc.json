@@ -1,11 +1,19 @@
 {
   "root": true,
-  "ignorePatterns": ["**/node_modules/*", "**/dist/**", "projects/**/*"],
+  "ignorePatterns": [
+    "**/node_modules/*",
+    "**/dist/**",
+    "projects/**/*"
+  ],
   "overrides": [
     {
-      "files": ["*.ts"],
+      "files": [
+        "*.ts"
+      ],
       "parserOptions": {
-        "project": ["tsconfig.json"],
+        "project": [
+          "tsconfig.json"
+        ],
         "createDefaultProgram": true
       },
       "extends": [
@@ -16,7 +24,9 @@
         "plugin:@angular-eslint/template/process-inline-templates",
         "plugin:@typescript-eslint/recommended"
       ],
-      "plugins": ["deprecation"],
+      "plugins": [
+        "deprecation"
+      ],
       "rules": {
         "@angular-eslint/directive-selector": [
           "error",
@@ -36,27 +46,52 @@
         ],
         "import/prefer-default-export": 0,
         "import/no-extraneous-dependencies": 2,
-        "import/extensions": [2, { "ts": "never", "json": "always" }],
+        "import/extensions": [
+          2,
+          {
+            "ts": "never",
+            "json": "always"
+          }
+        ],
         "import/order": 2,
         "import/no-absolute-path": "error",
         "no-var": 2,
         "no-unused-expressions": 2,
         "no-useless-constructor": 0,
-        "max-len": [2, { "code": 120, "ignorePattern": "^\\s*import" }],
-        "spaced-comment": [2, "always"],
+        "max-len": [
+          2,
+          {
+            "code": 120,
+            "ignorePattern": "^\\s*import"
+          }
+        ],
+        "spaced-comment": [
+          2,
+          "always"
+        ],
         "deprecation/deprecation": 1,
         "class-methods-use-this": 0,
         "lines-between-class-members": [
           2,
           "always",
-          { "exceptAfterSingleLine": true }
+          {
+            "exceptAfterSingleLine": true
+          }
         ],
         "@typescript-eslint/naming-convention": [
           2,
-          { "selector": "typeLike", "format": ["PascalCase"] }
+          {
+            "selector": "typeLike",
+            "format": [
+              "PascalCase"
+            ]
+          }
         ],
         "@typescript-eslint/consistent-type-definitions": 2,
-        "@typescript-eslint/indent": [2, 2],
+        "@typescript-eslint/indent": [
+          2,
+          2
+        ],
         "@typescript-eslint/member-ordering": [
           2,
           {
@@ -71,27 +106,48 @@
         "@typescript-eslint/type-annotation-spacing": 2,
         "@typescript-eslint/unified-signatures": 2,
         "no-shadow": "off",
-        "@typescript-eslint/no-shadow": ["error"]
+        "@typescript-eslint/no-shadow": [
+          "error"
+        ]
       }
     },
     {
-      "files": ["*.html"],
-      "extends": ["plugin:@angular-eslint/template/recommended"],
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended"
+      ],
       "rules": {}
     },
     {
-      "files": ["*.html"],
-      "excludedFiles": ["*inline-template-*.component.html"],
-      "extends": ["plugin:prettier/recommended"],
+      "files": [
+        "*.html"
+      ],
+      "excludedFiles": [
+        "*inline-template-*.component.html"
+      ],
+      "extends": [
+        "plugin:prettier/recommended"
+      ],
       "rules": {
-        "prettier/prettier": ["error", { "parser": "angular" }]
+        "prettier/prettier": [
+          "error",
+          {
+            "parser": "angular"
+          }
+        ]
       }
     }
   ],
   "settings": {
     "import/resolver": {
       "typescript": {},
-      "node": { "extensions": [".ts"] }
+      "node": {
+        "extensions": [
+          ".ts"
+        ]
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import {
   BehaviorSubject, catchError, EMPTY, map, Observable, of, tap,
 } from 'rxjs';
@@ -11,7 +11,7 @@ const checkAuth = 'auth';
 @Injectable({
   providedIn: 'root',
 })
-export class UserService implements CanActivate {
+export class UserService {
   isAuth$ = new BehaviorSubject<boolean>(false);
 
   constructor(
