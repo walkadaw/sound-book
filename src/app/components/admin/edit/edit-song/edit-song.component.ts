@@ -1,7 +1,7 @@
 import {
   AfterViewInit, Component, ElementRef, forwardRef, Input, OnDestroy, ViewChild,
 } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
   distinctUntilChanged, fromEvent,
   map, merge, of, Subject, takeUntil,
@@ -23,7 +23,7 @@ export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValue
   @ViewChild('textEditor') textEditor: ElementRef<HTMLTextAreaElement>;
   @Input() placeholder = '';
 
-  textForm = new FormControl('');
+  textForm = new UntypedFormControl('');
 
   lineCounter$ = merge(
     of(Array(50).fill('')),

@@ -8,7 +8,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import {
   debounceTime, distinctUntilChanged, filter, takeUntil,
 } from 'rxjs/operators';
@@ -33,7 +33,7 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   @Output() isFocusInput = new EventEmitter<boolean>();
 
   selected$ = this.store.select(getSelectedTag);
-  searchTerm = new FormControl();
+  searchTerm = new UntypedFormControl();
   readonly tagsList: TagList[] = [
     {
       id: null,

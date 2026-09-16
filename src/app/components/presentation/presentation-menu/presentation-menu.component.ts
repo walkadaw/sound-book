@@ -10,7 +10,7 @@ import {
   ElementRef,
   AfterViewInit,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import {
   Observable, Subject, fromEvent, BehaviorSubject,
 } from 'rxjs';
@@ -47,7 +47,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   openSelectedTag = false;
   selectedTag: TagList;
   tagsList: TagList[];
-  search: FormControl = new FormControl();
+  search: UntypedFormControl = new UntypedFormControl();
   songListFiltered$: Observable<Song[]>;
   selectedTag$: BehaviorSubject<number> = new BehaviorSubject(0);
   selectedSlide = this.reveal.getActiveSlide();

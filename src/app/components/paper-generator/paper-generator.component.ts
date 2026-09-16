@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { Validators, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatCheckboxChange } from '@angular/material/checkbox';
@@ -15,12 +15,12 @@ import { TAGS_LIST } from '../../constants/tag-list';
   styleUrls: ['./paper-generator.component.scss'],
 })
 export class PaperGeneratorComponent implements OnInit {
-  songListForm: FormGroup;
+  songListForm: UntypedFormGroup;
   songListFiltered$: Observable<Song[]>;
   selectedSongList$: Observable<Song[]>;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private songService: SongService,
     private fuseService: FuseService,
     private generatorService: GeneratorService,

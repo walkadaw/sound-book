@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
 
@@ -9,7 +9,7 @@ import { PlaylistService } from '../../../services/playlist/playlist.service';
   styleUrls: ['./add-playlist.component.scss'],
 })
 export class AddPlaylistComponent implements OnInit {
-  playlistControl = new FormControl('', [Validators.required, Validators.maxLength(60)]);
+  playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);
   playlistId = this.route.snapshot?.params?.playlistId;
 
   constructor(
