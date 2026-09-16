@@ -8,7 +8,7 @@ export const CHORD_DATA: ChordData = {
     numberOfChords: 2141,
   },
   tunings: {
-    standard: ['E', 'A', 'D', 'G', 'B', 'E']
+    standard: ['E', 'A', 'D', 'G', 'B', 'E'],
   },
   keys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
   suffixes: [

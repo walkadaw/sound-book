@@ -8,9 +8,9 @@ describe('SongKeyComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SongKeyComponent ]
+      declarations: [SongKeyComponent],
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
