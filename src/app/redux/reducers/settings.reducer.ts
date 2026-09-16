@@ -20,10 +20,10 @@ const SETTINGS_STATE_DEFAULT: MainSettings = {
 
 export const settingsReducer = createReducer(
   SETTINGS_STATE_DEFAULT,
-  on(showChordAction, (state, { showChord }) => ({ ...state, showChord })),
-  on(chordPositionAction, (state, { chordPosition }) => ({ ...state, chordPosition })),
-  on(showSongNumberAction, (state, { showSongNumber }) => ({ ...state, showSongNumber })),
-  on(changeFontSizeAction, (state, { fontSize }) => ({ ...state, fontSize })),
-  on(changeShowMenuAction, (state, { showMenu }) => ({ ...state, showMenu })),
-  on(changeNoSleepAction, (state, { enableNoSleep }) => ({ ...state, enableNoSleep })),
+  on(showChordAction, (state, { showChord }): MainSettings => ({ ...state, showChord })),
+  on(chordPositionAction, (state, { chordPosition }): MainSettings => ({ ...state, chordPosition })),
+  on(showSongNumberAction, (state, { showSongNumber }): MainSettings => ({ ...state, showSongNumber })),
+  on(changeFontSizeAction, (state, { fontSize }): MainSettings => ({ ...state, fontSize })),
+  on(changeShowMenuAction, (state, { showMenu }): MainSettings => ({ ...state, showMenu })),
+  on(changeNoSleepAction, (state, { enableNoSleep }): MainSettings => ({ ...state, enableNoSleep })),
 );

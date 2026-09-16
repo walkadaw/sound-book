@@ -90,6 +90,7 @@
   ],
   "settings": {
     "import/resolver": {
+      "typescript": {},
       "node": { "extensions": [".ts"] }
     }
   }

@@ -6,7 +6,7 @@ export const SEARCH_STATE_DEFAULT: SearchInput = { searchTerm: '', selectedTag: 
 
 export const searchReducer = createReducer(
   SEARCH_STATE_DEFAULT,
-  on(setSearchTermAction, (state, { searchTerm }) => ({ ...state, searchTerm })),
-  on(setSelectedTagAction, (state, { selectedTag }) => ({ ...state, selectedTag })),
+  on(setSearchTermAction, (state, { searchTerm }): SearchInput => ({ ...state, searchTerm })),
+  on(setSelectedTagAction, (state, { selectedTag }): SearchInput => ({ ...state, selectedTag })),
   on(clearSearchAction, () => ({ ...SEARCH_STATE_DEFAULT })),
 );
