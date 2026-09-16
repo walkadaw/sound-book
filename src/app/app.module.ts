@@ -1,7 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule, HammerModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { EffectsModule } from '@ngrx/effects';
@@ -37,7 +37,6 @@ import { FavoriteEffects } from './redux/effects/favorite.effect';
 import { favoriteReducer } from './redux/reducers/favorite.reducer';
 import { searchReducer } from './redux/reducers/search.reducer';
 import { settingsReducer } from './redux/reducers/settings.reducer';
-import { HammerConfig } from './services/hammer-config/hammer-config.service';
 import { LiturgyModule } from './services/liturgy-service/liturgy.module';
 import { SongModule } from './services/song-service/song.module';
 import { startUpFactory, StartUpService } from './services/start-up-service/start-up.service';
@@ -84,7 +83,6 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     LiturgyModule,
     SongModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
-    HammerModule,
     HeaderModule,
     PlaylistMenuModule,
     ChordModule,
@@ -95,10 +93,6 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
       useFactory: startUpFactory,
       deps: [StartUpService],
       multi: true,
-    },
-    {
-      provide: HAMMER_GESTURE_CONFIG,
-      useClass: HammerConfig,
     },
   ],
   bootstrap: [AppComponent],

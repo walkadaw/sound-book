@@ -23,9 +23,6 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "preserveSymlinks": true,
-            "allowedCommonJsDependencies": [
-              "hammerjs"
-            ],
             "assets": [
               "src/favicon.ico",
               "src/assets",
