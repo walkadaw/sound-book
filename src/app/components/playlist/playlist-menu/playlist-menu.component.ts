@@ -1,13 +1,18 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
+import { MatMenuItem } from '@angular/material/menu';
+import { RouterLink } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { MatDivider } from '@angular/material/list';
+import { AsyncPipe, SlicePipe } from '@angular/common';
 import { UserService } from '../../../services/user/user.service';
+import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
 
 @Component({
   selector: 'app-playlist-menu',
   templateUrl: './playlist-menu.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [MatMenuItem, RouterLink, MatIcon, MatDivider, AsyncPipe, SlicePipe],
 })
 export class PlaylistMenuComponent {
   private playlistService = inject(PlaylistService);

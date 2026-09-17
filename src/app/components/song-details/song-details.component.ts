@@ -4,6 +4,10 @@ import { filter, map } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
+import { AsyncPipe, KeyValuePipe } from '@angular/common';
 import { SongService } from '../../services/song-service/song.service';
 import { TagNameById } from '../../interfaces/tag-list';
 import { IAppState } from '../../redux/models/IAppState';
@@ -12,6 +16,10 @@ import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { ChordPosition } from '../../redux/models/settings.state';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
+import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
+import { SongKeyComponent } from '../song-key/song-key.component';
+import { LetDirective } from '../../directives/let-directive/app-let.directive';
+import { ChordListComponent } from '../chord-list/chord-list.component';
 
 export interface SelectedSong {
   id: number;
@@ -28,7 +36,18 @@ export interface SelectedSong {
   templateUrl: './song-details.component.html',
   styleUrls: ['./song-details.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [
+    MatIconButton,
+    MatIcon,
+    MatMenuTrigger,
+    MatMenu,
+    PlaylistMenuComponent,
+    SongKeyComponent,
+    LetDirective,
+    ChordListComponent,
+    AsyncPipe,
+    KeyValuePipe,
+  ],
 })
 export class SongDetailsComponent implements OnInit {
   private songService = inject(SongService);

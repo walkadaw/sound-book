@@ -3,6 +3,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { RouterLink } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconButton } from '@angular/material/button';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
+import { AsyncPipe } from '@angular/common';
 import { SongFavorite } from '../../interfaces/song';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -10,6 +15,8 @@ import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getShowSongNumber } from '../../redux/selector/settings.selector';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
+import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
+import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
 
 @Component({
   selector: 'app-favorite',
@@ -17,7 +24,16 @@ import { SongService } from '../../services/song-service/song.service';
   styleUrls: ['./favorite.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    RouterLink,
+    MatIcon,
+    MatIconButton,
+    MatMenuTrigger,
+    MatMenu,
+    PlaylistMenuComponent,
+    AsyncPipe,
+    ReplaceSpacePipe,
+  ],
 })
 export class FavoriteComponent implements OnInit {
   private songService = inject(SongService);

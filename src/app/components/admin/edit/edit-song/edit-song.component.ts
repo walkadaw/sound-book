@@ -8,8 +8,9 @@ import {
   ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { distinctUntilChanged, fromEvent, map, merge, of, Subject, takeUntil } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-edit-song',
@@ -24,7 +25,7 @@ import { distinctUntilChanged, fromEvent, map, merge, of, Subject, takeUntil } f
   ],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [ReactiveFormsModule, AsyncPipe],
 })
 export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
   @ViewChild('lineCounter') lineCounter: ElementRef<HTMLTextAreaElement>;

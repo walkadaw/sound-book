@@ -2,8 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { MatModule } from '../../mat.module';
-import { HeaderModule } from '../header/header.module';
+
 import { DiffResultComponent } from '../diff-result/diff-result.component';
 import { SimilarSongDialogComponent } from '../similar-song-dialog copy/similar-song-dialog.component';
 import { AdminComponent } from './admin/admin.component';
@@ -23,19 +22,15 @@ const adminRoutes: Routes = [
 ];
 
 @NgModule({
-  declarations: [
+  imports: [
+    CommonModule,
+    RouterModule.forChild(adminRoutes),
+    ReactiveFormsModule,
     AdminComponent,
     EditComponent,
     EditSongComponent,
     DiffResultComponent,
     SimilarSongDialogComponent,
-  ],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(adminRoutes),
-    HeaderModule,
-    ReactiveFormsModule,
-    MatModule,
   ],
 })
 export class AdminModule {}

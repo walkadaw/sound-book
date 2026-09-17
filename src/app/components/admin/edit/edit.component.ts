@@ -1,17 +1,24 @@
 import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
 import { pluck, Subject, takeUntil } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatIcon } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { Song, SongAdd } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { DuplicateService } from '../../../services/duplicate/duplicate.service';
 import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/similar-song-dialog.component';
+import { DiffResultComponent } from '../../diff-result/diff-result.component';
+import { EditSongComponent } from './edit-song/edit-song.component';
 
 @Component({
   selector: 'app-edit',
@@ -19,7 +26,17 @@ import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/simil
   styleUrls: ['./edit.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    EditSongComponent,
+    MatCheckbox,
+    MatIcon,
+    MatButton,
+    DiffResultComponent,
+  ],
 })
 export class EditComponent implements OnInit, OnDestroy {
   private songService = inject(SongService);

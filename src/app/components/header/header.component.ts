@@ -1,10 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatButtonToggleChange } from '@angular/material/button-toggle';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatButtonToggleChange, MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
+import { MatSlideToggleChange, MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { catchError, EMPTY } from 'rxjs';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatDivider } from '@angular/material/list';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { clearSearchAction } from '../../redux/actions/search.actions';
 import {
   changeFontSizeAction,
@@ -27,6 +31,8 @@ import { PlayList } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 import { UserService } from '../../services/user/user.service';
 import { getCurrentValue } from '../utils/redux.utils';
+import { SearchSongComponent } from '../search-song/search-song.component';
+import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 
 const MIN_FONT_SIZE = 0.4;
 const MAX_FONT_SIZE = 2;
@@ -37,7 +43,21 @@ const DEFAULT_FONT_SIZE = 1;
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [
+    MatIcon,
+    MatMenuTrigger,
+    SearchSongComponent,
+    MatMenu,
+    MatMenuItem,
+    MatSlideToggle,
+    MatButtonToggleGroup,
+    MatButtonToggle,
+    MatDivider,
+    RouterLink,
+    PlaylistMenuComponent,
+    AsyncPipe,
+    DatePipe,
+  ],
 })
 export class HeaderComponent {
   songService = inject(SongService);

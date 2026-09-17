@@ -1,13 +1,57 @@
-import { enableProdMode, provideZoneChangeDetection } from '@angular/core';
-import { platformBrowser } from '@angular/platform-browser';
+import {
+  enableProdMode,
+  provideZoneChangeDetection,
+  provideAppInitializer,
+  inject,
+  importProvidersFrom,
+} from '@angular/core';
+import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 
-import { AppModule } from './app/app.module';
+import { provideHttpClient, withXhr, withInterceptorsFromDi } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ReactiveFormsModule } from '@angular/forms';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from './environments/environment';
+import { startUpFactory, StartUpService } from './app/services/start-up-service/start-up.service';
+import { AppRoutingModule } from './app/app.routing';
+import { searchReducer } from './app/redux/reducers/search.reducer';
+import { settingsReducer } from './app/redux/reducers/settings.reducer';
+import { favoriteReducer } from './app/redux/reducers/favorite.reducer';
+import { FavoriteEffects } from './app/redux/effects/favorite.effect';
+import { WakeLockService } from './app/services/wakelock/wake-lock.service';
+import { LiturgyModule } from './app/services/liturgy-service/liturgy.module';
+import { SongModule } from './app/services/song-service/song.module';
+import { AppComponent } from './app/application/app.component';
 
 if (environment.production) {
   enableProdMode();
 }
 
-platformBrowser()
-  .bootstrapModule(AppModule, { applicationProviders: [provideZoneChangeDetection()] })
-  .catch((err) => console.error(err));
+bootstrapApplication(AppComponent, {
+  providers: [
+    importProvidersFrom(
+      BrowserModule,
+      BrowserAnimationsModule,
+      ReactiveFormsModule,
+      AppRoutingModule,
+      // redux
+      StoreModule.forRoot({
+        searchInput: searchReducer,
+        settings: settingsReducer,
+        favorite: favoriteReducer,
+      }),
+      EffectsModule.forRoot([FavoriteEffects, WakeLockService]),
+      LiturgyModule,
+      SongModule,
+      ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    ),
+    provideAppInitializer(() => {
+      const initializerFn = startUpFactory(inject(StartUpService));
+      return initializerFn();
+    }),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
+    provideZoneChangeDetection(),
+  ],
+}).catch((err) => console.error(err));

@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { UntypedFormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
 
 @Component({
@@ -9,7 +12,7 @@ import { PlaylistService } from '../../../services/playlist/playlist.service';
   styleUrls: ['./add-playlist.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatError, MatButton],
 })
 export class AddPlaylistComponent implements OnInit {
   private route = inject(ActivatedRoute);

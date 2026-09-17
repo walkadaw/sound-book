@@ -1,5 +1,9 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { DatePipe } from '@angular/common';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 
 @Component({
@@ -8,7 +12,7 @@ import { PlayList, PlaylistService } from '../../services/playlist/playlist.serv
   styleUrls: ['./playlist.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [CdkDropList, CdkDrag, RouterLink, MatIconButton, CdkDragHandle, MatIcon, DatePipe],
 })
 export class PlaylistComponent {
   private playlistService = inject(PlaylistService);

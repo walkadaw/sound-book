@@ -19,10 +19,7 @@ export class LetContext<T> implements IContextWithImplicit<T> {
 /**
  * Works like *ngIf but does not have a condition — use it to declare the result of pipes calculation (i.e. async pipe)
  */
-@Directive({
-  selector: '[appLet]',
-  standalone: false,
-})
+@Directive({ selector: '[appLet]' })
 export class LetDirective<T> {
   @Input()
   appLet: T;

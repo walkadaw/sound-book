@@ -3,6 +3,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { combineLatest, fromEvent, Observable, Subject } from 'rxjs';
 import { debounceTime, filter, map, shareReplay, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { RouterLinkActive, RouterLink } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconButton } from '@angular/material/button';
+import { MatMenuTrigger, MatMenu, MatMenuContent } from '@angular/material/menu';
+import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -12,13 +17,27 @@ import { getShowMenu, getShowSongNumber } from '../../redux/selector/settings.se
 import { FuseService } from '../../services/fuse-service/fuse.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
+import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
+import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
 
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [
+    RouterLinkActive,
+    RouterLink,
+    MatIcon,
+    MatIconButton,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuContent,
+    PlaylistMenuComponent,
+    AsyncPipe,
+    UpperCasePipe,
+    ReplaceSpacePipe,
+  ],
 })
 export class MainPageComponent implements OnInit, OnDestroy {
   private fuseService = inject(FuseService);

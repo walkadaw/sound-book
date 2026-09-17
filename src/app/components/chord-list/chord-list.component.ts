@@ -1,6 +1,8 @@
 import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { Chord } from '../../services/chord/chord.interface';
 import { ChordList, ChordService } from '../../services/chord/chord.service';
+import { ChordVariationComponent } from '../chord-variation/chord-variation.component';
 
 @Component({
   selector: 'app-chord-list',
@@ -8,7 +10,7 @@ import { ChordList, ChordService } from '../../services/chord/chord.service';
   styleUrls: ['./chord-list.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [MatMenuTrigger, MatMenu, ChordVariationComponent],
 })
 export class ChordListComponent {
   private chordService = inject(ChordService);

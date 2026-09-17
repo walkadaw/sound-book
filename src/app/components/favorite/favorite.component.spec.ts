@@ -8,9 +8,8 @@ describe('FavoriteComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [FavoriteComponent],
-    })
-      .compileComponents();
+      imports: [FavoriteComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

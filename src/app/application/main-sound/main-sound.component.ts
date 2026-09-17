@@ -1,11 +1,15 @@
 import { Component, HostListener, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
 import { filter, map, startWith, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { AsyncPipe } from '@angular/common';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
+import { HeaderComponent } from '../../components/header/header.component';
+import { MainPageComponent } from '../../components/main-page/main-page.component';
+import { FooterComponent } from '../../components/footer/footer.component';
 
 @Component({
   selector: 'app-main-sound',
@@ -13,7 +17,7 @@ import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector
   styleUrls: ['./main-sound.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [HeaderComponent, MainPageComponent, RouterOutlet, FooterComponent, AsyncPipe],
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
   private store = inject<Store<IAppState>>(Store);

@@ -8,9 +8,8 @@ describe('PlaylistMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PlaylistMenuComponent],
-    })
-      .compileComponents();
+      imports: [PlaylistMenuComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

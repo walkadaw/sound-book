@@ -8,9 +8,8 @@ describe('PaperGeneratorComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [PaperGeneratorComponent],
-    })
-      .compileComponents();
+      imports: [PaperGeneratorComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

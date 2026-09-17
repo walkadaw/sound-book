@@ -1,13 +1,16 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, inject } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { Chord } from '../../services/chord/chord.interface';
 import { ChordService } from '../../services/chord/chord.service';
+import { ChordComponent } from '../kit/chord/chord.component';
 
 @Component({
   selector: 'app-chord-variation',
   templateUrl: './chord-variation.component.html',
   styleUrls: ['./chord-variation.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [ChordComponent, MatIconButton, MatIcon],
 })
 export class ChordVariationComponent implements OnChanges {
   chordService = inject(ChordService);

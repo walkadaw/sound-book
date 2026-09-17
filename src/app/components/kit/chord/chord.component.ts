@@ -1,6 +1,4 @@
-import {
-  ChangeDetectionStrategy, Component, Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CHORD_DATA } from '../../../services/chord/chord-list';
 import { Position } from '../../../services/chord/chord.interface';
 
@@ -32,28 +30,31 @@ interface ChordData {
   fretsOnChord: number;
   baseFret: number;
   barres: Barre[];
-  dots: Dot[],
+  dots: Dot[];
 }
 
 function onlyBarres(frets: number[], barre: number) {
-  return frets.map((f, index) => ({
-    position: index,
-    value: f,
-  })).filter((f) => f.value === barre);
+  return frets
+    .map((f, index) => ({
+      position: index,
+      value: f,
+    }))
+    .filter((f) => f.value === barre);
 }
 
 function onlyDots(chord: Position) {
-  return chord.frets.map((f, index) => ({
-    position: index,
-    value: f,
-  })).filter((f) => !chord.barres || chord.barres.indexOf(f.value) === -1);
+  return chord.frets
+    .map((f, index) => ({
+      position: index,
+      value: f,
+    }))
+    .filter((f) => !chord.barres || chord.barres.indexOf(f.value) === -1);
 }
 
 @Component({
-    selector: 'app-chord',
-    templateUrl: './chord.component.svg',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-chord',
+  templateUrl: './chord.component.svg',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChordComponent {
   @Input() set chord(chord: Position) {
@@ -67,13 +68,13 @@ export class ChordComponent {
 
   data: ChordData;
 
-  fretXPosition: {[key: string]: number[] } = {
+  fretXPosition: { [key: string]: number[] } = {
     4: [10, 20, 30, 40, 50],
     6: [0, 10, 20, 30, 40, 50],
   };
 
   fretYPosition = [2.35, 13.9, 26, 38];
-  offset: {[key: string]: number} = {
+  offset: { [key: string]: number } = {
     4: 0,
     6: -1,
   };
@@ -89,7 +90,7 @@ export class ChordComponent {
     fret: 4,
   };
 
-  offsets: {[key: string]: { x: number, y: number, length: number}} = {
+  offsets: { [key: string]: { x: number; y: number; length: number } } = {
     4: {
       x: 10,
       y: 10,
@@ -109,8 +110,16 @@ export class ChordComponent {
   }
 
   getNeckPath(strings: number, fretsOnChord: number) {
-    return Array(fretsOnChord + 1).fill(undefined).map((_, pos) => this.getNeckHorizonalLine(pos, strings)).join(' ')
-      .concat(Array(strings).fill(undefined).map((_, pos) => this.getNeckVerticalLine(pos, strings)).join(' '));
+    return Array(fretsOnChord + 1)
+      .fill(undefined)
+      .map((_, pos) => this.getNeckHorizonalLine(pos, strings))
+      .join(' ')
+      .concat(
+        Array(strings)
+          .fill(undefined)
+          .map((_, pos) => this.getNeckVerticalLine(pos, strings))
+          .join(' '),
+      );
   }
 
   getBarreOffset(strings: number, frets: number[], baseFret: number, capo: boolean) {
@@ -121,7 +130,8 @@ export class ChordComponent {
         }
 
         return -11;
-      } if (baseFret > 9) {
+      }
+      if (baseFret > 9) {
         return -10;
       }
 
@@ -181,7 +191,6 @@ export class ChordComponent {
         strings: this.instrument.strings,
         finger: chord.fingers && chord.fingers[fret.position],
       })),
-
     };
   }
 }

@@ -10,10 +10,17 @@ import {
   inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
+import { MatSelect, MatSelectTrigger } from '@angular/material/select';
+import { MatIcon } from '@angular/material/icon';
+import { MatOption } from '@angular/material/autocomplete';
+import { MatInput } from '@angular/material/input';
+import { MatIconButton } from '@angular/material/button';
+import { MatSuffix } from '@angular/material/form-field';
+import { AsyncPipe } from '@angular/common';
 import { IAppState } from '../../redux/models/IAppState';
 import { setSearchTermAction, clearSearchAction, setSelectedTagAction } from '../../redux/actions/search.actions';
 import { TagList, TAGS_LIST } from '../../constants/tag-list';
@@ -21,6 +28,7 @@ import { getCurrentValue } from '../utils/redux.utils';
 import { getShowMenu } from '../../redux/selector/settings.selector';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
+import { LetDirective } from '../../directives/let-directive/app-let.directive';
 
 @Component({
   selector: 'app-search-song',
@@ -29,7 +37,18 @@ import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selec
   encapsulation: ViewEncapsulation.None,
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    LetDirective,
+    MatSelect,
+    MatSelectTrigger,
+    MatIcon,
+    MatOption,
+    MatInput,
+    ReactiveFormsModule,
+    MatIconButton,
+    MatSuffix,
+    AsyncPipe,
+  ],
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
   private store = inject<Store<IAppState>>(Store);

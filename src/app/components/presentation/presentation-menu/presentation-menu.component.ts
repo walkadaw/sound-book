@@ -12,15 +12,18 @@ import {
   inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
 import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
+import { MatIcon } from '@angular/material/icon';
+import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
 import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
+import { LetDirective } from '../../../directives/let-directive/app-let.directive';
 
 @Component({
   selector: 'app-presentation-menu',
@@ -29,7 +32,7 @@ import { SongService } from '../../../services/song-service/song.service';
   encapsulation: ViewEncapsulation.None,
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, LetDirective, AsyncPipe],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   private fuseService = inject(FuseService);

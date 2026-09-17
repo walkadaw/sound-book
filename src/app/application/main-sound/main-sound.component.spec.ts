@@ -8,9 +8,8 @@ describe('MainSoundComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [MainSoundComponent],
-    })
-      .compileComponents();
+      imports: [MainSoundComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

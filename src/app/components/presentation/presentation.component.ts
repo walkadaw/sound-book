@@ -18,6 +18,7 @@ import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { RevealService } from '../../services/reveal-service/reveal.service';
 import { SlidesService } from '../../services/slides/slides.service';
 import { SongService } from '../../services/song-service/song.service';
+import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
 
 @Component({
   selector: 'app-presentation',
@@ -30,7 +31,7 @@ import { SongService } from '../../services/song-service/song.service';
   encapsulation: ViewEncapsulation.None,
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [PresentationMenuComponent],
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);

@@ -1,13 +1,22 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Validators, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { Validators, UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { SongService } from '../../services/song-service/song.service';
-import { Song } from '../../interfaces/song';
-import { FuseService } from '../../services/fuse-service/fuse.service';
-import { GeneratorService } from '../../services/generator-service/generator.service';
+import { MatCheckboxChange, MatCheckbox } from '@angular/material/checkbox';
+import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
+import { CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf } from '@angular/cdk/scrolling';
+import { AsyncPipe } from '@angular/common';
 import { TAGS_LIST } from '../../constants/tag-list';
+import { GeneratorService } from '../../services/generator-service/generator.service';
+import { FuseService } from '../../services/fuse-service/fuse.service';
+import { Song } from '../../interfaces/song';
+import { SongService } from '../../services/song-service/song.service';
 
 @Component({
   selector: 'app-paper-generator',
@@ -15,7 +24,26 @@ import { TAGS_LIST } from '../../constants/tag-list';
   styleUrls: ['./paper-generator.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    MatRadioGroup,
+    MatRadioButton,
+    MatCheckbox,
+    MatIcon,
+    MatTooltip,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatIconButton,
+    MatSuffix,
+    MatTabGroup,
+    MatTab,
+    CdkVirtualScrollViewport,
+    CdkFixedSizeVirtualScroll,
+    CdkVirtualForOf,
+    MatButton,
+    AsyncPipe,
+  ],
 })
 export class PaperGeneratorComponent implements OnInit {
   private formBuilder = inject(UntypedFormBuilder);

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Song } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
@@ -10,7 +11,7 @@ import { DuplicateService } from '../../../services/duplicate/duplicate.service'
   styleUrls: ['./admin.component.scss'],
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [RouterLink],
 })
 export class AdminComponent implements OnInit {
   private songService = inject(SongService);

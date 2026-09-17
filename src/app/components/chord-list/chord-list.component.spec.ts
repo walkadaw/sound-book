@@ -8,9 +8,8 @@ describe('ChordListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ChordListComponent],
-    })
-      .compileComponents();
+      imports: [ChordListComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation, inject }
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { AsyncPipe } from '@angular/common';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { Liturgy } from '../../interfaces/liturgy';
 
@@ -11,7 +13,7 @@ import { Liturgy } from '../../interfaces/liturgy';
   styleUrls: ['./liturgy.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [MatProgressSpinner, AsyncPipe],
 })
 export class LiturgyComponent implements OnInit {
   private liturgyService = inject(LiturgyService);

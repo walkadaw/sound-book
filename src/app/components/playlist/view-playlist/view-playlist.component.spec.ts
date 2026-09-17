@@ -8,9 +8,8 @@ describe('ViewPlaylistComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ViewPlaylistComponent],
-    })
-      .compileComponents();
+      imports: [ViewPlaylistComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

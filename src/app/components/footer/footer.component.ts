@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnIni
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+import { MatIcon } from '@angular/material/icon';
 
 interface JesusSay {
   content: string;
@@ -13,7 +14,7 @@ interface JesusSay {
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [MatIcon],
 })
 export class FooterComponent implements OnInit, OnDestroy {
   private router = inject(Router);
