@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
@@ -17,6 +17,8 @@ import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/simil
   selector: 'app-edit',
   templateUrl: './edit.component.html',
   styleUrls: ['./edit.component.scss'],
+  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class EditComponent implements OnInit, OnDestroy {
@@ -67,8 +69,8 @@ export class EditComponent implements OnInit, OnDestroy {
     const song: SongAdd = {
       id: songID,
       title: title.trim(),
-      text: content.text.trimRight(),
-      chord: content.chord.trimRight(),
+      text: content.text.trimEnd(),
+      chord: content.chord.trimEnd(),
       tag: Object.keys(tags)
         .filter((key) => tags[key])
         .join(','),

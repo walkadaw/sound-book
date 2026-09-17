@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
@@ -11,6 +11,8 @@ import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector
   selector: 'app-main-sound',
   templateUrl: './main-sound.component.html',
   styleUrls: ['./main-sound.component.scss'],
+  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class MainSoundComponent implements OnInit, OnDestroy {

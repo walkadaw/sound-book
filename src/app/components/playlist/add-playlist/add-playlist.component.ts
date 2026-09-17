@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
@@ -7,6 +7,8 @@ import { PlaylistService } from '../../../services/playlist/playlist.service';
   selector: 'app-add-playlist',
   templateUrl: './add-playlist.component.html',
   styleUrls: ['./add-playlist.component.scss'],
+  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class AddPlaylistComponent implements OnInit {

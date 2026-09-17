@@ -10,6 +10,7 @@ import {
   ElementRef,
   AfterViewInit,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
@@ -26,6 +27,8 @@ import { SongService } from '../../../services/song-service/song.service';
   templateUrl: './presentation-menu.component.html',
   styleUrls: ['./presentation-menu.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {

@@ -8,6 +8,7 @@ import {
   Output,
   EventEmitter,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
@@ -26,6 +27,8 @@ import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selec
   templateUrl: './search-song.component.html',
   styleUrls: ['./search-song.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class SearchSongComponent implements OnInit, OnDestroy {

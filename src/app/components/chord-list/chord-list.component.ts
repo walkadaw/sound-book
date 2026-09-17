@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Chord } from '../../services/chord/chord.interface';
 import { ChordList, ChordService } from '../../services/chord/chord.service';
 
@@ -6,6 +6,8 @@ import { ChordList, ChordService } from '../../services/chord/chord.service';
   selector: 'app-chord-list',
   templateUrl: './chord-list.component.html',
   styleUrls: ['./chord-list.component.scss'],
+  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ChordListComponent {

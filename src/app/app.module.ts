@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { NgModule, inject, provideAppInitializer } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -66,7 +66,8 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     PartOfMassComponent,
   ],
   bootstrap: [AppComponent],
-  imports: [BrowserModule,
+  imports: [
+    BrowserModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
     AppRoutingModule,
@@ -84,13 +85,14 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     HeaderModule,
     PlaylistMenuModule,
-    ChordModule],
+    ChordModule,
+  ],
   providers: [
     provideAppInitializer(() => {
-        const initializerFn = (startUpFactory)(inject(StartUpService));
-        return initializerFn();
-      }),
-    provideHttpClient(withInterceptorsFromDi()),
+      const initializerFn = startUpFactory(inject(StartUpService));
+      return initializerFn();
+    }),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
   ],
 })
 export class AppModule {}

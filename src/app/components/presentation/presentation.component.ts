@@ -1,5 +1,14 @@
 import { Location } from '@angular/common';
-import { AfterViewInit, Component, OnDestroy, OnInit, Renderer2, ViewEncapsulation, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewEncapsulation,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
@@ -19,6 +28,8 @@ import { SongService } from '../../services/song-service/song.service';
     '../../../assets/css/theme/blood.css',
   ],
   encapsulation: ViewEncapsulation.None,
+  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {

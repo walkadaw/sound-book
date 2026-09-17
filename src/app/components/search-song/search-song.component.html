@@ -7,7 +7,7 @@
 >
   <mat-select-trigger>
     @if (tagsList[selected]?.icon) {
-      <mat-icon [svgIcon]="tagsList[selected]?.icon"></mat-icon>
+      <mat-icon [svgIcon]="$safeNavigationMigration(tagsList[selected]?.icon)"></mat-icon>
     }
     @if (!tagsList[selected]?.icon) {
       <mat-icon>search</mat-icon>
@@ -37,7 +37,7 @@
   (focus)="onFocusInput()"
 />
 @if (searchTerm.value) {
-  <button mat-button class="clear-icon" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
+  <button class="clear-icon" matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
     <mat-icon>close</mat-icon>
   </button>
 }

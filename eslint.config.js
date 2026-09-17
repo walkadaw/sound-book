@@ -79,6 +79,9 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-shadow': 'error',
       // Standalone-компоненты вне scope апгрейда — весь проект остаётся на NgModule.
       '@angular-eslint/prefer-standalone': 'off',
+      // Переход на OnPush — поведенческое изменение, требует регресс-тестирования;
+      // отложено (см. TODO у каждого затронутого компонента).
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
   {
