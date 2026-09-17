@@ -77,6 +77,8 @@ module.exports = tseslint.config(
       '@typescript-eslint/unified-signatures': 'error',
       'no-shadow': 'off',
       '@typescript-eslint/no-shadow': 'error',
+      // Standalone-компоненты вне scope апгрейда — весь проект остаётся на NgModule.
+      '@angular-eslint/prefer-standalone': 'off',
     },
   },
   {
