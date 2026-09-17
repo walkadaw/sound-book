@@ -4,5 +4,19 @@
   "parser": "typescript",
   "semi": true,
   "bracketSpacing": true,
-  "singleQuote": true
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": "*.component.html",
+      "options": {
+        "parser": "angular"
+      }
+    },
+     {
+      "files": "*.component.scss",
+      "options": {
+        "parser": "scss"
+      }
+    }
+  ]
 }
