@@ -59,7 +59,7 @@ export class EditComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject<void>();
 
   get songID(): number {
-    return +this.route.snapshot.params.id;
+    return +this.route.snapshot.params['id'];
   }
 
   ngOnInit(): void {

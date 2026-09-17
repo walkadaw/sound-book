@@ -126,7 +126,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadSlide() {
-    const listID = ((this.activatedRoute.snapshot.params.id as string) || '').split(',');
+    const listID = ((this.activatedRoute.snapshot.params['id'] as string) || '').split(',');
     forkJoin([this.liturgyService.loadSlideForLiturgy(), this.songService.loadSongFromCache()])
       .pipe(takeUntil(this.onDestroy$))
       .subscribe(() => {

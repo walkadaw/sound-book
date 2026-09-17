@@ -20,7 +20,7 @@ export class AddPlaylistComponent implements OnInit {
   private router = inject(Router);
 
   playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);
-  playlistId = this.route.snapshot?.params?.playlistId;
+  playlistId = this.route.snapshot?.params?.['playlistId'];
 
   ngOnInit(): void {
     if (this.playlistId) {
@@ -49,7 +49,7 @@ export class AddPlaylistComponent implements OnInit {
   }
 
   private create() {
-    const songId: string = this.route.snapshot?.params?.songId;
+    const songId: string = this.route.snapshot?.params?.['songId'];
     const playlist = this.playlistService.createPlaylist(this.playlistControl.value, songId ? [songId] : []);
 
     this.router.navigate(['/', 'playlist', playlist.dateCreate, playlist.name, playlist.songList.join(',')]);

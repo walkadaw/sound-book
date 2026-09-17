@@ -144,7 +144,7 @@ export class ViewPlaylistComponent implements OnInit {
   }
 
   private getCurrentPlaylist(): PlayList {
-    const playListId = this.route.snapshot.params.createdDate;
+    const playListId = this.route.snapshot.params['createdDate'];
     return this.playListService.getPlaylist(playListId);
   }
 }
