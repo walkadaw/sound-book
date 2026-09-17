@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -65,11 +65,10 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     LoginComponent,
     PartOfMassComponent,
   ],
-  imports: [
-    BrowserModule,
+  bootstrap: [AppComponent],
+  imports: [BrowserModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
-    HttpClientModule,
     AppRoutingModule,
     // redux
     StoreModule.forRoot({
@@ -85,8 +84,7 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     HeaderModule,
     PlaylistMenuModule,
-    ChordModule,
-  ],
+    ChordModule],
   providers: [
     {
       provide: APP_INITIALIZER,
@@ -94,7 +92,7 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
       deps: [StartUpService],
       multi: true,
     },
+    provideHttpClient(withInterceptorsFromDi()),
   ],
-  bootstrap: [AppComponent],
 })
 export class AppModule {}

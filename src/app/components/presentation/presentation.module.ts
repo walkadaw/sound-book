@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RouterModule, Routes } from '@angular/router';
 import { PresentationComponent } from './presentation.component';
 import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
@@ -18,16 +18,13 @@ const presentationRoutes: Routes = [
 
 @NgModule({
   declarations: [PresentationComponent, PresentationMenuComponent],
-  imports: [
-    CommonModule,
+  imports: [CommonModule,
     ReactiveFormsModule,
     MatModule,
     SongModule,
     LiturgyModule,
-    HttpClientModule,
     LetDirectiveModule,
-    RouterModule.forChild(presentationRoutes),
-  ],
-  providers: [RevealService],
+    RouterModule.forChild(presentationRoutes)],
+  providers: [RevealService, provideHttpClient(withInterceptorsFromDi())],
 })
 export class PresentationModule {}
