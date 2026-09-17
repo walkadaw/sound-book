@@ -112,7 +112,7 @@ export class ViewPlaylistComponent implements OnInit {
 
     try {
       await navigator.share(shareData);
-    } catch (err) {
+    } catch {
       this.snackBar.open('Нешта пайшло не так', 'Зацынить', { duration: 2000 });
     }
   }

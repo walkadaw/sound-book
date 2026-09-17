@@ -4,12 +4,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { MatModule } from '../../mat.module';
 import { HeaderModule } from '../header/header.module';
+import { DiffResultComponent } from '../diff-result/diff-result.component';
+import { SimilarSongDialogComponent } from '../similar-song-dialog copy/similar-song-dialog.component';
 import { AdminComponent } from './admin/admin.component';
 import { EditSongComponent } from './edit/edit-song/edit-song.component';
 import { EditComponent } from './edit/edit.component';
 import { LoadSongResolver } from './edit/load-song.resolver';
-import { DiffResultComponent } from '../diff-result/diff-result.component';
-import { SimilarSongDialogComponent } from '../similar-song-dialog copy/similar-song-dialog.component';
 
 const adminRoutes: Routes = [
   {

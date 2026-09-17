@@ -25,7 +25,7 @@ export class PlaylistService {
 
     try {
       result = JSON.parse(window.localStorage.getItem(PLAYLIST_KEY)) || [];
-    } catch (error) {
+    } catch {
       result = [];
     }
 
