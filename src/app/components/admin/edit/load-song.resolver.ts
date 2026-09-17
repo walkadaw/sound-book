@@ -1,13 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { ActivatedRouteSnapshot, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, Resolve, Router } from '@angular/router';
 import { catchError, Observable, of } from 'rxjs';
 import { Song } from '../../../interfaces/song';
 import { SongService } from '../../../services/song-service/song.service';
 
 @Injectable({
-  providedIn: 'any',
+  providedIn: 'root',
 })
-export class LoadSongResolver {
+export class LoadSongResolver implements Resolve<Song> {
   private songService = inject(SongService);
   private router = inject(Router);
 

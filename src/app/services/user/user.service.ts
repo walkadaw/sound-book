@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Router, UrlTree } from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { BehaviorSubject, catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -9,7 +9,7 @@ const checkAuth = 'auth';
 @Injectable({
   providedIn: 'root',
 })
-export class UserService {
+export class UserService implements CanActivate {
   private http = inject(HttpClient);
   private router = inject(Router);
 
