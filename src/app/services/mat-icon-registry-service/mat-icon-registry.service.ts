@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -15,9 +15,7 @@ export const svgMatIcons = {
   'icon-parts-of-mass': 'assets/icons/icon-parts-of-mass.svg',
 };
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class MatIconRegistryService {
   private matIconRegistry = inject(MatIconRegistry);
   private sanitizer = inject(DomSanitizer);

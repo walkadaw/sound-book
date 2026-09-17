@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { CHORD_DATA } from './chord-list';
 import { CHORD_TRANSPILATION } from './chord-transpitaliton';
 import { Chord, Chords } from './chord.interface';
@@ -11,9 +11,7 @@ export interface ChordList {
   type: 'text' | 'chord';
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class ChordService {
   hasChord(dirtyChord: string): boolean {
     return !!this.getChord(dirtyChord);

@@ -1,10 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { SongService } from '../services/song-service/song.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class HasSongGuard {
   private songService = inject(SongService);
   private route = inject(Router);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface PlayList {
@@ -10,9 +10,7 @@ export interface PlayList {
 
 const PLAYLIST_KEY = 'playlists';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class PlaylistService {
   playlists$: BehaviorSubject<PlayList[]> = new BehaviorSubject(this.getAllPlaylists());
 

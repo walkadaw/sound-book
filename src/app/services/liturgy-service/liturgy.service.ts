@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, switchMap } from 'rxjs/operators';
 import { of, Observable, iif } from 'rxjs';
@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { Liturgy } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 
-@Injectable()
+@Service()
 export class LiturgyService {
   private http = inject(HttpClient);
 

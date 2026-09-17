@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 // @ts-expect-error no ts
 import Reveal from 'reveal.js';
 import { fromEvent, Observable } from 'rxjs';
@@ -10,7 +10,7 @@ interface NotesPlugin {
   open: () => void;
 }
 
-@Injectable()
+@Service()
 export class RevealService {
   private reveal: Reveal;
 

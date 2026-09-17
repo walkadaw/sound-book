@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import Fuse from 'fuse.js';
 import { Observable } from 'rxjs';
 import {
@@ -13,9 +13,7 @@ const REPLACE_SIMILAR_CHAR: { [key: string]: string } = {
 };
 const REPLACE_SIMILAR_CHAR_REGEXP = new RegExp(`[${Object.keys(REPLACE_SIMILAR_CHAR).join('')}]`, 'gi');
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class FuseService {
   getFilteredSong(
     selectedTags$: Observable<number>,

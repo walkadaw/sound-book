@@ -4,10 +4,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { RouterModule, Routes } from '@angular/router';
 
-import { SongModule } from '../../services/song-service/song.module';
-import { RevealService } from '../../services/reveal-service/reveal.service';
-
-import { LiturgyModule } from '../../services/liturgy-service/liturgy.module';
 import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
 import { PresentationComponent } from './presentation.component';
 
@@ -20,12 +16,10 @@ const presentationRoutes: Routes = [
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    SongModule,
-    LiturgyModule,
     RouterModule.forChild(presentationRoutes),
     PresentationComponent,
     PresentationMenuComponent,
   ],
-  providers: [RevealService, provideHttpClient(withXhr(), withInterceptorsFromDi())],
+  providers: [provideHttpClient(withXhr(), withInterceptorsFromDi())],
 })
 export class PresentationModule {}

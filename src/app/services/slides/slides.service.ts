@@ -1,13 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import {
   BehaviorSubject,
   filter, takeUntil, timer,
 } from 'rxjs';
 import { Slide } from '../../interfaces/slide';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class SlidesService {
   static readonly AVAILABLE_WIDTH = 1050;
   static readonly AVAILABLE_HEIGHT = 590;

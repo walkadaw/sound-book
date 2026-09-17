@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 import { setFavoriteAction } from '../../redux/actions/favorite.actions';
@@ -16,9 +16,7 @@ import { MatIconRegistryService } from '../mat-icon-registry-service/mat-icon-re
 import { SongService } from '../song-service/song.service';
 import { UserService } from '../user/user.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class StartUpService {
   private matRegisterIcon = inject(MatIconRegistryService);
   private songService = inject(SongService);

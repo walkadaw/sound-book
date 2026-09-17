@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class GeneratorService {
   getDocX(songs: number[], options: any): void {
     const form = document.createElement('form');

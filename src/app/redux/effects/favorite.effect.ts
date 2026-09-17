@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { tap, withLatestFrom } from 'rxjs/operators';
@@ -6,7 +6,7 @@ import { toggleFavoriteAction } from '../actions/favorite.actions';
 import { IAppState } from '../models/IAppState';
 import { getFavoriteState } from '../selector/favorite.selector';
 
-@Injectable()
+@Service()
 export class FavoriteEffects {
   private actions$ = inject(Actions);
   private store = inject<Store<IAppState>>(Store);

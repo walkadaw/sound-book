@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { distance } from 'fastest-levenshtein';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class DuplicateService {
   isSimilar(x: string, y: string): boolean {
     const levenshteinDis = distance(x, y);

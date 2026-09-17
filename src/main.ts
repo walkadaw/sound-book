@@ -21,8 +21,6 @@ import { settingsReducer } from './app/redux/reducers/settings.reducer';
 import { favoriteReducer } from './app/redux/reducers/favorite.reducer';
 import { FavoriteEffects } from './app/redux/effects/favorite.effect';
 import { WakeLockService } from './app/services/wakelock/wake-lock.service';
-import { LiturgyModule } from './app/services/liturgy-service/liturgy.module';
-import { SongModule } from './app/services/song-service/song.module';
 import { AppComponent } from './app/application/app.component';
 
 if (environment.production) {
@@ -41,8 +39,6 @@ bootstrapApplication(AppComponent, {
         favorite: favoriteReducer,
       }),
       EffectsModule.forRoot([FavoriteEffects, WakeLockService]),
-      LiturgyModule,
-      SongModule,
       ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     ),
     provideAppInitializer(() => {
