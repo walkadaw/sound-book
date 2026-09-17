@@ -8,11 +8,12 @@ import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { Liturgy } from '../../interfaces/liturgy';
 
 @Component({
-  selector: 'app-liturgy',
-  templateUrl: './liturgy.component.html',
-  styleUrls: ['./liturgy.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-liturgy',
+    templateUrl: './liturgy.component.html',
+    styleUrls: ['./liturgy.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class LiturgyComponent implements OnInit {
   liturgy$: Observable<Liturgy>;

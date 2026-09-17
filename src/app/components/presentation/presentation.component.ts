@@ -13,14 +13,15 @@ import { SlidesService } from '../../services/slides/slides.service';
 import { SongService } from '../../services/song-service/song.service';
 
 @Component({
-  selector: 'app-presentation',
-  templateUrl: './presentation.component.html',
-  styleUrls: [
-    './presentation.component.scss',
-    '../../../assets/css/reveal.scss',
-    '../../../assets/css/theme/blood.css',
-  ],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-presentation',
+    templateUrl: './presentation.component.html',
+    styleUrls: [
+        './presentation.component.scss',
+        '../../../assets/css/reveal.scss',
+        '../../../assets/css/theme/blood.css',
+    ],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   slideList: SlideList[];

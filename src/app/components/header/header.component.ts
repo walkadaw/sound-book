@@ -30,10 +30,11 @@ const MAX_FONT_SIZE = 2;
 const DEFAULT_FONT_SIZE = 1;
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class HeaderComponent {
   showChord = getCurrentValue(this.store, getShowChord);

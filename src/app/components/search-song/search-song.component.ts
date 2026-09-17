@@ -23,10 +23,11 @@ import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
 
 @Component({
-  selector: 'app-search-song',
-  templateUrl: './search-song.component.html',
-  styleUrls: ['./search-song.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-search-song',
+    templateUrl: './search-song.component.html',
+    styleUrls: ['./search-song.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
   @ViewChild('search', { read: ElementRef }) searchElement: ElementRef<HTMLElement>;

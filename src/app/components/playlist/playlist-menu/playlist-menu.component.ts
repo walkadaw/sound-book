@@ -6,9 +6,10 @@ import { PlayList, PlaylistService } from '../../../services/playlist/playlist.s
 import { UserService } from '../../../services/user/user.service';
 
 @Component({
-  selector: 'app-playlist-menu',
-  templateUrl: './playlist-menu.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-playlist-menu',
+    templateUrl: './playlist-menu.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class PlaylistMenuComponent {
   @Input() songId?: number;

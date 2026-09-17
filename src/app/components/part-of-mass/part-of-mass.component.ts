@@ -11,10 +11,11 @@ import { SelectedSong } from '../song-details/song-details.component';
 const TAG_PAST_OF_MASS = 10;
 
 @Component({
-  selector: 'app-part-of-mass',
-  templateUrl: './part-of-mass.component.html',
-  styleUrls: ['./part-of-mass.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-part-of-mass',
+    templateUrl: './part-of-mass.component.html',
+    styleUrls: ['./part-of-mass.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class PartOfMassComponent implements OnInit {
   showChord$ = this.store.select(getShowChord);

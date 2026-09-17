@@ -4,9 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
 
 @Component({
-  selector: 'app-add-playlist',
-  templateUrl: './add-playlist.component.html',
-  styleUrls: ['./add-playlist.component.scss'],
+    selector: 'app-add-playlist',
+    templateUrl: './add-playlist.component.html',
+    styleUrls: ['./add-playlist.component.scss'],
+    standalone: false
 })
 export class AddPlaylistComponent implements OnInit {
   playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);

@@ -1,5 +1,5 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule, inject, provideAppInitializer } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -86,12 +86,10 @@ import { WakeLockService } from './services/wakelock/wake-lock.service';
     PlaylistMenuModule,
     ChordModule],
   providers: [
-    {
-      provide: APP_INITIALIZER,
-      useFactory: startUpFactory,
-      deps: [StartUpService],
-      multi: true,
-    },
+    provideAppInitializer(() => {
+        const initializerFn = (startUpFactory)(inject(StartUpService));
+        return initializerFn();
+      }),
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })

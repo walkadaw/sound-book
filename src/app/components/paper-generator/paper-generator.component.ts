@@ -10,9 +10,10 @@ import { GeneratorService } from '../../services/generator-service/generator.ser
 import { TAGS_LIST } from '../../constants/tag-list';
 
 @Component({
-  selector: 'app-paper-generator',
-  templateUrl: './paper-generator.component.html',
-  styleUrls: ['./paper-generator.component.scss'],
+    selector: 'app-paper-generator',
+    templateUrl: './paper-generator.component.html',
+    styleUrls: ['./paper-generator.component.scss'],
+    standalone: false
 })
 export class PaperGeneratorComponent implements OnInit {
   songListForm: UntypedFormGroup;

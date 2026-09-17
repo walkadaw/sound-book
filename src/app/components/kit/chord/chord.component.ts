@@ -50,9 +50,10 @@ function onlyDots(chord: Position) {
 }
 
 @Component({
-  selector: 'app-chord',
-  templateUrl: './chord.component.svg',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-chord',
+    templateUrl: './chord.component.svg',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ChordComponent {
   @Input() set chord(chord: Position) {

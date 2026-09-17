@@ -24,10 +24,11 @@ export interface SelectedSong {
 }
 
 @Component({
-  selector: 'app-song-details',
-  templateUrl: './song-details.component.html',
-  styleUrls: ['./song-details.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-song-details',
+    templateUrl: './song-details.component.html',
+    styleUrls: ['./song-details.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SongDetailsComponent implements OnInit {
   selectedSong$: Observable<SelectedSong>;

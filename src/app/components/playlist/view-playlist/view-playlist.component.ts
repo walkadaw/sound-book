@@ -13,10 +13,11 @@ import { PlayList, PlaylistService } from '../../../services/playlist/playlist.s
 import { SongService } from '../../../services/song-service/song.service';
 
 @Component({
-  selector: 'app-view-playlist',
-  templateUrl: './view-playlist.component.html',
-  styleUrls: ['./view-playlist.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-view-playlist',
+    templateUrl: './view-playlist.component.html',
+    styleUrls: ['./view-playlist.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ViewPlaylistComponent implements OnInit {
   playlistData$: Observable<PlayList & { songs: Song[] }>;

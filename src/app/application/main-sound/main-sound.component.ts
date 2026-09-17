@@ -12,9 +12,10 @@ import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
 
 @Component({
-  selector: 'app-main-sound',
-  templateUrl: './main-sound.component.html',
-  styleUrls: ['./main-sound.component.scss'],
+    selector: 'app-main-sound',
+    templateUrl: './main-sound.component.html',
+    styleUrls: ['./main-sound.component.scss'],
+    standalone: false
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
   showMenu$: Observable<boolean>;

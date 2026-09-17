@@ -4,10 +4,11 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'app-song-key',
-  templateUrl: './song-key.component.html',
-  styleUrls: ['./song-key.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-song-key',
+    templateUrl: './song-key.component.html',
+    styleUrls: ['./song-key.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SongKeyComponent {
   @Input() selectedTranspilation = 0;

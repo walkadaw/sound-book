@@ -12,9 +12,10 @@ import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 
 @Component({
-  selector: 'app-favorite',
-  templateUrl: './favorite.component.html',
-  styleUrls: ['./favorite.component.scss'],
+    selector: 'app-favorite',
+    templateUrl: './favorite.component.html',
+    styleUrls: ['./favorite.component.scss'],
+    standalone: false
 })
 export class FavoriteComponent implements OnInit {
   songFavoriteList$: Observable<SongFavorite[]>;

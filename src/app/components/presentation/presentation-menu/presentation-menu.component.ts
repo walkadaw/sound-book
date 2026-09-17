@@ -25,10 +25,11 @@ import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
 
 @Component({
-  selector: 'app-presentation-menu',
-  templateUrl: './presentation-menu.component.html',
-  styleUrls: ['./presentation-menu.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-presentation-menu',
+    templateUrl: './presentation-menu.component.html',
+    styleUrls: ['./presentation-menu.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() slideList: SlideList[];

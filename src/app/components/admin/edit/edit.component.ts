@@ -18,9 +18,10 @@ import { DuplicateService } from '../../../services/duplicate/duplicate.service'
 import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/similar-song-dialog.component';
 
 @Component({
-  selector: 'app-edit',
-  templateUrl: './edit.component.html',
-  styleUrls: ['./edit.component.scss'],
+    selector: 'app-edit',
+    templateUrl: './edit.component.html',
+    styleUrls: ['./edit.component.scss'],
+    standalone: false
 })
 export class EditComponent implements OnInit, OnDestroy {
   readonly tagList = TAGS_LIST;

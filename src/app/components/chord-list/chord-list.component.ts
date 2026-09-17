@@ -3,9 +3,10 @@ import { Chord } from '../../services/chord/chord.interface';
 import { ChordList, ChordService } from '../../services/chord/chord.service';
 
 @Component({
-  selector: 'app-chord-list',
-  templateUrl: './chord-list.component.html',
-  styleUrls: ['./chord-list.component.scss'],
+    selector: 'app-chord-list',
+    templateUrl: './chord-list.component.html',
+    styleUrls: ['./chord-list.component.scss'],
+    standalone: false
 })
 export class ChordListComponent {
   @Input() set chords(list: string | string[]) {

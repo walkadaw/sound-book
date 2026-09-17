@@ -3,9 +3,10 @@ import { Component } from '@angular/core';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 
 @Component({
-  selector: 'app-playlist',
-  templateUrl: './playlist.component.html',
-  styleUrls: ['./playlist.component.scss'],
+    selector: 'app-playlist',
+    templateUrl: './playlist.component.html',
+    styleUrls: ['./playlist.component.scss'],
+    standalone: false
 })
 export class PlaylistComponent {
   playlists: PlayList[] = this.playlistService.playlists;

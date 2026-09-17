@@ -8,15 +8,15 @@ import {
 } from 'rxjs';
 
 @Component({
-  selector: 'app-edit-song',
-  templateUrl: './edit-song.component.html',
-  styleUrls: ['./edit-song.component.scss'],
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-     
-    useExisting: forwardRef(() => EditSongComponent),
-    multi: true,
-  }],
+    selector: 'app-edit-song',
+    templateUrl: './edit-song.component.html',
+    styleUrls: ['./edit-song.component.scss'],
+    providers: [{
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => EditSongComponent),
+            multi: true,
+        }],
+    standalone: false
 })
 export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
   @ViewChild('lineCounter') lineCounter: ElementRef<HTMLTextAreaElement>;

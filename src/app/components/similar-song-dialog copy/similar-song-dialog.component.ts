@@ -16,10 +16,11 @@ interface DiffResult {
 }
 
 @Component({
-  selector: 'app-similar-song-dialog',
-  templateUrl: './similar-song-dialog.component.html',
-  styleUrls: ['./similar-song-dialog.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-similar-song-dialog',
+    templateUrl: './similar-song-dialog.component.html',
+    styleUrls: ['./similar-song-dialog.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SimilarSongDialogComponent implements OnInit {
   diffs: DiffResult[];
