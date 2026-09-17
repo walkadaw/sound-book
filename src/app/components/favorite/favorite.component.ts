@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -12,21 +12,19 @@ import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 
 @Component({
-    selector: 'app-favorite',
-    templateUrl: './favorite.component.html',
-    styleUrls: ['./favorite.component.scss'],
-    standalone: false
+  selector: 'app-favorite',
+  templateUrl: './favorite.component.html',
+  styleUrls: ['./favorite.component.scss'],
+  standalone: false,
 })
 export class FavoriteComponent implements OnInit {
+  private songService = inject(SongService);
+  private store = inject<Store<IAppState>>(Store);
+  private snackBar = inject(MatSnackBar);
+  private playlistService = inject(PlaylistService);
+
   songFavoriteList$: Observable<SongFavorite[]>;
   showSongNumber$ = this.store.select(getShowSongNumber);
-
-  constructor(
-    private songService: SongService,
-    private store: Store<IAppState>,
-    private snackBar: MatSnackBar,
-    private playlistService: PlaylistService,
-  ) {}
 
   ngOnInit(): void {
     this.songFavoriteList$ = this.store

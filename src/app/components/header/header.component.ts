@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -16,7 +16,10 @@ import {
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import {
-  getChordPosition, getEnableNoSleep, getFontSize, getShowChord,
+  getChordPosition,
+  getEnableNoSleep,
+  getFontSize,
+  getShowChord,
   getShowMenu,
   getShowSongNumber,
 } from '../../redux/selector/settings.selector';
@@ -30,13 +33,19 @@ const MAX_FONT_SIZE = 2;
 const DEFAULT_FONT_SIZE = 1;
 
 @Component({
-    selector: 'app-header',
-    templateUrl: './header.component.html',
-    styleUrls: ['./header.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class HeaderComponent {
+  songService = inject(SongService);
+  private userService = inject(UserService);
+  private store = inject<Store<IAppState>>(Store);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+
   showChord = getCurrentValue(this.store, getShowChord);
   enableNoSleep = getCurrentValue(this.store, getEnableNoSleep);
   chordPosition = getCurrentValue(this.store, getChordPosition);
@@ -45,14 +54,6 @@ export class HeaderComponent {
   isAuth$ = this.userService.isAuth$;
 
   searchInputInFocus = false;
-
-  constructor(
-    public songService: SongService,
-    private userService: UserService,
-    private store: Store<IAppState>,
-    private snackBar: MatSnackBar,
-    private router: Router,
-  ) {}
 
   toggleSongNumber(event: MatSlideToggleChange): void {
     this.showSongNumber = event.checked;
@@ -118,19 +119,22 @@ export class HeaderComponent {
   updateSong(event: MouseEvent) {
     event.preventDefault();
 
-    this.songService.loadSongs().pipe(
-      catchError(() => {
-        this.snackBar.open('Адбылася памылка падчас абнаўлення', 'Зачыніць', {
+    this.songService
+      .loadSongs()
+      .pipe(
+        catchError(() => {
+          this.snackBar.open('Адбылася памылка падчас абнаўлення', 'Зачыніць', {
+            duration: 2000,
+          });
+
+          return EMPTY;
+        }),
+      )
+      .subscribe(() => {
+        this.snackBar.open('Дадзеныя паспяхова абноўленыя', 'Зачыніць', {
           duration: 2000,
         });
-
-        return EMPTY;
-      }),
-    ).subscribe(() => {
-      this.snackBar.open('Дадзеныя паспяхова абноўленыя', 'Зачыніць', {
-        duration: 2000,
       });
-    });
   }
 
   goToPlaylist(playlist: PlayList) {

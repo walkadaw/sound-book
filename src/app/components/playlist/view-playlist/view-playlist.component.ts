@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -13,29 +13,27 @@ import { PlayList, PlaylistService } from '../../../services/playlist/playlist.s
 import { SongService } from '../../../services/song-service/song.service';
 
 @Component({
-    selector: 'app-view-playlist',
-    templateUrl: './view-playlist.component.html',
-    styleUrls: ['./view-playlist.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-view-playlist',
+  templateUrl: './view-playlist.component.html',
+  styleUrls: ['./view-playlist.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class ViewPlaylistComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private songService = inject(SongService);
+  private store = inject<Store<IAppState>>(Store);
+  private playListService = inject(PlaylistService);
+  private clipboard = inject(Clipboard);
+  private snackBar = inject(MatSnackBar);
+
   playlistData$: Observable<PlayList & { songs: Song[] }>;
 
   showSongNumber$ = this.store.select(getShowSongNumber);
   showChord$ = this.store.select(getShowChord);
 
   canShare = !!navigator.share;
-
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private songService: SongService,
-    private store: Store<IAppState>,
-    private playListService: PlaylistService,
-    private clipboard: Clipboard,
-    private snackBar: MatSnackBar,
-  ) { }
 
   ngOnInit(): void {
     this.playlistData$ = this.route.params.pipe(

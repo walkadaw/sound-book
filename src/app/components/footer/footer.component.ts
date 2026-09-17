@@ -1,23 +1,24 @@
-import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
 interface JesusSay {
-  content: string,
-  alias: string
+  content: string;
+  alias: string;
 }
 
 @Component({
-    selector: 'app-footer',
-    templateUrl: './footer.component.html',
-    styleUrls: ['./footer.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-footer',
+  templateUrl: './footer.component.html',
+  styleUrls: ['./footer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class FooterComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
   words!: JesusSay | null;
   /* eslint-disable max-len */
   private listWords: JesusSay[] = [
@@ -30,11 +31,13 @@ export class FooterComponent implements OnInit, OnDestroy {
       alias: 'Филиппийцам 4:4',
     },
     {
-      content: 'И когда стоите на молитве, прощайте, если что имеете на кого, дабы и Отец ваш Небесный простил вам согрешения ваши.',
+      content:
+        'И когда стоите на молитве, прощайте, если что имеете на кого, дабы и Отец ваш Небесный простил вам согрешения ваши.',
       alias: 'Марка 11:25',
     },
     {
-      content: 'Просите и воздастся вам, ищите и найдёте. Стучитесь и дверь отворится перед вами. Кто просит, получит; кто ищет, всегда найдёт; и откроется дверь перед тем, кто стучится',
+      content:
+        'Просите и воздастся вам, ищите и найдёте. Стучитесь и дверь отворится перед вами. Кто просит, получит; кто ищет, всегда найдёт; и откроется дверь перед тем, кто стучится',
       alias: 'Матфея 7:7-8',
     },
     {
@@ -74,18 +77,15 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   private onDestroy$ = new Subject<void>();
 
-  constructor(
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-  ) {}
-
   ngOnInit() {
-    this.router.events.pipe(
-      filter((data) => data instanceof NavigationEnd),
-      takeUntil(this.onDestroy$),
-    ).subscribe(() => {
-      this.close();
-    });
+    this.router.events
+      .pipe(
+        filter((data) => data instanceof NavigationEnd),
+        takeUntil(this.onDestroy$),
+      )
+      .subscribe(() => {
+        this.close();
+      });
   }
 
   ngOnDestroy() {

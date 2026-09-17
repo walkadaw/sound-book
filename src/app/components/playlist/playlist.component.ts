@@ -1,19 +1,17 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 
 @Component({
-    selector: 'app-playlist',
-    templateUrl: './playlist.component.html',
-    styleUrls: ['./playlist.component.scss'],
-    standalone: false
+  selector: 'app-playlist',
+  templateUrl: './playlist.component.html',
+  styleUrls: ['./playlist.component.scss'],
+  standalone: false,
 })
 export class PlaylistComponent {
-  playlists: PlayList[] = this.playlistService.playlists;
+  private playlistService = inject(PlaylistService);
 
-  constructor(
-    private playlistService: PlaylistService,
-  ) { }
+  playlists: PlayList[] = this.playlistService.playlists;
 
   drop(event: CdkDragDrop<PlayList[]>) {
     moveItemInArray(this.playlists, event.previousIndex, event.currentIndex);

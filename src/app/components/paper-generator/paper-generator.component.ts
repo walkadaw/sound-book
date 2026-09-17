@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Validators, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -10,22 +10,20 @@ import { GeneratorService } from '../../services/generator-service/generator.ser
 import { TAGS_LIST } from '../../constants/tag-list';
 
 @Component({
-    selector: 'app-paper-generator',
-    templateUrl: './paper-generator.component.html',
-    styleUrls: ['./paper-generator.component.scss'],
-    standalone: false
+  selector: 'app-paper-generator',
+  templateUrl: './paper-generator.component.html',
+  styleUrls: ['./paper-generator.component.scss'],
+  standalone: false,
 })
 export class PaperGeneratorComponent implements OnInit {
+  private formBuilder = inject(UntypedFormBuilder);
+  private songService = inject(SongService);
+  private fuseService = inject(FuseService);
+  private generatorService = inject(GeneratorService);
+
   songListForm: UntypedFormGroup;
   songListFiltered$: Observable<Song[]>;
   selectedSongList$: Observable<Song[]>;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private songService: SongService,
-    private fuseService: FuseService,
-    private generatorService: GeneratorService,
-  ) {}
 
   ngOnInit() {
     this.songListForm = this.formBuilder.group({
@@ -48,9 +46,11 @@ export class PaperGeneratorComponent implements OnInit {
 
     this.selectedSongList$ = this.songListForm.get('selectedSong').valueChanges.pipe(
       startWith(this.songListForm.get('selectedSong').value),
-      map((selectedSong) => Object.entries(selectedSong)
-        .filter(([, value]) => value)
-        .map(([key]) => this.songService.getSong(key))),
+      map((selectedSong) =>
+        Object.entries(selectedSong)
+          .filter(([, value]) => value)
+          .map(([key]) => this.songService.getSong(key)),
+      ),
     );
   }
 
@@ -72,14 +72,7 @@ export class PaperGeneratorComponent implements OnInit {
   }
 
   generateDocx() {
-    const {
-      allSong,
-      selectedSong,
-      isShowChord,
-      isShowTag,
-      isAddChastki,
-      isAddGadzinki,
-    } = this.songListForm.value;
+    const { allSong, selectedSong, isShowChord, isShowTag, isAddChastki, isAddGadzinki } = this.songListForm.value;
 
     let songList = this.songService.songList$.value.filter((song) => !song.tag[TAGS_LIST[9].id]).map(({ id }) => +id);
     if (!allSong) {

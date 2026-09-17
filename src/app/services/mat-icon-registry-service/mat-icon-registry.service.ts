@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -19,7 +19,8 @@ export const svgMatIcons = {
   providedIn: 'root',
 })
 export class MatIconRegistryService {
-  constructor(private matIconRegistry: MatIconRegistry, private sanitizer: DomSanitizer) {}
+  private matIconRegistry = inject(MatIconRegistry);
+  private sanitizer = inject(DomSanitizer);
 
   register(): Promise<void> {
     return new Promise<void>((resolve) => {

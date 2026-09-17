@@ -7,11 +7,10 @@ import {
   ElementRef,
   Output,
   EventEmitter,
+  inject,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
-import {
-  debounceTime, distinctUntilChanged, filter, takeUntil,
-} from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 import { IAppState } from '../../redux/models/IAppState';
@@ -23,13 +22,15 @@ import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
 
 @Component({
-    selector: 'app-search-song',
-    templateUrl: './search-song.component.html',
-    styleUrls: ['./search-song.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    standalone: false
+  selector: 'app-search-song',
+  templateUrl: './search-song.component.html',
+  styleUrls: ['./search-song.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class SearchSongComponent implements OnInit, OnDestroy {
+  private store = inject<Store<IAppState>>(Store);
+
   @ViewChild('search', { read: ElementRef }) searchElement: ElementRef<HTMLElement>;
   @Output() isFocusInput = new EventEmitter<boolean>();
 
@@ -45,8 +46,6 @@ export class SearchSongComponent implements OnInit, OnDestroy {
   ];
 
   private onDestroy$ = new Subject<void>();
-
-  constructor(private store: Store<IAppState>) {}
 
   ngOnInit() {
     this.store

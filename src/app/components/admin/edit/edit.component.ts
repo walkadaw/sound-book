@@ -1,13 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
-import {
-  pluck, Subject, takeUntil,
-} from 'rxjs';
-import {
-  filter,
-} from 'rxjs/operators';
+import { pluck, Subject, takeUntil } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
@@ -18,12 +14,20 @@ import { DuplicateService } from '../../../services/duplicate/duplicate.service'
 import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/similar-song-dialog.component';
 
 @Component({
-    selector: 'app-edit',
-    templateUrl: './edit.component.html',
-    styleUrls: ['./edit.component.scss'],
-    standalone: false
+  selector: 'app-edit',
+  templateUrl: './edit.component.html',
+  styleUrls: ['./edit.component.scss'],
+  standalone: false,
 })
 export class EditComponent implements OnInit, OnDestroy {
+  private songService = inject(SongService);
+  private chordService = inject(ChordService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private duplicateService = inject(DuplicateService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+
   readonly tagList = TAGS_LIST;
 
   songDataForm = new UntypedFormGroup({
@@ -39,16 +43,6 @@ export class EditComponent implements OnInit, OnDestroy {
     return +this.route.snapshot.params.id;
   }
 
-  constructor(
-    private songService: SongService,
-    private chordService: ChordService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private duplicateService: DuplicateService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-  ) {}
-
   ngOnInit(): void {
     this.initLoadData();
   }
@@ -59,9 +53,7 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
-    const {
-      title, text, tags,
-    } = this.songDataForm.value;
+    const { title, text, tags } = this.songDataForm.value;
 
     const { songID } = this;
     const content = this.chordService.getTextAndChord(text);
@@ -77,7 +69,9 @@ export class EditComponent implements OnInit, OnDestroy {
       title: title.trim(),
       text: content.text.trimRight(),
       chord: content.chord.trimRight(),
-      tag: Object.keys(tags).filter((key) => tags[key]).join(','),
+      tag: Object.keys(tags)
+        .filter((key) => tags[key])
+        .join(','),
     };
 
     const duplication = this.songService.songList$.value.filter(
@@ -85,8 +79,11 @@ export class EditComponent implements OnInit, OnDestroy {
     );
 
     if (duplication.length) {
-      this.dialog.open(SimilarSongDialogComponent, { data: { song, duplication } })
-        .afterClosed().pipe(filter((newSong) => !!newSong)).subscribe((newSong) => {
+      this.dialog
+        .open(SimilarSongDialogComponent, { data: { song, duplication } })
+        .afterClosed()
+        .pipe(filter((newSong) => !!newSong))
+        .subscribe((newSong) => {
           this.saveSong(newSong);
         });
       return;
@@ -96,28 +93,25 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   private saveSong(song: SongAdd): void {
-    this.songService.updateSong(song).pipe(takeUntil(this.onDestroy$)).subscribe((id) => {
-      this.snackBar.open(
-        song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена',
-        'Зачыніць',
-        { duration: 2000 },
-      );
+    this.songService
+      .updateSong(song)
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe((id) => {
+        this.snackBar.open(song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена', 'Зачыніць', {
+          duration: 2000,
+        });
 
-      this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
-      this.songDataForm.setValue({
-        title: song.title,
-        text: this.mergeChordWidthText(song as unknown as Song), // update with chord
-        tags: this.setTag((arg) => !!song.tag[arg.id]),
+        this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
+        this.songDataForm.setValue({
+          title: song.title,
+          text: this.mergeChordWidthText(song as unknown as Song), // update with chord
+          tags: this.setTag((arg) => !!song.tag[arg.id]),
+        });
       });
-    });
   }
 
   private initLoadData() {
-    this.route.data.pipe(
-      pluck('song'),
-      filter(Boolean),
-      takeUntil(this.onDestroy$),
-    ).subscribe((song) => {
+    this.route.data.pipe(pluck('song'), filter(Boolean), takeUntil(this.onDestroy$)).subscribe((song) => {
       this.songDataForm.setValue({
         title: song.title,
         text: this.mergeChordWidthText(song), // update with chord
@@ -126,8 +120,8 @@ export class EditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setTag<T extends(arg: TagList) => any>(getValue: T) {
-    return TAGS_LIST.reduce<{[key: string]: ReturnType<T>}>((acc, tag) => {
+  private setTag<T extends (arg: TagList) => any>(getValue: T) {
+    return TAGS_LIST.reduce<{ [key: string]: ReturnType<T> }>((acc, tag) => {
       acc[tag.id.toString()] = getValue(tag);
 
       return acc;
@@ -139,12 +133,14 @@ export class EditComponent implements OnInit, OnDestroy {
     const chord = song.chord.split('\n');
     const item = text.length > chord.length ? text : chord;
 
-    return item.map((_, index) => {
-      if (chord[index]?.trim()) {
-        return `${chord[index]}\n${text[index]}`;
-      }
+    return item
+      .map((_, index) => {
+        if (chord[index]?.trim()) {
+          return `${chord[index]}\n${text[index]}`;
+        }
 
-      return text[index];
-    }).join('\n');
+        return text[index];
+      })
+      .join('\n');
   }
 }

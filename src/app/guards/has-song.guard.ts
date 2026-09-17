@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { SongService } from '../services/song-service/song.service';
 
@@ -6,7 +6,8 @@ import { SongService } from '../services/song-service/song.service';
   providedIn: 'root',
 })
 export class HasSongGuard {
-  constructor(private songService: SongService, private route: Router) {}
+  private songService = inject(SongService);
+  private route = inject(Router);
 
   canActivate(next: ActivatedRouteSnapshot): boolean {
     const songId = next.paramMap.get('id');

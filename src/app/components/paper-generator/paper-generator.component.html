@@ -23,46 +23,51 @@
     <mat-checkbox formControlName="isAddGadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
   </div>
 
-  <div class="column-full" *ngIf="!songListForm.get('allSong').value && selectedSongList$ | async as selectedSongList">
-    <mat-form-field class="example-form-field">
-      <mat-label>Пошук</mat-label>
-      <input matInput formControlName="search" type="text" />
-      <button mat-button matSuffix mat-icon-button aria-label="очистить" (click)="clearFilterSong()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-form-field>
-    <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
-      <mat-tab label="Пошук песен">
-        <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content" *ngIf="songListFiltered$ | async as songList">
-          <ng-container *ngIf="songList.length; else noSongResult">
-            <div class="song-container" *cdkVirtualFor="let song of songList; trackBy: trackBy; templateCacheSize: 0">
-              <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
-            </div>
-          </ng-container>
-          <ng-template #noSongResult>
-            <div>Не адна песня не знойдзена па вашаму запыту.</div>
-          </ng-template>
-        </cdk-virtual-scroll-viewport>
-      </mat-tab>
-      <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
-        <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
-          <ng-container *ngIf="selectedSongList.length; else noSongResult">
-            <div
-              class="song-container"
-              *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0"
-            >
-              <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)"
-                >{{ song.title }}
-              </mat-checkbox>
-            </div>
-          </ng-container>
-          <ng-template #noSongResult>
-            <div>Няма выбраных песень.</div>
-          </ng-template>
-        </cdk-virtual-scroll-viewport>
-      </mat-tab>
-    </mat-tab-group>
-  </div>
+  @if (!songListForm.get('allSong').value && selectedSongList$ | async; as selectedSongList) {
+    <div class="column-full">
+      <mat-form-field class="example-form-field">
+        <mat-label>Пошук</mat-label>
+        <input matInput formControlName="search" type="text" />
+        <button mat-button matSuffix mat-icon-button aria-label="очистить" (click)="clearFilterSong()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+      <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
+        <mat-tab label="Пошук песен">
+          @if (songListFiltered$ | async; as songList) {
+            <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
+              @if (songList.length) {
+                <div
+                  class="song-container"
+                  *cdkVirtualFor="let song of songList; trackBy: trackBy; templateCacheSize: 0"
+                >
+                  <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
+                </div>
+              } @else {
+                <div>Не адна песня не знойдзена па вашаму запыту.</div>
+              }
+            </cdk-virtual-scroll-viewport>
+          }
+        </mat-tab>
+        <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
+          <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
+            @if (selectedSongList.length) {
+              <div
+                class="song-container"
+                *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0"
+              >
+                <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)"
+                  >{{ song.title }}
+                </mat-checkbox>
+              </div>
+            } @else {
+              <div>Няма выбраных песень.</div>
+            }
+          </cdk-virtual-scroll-viewport>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  }
 
   <button mat-raised-button color="primary" class="download-button" (click)="generateDocx()">
     <mat-icon>get_app</mat-icon>

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { catchError, Observable, of } from 'rxjs';
 import { Song } from '../../../interfaces/song';
@@ -8,10 +8,8 @@ import { SongService } from '../../../services/song-service/song.service';
   providedIn: 'any',
 })
 export class LoadSongResolver {
-  constructor(
-    private songService: SongService,
-    private router: Router,
-  ) { }
+  private songService = inject(SongService);
+  private router = inject(Router);
 
   resolve(route: ActivatedRouteSnapshot): Observable<Song> {
     const id = route.paramMap.get('id');

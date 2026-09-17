@@ -9,14 +9,11 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  inject,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
-import {
-  Observable, Subject, fromEvent, BehaviorSubject,
-} from 'rxjs';
-import {
-  takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map,
-} from 'rxjs/operators';
+import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
+import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
 import { Song } from '../../../interfaces/song';
@@ -25,13 +22,17 @@ import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
 
 @Component({
-    selector: 'app-presentation-menu',
-    templateUrl: './presentation-menu.component.html',
-    styleUrls: ['./presentation-menu.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    standalone: false
+  selector: 'app-presentation-menu',
+  templateUrl: './presentation-menu.component.html',
+  styleUrls: ['./presentation-menu.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
+  private fuseService = inject(FuseService);
+  private songService = inject(SongService);
+  private reveal = inject(RevealService);
+
   @Input() slideList: SlideList[];
 
   @Output() addedSong = new EventEmitter<string>();
@@ -55,8 +56,6 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
 
   private revealNotes = this.reveal.getNotesPlugin();
   private onDestroy$ = new Subject<void>();
-
-  constructor(private fuseService: FuseService, private songService: SongService, private reveal: RevealService) {}
 
   ngOnInit(): void {
     this.initTag();
@@ -203,11 +202,12 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     const element: any = document.documentElement;
 
     // Check which implementation is available
-    const requestMethod = element.requestFullscreen
-      || element.webkitRequestFullscreen
-      || element.webkitRequestFullScreen
-      || element.mozRequestFullScreen
-      || element.msRequestFullscreen;
+    const requestMethod =
+      element.requestFullscreen ||
+      element.webkitRequestFullscreen ||
+      element.webkitRequestFullScreen ||
+      element.mozRequestFullScreen ||
+      element.msRequestFullscreen;
 
     if (requestMethod) {
       requestMethod.apply(element);

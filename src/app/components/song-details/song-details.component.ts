@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
@@ -24,13 +24,19 @@ export interface SelectedSong {
 }
 
 @Component({
-    selector: 'app-song-details',
-    templateUrl: './song-details.component.html',
-    styleUrls: ['./song-details.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-song-details',
+  templateUrl: './song-details.component.html',
+  styleUrls: ['./song-details.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class SongDetailsComponent implements OnInit {
+  private songService = inject(SongService);
+  private router = inject(ActivatedRoute);
+  private store = inject<Store<IAppState>>(Store);
+  private snackBar = inject(MatSnackBar);
+  private playlistService = inject(PlaylistService);
+
   selectedSong$: Observable<SelectedSong>;
   isFavoriteSong$: Observable<boolean>;
   showSongNumber$ = this.store.select(getShowSongNumber);
@@ -39,14 +45,6 @@ export class SongDetailsComponent implements OnInit {
   selectedTranspilation = 0;
 
   readonly tagNameById = TagNameById;
-
-  constructor(
-    private songService: SongService,
-    private router: ActivatedRoute,
-    private store: Store<IAppState>,
-    private snackBar: MatSnackBar,
-    private playlistService: PlaylistService,
-  ) {}
 
   ngOnInit(): void {
     this.selectedSong$ = combineLatest([
@@ -60,7 +58,10 @@ export class SongDetailsComponent implements OnInit {
         const text = song.text.split('\n').map((value) => value.trim());
         const chord = song.chord.split('\n').map((value) => value.trim());
         return {
-          ...song, text, chord, chordPosition,
+          ...song,
+          text,
+          chord,
+          chordPosition,
         };
       }),
     );

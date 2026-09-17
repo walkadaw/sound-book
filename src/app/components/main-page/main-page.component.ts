@@ -1,14 +1,8 @@
-import {
-  ChangeDetectionStrategy, Component, OnDestroy, OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
-import {
-  combineLatest, fromEvent, Observable, Subject,
-} from 'rxjs';
-import {
-  debounceTime, filter, map, shareReplay, takeUntil, withLatestFrom,
-} from 'rxjs/operators';
+import { combineLatest, fromEvent, Observable, Subject } from 'rxjs';
+import { debounceTime, filter, map, shareReplay, takeUntil, withLatestFrom } from 'rxjs/operators';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -20,13 +14,19 @@ import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 
 @Component({
-    selector: 'app-main-page',
-    templateUrl: './main-page.component.html',
-    styleUrls: ['./main-page.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-main-page',
+  templateUrl: './main-page.component.html',
+  styleUrls: ['./main-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class MainPageComponent implements OnInit, OnDestroy {
+  private fuseService = inject(FuseService);
+  private songService = inject(SongService);
+  private store = inject<Store<IAppState>>(Store);
+  private playlistService = inject(PlaylistService);
+  private snackBar = inject(MatSnackBar);
+
   songListFiltered$: Observable<SongFavorite[]>;
   showSongNumber$ = this.store.select(getShowSongNumber).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
   selectedTag$ = this.store.select(getSelectedTag);
@@ -35,20 +35,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
   private contentScrollYPosition: number;
   private onDestroy$ = new Subject<void>();
 
-  constructor(
-    private fuseService: FuseService,
-    private songService: SongService,
-    private store: Store<IAppState>,
-    private playlistService: PlaylistService,
-    private snackBar: MatSnackBar,
-  ) {}
-
   ngOnInit(): void {
-    const filteredSong$ = this.fuseService.getFilteredSong(
-      this.selectedTag$,
-      this.store.select(getSearchTerm),
-      this.songService.songList$,
-    ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+    const filteredSong$ = this.fuseService
+      .getFilteredSong(this.selectedTag$, this.store.select(getSearchTerm), this.songService.songList$)
+      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
 
     this.songListFiltered$ = combineLatest([filteredSong$, this.store.select(getFavoriteState)]).pipe(
       map(([songs, favoriteList]) => songs.map((song) => ({ ...song, favorite: favoriteList.has(song.id) }))),
@@ -86,14 +76,16 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   initScrollListener() {
-    fromEvent(window, 'scroll').pipe(
-      withLatestFrom(this.store.select(getShowMenu)),
-      filter(([, showMenu]) => showMenu),
-      debounceTime(50),
-      takeUntil(this.onDestroy$),
-    ).subscribe(() => {
-      this.menuScrollYPosition = window.scrollY;
-    });
+    fromEvent(window, 'scroll')
+      .pipe(
+        withLatestFrom(this.store.select(getShowMenu)),
+        filter(([, showMenu]) => showMenu),
+        debounceTime(50),
+        takeUntil(this.onDestroy$),
+      )
+      .subscribe(() => {
+        this.menuScrollYPosition = window.scrollY;
+      });
   }
 
   addedSongToPlaylist(idPlaylist: string, songId: number) {

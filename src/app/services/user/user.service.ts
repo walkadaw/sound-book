@@ -1,9 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
-import {
-  BehaviorSubject, catchError, EMPTY, map, Observable, of, tap,
-} from 'rxjs';
+import { BehaviorSubject, catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 const checkAuth = 'auth';
@@ -12,12 +10,10 @@ const checkAuth = 'auth';
   providedIn: 'root',
 })
 export class UserService {
-  isAuth$ = new BehaviorSubject<boolean>(false);
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-  ) { }
+  isAuth$ = new BehaviorSubject<boolean>(false);
 
   isLoginIn(): Observable<string> {
     if (!localStorage.getItem(checkAuth)) {
