@@ -8,14 +8,14 @@ import {
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 
 import { provideHttpClient, withXhr, withInterceptorsFromDi } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from './environments/environment';
 import { startUpFactory, StartUpService } from './app/services/start-up-service/start-up.service';
-import { AppRoutingModule } from './app/app.routing';
+import { appRoutes } from './app/app.routing';
 import { searchReducer } from './app/redux/reducers/search.reducer';
 import { settingsReducer } from './app/redux/reducers/settings.reducer';
 import { favoriteReducer } from './app/redux/reducers/favorite.reducer';
@@ -33,9 +33,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(
       BrowserModule,
-      BrowserAnimationsModule,
       ReactiveFormsModule,
-      AppRoutingModule,
       // redux
       StoreModule.forRoot({
         searchInput: searchReducer,
@@ -53,5 +51,10 @@ bootstrapApplication(AppComponent, {
     }),
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
     provideZoneChangeDetection(),
+    provideRouter(
+      appRoutes,
+      withRouterConfig({ onSameUrlNavigation: 'reload' }),
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
+    ),
   ],
 }).catch((err) => console.error(err));
