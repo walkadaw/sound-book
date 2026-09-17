@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { AddPlaylistComponent } from './add-playlist.component';
 
@@ -9,6 +10,7 @@ describe('AddPlaylistComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AddPlaylistComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
   });
 

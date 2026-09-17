@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LiturgyComponent } from './liturgy.component';
 
@@ -6,11 +6,11 @@ describe('LiturgyComponent', () => {
   let component: LiturgyComponent;
   let fixture: ComponentFixture<LiturgyComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [LiturgyComponent],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(LiturgyComponent);

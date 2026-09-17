@@ -1,4 +1,6 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideTestStore } from '../../../testing/store-test-providers';
 
 import { SongDetailsComponent } from './song-details.component';
 
@@ -6,11 +8,12 @@ describe('SongDetailsComponent', () => {
   let component: SongDetailsComponent;
   let fixture: ComponentFixture<SongDetailsComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [SongDetailsComponent],
+      providers: [provideTestStore(), provideRouter([])],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SongDetailsComponent);
