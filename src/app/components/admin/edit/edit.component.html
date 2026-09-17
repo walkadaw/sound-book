@@ -14,10 +14,12 @@
     <div class="select-tags" formGroupName="tags">
       <h5>Выберете теги:</h5>
       <div class="select-tags__items">
-        <mat-checkbox [formControlName]="tag.id" *ngFor="let tag of tagList">
-          <mat-icon [svgIcon]="tag.icon"></mat-icon>
-          {{ tag.title }}
-        </mat-checkbox>
+        @for (tag of tagList; track tag) {
+          <mat-checkbox [formControlName]="tag.id">
+            <mat-icon [svgIcon]="tag.icon"></mat-icon>
+            {{ tag.title }}
+          </mat-checkbox>
+        }
       </div>
     </div>
   </div>

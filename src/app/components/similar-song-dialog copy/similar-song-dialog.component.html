@@ -1,8 +1,8 @@
 <h3>Разница текстов</h3>
-<ng-container *ngFor="let item of diffs">
+@for (item of diffs; track item) {
   <h5>{{ item.song.title }}</h5>
   <app-diff-result [diff]="item.diff"></app-diff-result>
-</ng-container>
+}
 
 <div class="action">
   <button mat-raised-button mat-dialog-close>Отменить</button>

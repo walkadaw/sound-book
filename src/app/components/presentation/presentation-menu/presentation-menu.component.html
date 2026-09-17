@@ -8,21 +8,29 @@
           <span class="slide-menu-toolbar-label">Тема</span>
         </li>
         <li class="toolbar-panel-button" (click)="toggleShowIconMenu()">
-          <mat-icon *ngIf="hideMenu">visibility</mat-icon>
-          <mat-icon *ngIf="!hideMenu">visibility_off</mat-icon>
+          @if (hideMenu) {
+            <mat-icon>visibility</mat-icon>
+          }
+          @if (!hideMenu) {
+            <mat-icon>visibility_off</mat-icon>
+          }
           <br />
           <span class="slide-menu-toolbar-label">Меню</span>
         </li>
-        <li class="toolbar-panel-button" *ngIf="!isSpeakerNotes" (click)="openRemoteControl()">
-          <mat-icon>open_in_new</mat-icon>
-          <br />
-          <span class="slide-menu-toolbar-label">Управление</span>
-        </li>
-        <li class="toolbar-panel-button" *ngIf="!isSpeakerNotes" (click)="toggleMenu()">
-          <mat-icon>closed</mat-icon>
-          <br />
-          <span class="slide-menu-toolbar-label">Зачинить</span>
-        </li>
+        @if (!isSpeakerNotes) {
+          <li class="toolbar-panel-button" (click)="openRemoteControl()">
+            <mat-icon>open_in_new</mat-icon>
+            <br />
+            <span class="slide-menu-toolbar-label">Управление</span>
+          </li>
+        }
+        @if (!isSpeakerNotes) {
+          <li class="toolbar-panel-button" (click)="toggleMenu()">
+            <mat-icon>closed</mat-icon>
+            <br />
+            <span class="slide-menu-toolbar-label">Зачинить</span>
+          </li>
+        }
       </ul>
       <div id="search" class="search-nav">
         <input
@@ -41,13 +49,15 @@
 
         <div class="tag-search" [class.open]="openSelectedTag">
           <ul class="tag-list">
-            <li *ngFor="let tagList of tagsList" (click)="onClickTag(tagList.id)">
-              <ng-container
-                [ngTemplateOutlet]="songIcon"
-                [ngTemplateOutletContext]="{ $implicit: tagList }"
-              ></ng-container>
-              {{ tagList.title }}
-            </li>
+            @for (tagList of tagsList; track tagList) {
+              <li (click)="onClickTag(tagList.id)">
+                <ng-container
+                  [ngTemplateOutlet]="songIcon"
+                  [ngTemplateOutletContext]="{ $implicit: tagList }"
+                ></ng-container>
+                {{ tagList.title }}
+              </li>
+            }
           </ul>
         </div>
       </div>
@@ -57,58 +67,66 @@
       class="slide-menu-panel active-menu-panel"
       *appLet="songListFiltered$ | async as songListFiltered"
     >
-      <ul class="slide-menu-items-search" *ngIf="isSearchFocused">
-        <ng-container *ngIf="songListFiltered && songListFiltered.length; else elseNoSong">
-          <li
-            class="slide-menu-item active selected add-new-slide"
-            (click)="onClickSearchSong(song)"
-            *ngFor="let song of songListFiltered; trackBy: trackBySong"
-          >
-            <span class="slide-menu-item-title">{{ song.title }}</span>
-          </li>
-        </ng-container>
-        <ng-template #elseNoSong>
-          <li class="slide-menu-item">
-            <span class="slide-menu-item-title">Пеня не найдена</span>
-          </li>
-        </ng-template>
-      </ul>
-      <ul class="slide-menu-items" *ngIf="!isSearchFocused">
-        <li
-          class="slide-menu-item"
-          [class.past]="song.endIndex < selectedSlide"
-          [class.active]="song.startIndex <= selectedSlide && song.endIndex >= selectedSlide"
-          [class.selected]="song.startIndex <= selectedSlide && song.endIndex >= selectedSlide"
-          [class.future]="song.startIndex > selectedSlide"
-          (click)="openSlide(song)"
-          *ngFor="let song of slideList; let index = index"
-        >
-          <mat-icon class="past">check</mat-icon>
-          <mat-icon class="active">arrow_forward_ios</mat-icon>
-          <mat-icon class="future">panorama_fish_eye</mat-icon>
-          <span class="slide-menu-item-title">{{ song.title }}</span>
-          <mat-icon class="delete-slide" (click)="onClickRemovedSong($event, index)">delete</mat-icon>
-        </li>
-      </ul>
+      @if (isSearchFocused) {
+        <ul class="slide-menu-items-search">
+          @if (songListFiltered && songListFiltered.length) {
+            @for (song of songListFiltered; track trackBySong($index, song)) {
+              <li class="slide-menu-item active selected add-new-slide" (click)="onClickSearchSong(song)">
+                <span class="slide-menu-item-title">{{ song.title }}</span>
+              </li>
+            }
+          } @else {
+            <li class="slide-menu-item">
+              <span class="slide-menu-item-title">Пеня не найдена</span>
+            </li>
+          }
+        </ul>
+      }
+      @if (!isSearchFocused) {
+        <ul class="slide-menu-items">
+          @for (song of slideList; track song; let index = $index) {
+            <li
+              class="slide-menu-item"
+              [class.past]="song.endIndex < selectedSlide"
+              [class.active]="song.startIndex <= selectedSlide && song.endIndex >= selectedSlide"
+              [class.selected]="song.startIndex <= selectedSlide && song.endIndex >= selectedSlide"
+              [class.future]="song.startIndex > selectedSlide"
+              (click)="openSlide(song)"
+            >
+              <mat-icon class="past">check</mat-icon>
+              <mat-icon class="active">arrow_forward_ios</mat-icon>
+              <mat-icon class="future">panorama_fish_eye</mat-icon>
+              <span class="slide-menu-item-title">{{ song.title }}</span>
+              <mat-icon class="delete-slide" (click)="onClickRemovedSong($event, index)">delete</mat-icon>
+            </li>
+          }
+        </ul>
+      }
     </div>
   </nav>
   <div class="slide-menu-overlay" [class.active]="active" (click)="toggleMenu()"></div>
 </div>
 
-<div class="slide-menu-button" *ngIf="isShowControls">
-  <mat-icon class="slide-button" (click)="toggleMenu()">menu</mat-icon>
-  <mat-icon class="slide-button" *ngIf="!isSpeakerNotes" (click)="fullScreen()">
-    <ng-template [ngIf]="!document.fullscreenElement" [ngIfElse]="fullscreenExit">fullscreen</ng-template>
-    <ng-template #fullscreenExit>fullscreen_exit</ng-template>
-  </mat-icon>
-  <mat-icon class="slide-button" (click)="togglePause()">visibility_off</mat-icon>
-</div>
+@if (isShowControls) {
+  <div class="slide-menu-button">
+    <mat-icon class="slide-button" (click)="toggleMenu()">menu</mat-icon>
+    @if (!isSpeakerNotes) {
+      <mat-icon class="slide-button" (click)="fullScreen()">
+        @if (!document.fullscreenElement) {
+          fullscreen
+        } @else {
+          fullscreen_exit
+        }
+      </mat-icon>
+    }
+    <mat-icon class="slide-button" (click)="togglePause()">visibility_off</mat-icon>
+  </div>
+}
 
 <ng-template #songIcon let-tagList>
-  <ng-container *ngIf="tagList.id === 0; else svgIcon">
+  @if (tagList.id === 0) {
     <mat-icon>search</mat-icon>
-  </ng-container>
-  <ng-template #svgIcon>
+  } @else {
     <mat-icon [svgIcon]="tagList.icon"></mat-icon>
-  </ng-template>
+  }
 </ng-template>
