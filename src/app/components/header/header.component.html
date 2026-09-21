@@ -6,53 +6,6 @@
   <app-search-song class="sticky-search" (isFocusInput)="onInputChangeFocus($event)"></app-search-song>
 </div>
 
-<mat-menu #settings="matMenu">
-  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
-    <span>Пастаянна актыўны экран:</span>
-    <div class="right">
-      <mat-slide-toggle name="as" [checked]="enableNoSleep" (change)="toggleNoSleep($event)"></mat-slide-toggle>
-    </div>
-  </button>
-  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
-    <span>Адлюстроўваць нумар песні:</span>
-    <div class="right">
-      <mat-slide-toggle [checked]="showSongNumber" (change)="toggleSongNumber($event)"></mat-slide-toggle>
-    </div>
-  </button>
-  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
-    <span>Паказваць акорды:</span>
-    <div class="right">
-      <mat-slide-toggle [checked]="showChord" (change)="toggleChord($event)"></mat-slide-toggle>
-    </div>
-  </button>
-  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
-    <span>Пазіцыя акордаў:</span>
-    <div class="right chord-position">
-      <mat-button-toggle-group [value]="chordPosition" (change)="changeChordPosition($event)">
-        <mat-button-toggle value="inText">У тэксце</mat-button-toggle>
-        <mat-button-toggle value="right">Справа</mat-button-toggle>
-      </mat-button-toggle-group>
-    </div>
-  </button>
-  <button class="checkbox-menu" mat-menu-item (click)="$event.stopPropagation()">
-    <span>Памер шрыфта:</span>
-    <div class="right">
-      <mat-icon (click)="changeFontSize(false)">remove</mat-icon>
-      <span (click)="changeFontSize(null, true)">{{ fontSize }}%</span>
-      <mat-icon (click)="changeFontSize(true)">add</mat-icon>
-    </div>
-  </button>
-  <mat-divider></mat-divider>
-  <button class="checkbox-menu checkbox-menu__version" mat-menu-item (click)="updateSong($event)">
-    <span>Версия песен:</span>
-    <div class="right">{{ songService.songVersion ? (songService.songVersion | date: 'dd/MM/yyyy') : 'unknown' }}</div>
-  </button>
-  <button class="checkbox-menu__version" mat-menu-item routerLink="/login">
-    <mat-icon>lock</mat-icon>
-    <span>Аўтарызацыя</span>
-  </button>
-</mat-menu>
-
 <mat-menu #menu="matMenu">
   <button mat-menu-item (click)="toggleMainMenu(true)">
     <mat-icon>library_music</mat-icon>
@@ -111,6 +64,10 @@
     <mat-icon>accessibility_new</mat-icon>
     <span>Пра нас</span>
   </button>
+</mat-menu>
+
+<mat-menu #settings="matMenu">
+  <app-settings-menu></app-settings-menu>
 </mat-menu>
 
 <mat-menu #collections="matMenu">

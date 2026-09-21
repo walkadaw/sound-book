@@ -1,0 +1,71 @@
+<div class="row" (click)="$event.stopPropagation()">
+  <mat-slide-toggle labelPosition="before" [checked]="enableNoSleep()" (change)="toggleNoSleep($event)">
+    Пастаянна актыўны экран:
+  </mat-slide-toggle>
+</div>
+<div class="row" (click)="$event.stopPropagation()">
+  <mat-slide-toggle labelPosition="before" [checked]="showSongNumber()" (change)="toggleSongNumber($event)">
+    Адлюстроўваць нумар песні:
+  </mat-slide-toggle>
+</div>
+<div class="row" (click)="$event.stopPropagation()">
+  <mat-slide-toggle labelPosition="before" [checked]="showChord()" (change)="toggleChord($event)">
+    Паказваць акорды:
+  </mat-slide-toggle>
+</div>
+<div class="row" (click)="$event.stopPropagation()">
+  <span id="chord-position-label">Пазіцыя акордаў:</span>
+  <mat-button-toggle-group
+    hideSingleSelectionIndicator
+    aria-labelledby="chord-position-label"
+    [value]="chordPosition()"
+    (change)="changeChordPosition($event)"
+  >
+    <mat-button-toggle value="inText">У тэксце</mat-button-toggle>
+    <mat-button-toggle value="right">Справа</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+<div class="row row--font" (click)="$event.stopPropagation()">
+  <span id="font-size-label">Памер шрыфта:</span>
+  <div class="font-size" role="group" aria-labelledby="font-size-label">
+    <button
+      mat-icon-button
+      type="button"
+      aria-label="Паменшыць шрыфт"
+      [disabled]="!canDecrease()"
+      (click)="changeFontSize(-1)"
+    >
+      <mat-icon>remove</mat-icon>
+    </button>
+    <span class="font-size__value" aria-live="polite">{{ fontSizePercent() }}%</span>
+    <button
+      mat-icon-button
+      type="button"
+      aria-label="Павялічыць шрыфт"
+      [disabled]="!canIncrease()"
+      (click)="changeFontSize(1)"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</div>
+<mat-divider />
+<div class="row version" (click)="$event.stopPropagation()">
+  <span>
+    Версія песень:
+    {{ songVersion() ? (songVersion() | date: 'dd/MM/yyyy') : 'unknown' }}
+  </span>
+  <button
+    mat-icon-button
+    type="button"
+    aria-label="Абнавіць песні"
+    [disabled]="updating()"
+    (click)="updateSongs($event)"
+  >
+    <mat-icon>{{ updating() ? 'hourglass_empty' : 'sync' }}</mat-icon>
+  </button>
+</div>
+<a mat-menu-item routerLink="/login">
+  <mat-icon>lock</mat-icon>
+  <span>Аўтарызацыя</span>
+</a>
