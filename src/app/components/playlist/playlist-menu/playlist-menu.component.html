@@ -13,12 +13,10 @@
   @if (playLists.length > 0) {
     <mat-divider></mat-divider>
     <button mat-menu-item [disabled]="songId" routerLink="/playlist">
-      @if (songId) {
-        <span>Дадать у выбраны плэйліст</span>
-      } @else {
+      @if (!songId) {
         <mat-icon>list_alt</mat-icon>
-        <span>Усе плэйлісты</span>
       }
+      <span>{{ songId ? 'Дадать у выбраны плэйліст' : 'Усе плэйлісты' }}</span>
     </button>
     <mat-divider></mat-divider>
   }
