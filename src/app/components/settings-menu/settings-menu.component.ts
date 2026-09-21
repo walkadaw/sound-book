@@ -27,6 +27,7 @@ import {
   getShowSongNumber,
 } from '../../redux/selector/settings.selector';
 import { SongService } from '../../services/song-service/song.service';
+import { WakeLockService } from '../../services/wakelock/wake-lock.service';
 
 const MIN_FONT_SIZE = 0.4;
 const MAX_FONT_SIZE = 2;
@@ -53,6 +54,8 @@ export class SettingsMenuComponent {
   private store = inject<Store<IAppState>>(Store);
   private songService = inject(SongService);
   private snackBar = inject(MatSnackBar);
+
+  protected wakeLockSupported = inject(WakeLockService).isSupported;
 
   protected showChord = this.store.selectSignal(getShowChord);
   protected enableNoSleep = this.store.selectSignal(getEnableNoSleep);

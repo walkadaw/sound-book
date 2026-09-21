@@ -29,7 +29,6 @@
     "diff": "^5.0.0",
     "fastest-levenshtein": "^1.0.16",
     "fuse.js": "^7.5.0",
-    "nosleep.js": "0.12.0",
     "reveal.js": "^6.0.2",
     "rxjs": "^7.5.5",
     "tslib": "^2.3.1",

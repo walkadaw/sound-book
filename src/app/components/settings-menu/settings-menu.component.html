@@ -1,8 +1,10 @@
-<div class="row" (click)="$event.stopPropagation()">
-  <mat-slide-toggle labelPosition="before" [checked]="enableNoSleep()" (change)="toggleNoSleep($event)">
-    Пастаянна актыўны экран:
-  </mat-slide-toggle>
-</div>
+@if (wakeLockSupported) {
+  <div class="row" (click)="$event.stopPropagation()">
+    <mat-slide-toggle labelPosition="before" [checked]="enableNoSleep()" (change)="toggleNoSleep($event)">
+      Пастаянна актыўны экран:
+    </mat-slide-toggle>
+  </div>
+}
 <div class="row" (click)="$event.stopPropagation()">
   <mat-slide-toggle labelPosition="before" [checked]="showSongNumber()" (change)="toggleSongNumber($event)">
     Адлюстроўваць нумар песні:
