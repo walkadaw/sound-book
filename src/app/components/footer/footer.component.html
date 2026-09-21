@@ -1,5 +1,5 @@
 <footer class="site-footer">
-  @if (words) {
+  @if (words(); as words) {
     <div class="say-block">
       <div class="text">
         {{ words.content }}
@@ -8,5 +8,5 @@
       </div>
     </div>
   }
-  <div class="jesus" [class.say]="words" (click)="onClick()"></div>
+  <div class="jesus" [class.say]="words()" (click)="onClick()"></div>
 </footer>

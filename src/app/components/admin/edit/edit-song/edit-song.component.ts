@@ -1,7 +1,20 @@
-import { AfterViewInit, Component, ElementRef, forwardRef, Input, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  forwardRef,
+  inject,
+  input,
+  linkedSignal,
+  computed,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { distinctUntilChanged, fromEvent, map, merge, of, Subject, takeUntil } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
+import { fromEvent, map } from 'rxjs';
+
+const MIN_LINE_COUNT = 50;
 
 @Component({
   selector: 'app-edit-song',
@@ -14,43 +27,45 @@ import { AsyncPipe } from '@angular/common';
       multi: true,
     },
   ],
-  imports: [ReactiveFormsModule, AsyncPipe],
+  imports: [ReactiveFormsModule],
 })
-export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
-  @ViewChild('lineCounter') lineCounter: ElementRef<HTMLTextAreaElement>;
-  @ViewChild('textEditor') textEditor: ElementRef<HTMLTextAreaElement>;
-  @Input() placeholder = '';
+export class EditSongComponent implements AfterViewInit, ControlValueAccessor {
+  private destroyRef = inject(DestroyRef);
+
+  readonly lineCounter = viewChild<ElementRef<HTMLTextAreaElement>>('lineCounter');
+  readonly textEditor = viewChild<ElementRef<HTMLTextAreaElement>>('textEditor');
+  readonly placeholder = input('');
 
   textForm = new FormControl('', { nonNullable: true });
 
-  lineCounter$ = merge(
-    of(Array(50).fill('')),
-    this.textForm.valueChanges.pipe(map((value: string) => value.split('\n'))),
-  ).pipe(
-    distinctUntilChanged((a, b) => a.length > b.length),
-    map((lines) => lines.map((_, index) => `${index + 1}.`).join('\n')),
+  private textLineCount = toSignal(this.textForm.valueChanges.pipe(map((value) => value.split('\n').length)), {
+    initialValue: 0,
+  });
+
+  // the counter never shrinks below the longest text seen so far
+  private lineCount = linkedSignal<number, number>({
+    source: this.textLineCount,
+    computation: (count, previous) => Math.max(count, previous?.value ?? MIN_LINE_COUNT),
+  });
+
+  protected lineNumbers = computed(() =>
+    Array.from({ length: this.lineCount() }, (_, index) => `${index + 1}.`).join('\n'),
   );
 
   onTouched: () => void;
   private onChange: (value: string) => void;
-  private onDestroy$ = new Subject<void>();
 
   ngAfterViewInit(): void {
     this.bindScroll();
 
-    this.textForm.valueChanges.pipe(takeUntil(this.onDestroy$)).subscribe((value) => this.onChange(value));
-  }
-
-  ngOnDestroy(): void {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
+    this.textForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => this.onChange(value));
   }
 
   private bindScroll() {
-    fromEvent(this.textEditor.nativeElement, 'scroll')
-      .pipe(takeUntil(this.onDestroy$))
+    fromEvent(this.textEditor().nativeElement, 'scroll')
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        this.lineCounter.nativeElement.scroll({ top: this.textEditor.nativeElement.scrollTop });
+        this.lineCounter().nativeElement.scroll({ top: this.textEditor().nativeElement.scrollTop });
       });
   }
 

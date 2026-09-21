@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
 
 interface JesusSay {
@@ -16,11 +16,10 @@ interface JesusSay {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIcon],
 })
-export class FooterComponent implements OnInit, OnDestroy {
+export class FooterComponent {
   private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
 
-  words!: JesusSay | null;
+  protected words = signal<JesusSay | null>(null);
   /* eslint-disable max-len */
   private listWords: JesusSay[] = [
     {
@@ -76,31 +75,23 @@ export class FooterComponent implements OnInit, OnDestroy {
   ];
   /* eslint-enabled max-len */
 
-  private onDestroy$ = new Subject<void>();
-
-  ngOnInit() {
+  constructor() {
     this.router.events
       .pipe(
         filter((data) => data instanceof NavigationEnd),
-        takeUntil(this.onDestroy$),
+        takeUntilDestroyed(),
       )
       .subscribe(() => {
         this.close();
       });
   }
 
-  ngOnDestroy() {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
-  }
-
   onClick() {
     const rand = Math.floor(Math.random() * this.listWords.length);
-    this.words = this.listWords[rand];
+    this.words.set(this.listWords[rand]);
   }
 
   close() {
-    this.words = null;
-    this.cdr.markForCheck();
+    this.words.set(null);
   }
 }

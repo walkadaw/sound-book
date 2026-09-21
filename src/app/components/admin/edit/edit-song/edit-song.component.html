@@ -1,8 +1,6 @@
 <div class="edit-form">
   <div class="edit-content">
-    @if (lineCounter$ | async; as lines) {
-      <textarea #lineCounter class="textarea textarea__line-counter" wrap="off" readonly>{{ lines }}</textarea>
-    }
+    <textarea #lineCounter class="textarea textarea__line-counter" wrap="off" readonly>{{ lineNumbers() }}</textarea>
     <!-- <pre
     #content
     class="textarea__conteiner"
@@ -15,7 +13,7 @@
       class="textarea textarea__edit textarea__edit_text"
       wrap="off"
       (focus)="onTouched()"
-      [placeholder]="placeholder"
+      [placeholder]="placeholder()"
       [formControl]="textForm"
     ></textarea>
   </div>
