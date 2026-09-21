@@ -1,5 +1,4 @@
-import { Service } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Service, signal } from '@angular/core';
 
 export interface PlayList {
   name: string,
@@ -12,11 +11,9 @@ const PLAYLIST_KEY = 'playlists';
 
 @Service()
 export class PlaylistService {
-  playlists$: BehaviorSubject<PlayList[]> = new BehaviorSubject(this.getAllPlaylists());
+  private playlistsState = signal(this.getAllPlaylists());
 
-  get playlists(): PlayList[] {
-    return this.playlists$.value;
-  }
+  readonly playlists = this.playlistsState.asReadonly();
 
   getAllPlaylists(): PlayList[] {
     let result: PlayList[];
@@ -31,7 +28,7 @@ export class PlaylistService {
   }
 
   getPlaylist(id: string): PlayList {
-    return this.playlists.find(({ dateCreate }) => dateCreate.toString() === id.toString());
+    return this.playlists().find(({ dateCreate }) => dateCreate.toString() === id.toString());
   }
 
   createPlaylist(name: string, songList: string[]): PlayList {
@@ -89,6 +86,6 @@ export class PlaylistService {
 
   private updateLocalStorage(playlists: PlayList[]) {
     window.localStorage.setItem(PLAYLIST_KEY, JSON.stringify(playlists));
-    this.playlists$.next(playlists);
+    this.playlistsState.set(playlists);
   }
 }

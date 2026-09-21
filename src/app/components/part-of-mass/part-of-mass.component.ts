@@ -1,7 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { combineLatest, map, Observable } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
 import { IAppState } from '../../redux/models/IAppState';
 import { getChordPosition, getShowChord } from '../../redux/selector/settings.selector';
 import { SongService } from '../../services/song-service/song.service';
@@ -15,31 +13,30 @@ const TAG_PAST_OF_MASS = 10;
   templateUrl: './part-of-mass.component.html',
   styleUrls: ['./part-of-mass.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ChordListComponent, AsyncPipe],
+  imports: [ChordListComponent],
 })
-export class PartOfMassComponent implements OnInit {
+export class PartOfMassComponent {
   private store = inject<Store<IAppState>>(Store);
   private songService = inject(SongService);
 
-  showChord$ = this.store.select(getShowChord);
-  songs$: Observable<SelectedSong[]>;
+  private songList = this.songService.songList;
+  private chordPosition = this.store.selectSignal(getChordPosition);
 
-  ngOnInit(): void {
-    this.songs$ = combineLatest([this.songService.songList$, this.store.select(getChordPosition)]).pipe(
-      map(([songs, chordPosition]) =>
-        songs
-          .filter((song) => song.tag && Object.keys(song.tag).some((tag) => TAG_PAST_OF_MASS === +tag))
-          .map((song) => {
-            const text = song.text.split('\n').map((value) => value.trim());
-            const chord = song.chord.split('\n').map((value) => value.trim());
-            return {
-              ...song,
-              text,
-              chord,
-              chordPosition,
-            };
-          }),
-      ),
-    );
-  }
+  protected showChord = this.store.selectSignal(getShowChord);
+  protected songs = computed<SelectedSong[]>(() => {
+    const chordPosition = this.chordPosition();
+
+    return this.songList()
+      .filter((song) => song.tag && Object.keys(song.tag).some((tag) => TAG_PAST_OF_MASS === +tag))
+      .map((song) => {
+        const text = song.text.split('\n').map((value) => value.trim());
+        const chord = song.chord.split('\n').map((value) => value.trim());
+        return {
+          ...song,
+          text,
+          chord,
+          chordPosition,
+        };
+      });
+  });
 }

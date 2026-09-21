@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
-import { combineLatest, fromEvent, Observable, Subject } from 'rxjs';
-import { debounceTime, filter, map, shareReplay, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { debounceTime, filter } from 'rxjs/operators';
 import { RouterLinkActive, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuContent } from '@angular/material/menu';
-import { AsyncPipe, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -34,40 +35,46 @@ import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
     MatMenu,
     MatMenuContent,
     PlaylistMenuComponent,
-    AsyncPipe,
     UpperCasePipe,
     ReplaceSpacePipe,
   ],
 })
-export class MainPageComponent implements OnInit, OnDestroy {
+export class MainPageComponent {
   private fuseService = inject(FuseService);
   private songService = inject(SongService);
   private store = inject<Store<IAppState>>(Store);
   private playlistService = inject(PlaylistService);
   private snackBar = inject(MatSnackBar);
 
-  songListFiltered$: Observable<SongFavorite[]>;
-  showSongNumber$ = this.store.select(getShowSongNumber).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-  selectedTag$ = this.store.select(getSelectedTag);
+  private showMenu = this.store.selectSignal(getShowMenu);
+  private favoriteState = this.store.selectSignal(getFavoriteState);
+
+  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
+  protected selectedTag = this.store.selectSignal(getSelectedTag);
+
+  private filteredSong = this.fuseService.getFilteredSong(
+    this.selectedTag,
+    this.store.selectSignal(getSearchTerm),
+    this.songService.songList,
+  );
+
+  protected songListFiltered = computed<SongFavorite[]>(() => {
+    const favoriteList = this.favoriteState();
+    return this.filteredSong().map((song) => ({ ...song, favorite: favoriteList.has(song.id) }));
+  });
 
   private menuScrollYPosition: number;
   private contentScrollYPosition: number;
-  private onDestroy$ = new Subject<void>();
 
-  ngOnInit(): void {
-    const filteredSong$ = this.fuseService
-      .getFilteredSong(this.selectedTag$, this.store.select(getSearchTerm), this.songService.songList$)
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-
-    this.songListFiltered$ = combineLatest([filteredSong$, this.store.select(getFavoriteState)]).pipe(
-      map(([songs, favoriteList]) => songs.map((song) => ({ ...song, favorite: favoriteList.has(song.id) }))),
-    );
-
-    filteredSong$.pipe(takeUntil(this.onDestroy$)).subscribe(() => window.scrollTo(0, 0));
+  constructor() {
+    effect(() => {
+      this.filteredSong();
+      window.scrollTo(0, 0);
+    });
 
     this.store
       .select(getShowMenu)
-      .pipe(debounceTime(0), takeUntil(this.onDestroy$))
+      .pipe(debounceTime(0), takeUntilDestroyed())
       .subscribe((showMenu) => {
         if (showMenu && this.menuScrollYPosition) {
           this.contentScrollYPosition = window.scrollY;
@@ -78,11 +85,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
       });
 
     this.initScrollListener();
-  }
-
-  ngOnDestroy() {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
   }
 
   resetSelectedTag(event: MouseEvent) {
@@ -97,10 +99,9 @@ export class MainPageComponent implements OnInit, OnDestroy {
   initScrollListener() {
     fromEvent(window, 'scroll')
       .pipe(
-        withLatestFrom(this.store.select(getShowMenu)),
-        filter(([, showMenu]) => showMenu),
+        filter(() => this.showMenu()),
         debounceTime(50),
-        takeUntil(this.onDestroy$),
+        takeUntilDestroyed(),
       )
       .subscribe(() => {
         this.menuScrollYPosition = window.scrollY;

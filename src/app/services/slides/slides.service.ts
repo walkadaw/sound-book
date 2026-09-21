@@ -1,8 +1,5 @@
-import { Service } from '@angular/core';
-import {
-  BehaviorSubject,
-  filter, takeUntil, timer,
-} from 'rxjs';
+import { Service, signal } from '@angular/core';
+import { filter, take, timer } from 'rxjs';
 import { Slide } from '../../interfaces/slide';
 
 @Service()
@@ -17,7 +14,9 @@ export class SlidesService {
 
   fontSizePx = 60;
   lineHeight = 1.15;
-  init$ = new BehaviorSubject<boolean>(false);
+
+  private initState = signal(false);
+  readonly init = this.initState.asReadonly();
 
   private container: HTMLElement;
 
@@ -32,9 +31,9 @@ export class SlidesService {
     timer(100, 50).pipe(
       // TODO magic init fonts
       filter(() => this.container.offsetHeight > 100),
-      takeUntil(this.init$.pipe(filter(Boolean))),
+      take(1),
     ).subscribe(() => {
-      this.init$.next(true);
+      this.initState.set(true);
     });
   }
 

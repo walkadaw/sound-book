@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Service, inject } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
-import { BehaviorSubject, catchError, EMPTY, map, Observable, of, tap } from 'rxjs';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 const checkAuth = 'auth';
@@ -11,7 +11,9 @@ export class UserService implements CanActivate {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  isAuth$ = new BehaviorSubject<boolean>(false);
+  private isAuthState = signal(false);
+
+  readonly isAuth = this.isAuthState.asReadonly();
 
   isLoginIn(): Observable<string> {
     if (!localStorage.getItem(checkAuth)) {
@@ -19,7 +21,7 @@ export class UserService implements CanActivate {
     }
 
     return this.http.get<string>(`${environment.baseUrl}/auth/check`).pipe(
-      tap(() => this.isAuth$.next(true)),
+      tap(() => this.isAuthState.set(true)),
       catchError(() => {
         localStorage.removeItem(checkAuth);
         return of('');
@@ -30,13 +32,13 @@ export class UserService implements CanActivate {
   login(username: string, password: string): Observable<void> {
     return this.http.post<void>(`${environment.baseUrl}/auth/login`, { username, password }).pipe(
       tap(() => {
-        this.isAuth$.next(true);
+        this.isAuthState.set(true);
         localStorage.setItem(checkAuth, '1');
       }),
     );
   }
 
-  canActivate(): Observable<boolean | UrlTree> {
-    return this.isAuth$.pipe(map((isAuth) => (isAuth ? true : this.router.createUrlTree(['/login']))));
+  canActivate(): boolean | UrlTree {
+    return this.isAuth() || this.router.createUrlTree(['/login']);
   }
 }

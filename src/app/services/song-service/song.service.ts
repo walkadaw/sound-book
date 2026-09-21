@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Service, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { Service, inject, signal } from '@angular/core';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Song, SongAdd, SongRequest } from '../../interfaces/song';
@@ -9,15 +9,17 @@ import { Song, SongAdd, SongRequest } from '../../interfaces/song';
 export class SongService {
   private http = inject(HttpClient);
 
-  songList$ = new BehaviorSubject<Song[]>([]);
+  private songListState = signal<Song[]>([]);
+
+  readonly songList = this.songListState.asReadonly();
   songVersion: string = null;
 
   hasSong(songId: string | number): boolean {
-    return this.songList$.value.some(({ id }) => id.toString() === songId.toString());
+    return this.songList().some(({ id }) => id.toString() === songId.toString());
   }
 
   getSong(songId: string | number): Song {
-    return this.songList$.value.find(({ id }) => id.toString() === songId.toString());
+    return this.songList().find(({ id }) => id.toString() === songId.toString());
   }
 
   loadSongs(): Observable<SongRequest> {
@@ -60,7 +62,7 @@ export class SongService {
   }
 
   private setSong(songList: SongRequest): void {
-    this.songList$.next(
+    this.songListState.set(
       songList.songs
         .sort((a, b) => {
           if (a.tag[10] !== 1 && b.tag[10] === 1) {

@@ -15,18 +15,19 @@ import { PlayList, PlaylistService } from '../../services/playlist/playlist.serv
 export class PlaylistComponent {
   private playlistService = inject(PlaylistService);
 
-  playlists: PlayList[] = this.playlistService.playlists;
+  protected playlists = this.playlistService.playlists;
 
   drop(event: CdkDragDrop<PlayList[]>) {
-    moveItemInArray(this.playlists, event.previousIndex, event.currentIndex);
+    // signal only notifies on a new reference, so reorder a copy
+    const playlists = [...this.playlists()];
+    moveItemInArray(playlists, event.previousIndex, event.currentIndex);
 
-    this.playlistService.setAllPlaylist(this.playlists);
+    this.playlistService.setAllPlaylist(playlists);
   }
 
   deletePlaylist(playlist: PlayList) {
     if (window.confirm(`Вы сапраўды хочаце выдаліць плэйліст: ${playlist.name}?`)) {
       this.playlistService.deletePlayList(playlist.dateCreate);
-      this.playlists = this.playlistService.playlists;
     }
   }
 }

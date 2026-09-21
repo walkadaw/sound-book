@@ -48,7 +48,7 @@
   <span>Создание бумажней версии</span>
 </button> -->
   <mat-divider></mat-divider>
-  @if (isAuth$ | async) {
+  @if (isAuth()) {
     <button mat-menu-item routerLink="/admin/add">
       <mat-icon>add</mat-icon>
       <span>Дадать спеу</span>

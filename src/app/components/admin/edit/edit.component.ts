@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
-import { pluck, Subject, takeUntil } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -36,7 +36,8 @@ import { EditSongComponent } from './edit-song/edit-song.component';
     DiffResultComponent,
   ],
 })
-export class EditComponent implements OnInit, OnDestroy {
+export class EditComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private songService = inject(SongService);
   private chordService = inject(ChordService);
   private route = inject(ActivatedRoute);
@@ -54,7 +55,6 @@ export class EditComponent implements OnInit, OnDestroy {
   });
 
   diff: Change[];
-  private onDestroy$ = new Subject<void>();
 
   get songID(): number {
     return +this.route.snapshot.params['id'];
@@ -62,11 +62,6 @@ export class EditComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initLoadData();
-  }
-
-  ngOnDestroy(): void {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
   }
 
   onSave() {
@@ -91,7 +86,7 @@ export class EditComponent implements OnInit, OnDestroy {
         .join(','),
     };
 
-    const duplication = this.songService.songList$.value.filter(
+    const duplication = this.songService.songList().filter(
       (originSong) => +originSong.id !== +song.id && this.duplicateService.isSimilar(originSong.text, song.text),
     );
 
@@ -112,7 +107,7 @@ export class EditComponent implements OnInit, OnDestroy {
   private saveSong(song: SongAdd): void {
     this.songService
       .updateSong(song)
-      .pipe(takeUntil(this.onDestroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((id) => {
         this.snackBar.open(song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена', 'Зачыніць', {
           duration: 2000,
@@ -128,13 +123,19 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   private initLoadData() {
-    this.route.data.pipe(pluck('song'), filter(Boolean), takeUntil(this.onDestroy$)).subscribe((song) => {
-      this.songDataForm.setValue({
-        title: song.title,
-        text: this.mergeChordWidthText(song), // update with chord
-        tags: this.setTag((arg) => !!song.tag[arg.id]),
+    this.route.data
+      .pipe(
+        map((data) => data['song'] as Song | undefined),
+        filter(Boolean),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((song) => {
+        this.songDataForm.setValue({
+          title: song.title,
+          text: this.mergeChordWidthText(song), // update with chord
+          tags: this.setTag((arg) => !!song.tag[arg.id]),
+        });
       });
-    });
   }
 
   private setTag<T>(getValue: (arg: TagList) => T) {

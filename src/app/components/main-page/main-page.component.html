@@ -1,4 +1,4 @@
-@if (songListFiltered$ | async; as songListFiltered) {
+@if (songListFiltered(); as songListFiltered) {
   <div class="songs-list">
     @if (songListFiltered.length) {
       @for (song of songListFiltered; track trackBySong(index, song); let index = $index) {
@@ -11,7 +11,7 @@
             <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
           </span>
           <span class="song-title">
-            @if (showSongNumber$ | async) {
+            @if (showSongNumber()) {
               {{ song.songId }}.
             }
             {{ song.title | uppercase }}
@@ -26,7 +26,7 @@
     } @else {
       <div class="no-results">
         Не адна песня не знойдзена па вашаму запыту.
-        @if ((selectedTag$ | async) > 0) {
+        @if (selectedTag() > 0) {
           <a (click)="resetSelectedTag($event)">Паспрабаваць без фільтра па тэгу</a>
         }
       </div>

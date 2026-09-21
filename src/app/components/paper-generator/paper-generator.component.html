@@ -23,7 +23,7 @@
     <mat-checkbox formControlName="isAddGadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
   </div>
 
-  @if (!songListForm.get('allSong').value && selectedSongList$ | async; as selectedSongList) {
+  @if (!isAllSong() && selectedSongs(); as selectedSongList) {
     <div class="column-full">
       <mat-form-field class="example-form-field">
         <mat-label>Пошук</mat-label>
@@ -34,7 +34,7 @@
       </mat-form-field>
       <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
         <mat-tab label="Пошук песен">
-          @if (songListFiltered$ | async; as songList) {
+          @if (songListFiltered(); as songList) {
             <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
               @if (songList.length) {
                 <div

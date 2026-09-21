@@ -22,7 +22,7 @@ export class AdminComponent implements OnInit {
   songDuplicate: [Song, Song[]][];
 
   ngOnInit(): void {
-    this.songService.songList$.value.forEach((song) => {
+    this.songService.songList().forEach((song) => {
       if (!song.chord.trim()) {
         this.songWithoutChord.push(song);
       }
@@ -40,8 +40,8 @@ export class AdminComponent implements OnInit {
 
   checkDuplication() {
     this.songDuplicate = [
-      ...this.songService.songList$.value.reduce((acc, song) => {
-        const result = this.songService.songList$.value.filter(
+      ...this.songService.songList().reduce((acc, song) => {
+        const result = this.songService.songList().filter(
           (songY) => song !== songY && !acc.has(songY) && this.duplicateService.isSimilar(song.text, songY.text),
         );
 

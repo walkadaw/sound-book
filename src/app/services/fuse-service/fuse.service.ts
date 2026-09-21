@@ -1,9 +1,7 @@
-import { Service } from '@angular/core';
+import { Service, Signal, computed } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import Fuse, { IFuseOptions } from 'fuse.js';
-import { Observable } from 'rxjs';
-import {
-  map, tap, switchMap, debounceTime, distinctUntilChanged,
-} from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Song } from '../../interfaces/song';
 
 const REPLACE_SIMILAR_CHAR: { [key: string]: string } = {
@@ -15,38 +13,32 @@ const REPLACE_SIMILAR_CHAR_REGEXP = new RegExp(`[${Object.keys(REPLACE_SIMILAR_C
 
 @Service()
 export class FuseService {
-  getFilteredSong(
-    selectedTags$: Observable<number>,
-    search$: Observable<string>,
-    allSongList$: Observable<Song[]>,
-  ): Observable<Song[]> {
-    const fuse = new Fuse([], this.getOptions());
-    return selectedTags$.pipe(
-      switchMap((selectedTags) => {
-        if (selectedTags) {
-          return allSongList$.pipe(
-            map((songs) => songs.filter(
-              (song) => song.tag && Object.keys(song.tag).some((tag) => selectedTags === +tag),
-            )),
-          );
-        }
-        return allSongList$;
-      }),
-      tap((songList) => fuse.setCollection(songList)),
-      debounceTime(100),
-      switchMap((songList) => search$.pipe(
-        debounceTime(100),
-        distinctUntilChanged(),
-        map((searchTest) => {
-          if (!Number.isNaN(Number(searchTest))) {
-            return songList.filter(({ songId }) => songId.toString().includes(searchTest));
-          } if (searchTest) {
-            return fuse.search(this.replaceChar(searchTest)).map((fuseItem) => fuseItem.item);
-          }
-          return songList;
-        }),
-      )),
-    );
+  /** Must be called in an injection context, because the search term is debounced via rxjs interop. */
+  getFilteredSong(selectedTag: Signal<number>, search: Signal<string>, allSongList: Signal<Song[]>): Signal<Song[]> {
+    const songList = computed(() => {
+      const tag = selectedTag();
+      const songs = allSongList();
+
+      return tag ? songs.filter((song) => song.tag && Object.keys(song.tag).some((key) => tag === +key)) : songs;
+    });
+    const fuse = computed(() => new Fuse(songList(), this.getOptions()));
+    const debouncedSearch = toSignal(toObservable(search).pipe(debounceTime(100), distinctUntilChanged()), {
+      initialValue: search(),
+    });
+
+    return computed(() => {
+      const searchText = debouncedSearch();
+
+      if (!Number.isNaN(Number(searchText))) {
+        return songList().filter(({ songId }) => songId.toString().includes(searchText));
+      }
+      if (searchText) {
+        return fuse()
+          .search(this.replaceChar(searchText))
+          .map((fuseItem) => fuseItem.item);
+      }
+      return songList();
+    });
   }
 
   private getOptions(): IFuseOptions<Song> {

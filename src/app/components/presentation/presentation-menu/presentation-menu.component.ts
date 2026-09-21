@@ -1,22 +1,22 @@
 import {
   Component,
   OnInit,
-  Input,
-  Output,
-  EventEmitter,
   ViewEncapsulation,
-  OnDestroy,
-  ViewChild,
+  DestroyRef,
   ElementRef,
   AfterViewInit,
   inject,
   signal,
+  input,
+  output,
+  viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
-import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
-import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
 import { Song } from '../../../interfaces/song';
@@ -29,19 +29,20 @@ import { SongService } from '../../../services/song-service/song.service';
   templateUrl: './presentation-menu.component.html',
   styleUrls: ['./presentation-menu.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, AsyncPipe],
+  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet],
 })
-export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PresentationMenuComponent implements OnInit, AfterViewInit {
+  private destroyRef = inject(DestroyRef);
   private fuseService = inject(FuseService);
   private songService = inject(SongService);
   private reveal = inject(RevealService);
 
-  @Input() slideList: SlideList[];
+  readonly slideList = input<SlideList[]>();
 
-  @Output() addedSong = new EventEmitter<string>();
-  @Output() removeSong = new EventEmitter<number>();
+  readonly addedSong = output<string>();
+  readonly removeSong = output<number>();
 
-  @ViewChild('searchElement') searchElement: ElementRef<HTMLInputElement>;
+  readonly searchElement = viewChild<ElementRef<HTMLInputElement>>('searchElement');
 
   readonly active = signal(false);
   isShowControls = false;
@@ -53,12 +54,21 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   readonly selectedTag = signal<TagList | undefined>(undefined);
   tagsList: TagList[];
   search = new FormControl('', { nonNullable: true });
-  songListFiltered$: Observable<Song[]>;
-  selectedTag$: BehaviorSubject<number> = new BehaviorSubject(0);
+  private selectedTagId = signal(0);
+  private debouncedSearch = toSignal(
+    this.search.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()),
+    { initialValue: '' },
+  );
+
+  readonly songListFiltered = this.fuseService.getFilteredSong(
+    this.selectedTagId,
+    this.debouncedSearch,
+    this.songService.songList,
+  );
+
   readonly selectedSlide = signal(this.reveal.getActiveSlide());
 
   private revealNotes = this.reveal.getNotesPlugin();
-  private onDestroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.initTag();
@@ -66,12 +76,12 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.isShowControls = this.reveal.isShowControls();
     this.isSpeakerNotes = this.reveal.isSpeakerNotes();
 
-    if (!this.slideList?.length) {
+    if (!this.slideList()?.length) {
       this.toggleMenu();
     }
 
     fromEvent(document, 'fullscreenchange')
-      .pipe(takeUntil(this.onDestroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.isFullscreen.set(!!document.fullscreenElement));
 
     fromEvent<MessageEvent>(window, 'message')
@@ -79,7 +89,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
         filter((event) => event && event.data && event.source !== window.self),
         map((event) => JSON.parse(event.data)),
         filter((data) => data && data.namespace === 'reveal-menu'),
-        takeUntil(this.onDestroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((data) => {
         switch (data.type) {
@@ -104,11 +114,6 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
 
   ngAfterViewInit() {
     this.initHighlightCurrentSlide();
-  }
-
-  ngOnDestroy() {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
   }
 
   openRemoteControl() {
@@ -151,10 +156,11 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
 
     if (tag) {
       this.selectedTag.set(tag);
-      this.selectedTag$.next(tagId);
+      this.selectedTagId.set(tagId);
 
-      if (this.searchElement) {
-        this.searchElement.nativeElement.focus();
+      const searchElement = this.searchElement();
+      if (searchElement) {
+        searchElement.nativeElement.focus();
       }
     }
 
@@ -234,12 +240,9 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private initSearch() {
-    const search$ = this.search.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged());
-
-    this.songListFiltered$ = this.fuseService.getFilteredSong(this.selectedTag$, search$, this.songService.songList$);
     this.search.valueChanges
       .pipe(
-        takeUntil(this.onDestroy$),
+        takeUntilDestroyed(this.destroyRef),
         filter(() => this.openSelectedTag()),
       )
       .subscribe(() => {
@@ -250,7 +253,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   private initHighlightCurrentSlide() {
     this.reveal
       .onSlideChange()
-      .pipe(takeUntil(this.onDestroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((slideNumber) => {
         this.selectedSlide.set(slideNumber);
 

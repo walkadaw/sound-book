@@ -1,22 +1,22 @@
-@if (songId && isAuth$ | async) {
-  <button mat-menu-item [routerLink]="['/admin', 'edit', songId]">
+@if (songId() && isAuth()) {
+  <button mat-menu-item [routerLink]="['/admin', 'edit', songId()]">
     <mat-icon>edit</mat-icon>
     <span>Рэдагаваць</span>
   </button>
   <mat-divider></mat-divider>
 }
-@if (playLists$ | async; as playLists) {
-  <button mat-menu-item [routerLink]="['/playlist', 'add', songId || '']">
+@if (playLists(); as playLists) {
+  <button mat-menu-item [routerLink]="['/playlist', 'add', songId() || '']">
     <mat-icon>playlist_add</mat-icon>
-    <span>{{ songId ? 'Дадаць песню ў новы плэйліст' : 'Стварыць новы плэйліст' }}</span>
+    <span>{{ songId() ? 'Дадаць песню ў новы плэйліст' : 'Стварыць новы плэйліст' }}</span>
   </button>
   @if (playLists.length > 0) {
     <mat-divider></mat-divider>
-    <button mat-menu-item [disabled]="songId" routerLink="/playlist">
-      @if (!songId) {
+    <button mat-menu-item [disabled]="songId()" routerLink="/playlist">
+      @if (!songId()) {
         <mat-icon>list_alt</mat-icon>
       }
-      <span>{{ songId ? 'Дадать у выбраны плэйліст' : 'Усе плэйлісты' }}</span>
+      <span>{{ songId() ? 'Дадать у выбраны плэйліст' : 'Усе плэйлісты' }}</span>
     </button>
     <mat-divider></mat-divider>
   }
@@ -26,7 +26,7 @@
       <span>{{ playList.name }}</span>
     </button>
   }
-  @if (!songId && playLists.length > SHOW_MAX_PLAYLIST) {
+  @if (!songId() && playLists.length > SHOW_MAX_PLAYLIST) {
     <button mat-menu-item routerLink="/playlist">
       <span>...</span>
     </button>

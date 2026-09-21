@@ -4,14 +4,12 @@ import { Store } from '@ngrx/store';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/list';
-import { AsyncPipe } from '@angular/common';
 import { clearSearchAction } from '../../redux/actions/search.actions';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getShowMenu } from '../../redux/selector/settings.selector';
 import { PlayList } from '../../services/playlist/playlist.service';
 import { UserService } from '../../services/user/user.service';
-import { getCurrentValue } from '../utils/redux.utils';
 import { SongSearchComponent } from '../song-search/song-search.component';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
@@ -31,7 +29,6 @@ import { SettingsMenuComponent } from '../settings-menu/settings-menu.component'
     RouterLink,
     PlaylistMenuComponent,
     SettingsMenuComponent,
-    AsyncPipe,
   ],
 })
 export class HeaderComponent {
@@ -39,12 +36,14 @@ export class HeaderComponent {
   private store = inject<Store<IAppState>>(Store);
   private router = inject(Router);
 
-  isAuth$ = this.userService.isAuth$;
+  private showMenu = this.store.selectSignal(getShowMenu);
+
+  protected isAuth = this.userService.isAuth;
 
   searchInputInFocus = false;
 
   toggleMainMenu(show?: boolean) {
-    const toggle = getCurrentValue(this.store, getShowMenu);
+    const toggle = this.showMenu();
 
     if (show) {
       this.store.dispatch(clearSearchAction());

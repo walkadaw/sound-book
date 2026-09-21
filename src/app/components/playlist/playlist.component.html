@@ -1,8 +1,8 @@
 <article class="content">
   <h2>Вашы плэйлісты</h2>
 
-  <div class="songs-list" cdkDropList [cdkDropListData]="playlists" (cdkDropListDropped)="drop($event)">
-    @for (playlist of playlists; track playlist) {
+  <div class="songs-list" cdkDropList [cdkDropListData]="playlists()" (cdkDropListDropped)="drop($event)">
+    @for (playlist of playlists(); track playlist) {
       <div
         class="song-container"
         [routerLink]="[playlist.dateCreate, playlist.name, playlist.songList.join(',')]"

@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Observable, of } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { startWith } from 'rxjs/operators';
 import { MatCheckboxChange, MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
 import { MatIcon } from '@angular/material/icon';
@@ -11,7 +11,6 @@ import { MatInput } from '@angular/material/input';
 import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf } from '@angular/cdk/scrolling';
-import { AsyncPipe } from '@angular/common';
 import { TAGS_LIST } from '../../constants/tag-list';
 import { GeneratorService } from '../../services/generator-service/generator.service';
 import { FuseService } from '../../services/fuse-service/fuse.service';
@@ -40,10 +39,9 @@ import { SongService } from '../../services/song-service/song.service';
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     MatButton,
-    AsyncPipe,
   ],
 })
-export class PaperGeneratorComponent implements OnInit {
+export class PaperGeneratorComponent {
   private formBuilder = inject(NonNullableFormBuilder);
   private songService = inject(SongService);
   private fuseService = inject(FuseService);
@@ -60,26 +58,30 @@ export class PaperGeneratorComponent implements OnInit {
     selectedTabId: 0,
   });
 
-  songListFiltered$: Observable<Song[]>;
-  selectedSongList$: Observable<Song[]>;
+  private search = toSignal(
+    this.songListForm.controls.search.valueChanges.pipe(startWith(this.songListForm.controls.search.value)),
+    { requireSync: true },
+  );
 
-  ngOnInit() {
-    const { search, selectedSong } = this.songListForm.controls;
-    this.songListFiltered$ = this.fuseService.getFilteredSong(
-      of(0),
-      search.valueChanges.pipe(startWith(search.value)),
-      this.songService.songList$,
-    );
+  protected songListFiltered = this.fuseService.getFilteredSong(signal(0), this.search, this.songService.songList);
 
-    this.selectedSongList$ = selectedSong.valueChanges.pipe(
-      startWith(selectedSong.value),
-      map((selected) =>
-        Object.entries(selected)
-          .filter(([, value]) => value)
-          .map(([key]) => this.songService.getSong(key)),
-      ),
-    );
-  }
+  protected isAllSong = toSignal(
+    this.songListForm.controls.allSong.valueChanges.pipe(startWith(this.songListForm.controls.allSong.value)),
+    { requireSync: true },
+  );
+
+  private selectedSong = toSignal(
+    this.songListForm.controls.selectedSong.valueChanges.pipe(
+      startWith(this.songListForm.controls.selectedSong.value),
+    ),
+    { requireSync: true },
+  );
+
+  protected selectedSongs = computed(() =>
+    Object.entries(this.selectedSong())
+      .filter(([, value]) => value)
+      .map(([key]) => this.songService.getSong(key)),
+  );
 
   selectedIndexChange(value: number): void {
     this.songListForm.controls.selectedTabId.setValue(value);
@@ -102,7 +104,7 @@ export class PaperGeneratorComponent implements OnInit {
     const { allSong, selectedSong, isShowChord, isShowTag, isAddChastki, isAddGadzinki } =
       this.songListForm.getRawValue();
 
-    let songList = this.songService.songList$.value.filter((song) => !song.tag[TAGS_LIST[9].id]).map(({ id }) => +id);
+    let songList = this.songService.songList().filter((song) => !song.tag[TAGS_LIST[9].id]).map(({ id }) => +id);
     if (!allSong) {
       songList = Object.keys(selectedSong)
         .filter((key) => selectedSong[key] && this.songService.hasSong(key))
