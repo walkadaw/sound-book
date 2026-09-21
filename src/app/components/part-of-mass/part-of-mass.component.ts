@@ -6,7 +6,6 @@ import { IAppState } from '../../redux/models/IAppState';
 import { getChordPosition, getShowChord } from '../../redux/selector/settings.selector';
 import { SongService } from '../../services/song-service/song.service';
 import { SelectedSong } from '../song-details/song-details.component';
-import { LetDirective } from '../../directives/let-directive/app-let.directive';
 import { ChordListComponent } from '../chord-list/chord-list.component';
 
 const TAG_PAST_OF_MASS = 10;
@@ -16,7 +15,7 @@ const TAG_PAST_OF_MASS = 10;
   templateUrl: './part-of-mass.component.html',
   styleUrls: ['./part-of-mass.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LetDirective, ChordListComponent, AsyncPipe],
+  imports: [ChordListComponent, AsyncPipe],
 })
 export class PartOfMassComponent implements OnInit {
   private store = inject<Store<IAppState>>(Store);

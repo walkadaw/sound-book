@@ -39,11 +39,8 @@
         </div>
       }
     </header>
-    <div
-      class="lyrics"
-      [class.chord-right]="selectedSong.chordPosition === 'right'"
-      *appLet="showChord$ | async as showChord"
-    >
+    @let showChord = showChord$ | async;
+    <div class="lyrics" [class.chord-right]="selectedSong.chordPosition === 'right'">
       @for (line of selectedSong.text; track line; let i = $index) {
         <div class="line-container">
           @if (showChord && selectedSong.chord[i]) {

@@ -18,7 +18,6 @@ import { ChordPosition } from '../../redux/models/settings.state';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SongKeyComponent } from '../song-key/song-key.component';
-import { LetDirective } from '../../directives/let-directive/app-let.directive';
 import { ChordListComponent } from '../chord-list/chord-list.component';
 
 export interface SelectedSong {
@@ -43,7 +42,6 @@ export interface SelectedSong {
     MatMenu,
     PlaylistMenuComponent,
     SongKeyComponent,
-    LetDirective,
     ChordListComponent,
     AsyncPipe,
     KeyValuePipe,

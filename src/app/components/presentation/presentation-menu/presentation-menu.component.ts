@@ -23,14 +23,13 @@ import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
-import { LetDirective } from '../../../directives/let-directive/app-let.directive';
 
 @Component({
   selector: 'app-presentation-menu',
   templateUrl: './presentation-menu.component.html',
   styleUrls: ['./presentation-menu.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, LetDirective, AsyncPipe],
+  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, AsyncPipe],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   private fuseService = inject(FuseService);
@@ -162,9 +161,9 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.openSelectedTag.set(false);
   }
 
-  onClickSearchSong(song: SlideList) {
+  onClickSearchSong(song: Song) {
     this.search.setValue('');
-    this.addedSong.emit(song.id);
+    this.addedSong.emit(song.id.toString());
 
     this.sendPostMessage('addSong', song.id);
   }

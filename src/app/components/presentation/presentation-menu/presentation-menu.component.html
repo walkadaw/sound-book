@@ -62,11 +62,8 @@
         </div>
       </div>
     </div>
-    <div
-      data-panel="Slides"
-      class="slide-menu-panel active-menu-panel"
-      *appLet="songListFiltered$ | async as songListFiltered"
-    >
+    @let songListFiltered = songListFiltered$ | async;
+    <div data-panel="Slides" class="slide-menu-panel active-menu-panel">
       @if (isSearchFocused()) {
         <ul class="slide-menu-items-search">
           @if (songListFiltered && songListFiltered.length) {
