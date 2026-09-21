@@ -12,7 +12,7 @@ import { getShowMenu } from '../../redux/selector/settings.selector';
 import { PlayList } from '../../services/playlist/playlist.service';
 import { UserService } from '../../services/user/user.service';
 import { getCurrentValue } from '../utils/redux.utils';
-import { SearchSongComponent } from '../search-song/search-song.component';
+import { SongSearchComponent } from '../song-search/song-search.component';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 
@@ -24,7 +24,7 @@ import { SettingsMenuComponent } from '../settings-menu/settings-menu.component'
   imports: [
     MatIcon,
     MatMenuTrigger,
-    SearchSongComponent,
+    SongSearchComponent,
     MatMenu,
     MatMenuItem,
     MatDivider,

@@ -24,7 +24,7 @@
         </a>
       }
     } @else {
-      <div>
+      <div class="no-results">
         Не адна песня не знойдзена па вашаму запыту.
         @if ((selectedTag$ | async) > 0) {
           <a (click)="resetSelectedTag($event)">Паспрабаваць без фільтра па тэгу</a>

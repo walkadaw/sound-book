@@ -3,6 +3,24 @@
     top: 0;
 }
 
+.no-results {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    padding: 8px 0;
+    line-height: 1.5;
+
+    // .songs-list растягивается на -15px по бокам, возвращаем текст в границы страницы
+    @media (max-width: 768px) {
+        padding: 8px 15px;
+    }
+
+    a {
+        display: block;
+        margin-top: 8px;
+        cursor: pointer;
+    }
+}
+
 .song-link {
     text-decoration: none;
     color:  inherit !important;

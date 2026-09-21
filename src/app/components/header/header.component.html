@@ -3,7 +3,7 @@
   <div class="logo" [class.hide-logo]="searchInputInFocus" (click)="toggleMainMenu()">
     <h2>Спеўнік</h2>
   </div>
-  <app-search-song class="sticky-search" (isFocusInput)="onInputChangeFocus($event)"></app-search-song>
+  <app-song-search class="sticky-search" (isFocusInput)="onInputChangeFocus($event)"></app-song-search>
 </div>
 
 <mat-menu #menu="matMenu">
