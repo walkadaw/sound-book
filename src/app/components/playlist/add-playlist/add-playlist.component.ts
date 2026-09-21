@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
@@ -10,8 +10,6 @@ import { PlaylistService } from '../../../services/playlist/playlist.service';
   selector: 'app-add-playlist',
   templateUrl: './add-playlist.component.html',
   styleUrls: ['./add-playlist.component.scss'],
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatError, MatButton],
 })
 export class AddPlaylistComponent implements OnInit {

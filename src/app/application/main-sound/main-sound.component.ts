@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { combineLatest, Observable, Subject } from 'rxjs';
@@ -15,8 +15,6 @@ import { FooterComponent } from '../../components/footer/footer.component';
   selector: 'app-main-sound',
   templateUrl: './main-sound.component.html',
   styleUrls: ['./main-sound.component.scss'],
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [HeaderComponent, MainPageComponent, RouterOutlet, FooterComponent, AsyncPipe],
 })
 export class MainSoundComponent implements OnInit, OnDestroy {
@@ -27,16 +25,6 @@ export class MainSoundComponent implements OnInit, OnDestroy {
   fontSize$ = this.store.select(getFontSize);
 
   private onDestroy$ = new Subject<void>();
-
-  // @HostListener('swipeleft')
-  // swipeLeft() {
-  //   this.store.dispatch(changeShowMenuAction(false));
-  // }
-
-  // @HostListener('swiperight')
-  // swipeRight() {
-  //   this.store.dispatch(changeShowMenuAction(true));
-  // }
 
   ngOnInit() {
     const navigate$ = this.router.events.pipe(
@@ -56,8 +44,7 @@ export class MainSoundComponent implements OnInit, OnDestroy {
     this.showMenu$ = combineLatest([
       this.store.select(getShowMenu),
       navigate$.pipe(
-        // FIXME: type
-        map((value: any) => value.url),
+        map((value) => value.url),
         startWith(window.location.pathname),
         map((url) => url === '/'),
       ),

@@ -1,4 +1,4 @@
-import { Service } from '@angular/core';
+import { Service, signal } from '@angular/core';
 import Reveal, { RevealApi } from 'reveal.js';
 import RevealNotes from 'reveal.js/plugin/notes';
 import { fromEvent, Observable } from 'rxjs';
@@ -10,10 +10,12 @@ interface NotesPlugin {
 
 @Service()
 export class RevealService {
+  readonly ready = signal(false);
+
   private reveal: RevealApi;
 
   isReady(): boolean {
-    return !!this.reveal && this.reveal.isReady();
+    return this.ready() && !!this.reveal && this.reveal.isReady();
   }
 
   isShowControls(): boolean {
@@ -67,32 +69,34 @@ export class RevealService {
       this.reveal = new Reveal({
         plugins: [RevealNotes],
       });
-      this.reveal.initialize({
-        controls: true,
-        progress: false,
-        center: true,
-        hash: false,
+      this.reveal
+        .initialize({
+          controls: true,
+          progress: false,
+          center: true,
+          hash: false,
 
-        transition: 'none',
-        // transitionSpeed: 'slow',
-        // backgroundTransition: 'slide'
+          transition: 'none',
+          // transitionSpeed: 'slow',
+          // backgroundTransition: 'slide'
 
-        // The "normal" size of the presentation, aspect ratio will be preserved
-        // when the presentation is scaled to fit different resolutions. Can be
-        // specified using percentage units.
-        // 16:9
-        width: 1050,
-        height: 590,
+          // The "normal" size of the presentation, aspect ratio will be preserved
+          // when the presentation is scaled to fit different resolutions. Can be
+          // specified using percentage units.
+          // 16:9
+          width: 1050,
+          height: 590,
 
-        // Factor of the display size that should remain empty around the content
-        margin: 0.025,
+          // Factor of the display size that should remain empty around the content
+          margin: 0.025,
 
-        // Exposes the reveal.js API through window.postMessage
-        postMessage: true,
+          // Exposes the reveal.js API through window.postMessage
+          postMessage: true,
 
-        // Dispatches all reveal.js events to the parent window through postMessage
-        postMessageEvents: false,
-      });
+          // Dispatches all reveal.js events to the parent window through postMessage
+          postMessageEvents: false,
+        })
+        .then(() => this.ready.set(true));
     }, 0);
   }
 }

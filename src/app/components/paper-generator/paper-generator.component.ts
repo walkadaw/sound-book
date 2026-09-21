@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -22,8 +22,6 @@ import { SongService } from '../../services/song-service/song.service';
   selector: 'app-paper-generator',
   templateUrl: './paper-generator.component.html',
   styleUrls: ['./paper-generator.component.scss'],
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     ReactiveFormsModule,
     MatRadioGroup,

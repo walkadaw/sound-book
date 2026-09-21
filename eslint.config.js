@@ -33,14 +33,8 @@ module.exports = tseslint.config(
       },
     },
     rules: {
-      '@angular-eslint/directive-selector': [
-        'error',
-        { type: 'attribute', prefix: 'app', style: 'camelCase' },
-      ],
-      '@angular-eslint/component-selector': [
-        'error',
-        { type: 'element', prefix: 'app', style: 'kebab-case' },
-      ],
+      '@angular-eslint/directive-selector': ['error', { type: 'attribute', prefix: 'app', style: 'camelCase' }],
+      '@angular-eslint/component-selector': ['error', { type: 'element', prefix: 'app', style: 'kebab-case' }],
       'import/prefer-default-export': 'off',
       'import/no-extraneous-dependencies': 'error',
       'import/extensions': ['error', { ts: 'never', json: 'always' }],
@@ -52,10 +46,7 @@ module.exports = tseslint.config(
       'no-unused-expressions': 'error',
       'no-useless-constructor': 'off',
       'no-empty-function': 'off',
-      '@typescript-eslint/no-empty-function': [
-        'error',
-        { allow: ['arrowFunctions', 'functions', 'methods'] },
-      ],
+      '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions', 'functions', 'methods'] }],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-deprecated': 'warn',
@@ -63,10 +54,7 @@ module.exports = tseslint.config(
       'spaced-comment': ['error', 'always'],
       'class-methods-use-this': 'off',
       'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
-      '@typescript-eslint/naming-convention': [
-        'error',
-        { selector: 'typeLike', format: ['PascalCase'] },
-      ],
+      '@typescript-eslint/naming-convention': ['error', { selector: 'typeLike', format: ['PascalCase'] }],
       '@typescript-eslint/consistent-type-definitions': 'error',
       '@typescript-eslint/member-ordering': [
         'error',
@@ -79,9 +67,6 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-shadow': 'error',
       // Standalone-компоненты вне scope апгрейда — весь проект остаётся на NgModule.
       '@angular-eslint/prefer-standalone': 'off',
-      // Переход на OnPush — поведенческое изменение, требует регресс-тестирования;
-      // отложено (см. TODO у каждого затронутого компонента).
-      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
   {

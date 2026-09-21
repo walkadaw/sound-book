@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -22,8 +22,6 @@ import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
   selector: 'app-favorite',
   templateUrl: './favorite.component.html',
   styleUrls: ['./favorite.component.scss'],
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLink,
     MatIcon,

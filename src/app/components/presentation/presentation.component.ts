@@ -6,8 +6,9 @@ import {
   OnInit,
   Renderer2,
   ViewEncapsulation,
+  computed,
   inject,
-  ChangeDetectionStrategy,
+  signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin, Subject } from 'rxjs';
@@ -31,8 +32,6 @@ import { PresentationMenuComponent } from './presentation-menu/presentation-menu
     '../../../assets/css/theme/blood-custom.css',
   ],
   encapsulation: ViewEncapsulation.None,
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PresentationMenuComponent],
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -44,7 +43,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private render = inject(Renderer2);
   private slidesService = inject(SlidesService);
 
-  slideList: SlideList[];
+  readonly slideList = signal<SlideList[]>([]);
+  readonly isReady = this.reveal.ready;
+  readonly isSpeakerNotes = computed(() => this.reveal.ready() && this.reveal.isSpeakerNotes());
 
   private isDataLoaded$ = new BehaviorSubject(false);
   private onDestroy$ = new Subject<void>();
@@ -73,54 +74,48 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  isReady(): boolean {
-    return this.reveal.isReady();
-  }
-
-  isSpeakerNotes(): boolean {
-    return this.reveal.isSpeakerNotes();
-  }
-
   addSlide(idSong: string) {
     if (this.songService.hasSong(idSong)) {
       const { id, title, text, chord } = this.songService.getSong(idSong);
       const slides = this.slidesService.getSongSlide(text);
 
-      const lastIndex = this.slideList.length ? this.slideList[this.slideList.length - 1].endIndex : -1;
-      this.slideList.push({
-        id: id.toString(),
-        slides,
-        title,
-        text,
-        chord,
-        startIndex: lastIndex + 1,
-        endIndex: lastIndex + slides.length,
+      this.slideList.update((list) => {
+        const lastIndex = list.length ? list[list.length - 1].endIndex : -1;
+
+        return [
+          ...list,
+          {
+            id: id.toString(),
+            slides,
+            title,
+            text,
+            chord,
+            startIndex: lastIndex + 1,
+            endIndex: lastIndex + slides.length,
+          },
+        ];
       });
 
-      if (!this.reveal.isSpeakerNotes()) {
-        this.location.replaceState(`/presentation/${this.slideList.map((slide) => slide.id).toString()}`);
-      }
-      this.reveal.updateRevealState();
+      this.updateLocation();
     }
   }
 
   removeSlide(removedIndex: number) {
-    this.slideList = this.slideList
-      .filter((slide, index) => index !== removedIndex)
-      .map((slide, index, slideList) => {
-        if (index >= removedIndex) {
-          const lastIndex = index > 0 ? slideList[index - 1].endIndex : -1;
+    this.slideList.update((list) =>
+      list
+        .filter((slide, index) => index !== removedIndex)
+        .map((slide, index, slideList) => {
+          if (index >= removedIndex) {
+            const lastIndex = index > 0 ? slideList[index - 1].endIndex : -1;
 
-          return { ...slide, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length };
-        }
+            return { ...slide, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length };
+          }
 
-        return slide;
-      });
+          return slide;
+        }),
+    );
 
-    if (!this.reveal.isSpeakerNotes()) {
-      this.location.replaceState(`/presentation/${this.slideList.map((slide) => slide.id).toString()}`);
-    }
-    this.reveal.updateRevealState();
+    this.updateLocation();
   }
 
   trackBySlides(index: number, item: SlideList) {
@@ -134,7 +129,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(() => {
         this.isDataLoaded$.next(true);
 
-        this.slideList = listID.reduce<SlideList[]>((acc, id) => {
+        const slideList = listID.reduce<SlideList[]>((acc, id) => {
           let lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
 
           if (Number.isNaN(parseInt(id, 10))) {
@@ -173,6 +168,19 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
           return acc;
         }, []);
+
+        this.slideList.set(slideList);
       });
+  }
+
+  private updateLocation() {
+    if (!this.reveal.isSpeakerNotes()) {
+      this.location.replaceState(
+        `/presentation/${this.slideList()
+          .map((slide) => slide.id)
+          .toString()}`,
+      );
+    }
+    this.reveal.updateRevealState();
   }
 }

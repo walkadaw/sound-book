@@ -1,7 +1,7 @@
-<div class="reveal" [class.speakerNotes]="this.isSpeakerNotes()">
+<div class="reveal" [class.speakerNotes]="isSpeakerNotes()">
   <div class="slides">
-    @if (slideList && slideList.length) {
-      @for (slides of slideList; track trackBySlides($index, slides)) {
+    @if (slideList().length) {
+      @for (slides of slideList(); track trackBySlides($index, slides)) {
         @for (slide of slides.slides; track slide) {
           <section [style.font-size.px]="slide.fontSize">
             <span>{{ slide.text }}</span>
@@ -23,6 +23,6 @@
 </div>
 
 @if (isReady()) {
-  <app-presentation-menu [slideList]="slideList" (addedSong)="addSlide($event)" (removeSong)="removeSlide($event)">
+  <app-presentation-menu [slideList]="slideList()" (addedSong)="addSlide($event)" (removeSong)="removeSlide($event)">
   </app-presentation-menu>
 }

@@ -10,7 +10,7 @@ import {
   ElementRef,
   AfterViewInit,
   inject,
-  ChangeDetectionStrategy,
+  signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
@@ -30,8 +30,6 @@ import { LetDirective } from '../../../directives/let-directive/app-let.directiv
   templateUrl: './presentation-menu.component.html',
   styleUrls: ['./presentation-menu.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, LetDirective, AsyncPipe],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -46,19 +44,19 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
 
   @ViewChild('searchElement') searchElement: ElementRef<HTMLInputElement>;
 
-  active = false;
+  readonly active = signal(false);
   isShowControls = false;
   isSpeakerNotes = false;
-  isSearchFocused = false;
-  document = document;
-  hideMenu = false;
-  openSelectedTag = false;
-  selectedTag: TagList;
+  readonly isSearchFocused = signal(false);
+  readonly isFullscreen = signal(!!document.fullscreenElement);
+  readonly hideMenu = signal(false);
+  readonly openSelectedTag = signal(false);
+  readonly selectedTag = signal<TagList | undefined>(undefined);
   tagsList: TagList[];
   search = new FormControl('', { nonNullable: true });
   songListFiltered$: Observable<Song[]>;
   selectedTag$: BehaviorSubject<number> = new BehaviorSubject(0);
-  selectedSlide = this.reveal.getActiveSlide();
+  readonly selectedSlide = signal(this.reveal.getActiveSlide());
 
   private revealNotes = this.reveal.getNotesPlugin();
   private onDestroy$ = new Subject<void>();
@@ -72,6 +70,10 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     if (!this.slideList?.length) {
       this.toggleMenu();
     }
+
+    fromEvent(document, 'fullscreenchange')
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe(() => this.isFullscreen.set(!!document.fullscreenElement));
 
     fromEvent<MessageEvent>(window, 'message')
       .pipe(
@@ -125,11 +127,11 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   toggleMenu() {
-    this.active = !this.active;
+    this.active.update((active) => !active);
   }
 
   toggleShowIconMenu(dispatch = true) {
-    this.hideMenu = !this.hideMenu;
+    this.hideMenu.update((hideMenu) => !hideMenu);
     if (!this.isSpeakerNotes) {
       document.body.classList.toggle('hideMenu');
     }
@@ -149,7 +151,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     const tag = this.tagsList.find(({ id }) => id === tagId);
 
     if (tag) {
-      this.selectedTag = tag;
+      this.selectedTag.set(tag);
       this.selectedTag$.next(tagId);
 
       if (this.searchElement) {
@@ -157,7 +159,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
       }
     }
 
-    this.openSelectedTag = false;
+    this.openSelectedTag.set(false);
   }
 
   onClickSearchSong(song: SlideList) {
@@ -175,7 +177,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   toggleSelectedTag() {
-    this.openSelectedTag = !this.openSelectedTag;
+    this.openSelectedTag.update((open) => !open);
   }
 
   fullScreen() {
@@ -191,12 +193,12 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   onSearchFocused() {
-    this.isSearchFocused = true;
+    this.isSearchFocused.set(true);
   }
 
   onSearchBlur() {
     setTimeout(() => {
-      this.isSearchFocused = false;
+      this.isSearchFocused.set(false);
     }, 250);
   }
 
@@ -239,10 +241,10 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
     this.search.valueChanges
       .pipe(
         takeUntil(this.onDestroy$),
-        filter(() => this.openSelectedTag),
+        filter(() => this.openSelectedTag()),
       )
       .subscribe(() => {
-        this.openSelectedTag = false;
+        this.openSelectedTag.set(false);
       });
   }
 
@@ -251,9 +253,9 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
       .onSlideChange()
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((slideNumber) => {
-        this.selectedSlide = slideNumber;
+        this.selectedSlide.set(slideNumber);
 
-        if (this.active && !this.isSpeakerNotes) {
+        if (this.active() && !this.isSpeakerNotes) {
           this.toggleMenu();
         }
       });

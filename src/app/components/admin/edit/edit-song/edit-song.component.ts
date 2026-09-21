@@ -1,13 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  forwardRef,
-  Input,
-  OnDestroy,
-  ViewChild,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, forwardRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { distinctUntilChanged, fromEvent, map, merge, of, Subject, takeUntil } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
@@ -23,8 +14,6 @@ import { AsyncPipe } from '@angular/common';
       multi: true,
     },
   ],
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, AsyncPipe],
 })
 export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {

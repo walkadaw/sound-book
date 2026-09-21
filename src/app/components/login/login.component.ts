@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, EMPTY } from 'rxjs';
@@ -11,13 +11,12 @@ import { UserService } from '../../services/user/user.service';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, MatFormField, MatLabel, MatInput, MatError, MatButton],
 })
 export class LoginComponent implements OnInit {
   private userService = inject(UserService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   loginForm = new FormGroup({
     username: new FormControl('', { nonNullable: true, validators: Validators.required }),
@@ -40,6 +39,7 @@ export class LoginComponent implements OnInit {
         .pipe(
           catchError(() => {
             this.loginForm.setErrors({ failedError: 'Лагін ці пароль няправільныя' });
+            this.cdr.markForCheck();
             return EMPTY;
           }),
         )
