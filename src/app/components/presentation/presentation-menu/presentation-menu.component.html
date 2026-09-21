@@ -62,14 +62,19 @@
         </div>
       </div>
     </div>
-    @let foundSongs = songListFiltered();
+    @let found = foundSongs();
     <div data-panel="Slides" class="slide-menu-panel active-menu-panel">
       @if (isSearchFocused()) {
         <ul class="slide-menu-items-search">
-          @if (foundSongs.length) {
-            @for (song of foundSongs; track trackBySong($index, song)) {
-              <li class="slide-menu-item active selected add-new-slide" (click)="onClickSearchSong(song)">
-                <span class="slide-menu-item-title">{{ song.title }}</span>
+          @if (found.length) {
+            @for (item of found; track item.song.id) {
+              <li class="slide-menu-item active selected add-new-slide" (click)="onClickSearchSong(item.song)">
+                <span class="slide-menu-item-title">
+                  {{ item.song.title }}
+                  @if (item.snippet; as snippet) {
+                    <app-match-highlight class="slide-menu-item-snippet" [snippet]="snippet" />
+                  }
+                </span>
               </li>
             }
           } @else {

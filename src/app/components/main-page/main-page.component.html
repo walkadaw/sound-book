@@ -15,6 +15,9 @@
               {{ song.songId }}.
             }
             {{ song.title | uppercase }}
+            @if (song.snippet; as snippet) {
+              <app-match-highlight class="song-snippet" [snippet]="snippet" />
+            }
           </span>
           <div class="actions" (click)="$event.stopPropagation(); $event.preventDefault()">
             <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu" [matMenuTriggerData]="song">

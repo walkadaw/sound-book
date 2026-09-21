@@ -15,11 +15,12 @@ import { IAppState } from '../../redux/models/IAppState';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
 import { getShowMenu, getShowSongNumber } from '../../redux/selector/settings.selector';
-import { FuseService } from '../../services/fuse-service/fuse.service';
+import { FuseService, SongSearchResult } from '../../services/fuse-service/fuse.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
+import { MatchHighlightComponent } from '../match-highlight/match-highlight.component';
 
 @Component({
   selector: 'app-main-page',
@@ -37,6 +38,7 @@ import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
     PlaylistMenuComponent,
     UpperCasePipe,
     ReplaceSpacePipe,
+    MatchHighlightComponent,
   ],
 })
 export class MainPageComponent {
@@ -52,15 +54,21 @@ export class MainPageComponent {
   protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected selectedTag = this.store.selectSignal(getSelectedTag);
 
-  private filteredSong = this.fuseService.getFilteredSong(
+  private searchTerm = this.store.selectSignal(getSearchTerm);
+  private searchResults = this.fuseService.getSearchResults(
     this.selectedTag,
-    this.store.selectSignal(getSearchTerm),
+    this.searchTerm,
     this.songService.songList,
   );
 
-  protected songListFiltered = computed<SongFavorite[]>(() => {
+  protected songListFiltered = computed<(SongFavorite & Omit<SongSearchResult, 'song'>)[]>(() => {
     const favoriteList = this.favoriteState();
-    return this.filteredSong().map((song) => ({ ...song, favorite: favoriteList.has(song.id) }));
+
+    return this.searchResults().map(({ song, snippet }) => ({
+      ...song,
+      favorite: favoriteList.has(song.id),
+      snippet,
+    }));
   });
 
   private menuScrollYPosition: number;
@@ -68,7 +76,7 @@ export class MainPageComponent {
 
   constructor() {
     effect(() => {
-      this.filteredSong();
+      this.searchResults();
       window.scrollTo(0, 0);
     });
 

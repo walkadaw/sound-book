@@ -19,6 +19,7 @@ import { MatIcon } from '@angular/material/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
+import { MatchHighlightComponent } from '../../match-highlight/match-highlight.component';
 import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
@@ -29,7 +30,7 @@ import { SongService } from '../../../services/song-service/song.service';
   templateUrl: './presentation-menu.component.html',
   styleUrls: ['./presentation-menu.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet],
+  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, MatchHighlightComponent],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit {
   private destroyRef = inject(DestroyRef);
@@ -60,7 +61,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
     { initialValue: '' },
   );
 
-  readonly songListFiltered = this.fuseService.getFilteredSong(
+  readonly foundSongs = this.fuseService.getSearchResults(
     this.selectedTagId,
     this.debouncedSearch,
     this.songService.songList,

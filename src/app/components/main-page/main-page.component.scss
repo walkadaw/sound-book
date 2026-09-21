@@ -1,31 +1,39 @@
 .sticky-search {
-    position: sticky;
-    top: 0;
+  position: sticky;
+  top: 0;
 }
 
 .no-results {
-    flex: 0 0 100%;
-    box-sizing: border-box;
-    padding: 8px 0;
-    line-height: 1.5;
+  flex: 0 0 100%;
+  box-sizing: border-box;
+  padding: 8px 0;
+  line-height: 1.5;
 
-    // .songs-list растягивается на -15px по бокам, возвращаем текст в границы страницы
-    @media (max-width: 768px) {
-        padding: 8px 15px;
-    }
+  // .songs-list растягивается на -15px по бокам, возвращаем текст в границы страницы
+  @media (max-width: 768px) {
+    padding: 8px 15px;
+  }
 
-    a {
-        display: block;
-        margin-top: 8px;
-        cursor: pointer;
-    }
+  a {
+    display: block;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+}
+
+.song-snippet {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.85em;
+  opacity: 0.75;
+  overflow-wrap: anywhere;
 }
 
 .song-link {
-    text-decoration: none;
-    color:  inherit !important;
+  text-decoration: none;
+  color: inherit !important;
 
-    &:visited {
-        color:  inherit !important;
-    }
+  &:visited {
+    color: inherit !important;
+  }
 }

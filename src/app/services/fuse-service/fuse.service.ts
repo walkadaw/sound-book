@@ -3,18 +3,28 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import Fuse, { IFuseOptions } from 'fuse.js';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Song } from '../../interfaces/song';
+import { MatchSnippet, getMatchSnippet, replaceSimilarChars } from './search-text';
 
-const REPLACE_SIMILAR_CHAR: { [key: string]: string } = {
-  і: 'и',
-  ў: 'у',
-  ё: 'е',
-};
-const REPLACE_SIMILAR_CHAR_REGEXP = new RegExp(`[${Object.keys(REPLACE_SIMILAR_CHAR).join('')}]`, 'gi');
+export interface SongSearchResult {
+  song: Song;
+  snippet: MatchSnippet | null;
+}
 
 @Service()
 export class FuseService {
   /** Must be called in an injection context, because the search term is debounced via rxjs interop. */
   getFilteredSong(selectedTag: Signal<number>, search: Signal<string>, allSongList: Signal<Song[]>): Signal<Song[]> {
+    const results = this.getSearchResults(selectedTag, search, allSongList);
+
+    return computed(() => results().map(({ song }) => song));
+  }
+
+  /** Same as `getFilteredSong`, but also tells which parts of the title and text matched the search. */
+  getSearchResults(
+    selectedTag: Signal<number>,
+    search: Signal<string>,
+    allSongList: Signal<Song[]>,
+  ): Signal<SongSearchResult[]> {
     const songList = computed(() => {
       const tag = selectedTag();
       const songs = allSongList();
@@ -26,24 +36,31 @@ export class FuseService {
       initialValue: search(),
     });
 
-    return computed(() => {
+    return computed<SongSearchResult[]>(() => {
       const searchText = debouncedSearch();
 
       if (!Number.isNaN(Number(searchText))) {
-        return songList().filter(({ songId }) => songId.toString().includes(searchText));
+        return songList()
+          .filter(({ songId }) => songId.toString().includes(searchText))
+          .map((song): SongSearchResult => ({ song, snippet: null }));
       }
       if (searchText) {
         return fuse()
           .search(this.replaceChar(searchText))
-          .map((fuseItem) => fuseItem.item);
+          .map(({ item, matches }): SongSearchResult => ({
+            song: item,
+            snippet: getMatchSnippet(matches, 'text', item.text),
+          }));
       }
-      return songList();
+      return songList().map((song): SongSearchResult => ({ song, snippet: null }));
     });
   }
 
   private getOptions(): IFuseOptions<Song> {
     return {
       threshold: 0.4,
+      includeMatches: true,
+      minMatchCharLength: 2,
       ignoreLocation: true,
       keys: [
         {
@@ -63,6 +80,6 @@ export class FuseService {
   }
 
   private replaceChar(str: string): string {
-    return str.replace(REPLACE_SIMILAR_CHAR_REGEXP, (char) => REPLACE_SIMILAR_CHAR[char.toLowerCase()]);
+    return replaceSimilarChars(str);
   }
 }
