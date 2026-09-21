@@ -195,31 +195,48 @@ export class ChordService {
     return chord.replace(REPLACE_BIMOLE, 'b');
   }
 
-  private findChordInText(origin: string, match?: string, acc: string[] = [], endLine = 1): string[] {
-    if (endLine <= origin.length) {
-      const testChord = origin.slice(0, endLine);
-      return this.findChordInText(origin, this.hasChord(testChord) ? testChord : match, acc, endLine + 1);
+  /**
+   * Splits glued chords ("AmDm", "CGD") into a list. Returns an empty list unless the whole
+   * word is made of chords, so lyrics like "Adonai" are never partially recognized.
+   */
+  private findChordInText(origin: string): string[] {
+    return this.splitChords(origin) ?? [];
+  }
+
+  /** Chord with an arbitrary bass note, e.g. "A/B", that is missing from the chord list suffixes */
+  private isSlashChord(candidate: string): boolean {
+    const slash = candidate.lastIndexOf('/');
+
+    return slash > 0 && this.hasChord(candidate.slice(0, slash)) && this.hasChord(candidate.slice(slash + 1));
+  }
+
+  private splitChords(origin: string): string[] | null {
+    if (!origin) {
+      return [];
     }
 
-    if (!match) {
-      return acc;
+    for (let end = origin.length; end > 0; end--) {
+      const candidate = origin.slice(0, end);
+
+      if (this.hasChord(candidate) || this.isSlashChord(candidate)) {
+        const rest = this.splitChords(origin.slice(end));
+
+        if (rest) {
+          return [candidate, ...rest];
+        }
+      }
     }
 
-    acc.push(match);
-
-    const newOrigin = origin.slice(match.length);
-    if (newOrigin) {
-      return this.findChordInText(newOrigin, undefined, acc);
-    }
-
-    return acc;
+    return null;
   }
 
   private normalizeChord(baseChord: string): string {
     let result: string;
+    // German sharp notation is also written capitalized: "Cis"
+    const shortKey = baseChord.length === 3 && baseChord.endsWith('is') ? baseChord.toLowerCase() : baseChord;
 
-    if (SHORT_MAP[baseChord]) {
-      result = SHORT_MAP[baseChord];
+    if (SHORT_MAP[shortKey]) {
+      result = SHORT_MAP[shortKey];
     }
 
     if (ALIAS_MAP[result || baseChord]) {

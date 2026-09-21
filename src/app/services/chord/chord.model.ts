@@ -57,5 +57,6 @@ export const ALIAS_MAP: {[key: string]: string} = {
 
 export const ALIAS_SUFFIX: {[key: string]: string} = {
   sus: 'sus4',
+  '7sus': '7sus4',
   m: 'minor',
 };

@@ -155,10 +155,10 @@ export class EditComponent implements OnInit, OnDestroy {
     return item
       .map((_, index) => {
         if (chord[index]?.trim()) {
-          return `${chord[index]}\n${text[index]}`;
+          return `${chord[index]}\n${text[index] ?? ''}`;
         }
 
-        return text[index];
+        return text[index] ?? '';
       })
       .join('\n');
   }
