@@ -22,7 +22,7 @@ module.exports = tseslint.config(
     processor: angular.processInlineTemplates,
     languageOptions: {
       parserOptions: {
-        project: ['tsconfig.json'],
+        project: ['tsconfig.eslint.json'],
         tsconfigRootDir: __dirname,
       },
     },
