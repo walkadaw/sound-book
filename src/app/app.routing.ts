@@ -77,7 +77,7 @@ const soundRoutes: Routes = [
   { path: '404', component: PageNotFoundComponent },
   {
     path: 'admin',
-    loadChildren: () => import('./components/admin/admin.module').then((m) => m.AdminModule),
+    loadChildren: () => import('./components/admin/admin.routes').then((m) => m.adminRoutes),
     canActivate: [UserService],
   },
   { path: '**', component: PageNotFoundComponent },
@@ -86,7 +86,7 @@ const soundRoutes: Routes = [
 export const appRoutes: Routes = [
   {
     path: 'presentation',
-    loadChildren: () => import('./components/presentation/presentation.module').then((m) => m.PresentationModule),
+    loadChildren: () => import('./components/presentation/presentation.routes').then((m) => m.presentationRoutes),
   },
   { path: '', component: MainSoundComponent, children: soundRoutes },
 ];
