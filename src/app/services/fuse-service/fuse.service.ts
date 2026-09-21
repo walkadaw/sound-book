@@ -1,5 +1,5 @@
 import { Service } from '@angular/core';
-import Fuse from 'fuse.js';
+import Fuse, { IFuseOptions } from 'fuse.js';
 import { Observable } from 'rxjs';
 import {
   map, tap, switchMap, debounceTime, distinctUntilChanged,
@@ -49,7 +49,7 @@ export class FuseService {
     );
   }
 
-  private getOptions(): Fuse.IFuseOptions<Song> {
+  private getOptions(): IFuseOptions<Song> {
     return {
       threshold: 0.4,
       ignoreLocation: true,
@@ -64,8 +64,8 @@ export class FuseService {
         },
       ],
       getFn: (obj, path) => {
-        const value = (Fuse as any).config.getFn(obj, path);
-        return this.replaceChar(value);
+        const value = Fuse.config.getFn(obj, path);
+        return Array.isArray(value) ? value.map((item) => this.replaceChar(item)) : this.replaceChar(value as string);
       },
     };
   }
