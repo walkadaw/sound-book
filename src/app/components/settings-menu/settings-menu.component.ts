@@ -31,6 +31,7 @@ import { SongService } from '../../services/song-service/song.service';
 const MIN_FONT_SIZE = 0.4;
 const MAX_FONT_SIZE = 2;
 const FONT_SIZE_STEP = 0.1;
+const DEFAULT_FONT_SIZE = 1;
 
 @Component({
   selector: 'app-settings-menu',
@@ -104,8 +105,14 @@ export class SettingsMenuComponent {
 
   protected changeFontSize(direction: 1 | -1): void {
     const next = Math.round(this.fontSize() / FONT_SIZE_STEP + direction) * FONT_SIZE_STEP;
-    const fontSize = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Math.round(next * 10) / 10));
+    this.setFontSize(Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Math.round(next * 10) / 10)));
+  }
 
+  protected resetFontSize(): void {
+    this.setFontSize(DEFAULT_FONT_SIZE);
+  }
+
+  private setFontSize(fontSize: number): void {
     window.localStorage.setItem('fontSize', fontSize.toString());
     this.store.dispatch(changeFontSizeAction(fontSize));
   }

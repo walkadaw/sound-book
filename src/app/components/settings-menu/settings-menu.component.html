@@ -30,6 +30,7 @@
   <div class="font-size" role="group" aria-labelledby="font-size-label">
     <button
       mat-icon-button
+      class="font-size__step"
       type="button"
       aria-label="Паменшыць шрыфт"
       [disabled]="!canDecrease()"
@@ -37,9 +38,19 @@
     >
       <mat-icon>remove</mat-icon>
     </button>
-    <span class="font-size__value" aria-live="polite">{{ fontSizePercent() }}%</span>
+    <button
+      class="font-size__value"
+      type="button"
+      aria-label="Скінуць памер шрыфта да 100%"
+      title="Скінуць да 100%"
+      aria-live="polite"
+      (click)="resetFontSize()"
+    >
+      {{ fontSizePercent() }}%
+    </button>
     <button
       mat-icon-button
+      class="font-size__step"
       type="button"
       aria-label="Павялічыць шрыфт"
       [disabled]="!canIncrease()"
