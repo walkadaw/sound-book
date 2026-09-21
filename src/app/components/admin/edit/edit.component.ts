@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
 import { pluck, Subject, takeUntil } from 'rxjs';
@@ -49,10 +49,10 @@ export class EditComponent implements OnInit, OnDestroy {
 
   readonly tagList = TAGS_LIST;
 
-  songDataForm = new UntypedFormGroup({
-    title: new UntypedFormControl('', [Validators.required, Validators.maxLength(120)]),
-    text: new UntypedFormControl('', Validators.required),
-    tags: new UntypedFormGroup(this.setTag(() => new UntypedFormControl(false))),
+  songDataForm = new FormGroup({
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(120)] }),
+    text: new FormControl('', { nonNullable: true, validators: Validators.required }),
+    tags: new FormGroup(this.setTag(() => new FormControl(false, { nonNullable: true }))),
   });
 
   diff: Change[];
@@ -72,7 +72,7 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
-    const { title, text, tags } = this.songDataForm.value;
+    const { title, text, tags } = this.songDataForm.getRawValue();
 
     const { songID } = this;
     const content = this.chordService.getTextAndChord(text);
@@ -139,8 +139,8 @@ export class EditComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setTag<T extends (arg: TagList) => any>(getValue: T) {
-    return TAGS_LIST.reduce<{ [key: string]: ReturnType<T> }>((acc, tag) => {
+  private setTag<T>(getValue: (arg: TagList) => T) {
+    return TAGS_LIST.reduce<Record<string, T>>((acc, tag) => {
       acc[tag.id.toString()] = getValue(tag);
 
       return acc;

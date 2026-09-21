@@ -8,7 +8,7 @@ import {
   ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { distinctUntilChanged, fromEvent, map, merge, of, Subject, takeUntil } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 
@@ -32,7 +32,7 @@ export class EditSongComponent implements AfterViewInit, OnDestroy, ControlValue
   @ViewChild('textEditor') textEditor: ElementRef<HTMLTextAreaElement>;
   @Input() placeholder = '';
 
-  textForm = new UntypedFormControl('');
+  textForm = new FormControl('', { nonNullable: true });
 
   lineCounter$ = merge(
     of(Array(50).fill('')),

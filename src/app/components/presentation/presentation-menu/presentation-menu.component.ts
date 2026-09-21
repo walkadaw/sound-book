@@ -12,7 +12,7 @@ import {
   inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject, fromEvent, BehaviorSubject } from 'rxjs';
 import { takeUntil, filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
@@ -55,7 +55,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit, OnDestr
   openSelectedTag = false;
   selectedTag: TagList;
   tagsList: TagList[];
-  search: UntypedFormControl = new UntypedFormControl();
+  search = new FormControl('', { nonNullable: true });
   songListFiltered$: Observable<Song[]>;
   selectedTag$: BehaviorSubject<number> = new BehaviorSubject(0);
   selectedSlide = this.reveal.getActiveSlide();

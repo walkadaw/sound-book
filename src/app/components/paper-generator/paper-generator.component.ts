@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Validators, UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatCheckboxChange, MatCheckbox } from '@angular/material/checkbox';
@@ -46,38 +46,37 @@ import { SongService } from '../../services/song-service/song.service';
   ],
 })
 export class PaperGeneratorComponent implements OnInit {
-  private formBuilder = inject(UntypedFormBuilder);
+  private formBuilder = inject(NonNullableFormBuilder);
   private songService = inject(SongService);
   private fuseService = inject(FuseService);
   private generatorService = inject(GeneratorService);
 
-  songListForm: UntypedFormGroup;
+  songListForm = this.formBuilder.group({
+    allSong: [true, Validators.required],
+    selectedSong: this.formBuilder.control<Record<string, boolean>>({}),
+    isShowChord: [true],
+    isShowTag: [true],
+    isAddChastki: [false],
+    isAddGadzinki: [false],
+    search: '',
+    selectedTabId: 0,
+  });
+
   songListFiltered$: Observable<Song[]>;
   selectedSongList$: Observable<Song[]>;
 
   ngOnInit() {
-    this.songListForm = this.formBuilder.group({
-      allSong: [true, Validators.required],
-      selectedSong: {},
-      isShowChord: [true],
-      isShowTag: [true],
-      isAddChastki: [false],
-      isAddGadzinki: [false],
-      search: '',
-      selectedTabId: 0,
-    });
-
-    const search = this.songListForm.get('search');
+    const { search, selectedSong } = this.songListForm.controls;
     this.songListFiltered$ = this.fuseService.getFilteredSong(
       of(0),
       search.valueChanges.pipe(startWith(search.value)),
       this.songService.songList$,
     );
 
-    this.selectedSongList$ = this.songListForm.get('selectedSong').valueChanges.pipe(
-      startWith(this.songListForm.get('selectedSong').value),
-      map((selectedSong) =>
-        Object.entries(selectedSong)
+    this.selectedSongList$ = selectedSong.valueChanges.pipe(
+      startWith(selectedSong.value),
+      map((selected) =>
+        Object.entries(selected)
           .filter(([, value]) => value)
           .map(([key]) => this.songService.getSong(key)),
       ),
@@ -85,16 +84,16 @@ export class PaperGeneratorComponent implements OnInit {
   }
 
   selectedIndexChange(value: number): void {
-    this.songListForm.get('selectedTabId').setValue(value);
+    this.songListForm.controls.selectedTabId.setValue(value);
   }
 
   changeSelectedSong(event: MatCheckboxChange, songId: number): void {
-    const selectedSong = this.songListForm.get('selectedSong');
+    const { selectedSong } = this.songListForm.controls;
     selectedSong.setValue({ ...selectedSong.value, [songId]: event.checked });
   }
 
   clearFilterSong() {
-    this.songListForm.get('search').setValue('');
+    this.songListForm.controls.search.setValue('');
   }
 
   trackBy(index: number, song: Song): number {
@@ -102,7 +101,8 @@ export class PaperGeneratorComponent implements OnInit {
   }
 
   generateDocx() {
-    const { allSong, selectedSong, isShowChord, isShowTag, isAddChastki, isAddGadzinki } = this.songListForm.value;
+    const { allSong, selectedSong, isShowChord, isShowTag, isAddChastki, isAddGadzinki } =
+      this.songListForm.getRawValue();
 
     let songList = this.songService.songList$.value.filter((song) => !song.tag[TAGS_LIST[9].id]).map(({ id }) => +id);
     if (!allSong) {

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { UntypedFormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -19,7 +19,11 @@ export class AddPlaylistComponent implements OnInit {
   private playlistService = inject(PlaylistService);
   private router = inject(Router);
 
-  playlistControl = new UntypedFormControl('', [Validators.required, Validators.maxLength(60)]);
+  playlistControl = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.maxLength(60)],
+  });
+
   playlistId = this.route.snapshot?.params?.['playlistId'];
 
   ngOnInit(): void {

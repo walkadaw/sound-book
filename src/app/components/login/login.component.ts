@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, EMPTY } from 'rxjs';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
@@ -19,9 +19,9 @@ export class LoginComponent implements OnInit {
   private userService = inject(UserService);
   private router = inject(Router);
 
-  loginForm = new UntypedFormGroup({
-    username: new UntypedFormControl('', Validators.required),
-    password: new UntypedFormControl('', Validators.required),
+  loginForm = new FormGroup({
+    username: new FormControl('', { nonNullable: true, validators: Validators.required }),
+    password: new FormControl('', { nonNullable: true, validators: Validators.required }),
   });
 
   ngOnInit(): void {
@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
     this.loginForm.markAsTouched();
 
     if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
+      const { username, password } = this.loginForm.getRawValue();
       this.userService
         .login(username, password)
         .pipe(
