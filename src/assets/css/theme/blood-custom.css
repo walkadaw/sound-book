@@ -1,0 +1,32 @@
+/*
+ * Project-specific overrides for the reveal.js "blood" theme.
+ */
+
+/* Ubuntu with the 500 weight and font-display: swap (the theme requests 300, 700 only) */
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:300,500,700&display=swap');
+
+/* Original theme targets .reveal-viewport; here it is scoped to body.reveal */
+body.reveal {
+  background: #222;
+  background-color: #222;
+}
+
+body.white {
+  background-color: #fff;
+}
+body.white .reveal {
+  color: #000;
+}
+body.white .reveal .controls {
+  color: #222;
+}
+.reveal .controls {
+  color: #eee;
+}
+.slide-menu-wrapper .slide-menu {
+  font-weight: 300;
+}
+.reveal .slides > section,
+.reveal .slides > section > section {
+  padding: 0;
+}

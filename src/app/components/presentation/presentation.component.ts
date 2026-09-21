@@ -25,8 +25,10 @@ import { PresentationMenuComponent } from './presentation-menu/presentation-menu
   templateUrl: './presentation.component.html',
   styleUrls: [
     './presentation.component.scss',
-    '../../../assets/css/reveal.scss',
-    '../../../assets/css/theme/blood.css',
+    '../../../../node_modules/reveal.js/dist/reveal.css',
+    '../../../assets/css/reveal-custom.scss',
+    '../../../../node_modules/reveal.js/dist/theme/blood.css',
+    '../../../assets/css/theme/blood-custom.css',
   ],
   encapsulation: ViewEncapsulation.None,
   // TODO: рассмотреть переход на ChangeDetectionStrategy.OnPush (требует регресс-тестирования)

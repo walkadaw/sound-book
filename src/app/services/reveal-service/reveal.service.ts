@@ -1,10 +1,8 @@
 import { Service } from '@angular/core';
-// @ts-expect-error no ts
-import Reveal from 'reveal.js';
+import Reveal, { RevealApi } from 'reveal.js';
+import RevealNotes from 'reveal.js/plugin/notes';
 import { fromEvent, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-// @ts-expect-error no ts
-import RevealNotes from '../../../assets/plugin/notes/notes.esm';
 
 interface NotesPlugin {
   open: () => void;
@@ -12,14 +10,14 @@ interface NotesPlugin {
 
 @Service()
 export class RevealService {
-  private reveal: Reveal;
+  private reveal: RevealApi;
 
   isReady(): boolean {
     return !!this.reveal && this.reveal.isReady();
   }
 
   isShowControls(): boolean {
-    return this.isReady() && this.reveal.getConfig().controls;
+    return this.isReady() && !!this.reveal.getConfig().controls;
   }
 
   isSpeakerNotes(): boolean {
@@ -31,7 +29,7 @@ export class RevealService {
   }
 
   getNotesPlugin(): NotesPlugin {
-    return this.reveal.getPlugin('notes');
+    return this.reveal.getPlugin('notes') as unknown as NotesPlugin;
   }
 
   getRevealElement(): HTMLElement {

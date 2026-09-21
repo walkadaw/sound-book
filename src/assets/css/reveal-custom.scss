@@ -1,0 +1,24 @@
+/*
+ * Project-specific reveal.js overrides.
+ * Replaces the original global rules (html.reveal-full-page / .reveal-viewport),
+ * scoped to the <body class="reveal"> that PresentationComponent sets.
+ */
+
+html {
+	width: 100%;
+	height: 100%;
+	height: 100vh;
+	height: calc( var(--vh, 1vh) * 100 );
+	overflow: hidden;
+}
+
+body.reveal {
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+	line-height: 1;
+	margin: 0;
+
+	background-color: #fff;
+	color: #000;
+}

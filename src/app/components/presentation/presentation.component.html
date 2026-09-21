@@ -7,9 +7,9 @@
             <span>{{ slide.text }}</span>
             @if (slides.chord || slides.text) {
               <aside class="notes">
-                <div class="lyrics">
-                  <span>{{ slides.text }}</span
-                  ><span class="chord">{{ slides.chord }}</span>
+                <div style="display: flex; white-space: pre-wrap">
+                  <span style="flex: 1 1 80%">{{ slides.text }}</span
+                  ><span style="flex: 1 1 20%; font-weight: bold">{{ slides.chord }}</span>
                 </div>
               </aside>
             }
