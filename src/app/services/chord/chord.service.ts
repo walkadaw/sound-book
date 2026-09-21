@@ -101,7 +101,10 @@ export class ChordService {
             return data;
           }
 
-          return this.getShortChord(chord);
+          // keep surrounding special symbols, e.g. "(E7)"
+          const [, before, , after] = /^([^\w+/#♭]*)(.*?)([^\w+/#♭]*)$/.exec(data);
+
+          return `${before}${this.getShortChord(chord)}${after}`;
         });
 
         acc.chord += `${chordlist.join(' ')}\n`;

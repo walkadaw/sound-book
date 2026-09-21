@@ -42,6 +42,18 @@ describe('ChordService', () => {
       expect(service.getChord('a').suffix).toBe('minor');
     });
 
+    it('should treat German H as English B', () => {
+      expect(types('H Hm H7 A/H h')).toEqual(Array(5).fill('chord'));
+      expect(service.getChord('H').key).toBe('B');
+      expect(service.getChord('Hm').suffix).toBe('minor');
+      expect(service.getChord('h').key).toBe('B');
+      expect(service.getChord('h').suffix).toBe('minor');
+    });
+
+    it('should keep special symbols around chords when shortening', () => {
+      expect(service.getTextAndChord('FCd E4  (E7)').chord).toBe('FCd E4 (E7)\n');
+    });
+
     it('should keep the original text of the line', () => {
       const line = 'Am  Adonai, C';
 

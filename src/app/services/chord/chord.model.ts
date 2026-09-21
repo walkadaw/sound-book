@@ -51,6 +51,7 @@ export const ALIAS_MAP: {[key: string]: string} = {
   'A#': 'Bb',
   'A#m': 'Bbm',
   H: 'B',
+  h: 'Bm',
   'H#': 'C',
   'B#': 'C',
 };
