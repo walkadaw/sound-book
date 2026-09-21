@@ -1,19 +1,18 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/list';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Song, SongFavorite } from '../../../interfaces/song';
 import { IAppState } from '../../../redux/models/IAppState';
-import { getShowChord, getShowSongNumber } from '../../../redux/selector/settings.selector';
+import { getShowSongNumber } from '../../../redux/selector/settings.selector';
 import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { ReplaceSpacePipe } from '../../../pipes/replace-space/replace-space.pipe';
@@ -36,12 +35,11 @@ import { ReplaceSpacePipe } from '../../../pipes/replace-space/replace-space.pip
     RouterLinkActive,
     CdkDrag,
     CdkDragHandle,
-    AsyncPipe,
     DatePipe,
     ReplaceSpacePipe,
   ],
 })
-export class ViewPlaylistComponent implements OnInit {
+export class ViewPlaylistComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private songService = inject(SongService);
@@ -50,32 +48,35 @@ export class ViewPlaylistComponent implements OnInit {
   private clipboard = inject(Clipboard);
   private snackBar = inject(MatSnackBar);
 
-  playlistData$: Observable<PlayList & { songs: Song[] }>;
+  private params = toSignal(this.route.params, { requireSync: true });
 
-  showSongNumber$ = this.store.select(getShowSongNumber);
-  showChord$ = this.store.select(getShowChord);
+  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
+  protected playlistData = computed<(PlayList & { songs: Song[] }) | null>(() => {
+    const { createdDate, songList = '', name } = this.params();
+    // playlist changes are driven by route params, not by the playlists signal
+    const playlist = untracked(() => this.getCurrentPlaylist());
+
+    if (!playlist && !songList) {
+      return null;
+    }
+
+    return {
+      ...playlist,
+      name: playlist?.name || name,
+      lastChange: playlist?.lastChange || createdDate,
+      songList: playlist?.songList || songList.split(','),
+      songs: this.getSongData(playlist?.songList || songList.split(',')),
+    };
+  });
 
   canShare = !!navigator.share;
 
-  ngOnInit(): void {
-    this.playlistData$ = this.route.params.pipe(
-      map(({ createdDate, songList = '', name }) => {
-        const playlist = this.getCurrentPlaylist();
-
-        if (!playlist && !songList) {
-          this.router.navigate(['/404'], { skipLocationChange: true });
-          return null;
-        }
-
-        return {
-          ...playlist,
-          name: playlist?.name || name,
-          lastChange: playlist?.lastChange || createdDate,
-          songList: playlist?.songList || songList.split(','),
-          songs: this.getSongData(playlist?.songList || songList.split(',')),
-        };
-      }),
-    );
+  constructor() {
+    effect(() => {
+      if (!this.playlistData()) {
+        this.router.navigate(['/404'], { skipLocationChange: true });
+      }
+    });
   }
 
   getSongData(songList: string[]): Song[] {

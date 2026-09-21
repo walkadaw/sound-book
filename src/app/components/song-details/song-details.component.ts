@@ -1,13 +1,13 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { Component, ChangeDetectionStrategy, computed, inject, linkedSignal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
-import { AsyncPipe, KeyValuePipe } from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
+import { map } from 'rxjs/operators';
 import { SongService } from '../../services/song-service/song.service';
 import { TagNameById } from '../../interfaces/tag-list';
 import { IAppState } from '../../redux/models/IAppState';
@@ -43,51 +43,45 @@ export interface SelectedSong {
     PlaylistMenuComponent,
     SongKeyComponent,
     ChordListComponent,
-    AsyncPipe,
     KeyValuePipe,
   ],
 })
-export class SongDetailsComponent implements OnInit {
+export class SongDetailsComponent {
   private songService = inject(SongService);
-  private router = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
   private store = inject<Store<IAppState>>(Store);
   private snackBar = inject(MatSnackBar);
   private playlistService = inject(PlaylistService);
 
-  selectedSong$: Observable<SelectedSong>;
-  isFavoriteSong$: Observable<boolean>;
-  showSongNumber$ = this.store.select(getShowSongNumber);
-  showChord$ = this.store.select(getShowChord);
+  private songId = toSignal(this.route.paramMap.pipe(map((paramMap) => paramMap.get('id'))), { requireSync: true });
+  private chordPosition = this.store.selectSignal(getChordPosition);
+  private favoriteState = this.store.selectSignal(getFavoriteState);
+
+  protected selectedSong = computed<SelectedSong | null>(() => {
+    const song = this.songService.getSong(this.songId());
+
+    if (!song) {
+      return null;
+    }
+
+    const text = song.text.split('\n').map((value) => value.trim());
+    const chord = song.chord.split('\n').map((value) => value.trim());
+    return {
+      ...song,
+      text,
+      chord,
+      chordPosition: this.chordPosition(),
+    };
+  });
+
+  protected isFavoriteSong = computed(() => this.favoriteState().has(this.selectedSong()?.id));
+  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
+  protected showChord = this.store.selectSignal(getShowChord);
+  protected selectedTranspilation = linkedSignal({ source: this.songId, computation: () => 0 });
+
   playLists: PlayList[] = this.playlistService.getAllPlaylists();
-  selectedTranspilation = 0;
 
   readonly tagNameById = TagNameById;
-
-  ngOnInit(): void {
-    this.selectedSong$ = combineLatest([
-      this.router.paramMap.pipe(map((paramMap) => paramMap.get('id'))),
-      this.store.select(getChordPosition),
-    ]).pipe(
-      map(([songId, chordPosition]) => {
-        const song = this.songService.getSong(songId);
-        this.selectedTranspilation = 0;
-
-        const text = song.text.split('\n').map((value) => value.trim());
-        const chord = song.chord.split('\n').map((value) => value.trim());
-        return {
-          ...song,
-          text,
-          chord,
-          chordPosition,
-        };
-      }),
-    );
-
-    this.isFavoriteSong$ = combineLatest([this.store.select(getFavoriteState), this.selectedSong$]).pipe(
-      filter(([favorite, song]) => favorite && !!song),
-      map(([favorite, song]) => favorite.has(song.id)),
-    );
-  }
 
   isArray(arg: any): boolean {
     return Array.isArray(arg);

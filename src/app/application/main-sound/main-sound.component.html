@@ -1,7 +1,7 @@
-<app-header [class.fixed-menu]="showMenu$ | async"></app-header>
-<main class="container" [class.show-menu]="showMenu$ | async" [style.font-size.em]="fontSize$ | async">
+<app-header [class.fixed-menu]="showMenu()"></app-header>
+<main class="container" [class.show-menu]="showMenu()" [style.font-size.em]="fontSize()">
   <app-main-page class="menu"></app-main-page>
-  @if ((showMenu$ | async) !== true) {
+  @if (!showMenu()) {
     <router-outlet></router-outlet>
   }
 </main>

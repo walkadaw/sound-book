@@ -1,34 +1,30 @@
 <h1>Закладкі:</h1>
 
-@if (songFavoriteList$ | async; as songFavoriteList) {
-  <div class="songs-list">
-    @if (songFavoriteList.length) {
-      @for (song of songFavoriteList; track trackBySong($index, song)) {
-        <div class="song-container" [routerLink]="['/song', song.id, song.title | replaceSpace]">
-          <span class="favorite">
-            <mat-icon (click)="toggleFavorite($event, song.id)">favorite</mat-icon>
-          </span>
-          <span class="song-title">
-            @if (showSongNumber$ | async) {
-              {{ song.songId }}.
-            }
-            {{ song.title }}
-          </span>
-          <div class="title-container__actions" (click)="$event.stopPropagation()">
-            <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu">
-              <mat-icon>more_horiz</mat-icon>
-            </button>
-            <mat-menu #selectedSongMenu="matMenu">
-              <app-playlist-menu
-                [songId]="song.id"
-                (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, song.id)"
-              ></app-playlist-menu>
-            </mat-menu>
-          </div>
-        </div>
-      }
-    } @else {
-      <div>Няма дададзеных песень</div>
-    }
-  </div>
-}
+<div class="songs-list">
+  @for (song of songFavoriteList(); track song.id) {
+    <div class="song-container" [routerLink]="['/song', song.id, song.title | replaceSpace]">
+      <span class="favorite">
+        <mat-icon (click)="toggleFavorite($event, song.id)">favorite</mat-icon>
+      </span>
+      <span class="song-title">
+        @if (showSongNumber()) {
+          {{ song.songId }}.
+        }
+        {{ song.title }}
+      </span>
+      <div class="title-container__actions" (click)="$event.stopPropagation()">
+        <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu">
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #selectedSongMenu="matMenu">
+          <app-playlist-menu
+            [songId]="song.id"
+            (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, song.id)"
+          ></app-playlist-menu>
+        </mat-menu>
+      </div>
+    </div>
+  } @empty {
+    <div>Няма дададзеных песень</div>
+  }
+</div>

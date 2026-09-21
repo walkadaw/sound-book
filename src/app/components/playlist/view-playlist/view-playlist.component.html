@@ -1,4 +1,4 @@
-@if (playlistData$ | async; as playlist) {
+@if (playlistData(); as playlist) {
   <article>
     @if (playlist) {
       <header class="entry-header">
@@ -76,7 +76,7 @@
               <!-- <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon> -->
             </span>
             <span class="song-title">
-              @if (showSongNumber$ | async) {
+              @if (showSongNumber()) {
                 {{ song.songId }}.
               }
               {{ song.title }}

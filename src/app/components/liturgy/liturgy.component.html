@@ -1,11 +1,11 @@
-@if (liturgy$ | async; as liturgy) {
+@if (liturgy(); as liturgy) {
   <article class="content">
     <h2>{{ liturgy.title }}</h2>
     <div [innerHTML]="getTrustArticle(liturgy.article)"></div>
     <i>Тэкст літургіі узяты з сайта <a href="https://catholic.by" target="_blank">Catholic.by</a></i>
   </article>
 } @else {
-  @if (isLoading) {
+  @if (isLoading()) {
     <mat-spinner></mat-spinner>
   } @else {
     <h3>Не атрымалася атрымаць сэгдошене чытанне!</h3>
