@@ -127,19 +127,24 @@ main {
     }
 
     .actions {
-        display: none;
+        // Zero height so the (taller) icon button never affects the row height;
+        // the button is centered and overflows the wrapper symmetrically.
+        display: flex;
+        align-items: center;
+        height: 0;
+        visibility: hidden;
         flex: 0 0 auto;
         align-self: center;
 
         @media (max-width: 768px) {
-            display: block;
+            height: auto;
+            visibility: visible;
         }
-    
     }
 
     &:hover {
         .actions {
-            display: block;
+            visibility: visible;
         }
     }
     
