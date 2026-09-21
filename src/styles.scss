@@ -74,19 +74,6 @@ main {
     padding: 0 15px;
 }
 
-.chord-position {
-	/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
-	/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
-	mat-button-toggle {
-		line-height: normal;
-		/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version. */
-		.mat-button-toggle-label-content {
-		line-height: normal;
-		padding: 4px;
-		}
-	}
-}
-
 .songs-list {
     display: flex;
     flex-direction: row;
