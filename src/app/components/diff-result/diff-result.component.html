@@ -1,5 +1,5 @@
 <div style="white-space: pre">
-  @for (change of diff; track change) {
+  @for (change of diff(); track change) {
     @if (change.removed && change.value.trim()) {
       <span style="color: red">{{ change.value }}</span>
     }

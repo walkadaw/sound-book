@@ -1,4 +1,4 @@
-@for (lines of chordList; track lines) {
+@for (lines of chordList(); track lines) {
   @for (tag of lines; track tag) {
     @if (tag.type === 'chord') {
       <span class="chord" (click)="showChords(tag.text)" [matMenuTriggerFor]="showChord">{{ tag.text }}</span>
@@ -9,7 +9,7 @@
   {{ '\n' }}
 }
 <mat-menu #showChord>
-  @if (selectedChord) {
-    <app-chord-variation [chord]="selectedChord"></app-chord-variation>
+  @if (selectedChord()) {
+    <app-chord-variation [chord]="selectedChord()"></app-chord-variation>
   }
 </mat-menu>

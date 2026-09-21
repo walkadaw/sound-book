@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CHORD_DATA } from '../../../services/chord/chord-list';
 import { Position } from '../../../services/chord/chord.interface';
 
@@ -57,16 +57,12 @@ function onlyDots(chord: Position) {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChordComponent {
-  @Input() set chord(chord: Position) {
-    if (!chord) {
-      this.data = null;
-      return;
-    }
+  readonly chord = input<Position>();
 
-    this.setData(chord);
-  }
-
-  data: ChordData;
+  protected data = computed<ChordData | null>(() => {
+    const chord = this.chord();
+    return chord ? this.buildData(chord) : null;
+  });
 
   fretXPosition: { [key: string]: number[] } = {
     4: [10, 20, 30, 40, 50],
@@ -161,8 +157,8 @@ export class ChordComponent {
     return `M ${this.offsets[strings].y + pos * 10} 0 V 48`;
   }
 
-  private setData(chord: Position) {
-    this.data = {
+  private buildData(chord: Position): ChordData {
+    return {
       tuning: CHORD_DATA.tunings.standard,
       strings: this.instrument.strings,
       frets: chord.frets,

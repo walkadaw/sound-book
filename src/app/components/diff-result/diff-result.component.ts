@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { Change } from 'diff';
 
 @Component({
@@ -8,5 +8,5 @@ import { Change } from 'diff';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DiffResultComponent {
-  @Input() diff: Change[];
+  readonly diff = input<Change[]>();
 }

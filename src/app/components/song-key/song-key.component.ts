@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 
@@ -10,23 +10,13 @@ import { MatIcon } from '@angular/material/icon';
   imports: [MatButton, MatIcon],
 })
 export class SongKeyComponent {
-  @Input() selectedTranspilation = 0;
-  @Output() selectedTranspilationChange = new EventEmitter<number>();
+  readonly selectedTranspilation = model(0);
 
   transpilation(transpilation: number) {
-    this.selectedTranspilation += transpilation;
-
-    if (this.selectedTranspilation > 11) {
-      this.selectedTranspilation = 11;
-    } else if (this.selectedTranspilation < -11) {
-      this.selectedTranspilation = -11;
-    }
-
-    this.selectedTranspilationChange.next(this.selectedTranspilation);
+    this.selectedTranspilation.update((current) => Math.min(11, Math.max(-11, current + transpilation)));
   }
 
   reset() {
-    this.selectedTranspilation = 0;
-    this.selectedTranspilationChange.next(this.selectedTranspilation);
+    this.selectedTranspilation.set(0);
   }
 }

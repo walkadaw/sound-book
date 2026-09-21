@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { Chord } from '../../services/chord/chord.interface';
 import { ChordList, ChordService } from '../../services/chord/chord.service';
@@ -13,18 +13,23 @@ import { ChordVariationComponent } from '../chord-variation/chord-variation.comp
 export class ChordListComponent {
   private chordService = inject(ChordService);
 
-  @Input() set chords(list: string | string[]) {
-    this.originalChordList = this.chordService.getChordsList(!Array.isArray(list) ? list.split('\n') : list);
-    this.chordList = this.originalChordList;
-  }
+  readonly chords = input<string | string[]>('');
+  readonly transpilation = input(0);
 
-  @Input() set transpilation(transpilation: number) {
+  private originalChordList = computed(() => {
+    const list = this.chords();
+    return this.chordService.getChordsList(!Array.isArray(list) ? list.split('\n') : list);
+  });
+
+  protected chordList = computed<ChordList[][]>(() => {
+    const transpilation = this.transpilation();
+    const originalChordList = this.originalChordList();
+
     if (transpilation === 0) {
-      this.chordList = this.originalChordList;
-      return;
+      return originalChordList;
     }
 
-    this.chordList = this.originalChordList.map((line) =>
+    return originalChordList.map((line) =>
       line.map((item) => {
         if (item.type === 'chord') {
           const chord = this.chordService.getChord(item.text);
@@ -37,13 +42,11 @@ export class ChordListComponent {
         return item;
       }),
     );
-  }
+  });
 
-  private originalChordList: ChordList[][];
-  chordList: ChordList[][];
-  selectedChord: Chord;
+  protected selectedChord = signal<Chord | undefined>(undefined);
 
   showChords(chord: string) {
-    this.selectedChord = this.chordService.getChord(chord);
+    this.selectedChord.set(this.chordService.getChord(chord));
   }
 }
