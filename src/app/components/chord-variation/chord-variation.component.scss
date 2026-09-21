@@ -1,6 +1,7 @@
 .chord {
   position: relative;
   max-width: 220px;
+  overflow: hidden;
 
   &__name {
     display: block;
@@ -25,15 +26,19 @@
   &__arrow-left {
     position: absolute;
     bottom: 0px;
+    --mat-icon-button-state-layer-size: 40px;
+    --mat-icon-button-icon-size: 40px;
+    --mat-icon-button-touch-target-display: none;
     width: 40px;
     height: 40px;
+    padding: 0;
     color: #444;
 
     .mat-icon {
       width: 40px;
       height: 40px;
-      line-height: 40px;
       font-size: 40px;
+      line-height: 40px;
     }
   }
 
