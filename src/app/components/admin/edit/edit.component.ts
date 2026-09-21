@@ -16,7 +16,7 @@ import { Song, SongAdd } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { DuplicateService } from '../../../services/duplicate/duplicate.service';
-import { SimilarSongDialogComponent } from '../../similar-song-dialog copy/similar-song-dialog.component';
+import { SimilarSongDialogComponent } from '../../similar-song-dialog/similar-song-dialog.component';
 import { DiffResultComponent } from '../../diff-result/diff-result.component';
 import { EditSongComponent } from './edit-song/edit-song.component';
 
