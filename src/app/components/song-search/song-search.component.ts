@@ -12,7 +12,6 @@ import { clearSearchAction, setSearchTermAction, setSelectedTagAction } from '..
 import { IAppState } from '../../redux/models/IAppState';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
 import { getShowMenu } from '../../redux/selector/settings.selector';
-import { getCurrentValue } from '../utils/redux.utils';
 
 const ALL_TAGS: TagList = { id: 0, title: 'Усе', icon: '' };
 const SEARCH_DEBOUNCE_MS = 300;
@@ -34,6 +33,7 @@ export class SongSearchComponent {
   protected readonly filters: TagList[] = [ALL_TAGS, ...TAGS_LIST];
   protected readonly searchTerm = new FormControl('', { nonNullable: true });
   private selectedTagId = this.store.selectSignal(getSelectedTag);
+  private showMenu = this.store.selectSignal(getShowMenu);
 
   protected readonly selectedFilter = computed(
     () => this.filters.find((item) => item.id === this.selectedTagId()) ?? ALL_TAGS,
@@ -76,7 +76,7 @@ export class SongSearchComponent {
   }
 
   private openSongMenu(): void {
-    if (!getCurrentValue(this.store, getShowMenu)) {
+    if (!this.showMenu()) {
       this.store.dispatch(changeShowMenuAction(true));
     }
 

@@ -3,8 +3,8 @@ import { ActivatedRoute, CanActivate, CanDeactivate } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import NoSleep from 'nosleep.js';
-import { firstValueFrom, fromEvent, Observable } from 'rxjs';
-import { filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { firstValueFrom, fromEvent } from 'rxjs';
+import { filter, take, tap } from 'rxjs/operators';
 import { changeNoSleepAction, changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getEnableNoSleep, getSettingsState } from '../../redux/selector/settings.selector';
@@ -16,13 +16,16 @@ export class WakeLockService  implements CanActivate, CanDeactivate<boolean> {
   private actions$ = inject(Actions);
 
   private noSleep = new NoSleep();
+  private settings = this.store.selectSignal(getSettingsState);
+  private enableNoSleep = this.store.selectSignal(getEnableNoSleep);
 
   liveHookNoSleep$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(changeNoSleepAction, changeShowMenuAction),
-        switchMap(() => this.store.select(getSettingsState).pipe(take(1))),
-        tap(({ enableNoSleep, showMenu }) => {
+        tap(() => {
+          const { enableNoSleep, showMenu } = this.settings();
+
           if (!enableNoSleep || showMenu || !this.hasWakeLockGuard()) {
             this.disable();
             return;
@@ -59,28 +62,20 @@ export class WakeLockService  implements CanActivate, CanDeactivate<boolean> {
     }
   }
 
-  canActivate(): Observable<boolean> {
-    return this.store.select(getEnableNoSleep).pipe(
-      map((enable) => {
-        if (enable && !this.isEnabled) {
-          this.enable();
-        }
+  canActivate(): boolean {
+    if (this.enableNoSleep() && !this.isEnabled) {
+      this.enable();
+    }
 
-        return true;
-      }),
-    );
+    return true;
   }
 
-  canDeactivate(): Observable<boolean> {
-    return this.store.select(getEnableNoSleep).pipe(
-      map((enable) => {
-        if (enable && this.isEnabled) {
-          this.disable();
-        }
+  canDeactivate(): boolean {
+    if (this.enableNoSleep() && this.isEnabled) {
+      this.disable();
+    }
 
-        return true;
-      }),
-    );
+    return true;
   }
 
   private hasWakeLockGuard(): boolean {
