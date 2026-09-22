@@ -33,6 +33,7 @@ jobs:
         name: dist-artifact
         path: dist
         retention-days: 1
+        include-hidden-files: true
 
   deploy:
     needs: build
