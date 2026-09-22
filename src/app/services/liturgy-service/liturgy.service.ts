@@ -34,10 +34,11 @@ export class LiturgyService {
   }
 
   hasSlideLiturgy(liturgy: string): boolean {
-    return this.slideLiturgy.some(({ id }) => id === liturgy);
+    // slideLiturgy stays undefined when the request failed
+    return !!this.slideLiturgy?.some(({ id }) => id === liturgy);
   }
 
-  getSlideLiturgy(liturgy: string): SlideList {
-    return this.slideLiturgy.find(({ id }) => id === liturgy);
+  getSlideLiturgy(liturgy: string): SlideList | undefined {
+    return this.slideLiturgy?.find(({ id }) => id === liturgy);
   }
 }

@@ -25,7 +25,9 @@
   </div>
 
   <div class="action">
-    <button mat-raised-button (click)="onSave()">{{ songID ? 'Изменить' : 'Создать' }}</button>
+    <button mat-raised-button type="button" [disabled]="saving()" (click)="onSave()">
+      {{ songID ? 'Изменить' : 'Создать' }}
+    </button>
   </div>
 </div>
 <app-diff-result [diff]="diff"></app-diff-result>

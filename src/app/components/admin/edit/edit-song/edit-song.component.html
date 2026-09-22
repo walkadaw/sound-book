@@ -12,7 +12,7 @@
       #textEditor
       class="textarea textarea__edit textarea__edit_text"
       wrap="off"
-      (focus)="onTouched()"
+      (blur)="onTouched()"
       [placeholder]="placeholder()"
       [formControl]="textForm"
     ></textarea>

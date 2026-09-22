@@ -1,9 +1,9 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
-import { filter, map } from 'rxjs/operators';
+import { filter, finalize, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -54,6 +54,8 @@ export class EditComponent implements OnInit {
     tags: new FormGroup(this.setTag(() => new FormControl(false, { nonNullable: true }))),
   });
 
+  protected readonly saving = signal(false);
+
   diff: Change[];
 
   get songID(): number {
@@ -65,6 +67,11 @@ export class EditComponent implements OnInit {
   }
 
   onSave() {
+    if (this.songDataForm.invalid || this.saving()) {
+      this.songDataForm.markAllAsTouched();
+      return;
+    }
+
     const { title, text, tags } = this.songDataForm.getRawValue();
 
     const { songID } = this;
@@ -86,9 +93,11 @@ export class EditComponent implements OnInit {
         .join(','),
     };
 
-    const duplication = this.songService.songList().filter(
-      (originSong) => +originSong.id !== +song.id && this.duplicateService.isSimilar(originSong.text, song.text),
-    );
+    const duplication = this.songService
+      .songList()
+      .filter(
+        (originSong) => +originSong.id !== +song.id && this.duplicateService.isSimilar(originSong.text, song.text),
+      );
 
     if (duplication.length) {
       this.dialog
@@ -105,20 +114,30 @@ export class EditComponent implements OnInit {
   }
 
   private saveSong(song: SongAdd): void {
+    this.saving.set(true);
+
     this.songService
       .updateSong(song)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((id) => {
-        this.snackBar.open(song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена', 'Зачыніць', {
-          duration: 2000,
-        });
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (id) => {
+          this.snackBar.open(song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена', 'Зачыніць', {
+            duration: 2000,
+          });
 
-        this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
-        this.songDataForm.setValue({
-          title: song.title,
-          text: this.mergeChordWidthText(song as unknown as Song), // update with chord
-          tags: this.setTag((arg) => !!song.tag[arg.id]),
-        });
+          const selectedTags = new Set(song.tag.split(','));
+
+          this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
+          this.songDataForm.setValue({
+            title: song.title,
+            text: this.mergeChordWidthText(song as unknown as Song), // update with chord
+            tags: this.setTag((arg) => selectedTags.has(arg.id.toString())),
+          });
+        },
+        error: () => this.snackBar.open('Не атрымалася захаваць песню', 'Зачыніць', { duration: 2000 }),
       });
   }
 

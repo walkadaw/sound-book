@@ -33,6 +33,10 @@ export class ChordListComponent {
       line.map((item) => {
         if (item.type === 'chord') {
           const chord = this.chordService.getChord(item.text);
+          if (!chord) {
+            // e.g. slash chords, which can't be resolved to a fingering
+            return item;
+          }
           const suffix = this.chordService.getReadableSuffix(chord.suffix);
           return {
             ...item,
@@ -47,6 +51,6 @@ export class ChordListComponent {
   protected selectedChord = signal<Chord | undefined>(undefined);
 
   showChords(chord: string) {
-    this.selectedChord.set(this.chordService.getChord(chord));
+    this.selectedChord.set(this.chordService.getChord(chord) ?? undefined);
   }
 }

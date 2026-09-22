@@ -30,7 +30,8 @@ export class FavoriteComponent {
 
   protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected songFavoriteList = computed(() =>
-    [...this.favoriteState()].map((songId) => this.songService.getSong(songId)),
+    // a favorite can point to a song that was removed on the server
+    [...this.favoriteState()].map((songId) => this.songService.getSong(songId)).filter(Boolean),
   );
 
   toggleFavorite(event: Event, songID: number): void {

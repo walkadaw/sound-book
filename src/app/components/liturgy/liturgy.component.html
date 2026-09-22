@@ -1,8 +1,11 @@
 @if (liturgy(); as liturgy) {
   <article class="content">
     <h2>{{ liturgy.title }}</h2>
-    <div [innerHTML]="getTrustArticle(liturgy.article)"></div>
-    <i>Тэкст літургіі узяты з сайта <a href="https://catholic.by" target="_blank">Catholic.by</a></i>
+    <div [innerHTML]="liturgy.article"></div>
+    <i
+      >Тэкст літургіі узяты з сайта
+      <a href="https://catholic.by" target="_blank" rel="noopener noreferrer">Catholic.by</a></i
+    >
   </article>
 } @else {
   @if (isLoading()) {

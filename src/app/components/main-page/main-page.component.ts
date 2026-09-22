@@ -100,10 +100,6 @@ export class MainPageComponent {
     this.store.dispatch(setSelectedTagAction(0));
   }
 
-  trackBySong(index: number, item: SongFavorite): string {
-    return `${item.id}-${item.favorite}`;
-  }
-
   initScrollListener() {
     fromEvent(window, 'scroll')
       .pipe(

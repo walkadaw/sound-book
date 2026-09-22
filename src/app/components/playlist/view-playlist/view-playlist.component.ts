@@ -10,7 +10,7 @@ import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/list';
 import { DatePipe } from '@angular/common';
-import { Song, SongFavorite } from '../../../interfaces/song';
+import { Song } from '../../../interfaces/song';
 import { IAppState } from '../../../redux/models/IAppState';
 import { getShowSongNumber } from '../../../redux/selector/settings.selector';
 import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
@@ -89,10 +89,6 @@ export class ViewPlaylistComponent {
     }, []);
   }
 
-  trackBySong(index: number, item: SongFavorite): string {
-    return `${item.id}-${item.favorite}`;
-  }
-
   drop(event: CdkDragDrop<any>) {
     const playlist = this.getCurrentPlaylist();
     moveItemInArray(playlist.songList, event.previousIndex, event.currentIndex);
@@ -109,12 +105,12 @@ export class ViewPlaylistComponent {
 
   copy(playlist: PlayList): void {
     const { dateCreate } = this.playListService.createPlaylist(playlist.name, playlist.songList);
-    this.snackBar.open('Плэйліст скапіяваны', 'Зацынить', { duration: 2000 });
+    this.snackBar.open('Плэйліст скапіяваны', 'Зачыніць', { duration: 2000 });
     this.router.navigate(['/playlist', 'edit', dateCreate]);
   }
 
   copyLink() {
-    this.snackBar.open('Спасылка скапіявана', 'Зацынить', { duration: 2000 });
+    this.snackBar.open('Спасылка скапіявана', 'Зачыніць', { duration: 2000 });
     this.clipboard.copy(window.location.toString());
   }
 
@@ -135,7 +131,7 @@ export class ViewPlaylistComponent {
     try {
       await navigator.share(shareData);
     } catch {
-      this.snackBar.open('Нешта пайшло не так', 'Зацынить', { duration: 2000 });
+      this.snackBar.open('Нешта пайшло не так', 'Зачыніць', { duration: 2000 });
     }
   }
 

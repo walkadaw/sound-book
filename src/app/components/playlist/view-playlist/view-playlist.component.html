@@ -51,7 +51,7 @@
             </mat-menu>
           </div>
         </div>
-        <div class="playlist_info">Спевау: {{ playlist.songs.length }}</div>
+        <div class="playlist_info">Спеваў: {{ playlist.songs.length }}</div>
         <div class="playlist_info">
           {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
           {{ playlist.lastChange | date }}
@@ -65,7 +65,7 @@
     }
     <div class="songs-list" cdkDropList [cdkDropListData]="playlist.songs" (cdkDropListDropped)="drop($event)">
       @if (playlist.songs.length) {
-        @for (song of playlist.songs; track trackBySong(index, song); let index = $index) {
+        @for (song of playlist.songs; track song.id + '-' + $index; let index = $index) {
           <div
             class="song-container"
             routerLinkActive="active"

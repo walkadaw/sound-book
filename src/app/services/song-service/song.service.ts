@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Service, inject, signal } from '@angular/core';
+import { Service, computed, inject, signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -14,19 +14,26 @@ export class SongService {
   readonly songList = this.songListState.asReadonly();
   songVersion: string = null;
 
-  hasSong(songId: string | number): boolean {
-    return this.songList().some(({ id }) => id.toString() === songId.toString());
+  private songById = computed(() => new Map(this.songList().map((song) => [song.id.toString(), song])));
+
+  hasSong(songId: string | number | null | undefined): boolean {
+    return songId != null && this.songById().has(songId.toString());
   }
 
-  getSong(songId: string | number): Song {
-    return this.songList().find(({ id }) => id.toString() === songId.toString());
+  getSong(songId: string | number | null | undefined): Song | undefined {
+    return songId == null ? undefined : this.songById().get(songId.toString());
   }
 
   loadSongs(): Observable<SongRequest> {
     return this.http.get<SongRequest>(`${environment.baseUrl}/song/get`).pipe(
       tap((songListResponse) => {
-        localStorage.setItem('songList', JSON.stringify(songListResponse));
         this.setSong(songListResponse);
+        try {
+          localStorage.setItem('songList', JSON.stringify(songListResponse));
+        } catch (error) {
+          // the cache is optional (quota exceeded, private mode), the loaded songs are still usable
+          console.error('cache songList', error);
+        }
       }),
       catchError((error) => {
         console.error('loadSongs', error);

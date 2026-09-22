@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 
@@ -14,13 +13,8 @@ import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 })
 export class LiturgyComponent {
   private liturgyService = inject(LiturgyService);
-  private sanitizer = inject(DomSanitizer);
 
   // undefined until the request finishes, null when it failed
   protected liturgy = toSignal(this.liturgyService.getLiturgy());
   protected isLoading = computed(() => this.liturgy() === undefined);
-
-  getTrustArticle(article: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(article);
-  }
 }

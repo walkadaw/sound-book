@@ -32,8 +32,8 @@ const MIN_LINE_COUNT = 50;
 export class EditSongComponent implements AfterViewInit, ControlValueAccessor {
   private destroyRef = inject(DestroyRef);
 
-  readonly lineCounter = viewChild<ElementRef<HTMLTextAreaElement>>('lineCounter');
-  readonly textEditor = viewChild<ElementRef<HTMLTextAreaElement>>('textEditor');
+  readonly lineCounter = viewChild.required<ElementRef<HTMLTextAreaElement>>('lineCounter');
+  readonly textEditor = viewChild.required<ElementRef<HTMLTextAreaElement>>('textEditor');
   readonly placeholder = input('');
 
   textForm = new FormControl('', { nonNullable: true });
@@ -78,6 +78,6 @@ export class EditSongComponent implements AfterViewInit, ControlValueAccessor {
   }
 
   writeValue(value: string): void {
-    this.textForm.setValue(value);
+    this.textForm.setValue(value ?? '');
   }
 }

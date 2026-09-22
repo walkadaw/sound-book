@@ -37,9 +37,9 @@ export class FuseService {
     });
 
     return computed<SongSearchResult[]>(() => {
-      const searchText = debouncedSearch();
+      const searchText = debouncedSearch().trim();
 
-      if (!Number.isNaN(Number(searchText))) {
+      if (/^\d+$/.test(searchText)) {
         return songList()
           .filter(({ songId }) => songId.toString().includes(searchText))
           .map((song): SongSearchResult => ({ song, snippet: null }));

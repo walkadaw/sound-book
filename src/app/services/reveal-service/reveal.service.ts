@@ -13,6 +13,8 @@ export class RevealService {
   readonly ready = signal(false);
 
   private reveal: RevealApi;
+  private initTimer: ReturnType<typeof setTimeout>;
+  private updateTimer: ReturnType<typeof setTimeout>;
 
   isReady(): boolean {
     return this.ready() && !!this.reveal && this.reveal.isReady();
@@ -52,9 +54,24 @@ export class RevealService {
 
   updateRevealState() {
     // Hack for update state for Reveal
-    setTimeout(() => {
-      this.reveal.setState(this.reveal.getState());
+    clearTimeout(this.updateTimer);
+    this.updateTimer = setTimeout(() => {
+      if (this.reveal) {
+        this.reveal.setState(this.reveal.getState());
+      }
     }, 0);
+  }
+
+  /** Removes Reveal's window/document listeners; call it on leaving the presentation (the service is a singleton). */
+  destroy() {
+    clearTimeout(this.initTimer);
+    clearTimeout(this.updateTimer);
+    this.ready.set(false);
+
+    if (this.reveal) {
+      this.reveal.destroy();
+      this.reveal = undefined;
+    }
   }
 
   onSlideChange(): Observable<number> {
@@ -65,11 +82,13 @@ export class RevealService {
   }
 
   init() {
-    setTimeout(() => {
-      this.reveal = new Reveal({
+    this.destroy();
+    this.initTimer = setTimeout(() => {
+      const reveal = new Reveal({
         plugins: [RevealNotes],
       });
-      this.reveal
+      this.reveal = reveal;
+      reveal
         .initialize({
           controls: true,
           progress: false,
@@ -96,7 +115,7 @@ export class RevealService {
           // Dispatches all reveal.js events to the parent window through postMessage
           postMessageEvents: false,
         })
-        .then(() => this.ready.set(true));
+        .then(() => this.ready.set(this.reveal === reveal));
     }, 0);
   }
 }

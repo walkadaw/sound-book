@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Validators, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { startWith } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 import { MatCheckboxChange, MatCheckbox } from '@angular/material/checkbox';
 import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
 import { MatIcon } from '@angular/material/icon';
@@ -16,6 +16,8 @@ import { GeneratorService } from '../../services/generator-service/generator.ser
 import { FuseService } from '../../services/fuse-service/fuse.service';
 import { Song } from '../../interfaces/song';
 import { SongService } from '../../services/song-service/song.service';
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-paper-generator',
@@ -59,7 +61,11 @@ export class PaperGeneratorComponent {
   });
 
   private search = toSignal(
-    this.songListForm.controls.search.valueChanges.pipe(startWith(this.songListForm.controls.search.value)),
+    this.songListForm.controls.search.valueChanges.pipe(
+      debounceTime(SEARCH_DEBOUNCE_MS),
+      distinctUntilChanged(),
+      startWith(this.songListForm.controls.search.value),
+    ),
     { requireSync: true },
   );
 
@@ -71,16 +77,15 @@ export class PaperGeneratorComponent {
   );
 
   private selectedSong = toSignal(
-    this.songListForm.controls.selectedSong.valueChanges.pipe(
-      startWith(this.songListForm.controls.selectedSong.value),
-    ),
+    this.songListForm.controls.selectedSong.valueChanges.pipe(startWith(this.songListForm.controls.selectedSong.value)),
     { requireSync: true },
   );
 
   protected selectedSongs = computed(() =>
     Object.entries(this.selectedSong())
       .filter(([, value]) => value)
-      .map(([key]) => this.songService.getSong(key)),
+      .map(([key]) => this.songService.getSong(key))
+      .filter(Boolean),
   );
 
   selectedIndexChange(value: number): void {
@@ -104,7 +109,10 @@ export class PaperGeneratorComponent {
     const { allSong, selectedSong, isShowChord, isShowTag, isAddChastki, isAddGadzinki } =
       this.songListForm.getRawValue();
 
-    let songList = this.songService.songList().filter((song) => !song.tag[TAGS_LIST[9].id]).map(({ id }) => +id);
+    let songList = this.songService
+      .songList()
+      .filter((song) => !song.tag[TAGS_LIST[9].id])
+      .map(({ id }) => +id);
     if (!allSong) {
       songList = Object.keys(selectedSong)
         .filter((key) => selectedSong[key] && this.songService.hasSong(key))

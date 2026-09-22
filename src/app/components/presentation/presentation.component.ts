@@ -66,6 +66,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.render.removeClass(document.body, 'reveal');
+    this.reveal.destroy();
   }
 
   ngAfterViewInit(): void {
@@ -132,51 +133,57 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     const listID = ((this.activatedRoute.snapshot.params['id'] as string) || '').split(',');
     forkJoin([this.liturgyService.loadSlideForLiturgy(), this.songService.loadSongFromCache()])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.isDataLoaded$.next(true);
-
-        const slideList = listID.reduce<SlideList[]>((acc, id) => {
-          let lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
-
-          if (Number.isNaN(parseInt(id, 10))) {
-            if (id === ALL_LITURGY) {
-              const liturgys = (this.liturgyService.slideLiturgy || []).map((liturgy) => {
-                const startIndex = lastIndex + 1;
-                lastIndex += liturgy.slides.length;
-
-                return { ...liturgy, startIndex, endIndex: lastIndex };
-              });
-
-              acc.push(...liturgys);
-            } else if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
-              const slide = this.liturgyService.getSlideLiturgy(id);
-
-              acc.push({
-                ...slide,
-                startIndex: lastIndex + 1,
-                endIndex: lastIndex + slide.slides.length,
-              });
-            }
-          } else if (this.songService.hasSong(id)) {
-            const song = this.songService.getSong(id);
-            const slide = this.slidesService.getSongSlide(song.text);
-
-            acc.push({
-              id: song.id.toString(),
-              title: song.title,
-              slides: slide,
-              chord: song.chord,
-              text: song.text,
-              startIndex: lastIndex + 1,
-              endIndex: lastIndex + slide.length,
-            });
-          }
-
-          return acc;
-        }, []);
-
-        this.slideList.set(slideList);
+      .subscribe({
+        next: () => this.buildSlides(listID),
+        // still show the (empty) presentation so the menu can be used to add songs
+        error: () => this.buildSlides(listID),
       });
+  }
+
+  private buildSlides(listID: string[]) {
+    this.isDataLoaded$.next(true);
+
+    const slideList = listID.reduce<SlideList[]>((acc, id) => {
+      let lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
+
+      if (Number.isNaN(parseInt(id, 10))) {
+        if (id === ALL_LITURGY) {
+          const liturgys = (this.liturgyService.slideLiturgy || []).map((liturgy) => {
+            const startIndex = lastIndex + 1;
+            lastIndex += liturgy.slides.length;
+
+            return { ...liturgy, startIndex, endIndex: lastIndex };
+          });
+
+          acc.push(...liturgys);
+        } else if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
+          const slide = this.liturgyService.getSlideLiturgy(id);
+
+          acc.push({
+            ...slide,
+            startIndex: lastIndex + 1,
+            endIndex: lastIndex + slide.slides.length,
+          });
+        }
+      } else if (this.songService.hasSong(id)) {
+        const song = this.songService.getSong(id);
+        const slide = this.slidesService.getSongSlide(song.text);
+
+        acc.push({
+          id: song.id.toString(),
+          title: song.title,
+          slides: slide,
+          chord: song.chord,
+          text: song.text,
+          startIndex: lastIndex + 1,
+          endIndex: lastIndex + slide.length,
+        });
+      }
+
+      return acc;
+    }, []);
+
+    this.slideList.set(slideList);
   }
 
   private updateLocation() {

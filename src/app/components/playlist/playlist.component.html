@@ -14,7 +14,7 @@
         <div class="song-title">
           <div class="playlist_title">{{ playlist.name }}</div>
           <div class="date">
-            <div class="playlist_info">Спевау: {{ playlist.songList.length }}</div>
+            <div class="playlist_info">Спеваў: {{ playlist.songList.length }}</div>
             <div class="playlist_info">
               {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
               {{ playlist.lastChange | date }}

@@ -1,7 +1,7 @@
 @if (songListFiltered(); as songListFiltered) {
   <div class="songs-list">
     @if (songListFiltered.length) {
-      @for (song of songListFiltered; track trackBySong(index, song); let index = $index) {
+      @for (song of songListFiltered; track song.id) {
         <a
           class="song-container song-link"
           routerLinkActive="active"
