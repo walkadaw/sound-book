@@ -46,16 +46,16 @@ jobs:
           path: dist
       - name: Inject DB credentials
         run: |
-          sed -i 's/$UserDB = ".*"/$UserDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/api/classes/_class.db.php
-          sed -i 's/$BaseDB = ".*"/$BaseDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/api/classes/_class.db.php
-          sed -i 's/$PassDB = ".*";/$PassDB = "${{ secrets.DB_PASSWORD }}";/g' ./dist/sound-book/api/classes/_class.db.php
+          sed -i 's/$UserDB = ".*"/$UserDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/browser/api/classes/_class.db.php
+          sed -i 's/$BaseDB = ".*"/$BaseDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/browser/api/classes/_class.db.php
+          sed -i 's/$PassDB = ".*";/$PassDB = "${{ secrets.DB_PASSWORD }}";/g' ./dist/sound-book/browser/api/classes/_class.db.php
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: './dist/sound-book/'
+          local-dir: './dist/sound-book/browser/'
           dangerous-clean-slate: true
           exclude: |
             **/api/tmp/**
