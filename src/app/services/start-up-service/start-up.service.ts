@@ -75,5 +75,3 @@ export class StartUpService {
     });
   }
 }
-
-export const startUpFactory = (startUpService: StartUpService) => () => startUpService.load();

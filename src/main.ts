@@ -12,9 +12,10 @@ import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular
 import { ReactiveFormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { ServiceWorkerModule } from '@angular/service-worker';
+import { provideServiceWorker } from '@angular/service-worker';
 import { environment } from './environments/environment';
-import { startUpFactory, StartUpService } from './app/services/start-up-service/start-up.service';
+import { StartUpService } from './app/services/start-up-service/start-up.service';
+import { PwaUpdateService } from './app/services/pwa-update/pwa-update.service';
 import { appRoutes } from './app/app.routing';
 import { searchReducer } from './app/redux/reducers/search.reducer';
 import { settingsReducer } from './app/redux/reducers/settings.reducer';
@@ -39,11 +40,14 @@ bootstrapApplication(AppComponent, {
         favorite: favoriteReducer,
       }),
       EffectsModule.forRoot([FavoriteEffects, WakeLockService]),
-      ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     ),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: environment.production,
+    }),
     provideAppInitializer(() => {
-      const initializerFn = startUpFactory(inject(StartUpService));
-      return initializerFn();
+      inject(PwaUpdateService).init();
+
+      return inject(StartUpService).load();
     }),
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
     provideZoneChangeDetection(),
