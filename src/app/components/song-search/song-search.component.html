@@ -2,8 +2,8 @@
   type="button"
   mat-icon-button
   class="filter-button"
-  [matMenuTriggerFor]="filterMenu"
   [attr.aria-label]="'Фільтр пошуку: ' + selectedFilter().title"
+  (click)="focusSearch()"
 >
   @if (selectedFilter().icon) {
     <mat-icon [svgIcon]="selectedFilter().icon"></mat-icon>
@@ -12,38 +12,10 @@
   }
 </button>
 
-<input
-  #searchInput
-  class="search"
-  type="search"
-  placeholder="Пошук"
-  aria-label="Пошук"
-  [formControl]="searchTerm"
-  (focus)="onFocus()"
-  (blur)="onBlur()"
-/>
+<input #searchInput class="search" type="search" placeholder="Пошук" aria-label="Пошук" [formControl]="searchTerm" />
 
 @if (searchTerm.value) {
   <button type="button" mat-icon-button class="clear-button" aria-label="Ачысціць" (click)="clear()">
     <mat-icon>close</mat-icon>
   </button>
 }
-
-<mat-menu #filterMenu="matMenu" class="song-search-filter-menu">
-  @for (item of filters; track item.id) {
-    <button
-      mat-menu-item
-      role="menuitemradio"
-      [class.selected]="item.id === selectedFilter().id"
-      [attr.aria-checked]="item.id === selectedFilter().id"
-      (click)="selectFilter(item.id)"
-    >
-      @if (item.icon) {
-        <mat-icon [svgIcon]="item.icon"></mat-icon>
-      } @else {
-        <mat-icon>search</mat-icon>
-      }
-      <span>{{ item.title }}</span>
-    </button>
-  }
-</mat-menu>

@@ -3,37 +3,41 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
-import { TAGS_LIST, TagList } from '../../constants/tag-list';
+import { ALL_TAGS, SEARCH_FILTERS } from '../../constants/tag-list';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
-import { clearSearchAction, setSearchTermAction, setSelectedTagAction } from '../../redux/actions/search.actions';
+import { clearSearchAction, setSearchTermAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
 import { getShowMenu } from '../../redux/selector/settings.selector';
 
-const ALL_TAGS: TagList = { id: 0, title: 'Усе', icon: '' };
 const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-song-search',
   templateUrl: './song-search.component.html',
   styleUrl: './song-search.component.scss',
-  imports: [MatIcon, MatIconButton, MatMenu, MatMenuItem, MatMenuTrigger, ReactiveFormsModule],
+  imports: [MatIcon, MatIconButton, ReactiveFormsModule],
+  host: {
+    '(focusin)': 'onFocusIn()',
+    '(focusout)': 'onFocusOut($event)',
+  },
 })
 export class SongSearchComponent {
   private store = inject<Store<IAppState>>(Store);
   private destroyRef = inject(DestroyRef);
+  private hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
 
   readonly isFocusInput = output<boolean>();
 
-  protected readonly filters: TagList[] = [ALL_TAGS, ...TAGS_LIST];
+  private readonly filters = SEARCH_FILTERS;
   protected readonly searchTerm = new FormControl('', { nonNullable: true });
   private selectedTagId = this.store.selectSignal(getSelectedTag);
   private showMenu = this.store.selectSignal(getShowMenu);
+  private isFocused = false;
 
   protected readonly selectedFilter = computed(
     () => this.filters.find((item) => item.id === this.selectedTagId()) ?? ALL_TAGS,
@@ -55,23 +59,34 @@ export class SongSearchComponent {
     this.destroyRef.onDestroy(() => this.store.dispatch(clearSearchAction()));
   }
 
-  protected selectFilter(filterId: number): void {
-    this.store.dispatch(setSelectedTagAction(filterId));
-    this.openSongMenu();
-  }
-
   protected clear(): void {
     this.store.dispatch(clearSearchAction());
     this.searchTerm.setValue('', { emitEvent: false });
     this.searchInput().nativeElement.focus();
   }
 
-  protected onFocus(): void {
+  focusSearch(): void {
+    this.openSongMenu();
+  }
+
+  protected onFocusIn(): void {
+    if (this.isFocused) {
+      return;
+    }
+
+    this.isFocused = true;
     this.isFocusInput.emit(true);
     this.openSongMenu();
   }
 
-  protected onBlur(): void {
+  protected onFocusOut(event: FocusEvent): void {
+    const nextTarget = event.relatedTarget as Node | null;
+
+    if (nextTarget && this.hostRef.nativeElement.contains(nextTarget)) {
+      return;
+    }
+
+    this.isFocused = false;
     this.isFocusInput.emit(false);
   }
 

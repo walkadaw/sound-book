@@ -4,6 +4,8 @@ export interface TagList {
   icon: string;
 }
 
+export const ALL_TAGS: TagList = { id: 0, title: 'Усе', icon: '' };
+
 export const TAGS_LIST: TagList[] = [
   {
     id: 1,
@@ -56,3 +58,5 @@ export const TAGS_LIST: TagList[] = [
     icon: 'icon-parts-of-mass',
   },
 ];
+
+export const SEARCH_FILTERS: TagList[] = [ALL_TAGS, ...TAGS_LIST];

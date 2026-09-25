@@ -11,7 +11,7 @@
   }
 
   .fixed-menu {
-    position: fixed;
+    position: sticky;
     width: 100%;
     top: 0;
     background: #fff;
@@ -20,11 +20,9 @@
 
   .menu {
     display: none;
-  } 
+  }
 
   .show-menu {
-    margin-top: 50px;
-
     .menu {
       display: block;
     }

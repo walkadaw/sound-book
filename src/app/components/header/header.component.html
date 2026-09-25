@@ -4,6 +4,40 @@
     <h2>Спеўнік</h2>
   </div>
   <app-song-search class="sticky-search" (isFocusInput)="onInputChangeFocus($event)"></app-song-search>
+
+  <div class="filter-panel">
+    <div class="filter-panel-inner">
+      <div
+        class="filter-panel-scroll"
+        #chipScroll
+        role="radiogroup"
+        aria-label="Катэгорыя пошуку"
+        (scroll)="onChipScroll()"
+        (window:resize)="onChipScroll()"
+      >
+        @for (item of filters; track item.id) {
+          <button
+            type="button"
+            role="radio"
+            class="filter-chip"
+            [class.selected]="item.id === selectedFilter().id"
+            [attr.aria-checked]="item.id === selectedFilter().id"
+            (mousedown)="$event.preventDefault()"
+            (click)="selectFilter(item.id)"
+          >
+            @if (item.icon) {
+              <mat-icon [svgIcon]="item.icon"></mat-icon>
+            } @else {
+              <mat-icon>search</mat-icon>
+            }
+            <span>{{ item.title }}</span>
+          </button>
+        }
+      </div>
+      <div class="fade fade-left" [class.visible]="canScrollLeft()"></div>
+      <div class="fade fade-right" [class.visible]="canScrollRight()"></div>
+    </div>
+  </div>
 </div>
 
 <mat-menu #menu="matMenu">
