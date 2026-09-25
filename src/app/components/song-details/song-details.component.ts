@@ -6,7 +6,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
-import { KeyValuePipe } from '@angular/common';
 import { map } from 'rxjs/operators';
 import { SongService } from '../../services/song-service/song.service';
 import { TagNameById } from '../../interfaces/tag-list';
@@ -43,7 +42,6 @@ export interface SelectedSong {
     PlaylistMenuComponent,
     SongKeyComponent,
     ChordListComponent,
-    KeyValuePipe,
   ],
 })
 export class SongDetailsComponent {
@@ -75,6 +73,17 @@ export class SongDetailsComponent {
   });
 
   protected isFavoriteSong = computed(() => this.favoriteState().has(this.selectedSong()?.id));
+  protected tagNames = computed(() => {
+    const tag = this.selectedSong()?.tag;
+
+    if (!tag || Array.isArray(tag)) {
+      return '';
+    }
+
+    return Object.keys(tag)
+      .map((key) => this.tagNameById[key])
+      .join(', ');
+  });
   protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected showChord = this.store.selectSignal(getShowChord);
   protected selectedTranspilation = linkedSignal({ source: this.songId, computation: () => 0 });
@@ -82,10 +91,6 @@ export class SongDetailsComponent {
   playLists: PlayList[] = this.playlistService.getAllPlaylists();
 
   readonly tagNameById = TagNameById;
-
-  isArray(arg: any): boolean {
-    return Array.isArray(arg);
-  }
 
   toggleFavorite(songID: number): void {
     this.store.dispatch(toggleFavoriteAction(songID));

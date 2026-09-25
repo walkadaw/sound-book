@@ -9,13 +9,8 @@
             }
             {{ selectedSong?.title }}
           </h1>
-          @if (!isArray(selectedSong.tag)) {
-            <h2 class="entry-title-meta">
-              Тэгі:
-              @for (item of selectedSong.tag | keyvalue; track item) {
-                <span>{{ tagNameById[item.key] }}, </span>
-              }
-            </h2>
+          @if (tagNames()) {
+            <h2 class="entry-title-meta">Тэгі: <span>{{ tagNames() }}</span></h2>
           }
         </div>
         <div class="title-container__actions">

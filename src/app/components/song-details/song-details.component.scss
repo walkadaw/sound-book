@@ -52,7 +52,7 @@ h1.entry-title {
 .title-container {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
     column-gap: 15px;
 
     &__actions {
