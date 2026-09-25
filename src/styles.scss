@@ -138,3 +138,9 @@ main {
         background-color: #cccccc30;
     }
 }
+
+// Swallows the ghost click a touch tap leaves behind on whatever submenu item ends up
+// rendered under the finger right after the submenu opens. See HeaderComponent.onSubmenuOpened.
+.submenu-opening-guard {
+    pointer-events: none;
+}
