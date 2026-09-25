@@ -29,6 +29,9 @@
     max-width: 160px;
   }
 
+  app-song-search {
+    margin-left: auto;
+  }
 
     h2 {
       margin: 0;
@@ -68,7 +71,6 @@
     grid-template-rows: 0fr;
     visibility: hidden;
     flex-basis: 100%;
-    background-color: #ffffff;
     transition: grid-template-rows 0.25s ease, visibility 0s linear 0.25s;
   }
 
