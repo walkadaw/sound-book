@@ -88,6 +88,7 @@ export class SongDetailsComponent {
       .map((key) => this.tagNameById[key])
       .join(', ');
   });
+
   protected showChord = this.store.selectSignal(getShowChord);
   protected selectedTranspilation = linkedSignal({ source: this.songId, computation: () => 0 });
 

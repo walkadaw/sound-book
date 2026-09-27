@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -37,8 +38,12 @@ export class LoginComponent implements OnInit {
       this.userService
         .login(username, password)
         .pipe(
-          catchError(() => {
-            this.loginForm.setErrors({ failedError: 'Лагін ці пароль няправільныя' });
+          catchError((error: HttpErrorResponse) => {
+            const failedError =
+              error.status === 429
+                ? 'Занадта шмат спробаў. Паспрабуйце праз 15 хвілін'
+                : 'Лагін ці пароль няправільныя';
+            this.loginForm.setErrors({ failedError });
             this.cdr.markForCheck();
             return EMPTY;
           }),

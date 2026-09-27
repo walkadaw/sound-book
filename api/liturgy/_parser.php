@@ -1,8 +1,8 @@
 <?PHP
 # Автоподгрузка классов
-function __autoload($name){ 
-	include realpath(dirname(dirname(__FILE__)))."/classes/_class.".$name.".php";
-}
+spl_autoload_register(function ($name) {
+	include dirname(__DIR__)."/classes/_class.".$name.".php";
+});
 //Чтобы небыло косяков со временем.
 date_default_timezone_set('Europe/Minsk');
 

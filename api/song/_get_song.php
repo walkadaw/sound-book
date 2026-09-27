@@ -20,13 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET["id"])) {
         if( $value > 0 ) $tags[$value] = 1;
     }
 
-    echo gzencode(json_encode([
+    send_gzip(gzencode(json_encode([
         "id" => $row["id"],
         "title" => $row["title"],
         "text" => $row["text"],
         "chord" => $row["chord"],
         "tag" => $tags
-      ], JSON_UNESCAPED_UNICODE));
+      ], JSON_UNESCAPED_UNICODE)));
     
     exit();
 }
@@ -54,7 +54,7 @@ if($last_update_file != $last_update || !($list = file_get_contents($fillename))
     $list = updateList($db, $fillename, $last_update);
 }
 
-echo $list;
+send_gzip($list);
 
 function updateList($db, $fillename, $last_update){
     $list = [];

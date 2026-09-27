@@ -36,9 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if($file){
         header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         header('Content-Disposition: attachment; filename="SongBook.docx"');
-        header('Content-Encoding: none'); 
         
         readfile('./tmp/'.$file);
+        unlink('./tmp/'.$file);
     }
 
 }

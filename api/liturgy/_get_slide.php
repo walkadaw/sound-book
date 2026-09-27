@@ -25,5 +25,5 @@ $slide = new slide($monitor);
 
 $slide_result = $slide->genLitur($lit, $read, "web");
 
-echo gzencode(json_encode($slide_result, JSON_UNESCAPED_UNICODE));
+send_gzip(gzencode(json_encode($slide_result, JSON_UNESCAPED_UNICODE)));
 exit();

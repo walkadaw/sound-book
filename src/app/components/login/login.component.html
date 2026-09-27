@@ -1,14 +1,14 @@
 <form class="login-form" [formGroup]="loginForm">
   <mat-form-field appearance="fill">
     <mat-label>Логин</mat-label>
-    <input matInput type="text" formControlName="username" />
+    <input matInput type="text" autocomplete="username" formControlName="username" />
   </mat-form-field>
   <mat-form-field appearance="fill">
     <mat-label>Пароль</mat-label>
-    <input matInput type="password" formControlName="password" />
+    <input matInput type="password" autocomplete="current-password" formControlName="password" />
   </mat-form-field>
   @if (loginForm.hasError('failedError')) {
-    <mat-error>{{ loginForm.getError('failedError') }}</mat-error>
+    <mat-error role="alert">{{ loginForm.getError('failedError') }}</mat-error>
   }
 
   <button mat-raised-button [disabled]="!loginForm.valid" (click)="onLogin()">Авторизоватся</button>
