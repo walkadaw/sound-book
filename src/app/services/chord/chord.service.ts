@@ -2,7 +2,7 @@ import { Service } from '@angular/core';
 import { CHORD_DATA } from './chord-list';
 import { Chord, Chords } from './chord.interface';
 import {
-  ALIAS_MAP, ALIAS_SUFFIX, CHORD_CLEAN_UP, REPLACE_BIMOLE, SHORT_MAP, TO_SHORT_MAP,
+  ALIAS_MAP, ALIAS_SUFFIX, CHORD_CLEAN_UP, ChordNotation, REPLACE_BIMOLE, SHORT_MAP, TO_SHORT_MAP,
 } from './chord.model';
 
 export interface ChordList {
@@ -139,6 +139,10 @@ export class ChordService {
     return `${chord.key}${suffix}`;
   }
 
+  getFullChord(chord: Pick<Chord, 'key' | 'suffix'>): string {
+    return `${chord.key}${this.getReadableSuffix(chord.suffix)}`;
+  }
+
   convertAlias(chord: string) {
     if (chord.length > 2 && this.normalizeChord(chord.slice(0, 3))) {
       return this.normalizeChord(chord.slice(0, 3)) + chord.slice(3);
@@ -173,8 +177,8 @@ export class ChordService {
     return keys[(((index + transpilation) % keys.length) + keys.length) % keys.length];
   }
 
-  /** Returns the chord in the same short notation the song editor saves chords with */
-  transposeChord(text: string, transpilation: number): string {
+  /** Short notation is the one the song editor saves chords with */
+  transposeChord(text: string, transpilation: number, notation: ChordNotation = 'short'): string {
     const chord = this.getChord(text);
 
     if (chord) {
@@ -184,15 +188,17 @@ export class ChordService {
         ? chord.suffix
         : chord.suffix.slice(0, bassIndex + 1) + this.transpilationChord(bass, transpilation);
 
-      return this.getShortChord({ key: this.transpilationChord(chord.key, transpilation), suffix });
+      const transposed = { key: this.transpilationChord(chord.key, transpilation), suffix };
+
+      return notation === 'full' ? this.getFullChord(transposed) : this.getShortChord(transposed);
     }
 
     // slash chord with a bass that is missing from the chord list, e.g. "A/B"
     const slash = text.lastIndexOf('/');
 
     if (slash > 0) {
-      const root = this.transposeChord(text.slice(0, slash), transpilation);
-      const bass = this.transposeChord(text.slice(slash + 1), transpilation);
+      const root = this.transposeChord(text.slice(0, slash), transpilation, notation);
+      const bass = this.transposeChord(text.slice(slash + 1), transpilation, notation);
 
       return `${root}/${bass}`;
     }

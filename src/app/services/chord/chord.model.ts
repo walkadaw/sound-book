@@ -1,3 +1,6 @@
+/** short: "a", "c#7" (lowercase for minor); full: "Am", "C#m7" */
+export type ChordNotation = 'short' | 'full';
+
 export const REPLACE_BIMOLE = /♭/g;
 export const CHORD_CLEAN_UP = /[^\w+/#♭]/g;
 export const SHORT_MAP: {[key: string]: string} = {

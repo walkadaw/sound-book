@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { provideTestStore } from '../../../testing/store-test-providers';
 import { ChordListComponent } from './chord-list.component';
 
 describe('ChordListComponent', () => {
@@ -9,6 +10,7 @@ describe('ChordListComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ChordListComponent],
+      providers: [provideTestStore()],
     }).compileComponents();
   });
 

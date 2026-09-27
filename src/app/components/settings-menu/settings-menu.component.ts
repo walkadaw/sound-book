@@ -13,13 +13,16 @@ import { Store } from '@ngrx/store';
 import {
   changeFontSizeAction,
   changeNoSleepAction,
+  chordNotationAction,
   chordPositionAction,
   showChordAction,
   showSongNumberAction,
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { ChordPosition } from '../../redux/models/settings.state';
+import { ChordNotation } from '../../services/chord/chord.model';
 import {
+  getChordNotation,
   getChordPosition,
   getEnableNoSleep,
   getFontSize,
@@ -61,9 +64,11 @@ export class SettingsMenuComponent {
   protected enableNoSleep = this.store.selectSignal(getEnableNoSleep);
   protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected chordPosition = this.store.selectSignal(getChordPosition);
+  private chordNotation = this.store.selectSignal(getChordNotation);
   private fontSize = this.store.selectSignal(getFontSize);
 
   protected fontSizePercent = computed(() => Math.round(this.fontSize() * 100));
+  protected shortChord = computed(() => this.chordNotation() === 'short');
   protected canDecrease = computed(() => this.fontSize() > MIN_FONT_SIZE);
   protected canIncrease = computed(() => this.fontSize() < MAX_FONT_SIZE);
   protected songVersion = signal(this.songService.songVersion);
@@ -88,6 +93,12 @@ export class SettingsMenuComponent {
     const position: ChordPosition = event.value;
     window.localStorage.setItem('chordPosition', position);
     this.store.dispatch(chordPositionAction(position));
+  }
+
+  protected toggleShortChord(event: MatSlideToggleChange): void {
+    const notation: ChordNotation = event.checked ? 'short' : 'full';
+    window.localStorage.setItem('chordNotation', notation);
+    this.store.dispatch(chordNotationAction(notation));
   }
 
   protected updateSongs(event: MouseEvent): void {

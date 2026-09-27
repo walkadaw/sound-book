@@ -15,6 +15,13 @@
     Паказваць акорды:
   </mat-slide-toggle>
 </div>
+@if (showChord()) {
+  <div class="row" animate.enter="row--enter" animate.leave="row--leave" (click)="$event.stopPropagation()">
+    <mat-slide-toggle labelPosition="before" [checked]="shortChord()" (change)="toggleShortChord($event)">
+      Кароткі запіс акордаў (a):
+    </mat-slide-toggle>
+  </div>
+}
 <div class="row" (click)="$event.stopPropagation()">
   <span id="chord-position-label">Пазіцыя акордаў:</span>
   <mat-button-toggle-group

@@ -6,12 +6,14 @@ import {
   changeFontSizeAction,
   changeNoSleepAction,
   changeShowMenuAction,
+  chordNotationAction,
   chordPositionAction,
   showChordAction,
   showSongNumberAction,
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { ChordPosition } from '../../redux/models/settings.state';
+import { ChordNotation } from '../chord/chord.model';
 import { MatIconRegistryService } from '../mat-icon-registry-service/mat-icon-registry.service';
 import { SongService } from '../song-service/song.service';
 import { UserService } from '../user/user.service';
@@ -59,6 +61,7 @@ export class StartUpService {
       const fontSize = +window.localStorage.getItem('fontSize') || 1;
       const showChord = window.localStorage.getItem('showChord') === '1';
       const chordPosition = (window.localStorage.getItem('chordPosition') as ChordPosition) || defaultChordPosition();
+      const chordNotation: ChordNotation = window.localStorage.getItem('chordNotation') === 'full' ? 'full' : 'short';
       const showSongNumber = window.localStorage.getItem('showSongNumber') === '1';
       const enabledNoSleep = window.localStorage.getItem('enableNoSleep') === '1';
       const showMenu = window.location.pathname === '/';
@@ -66,6 +69,7 @@ export class StartUpService {
       this.store.dispatch(changeFontSizeAction(fontSize));
       this.store.dispatch(showChordAction(showChord));
       this.store.dispatch(chordPositionAction(chordPosition));
+      this.store.dispatch(chordNotationAction(chordNotation));
       this.store.dispatch(showSongNumberAction(showSongNumber));
       this.store.dispatch(changeShowMenuAction(showMenu));
       this.store.dispatch(changeNoSleepAction(enabledNoSleep));

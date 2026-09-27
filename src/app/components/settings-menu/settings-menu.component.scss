@@ -18,6 +18,39 @@
   letter-spacing: var(--mat-slide-toggle-label-text-tracking, var(--mat-sys-body-medium-tracking));
 }
 
+.row--enter,
+.row--leave {
+  overflow: hidden;
+}
+
+.row--enter {
+  animation: row-expand 200ms ease-out;
+}
+
+.row--leave {
+  animation: row-expand 150ms ease-in reverse forwards;
+}
+
+@keyframes row-expand {
+  from {
+    min-height: 0;
+    max-height: 0;
+    opacity: 0;
+  }
+
+  to {
+    max-height: 48px;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row--enter,
+  .row--leave {
+    animation: none;
+  }
+}
+
 .version {
   color: #595959;
 }

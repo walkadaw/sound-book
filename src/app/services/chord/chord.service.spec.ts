@@ -96,6 +96,14 @@ describe('ChordService', () => {
       expect(transpose('A/B A/H', 2)).toBe('B/C# B/C#');
     });
 
+    it('should output the full notation when asked', () => {
+      const full = (line: string, steps: number) =>
+        line.split(' ').map((chord) => service.transposeChord(chord, steps, 'full')).join(' ');
+
+      expect(full('a c#7 bb7 C D/F# b/A', 0)).toBe('Am C#m7 Bbm7 C D/F# Bm/A');
+      expect(full('a Am7 A/B', 2)).toBe('Bm Bm7 B/C#');
+    });
+
     it('should keep unknown text as is', () => {
       expect(service.transposeChord('Adonai', 3)).toBe('Adonai');
     });
