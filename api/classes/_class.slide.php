@@ -39,7 +39,7 @@ class slide{
 		//$text = preg_replace('|(?s)<div.*?<\/div>|', '', $data);
 		$text = preg_replace('|^.*?Чытанне.*?<\/p>|i', '', $data);
 
-		$text = trim(strip_tags($text));
+		$text = trim(html_entity_decode(strip_tags($text), ENT_QUOTES, "UTF-8"));
 		$predlog_string = preg_split("~(.*?[.?!:,-])~",$text,-1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
 		//определяем длину строки
@@ -125,7 +125,7 @@ class slide{
 		$text = preg_replace('|(?s)<div.*?<\/div>|', '', $text);
 
 		$text = str_replace(array("</p>","<br>"), "|", $text);
-		$text = strip_tags($text);
+		$text = html_entity_decode(strip_tags($text), ENT_QUOTES, "UTF-8");
 		$text = str_replace("|||", "||", $text);
 
 		$string = explode("|", $text);
@@ -187,7 +187,7 @@ class slide{
 		$text = preg_replace('|<div\s.*?right.*?>(.*?)<\/div>|', '<br>', $text);
 
 		$text = str_replace(array("</p>","<br>"), "|", $text);
-		$text = strip_tags($text);
+		$text = html_entity_decode(strip_tags($text), ENT_QUOTES, "UTF-8");
 		
 		$string = explode("|", $text);
 		$line = 0;
@@ -377,7 +377,7 @@ class slide{
 		foreach ($liturgia as $key => $value) {
 			preg_match("#<div.*?>(.*?)<*\/*div#is", $value, $value);
 			
-			$value = $this->lang_eng_by(str_replace($del_text, "", strip_tags($value[1])));
+			$value = $this->lang_eng_by(str_replace($del_text, "", html_entity_decode(strip_tags($value[1]), ENT_QUOTES, "UTF-8")));
 
 			if(!is_array($metka)){
 				$metka = $this->lang_eng_by(str_replace($del_text, "", $metka));

@@ -8,6 +8,7 @@ if (PHP_SAPI !== 'cli') {
 spl_autoload_register(function ($name) {
 	include dirname(__DIR__)."/classes/_class.".$name.".php";
 });
+require __DIR__.'/_sanitize.php';
 //Чтобы небыло косяков со временем.
 date_default_timezone_set('Europe/Minsk');
 
@@ -33,6 +34,7 @@ $artlitreadings = $xpath->query("//div[contains(@class,'artlititem')]//div[conta
 //Сокращенное теги на писание
 foreach ($artlitreadings as $key => $h2) { $liturgia[$key]["readings"] = $h2->nodeValue; }
 
+$url = [];
 foreach ($href as $urln) { $url[] = $urln->nodeValue; }
 
 foreach ($url as $key => $value) {
@@ -55,10 +57,10 @@ foreach ($url as $key => $value) {
 	    foreach ($children as $child) {
 	        $tmp_doc = new DOMDocument('1.0', 'utf-8');
 	        $tmp_doc->appendChild($tmp_doc->importNode($child,true));       
-	        $article .= html_entity_decode($tmp_doc->saveHTML());
+	        $article .= $tmp_doc->saveHTML();
 	    }
 	}
-	$article = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $article);
+	$article = sanitize_liturgy_html($article);
 	$tmp = '';
 	$article = preg_replace_callback(
 		"#Рэфрэн:(.+?)(<br>|</p>)#is",
@@ -70,16 +72,26 @@ foreach ($url as $key => $value) {
 		},
 		$article);
 
-	$liturgia[$key]["title"] = trim(addslashes($title)); 
-	$liturgia[$key]["article"] = trim(addslashes($article));
+	$liturgia[$key]["title"] = trim($title);
+	$liturgia[$key]["article"] = trim($article);
 
 }
 
-//Чистим
-$db->Query("TRUNCATE TABLE `liturgy`");
+// A failed scrape (site down, markup changed) keeps yesterday's reading instead of an empty page.
+$liturgia = array_filter($liturgia ?? [], function ($value) {
+	return !empty($value["article"]);
+});
+if (!$liturgia) {
+	exit(1);
+}
 
-//Заполняем данными
+$insert = $db->prepare("INSERT INTO `liturgy` (`artlitreadings`, `title`, `article`) VALUES (?, ?, ?)");
+
+// DELETE rather than TRUNCATE: TRUNCATE commits implicitly, so a failing insert would still wipe the table.
+$db->beginTransaction();
+$db->exec("DELETE FROM `liturgy`");
 foreach ($liturgia as $value) {
 	$article = str_replace(['\n','\r'], '', $value["article"]);
-	$db->Query("INSERT INTO `liturgy` (`artlitreadings`, `title`, `article`)  VALUES ('".$value["readings"]."', '".$value["title"]."', '".$article."')");
+	$insert->execute([$value["readings"] ?? '', $value["title"] ?? '', $article]);
 }
+$db->commit();
