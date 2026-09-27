@@ -15,9 +15,9 @@ import { UserService } from '../../services/user/user.service';
 import { SongSearchComponent } from '../song-search/song-search.component';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
+import { SubmenuGhostClickGuardDirective } from '../../directives/submenu-ghost-click-guard.directive';
 
 const SCROLL_EDGE_TOLERANCE_PX = 1;
-const SUBMENU_OPEN_GUARD_MS = 400;
 
 @Component({
   selector: 'app-header',
@@ -33,6 +33,7 @@ const SUBMENU_OPEN_GUARD_MS = 400;
     RouterLink,
     PlaylistMenuComponent,
     SettingsMenuComponent,
+    SubmenuGhostClickGuardDirective,
   ],
   host: {
     '(keydown.escape)': 'closePanel()',
@@ -60,9 +61,6 @@ export class HeaderComponent {
   private chipScrollTicking = false;
 
   searchInputInFocus = false;
-
-  protected readonly submenuOpening = signal(false);
-  private submenuOpenGuardTimeout?: ReturnType<typeof setTimeout>;
 
   toggleMainMenu(show?: boolean) {
     const toggle = this.showMenu();
@@ -99,15 +97,6 @@ export class HeaderComponent {
 
   protected closePanel(): void {
     (document.activeElement as HTMLElement | null)?.blur();
-  }
-
-  protected onSubmenuOpened(): void {
-    // On touch devices the tap that opens a submenu can also register on whatever submenu
-    // item ends up rendered under the same finger position, triggering an unintended click.
-    // Briefly ignore pointer events on the freshly opened panel to swallow that ghost click.
-    clearTimeout(this.submenuOpenGuardTimeout);
-    this.submenuOpening.set(true);
-    this.submenuOpenGuardTimeout = setTimeout(() => this.submenuOpening.set(false), SUBMENU_OPEN_GUARD_MS);
   }
 
   protected onChipScroll(): void {
