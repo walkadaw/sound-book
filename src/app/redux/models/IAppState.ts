@@ -3,6 +3,6 @@ import { MainSettings } from './settings.state';
 
 export interface IAppState {
   searchInput?: SearchInput;
-  settings?: MainSettings;
+  settings: MainSettings;
   favorite?: number[];
 }

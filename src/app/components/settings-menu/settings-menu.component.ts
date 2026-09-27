@@ -9,26 +9,8 @@ import { MatDivider } from '@angular/material/list';
 import { MatMenuItem } from '@angular/material/menu';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { RouterLink } from '@angular/router';
-import { Store } from '@ngrx/store';
-import {
-  changeFontSizeAction,
-  changeNoSleepAction,
-  chordNotationAction,
-  chordPositionAction,
-  showChordAction,
-  showSongNumberAction,
-} from '../../redux/actions/settings.actions';
-import { IAppState } from '../../redux/models/IAppState';
 import { ChordPosition } from '../../redux/models/settings.state';
-import { ChordNotation } from '../../services/chord/chord.model';
-import {
-  getChordNotation,
-  getChordPosition,
-  getEnableNoSleep,
-  getFontSize,
-  getShowChord,
-  getShowSongNumber,
-} from '../../redux/selector/settings.selector';
+import { SettingsService } from '../../services/settings/settings.service';
 import { SongService } from '../../services/song-service/song.service';
 import { WakeLockService } from '../../services/wakelock/wake-lock.service';
 
@@ -54,51 +36,43 @@ const DEFAULT_FONT_SIZE = 1;
   ],
 })
 export class SettingsMenuComponent {
-  private store = inject<Store<IAppState>>(Store);
+  private settings = inject(SettingsService);
   private songService = inject(SongService);
   private snackBar = inject(MatSnackBar);
 
   protected wakeLockSupported = inject(WakeLockService).isSupported;
 
-  protected showChord = this.store.selectSignal(getShowChord);
-  protected enableNoSleep = this.store.selectSignal(getEnableNoSleep);
-  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
-  protected chordPosition = this.store.selectSignal(getChordPosition);
-  private chordNotation = this.store.selectSignal(getChordNotation);
-  private fontSize = this.store.selectSignal(getFontSize);
+  protected showChord = this.settings.showChord;
+  protected enableNoSleep = this.settings.enableNoSleep;
+  protected showSongNumber = this.settings.showSongNumber;
+  protected chordPosition = this.settings.chordPosition;
+  private fontSize = this.settings.fontSize;
 
   protected fontSizePercent = computed(() => Math.round(this.fontSize() * 100));
-  protected shortChord = computed(() => this.chordNotation() === 'short');
+  protected shortChord = computed(() => this.settings.chordNotation() === 'short');
   protected canDecrease = computed(() => this.fontSize() > MIN_FONT_SIZE);
   protected canIncrease = computed(() => this.fontSize() < MAX_FONT_SIZE);
   protected songVersion = signal(this.songService.songVersion);
   protected updating = signal(false);
 
   protected toggleNoSleep(event: MatSlideToggleChange): void {
-    window.localStorage.setItem('enableNoSleep', event.checked ? '1' : '0');
-    this.store.dispatch(changeNoSleepAction(event.checked));
+    this.settings.setEnableNoSleep(event.checked);
   }
 
   protected toggleSongNumber(event: MatSlideToggleChange): void {
-    window.localStorage.setItem('showSongNumber', event.checked ? '1' : '0');
-    this.store.dispatch(showSongNumberAction(event.checked));
+    this.settings.setShowSongNumber(event.checked);
   }
 
   protected toggleChord(event: MatSlideToggleChange): void {
-    window.localStorage.setItem('showChord', event.checked ? '1' : '0');
-    this.store.dispatch(showChordAction(event.checked));
+    this.settings.setShowChord(event.checked);
   }
 
   protected changeChordPosition(event: MatButtonToggleChange): void {
-    const position: ChordPosition = event.value;
-    window.localStorage.setItem('chordPosition', position);
-    this.store.dispatch(chordPositionAction(position));
+    this.settings.setChordPosition(event.value as ChordPosition);
   }
 
   protected toggleShortChord(event: MatSlideToggleChange): void {
-    const notation: ChordNotation = event.checked ? 'short' : 'full';
-    window.localStorage.setItem('chordNotation', notation);
-    this.store.dispatch(chordNotationAction(notation));
+    this.settings.setChordNotation(event.checked ? 'short' : 'full');
   }
 
   protected updateSongs(event: MouseEvent): void {
@@ -119,15 +93,10 @@ export class SettingsMenuComponent {
 
   protected changeFontSize(direction: 1 | -1): void {
     const next = Math.round(this.fontSize() / FONT_SIZE_STEP + direction) * FONT_SIZE_STEP;
-    this.setFontSize(Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Math.round(next * 10) / 10)));
+    this.settings.setFontSize(Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Math.round(next * 10) / 10)));
   }
 
   protected resetFontSize(): void {
-    this.setFontSize(DEFAULT_FONT_SIZE);
-  }
-
-  private setFontSize(fontSize: number): void {
-    window.localStorage.setItem('fontSize', fontSize.toString());
-    this.store.dispatch(changeFontSizeAction(fontSize));
+    this.settings.setFontSize(DEFAULT_FONT_SIZE);
   }
 }
