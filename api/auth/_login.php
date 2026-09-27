@@ -26,11 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $sth->fetch();
     }
 
-    // Accounts created before the switch to password_hash still store an unsalted md5.
-    $isLegacyHash = $user && preg_match('/^[0-9a-f]{32}$/', $user['password']);
-    $isValid = $user && ($isLegacyHash
-        ? hash_equals($user['password'], md5($password))
-        : password_verify($password, $user['password']));
+    $isValid = $user && password_verify($password, $user['password']);
 
     if (!$isValid) {
         $attempts['count']++;
@@ -41,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     @unlink($attemptsFile);
 
-    if ($isLegacyHash || password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
+    if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
         upgradePasswordHash($db, $user['id'], $password);
     }
 
@@ -55,7 +51,7 @@ exit();
 function upgradePasswordHash($db, $userId, $password){
     $hash = password_hash($password, PASSWORD_DEFAULT);
 
-    // A column sized for md5 would silently truncate the new hash and lock the user out.
+    // A newer default algorithm may produce a hash longer than the column; truncating it would lock the user out.
     $sth = $db->query("SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS
         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sound_user' AND COLUMN_NAME = 'password'");
     if ((int)$sth->fetchColumn() < strlen($hash)) {
