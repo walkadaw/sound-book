@@ -1,6 +1,6 @@
 import { Service } from '@angular/core';
-import { CHORD_DATA } from './chord-list';
-import { Chord, Chords } from './chord.interface';
+import { CHORD_KEYS, CHORD_SUFFIXES } from './chord-index';
+import { Chord, ChordData, ChordName, Chords } from './chord.interface';
 import {
   ALIAS_MAP, ALIAS_SUFFIX, CHORD_CLEAN_UP, ChordNotation, REPLACE_BIMOLE, SHORT_MAP, TO_SHORT_MAP,
 } from './chord.model';
@@ -12,22 +12,35 @@ export interface ChordList {
 
 @Service()
 export class ChordService {
+  private chordData?: Promise<ChordData>;
+
   hasChord(dirtyChord: string): boolean {
     return !!this.getChord(dirtyChord);
   }
 
-  getChord(dirtyChord: string): Chord {
+  getChord(dirtyChord: string): ChordName | null {
     const chord = this.convertAlias(this.cleanUpChord(dirtyChord));
-    const base = this.getBaseChord(chord) || '';
-    const baseChord = CHORD_DATA.chords[base.replace('#', 'sharp') as keyof Chords];
+    const key = this.getBaseChord(chord) || '';
+    const suffixes = CHORD_SUFFIXES[key];
 
-    if (!baseChord || REPLACE_BIMOLE.test(dirtyChord[0])) {
+    if (!suffixes || REPLACE_BIMOLE.test(dirtyChord[0])) {
       return null;
     }
 
-    const suffix = this.normalizeSuffix(chord.slice(base.length));
+    const suffix = this.normalizeSuffix(chord.slice(key.length));
 
-    return baseChord.find((item) => item.suffix === suffix);
+    return suffixes.includes(suffix) ? { key, suffix } : null;
+  }
+
+  /** Starts downloading the fingerings ahead of time, so opening a chord doesn't wait for the network */
+  preloadChords(): void {
+    this.loadChordData();
+  }
+
+  async loadChord({ key, suffix }: ChordName): Promise<Chord | undefined> {
+    const { chords } = await this.loadChordData();
+
+    return chords[key.replace('#', 'sharp') as keyof Chords]?.find((item) => item.suffix === suffix);
   }
 
   getChordsList(lins: string[]): ChordList[][] {
@@ -117,14 +130,14 @@ export class ChordService {
   getBaseChord(chord: string): string {
     const base = chord.slice(0, 2);
 
-    if (CHORD_DATA.keys.some((value) => value === base)) {
+    if (CHORD_KEYS.includes(base)) {
       return base;
     }
 
-    return CHORD_DATA.keys.find((value) => value === base[0]);
+    return CHORD_KEYS.find((value) => value === base[0]);
   }
 
-  getShortChord(chord: Pick<Chord, 'key' | 'suffix'>): string {
+  getShortChord(chord: ChordName): string {
     const suffix = this.getReadableSuffix(chord.suffix);
     let data = chord.key;
 
@@ -139,7 +152,7 @@ export class ChordService {
     return `${chord.key}${suffix}`;
   }
 
-  getFullChord(chord: Pick<Chord, 'key' | 'suffix'>): string {
+  getFullChord(chord: ChordName): string {
     return `${chord.key}${this.getReadableSuffix(chord.suffix)}`;
   }
 
@@ -166,7 +179,7 @@ export class ChordService {
   /** Expects a note already normalized by getChord ("D#", not "Eb") */
   transpilationChord(baseChord: string, transpilation: number) {
     // keys go chromatically from C, so the index is the semitone
-    const keys = CHORD_DATA.keys;
+    const keys = CHORD_KEYS;
     const index = keys.indexOf(baseChord);
 
     if (index === -1) {
@@ -216,6 +229,19 @@ export class ChordService {
     }
 
     return suffix;
+  }
+
+  private loadChordData(): Promise<ChordData> {
+    // A rejected import is dropped so the next attempt can retry once the network is back.
+    this.chordData ??= import('./chord-list').then(
+      ({ CHORD_DATA }) => CHORD_DATA,
+      (error: unknown): never => {
+        this.chordData = undefined;
+        throw error;
+      },
+    );
+
+    return this.chordData;
   }
 
   private replaceBimole(chord: string): string {

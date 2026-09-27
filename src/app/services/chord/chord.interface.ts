@@ -23,6 +23,8 @@ export interface Chord {
   positions: Position[];
 }
 
+export type ChordName = Pick<Chord, 'key' | 'suffix'>;
+
 export interface Chords {
   C: Chord[];
   Csharp: Chord[];

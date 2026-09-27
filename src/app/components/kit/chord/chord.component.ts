@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { CHORD_DATA } from '../../../services/chord/chord-list';
+import { CHORD_MAIN, CHORD_TUNINGS } from '../../../services/chord/chord-index';
 import { Position } from '../../../services/chord/chord.interface';
 
 interface Barre {
@@ -99,7 +99,7 @@ export class ChordComponent {
     },
   };
 
-  private instrument = CHORD_DATA.main;
+  private instrument = CHORD_MAIN;
 
   getStringPosition(string: number, strings: number) {
     return this.positions.string[string + this.offset[strings]];
@@ -159,7 +159,7 @@ export class ChordComponent {
 
   private buildData(chord: Position): ChordData {
     return {
-      tuning: CHORD_DATA.tunings.standard,
+      tuning: CHORD_TUNINGS.standard,
       strings: this.instrument.strings,
       frets: chord.frets,
       capo: chord.capo,

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, afterNextRender, computed, inject, input, signal } from '@angular/core';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { Store } from '@ngrx/store';
 import { IAppState } from '../../redux/models/IAppState';
@@ -45,8 +45,22 @@ export class ChordListComponent {
   });
 
   protected selectedChord = signal<Chord | undefined>(undefined);
+  private requestedChord = '';
 
-  showChords(chord: string) {
-    this.selectedChord.set(this.chordService.getChord(chord) ?? undefined);
+  constructor() {
+    afterNextRender(() => this.chordService.preloadChords());
+  }
+
+  async showChords(chord: string) {
+    this.requestedChord = chord;
+    this.selectedChord.set(undefined);
+
+    const name = this.chordService.getChord(chord);
+    const loaded = name ? await this.chordService.loadChord(name).catch((): undefined => undefined) : undefined;
+
+    // Another chord may have been opened while this one was loading.
+    if (this.requestedChord === chord) {
+      this.selectedChord.set(loaded);
+    }
   }
 }
