@@ -1,0 +1,44 @@
+<h2>Популярные песни</h2>
+
+@if (usage.isLoading()) {
+  <p role="status">Загрузка…</p>
+} @else if (usage.error()) {
+  <p role="alert">Не удалось загрузить статистику</p>
+} @else if (!songs().length) {
+  <p>Статистики пока нет</p>
+} @else {
+  <table class="popular">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Песня</th>
+        @for (column of columns; track column.key) {
+          <th scope="col" class="number" [attr.aria-sort]="sortBy() === column.key ? 'descending' : null">
+            <button
+              type="button"
+              class="sort"
+              [class.active]="sortBy() === column.key"
+              (click)="sortBy.set(column.key)"
+            >
+              {{ column.label }}
+              <span aria-hidden="true">{{ sortBy() === column.key ? '▼' : '' }}</span>
+            </button>
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (song of songs(); track song.id; let index = $index) {
+        <tr>
+          <td>{{ index + 1 }}</td>
+          <td>
+            <a [routerLink]="['/song', song.id]">{{ song.title }}</a>
+          </td>
+          <td class="number">{{ song.view }}</td>
+          <td class="number">{{ song.showP }}</td>
+          <td class="number">{{ song.total }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  overflow-x: auto;
+}
+
+.popular {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 8px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    text-align: left;
+  }
+
+  .number {
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+.sort {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--mat-sys-on-surface-variant);
+  font: inherit;
+  cursor: pointer;
+
+  &.active {
+    color: var(--mat-sys-on-surface);
+    font-weight: bold;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+}
