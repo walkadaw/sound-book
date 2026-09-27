@@ -37,6 +37,12 @@ $version_request = intval($_GET["last_update"]);
 $sql = $db->query("SELECT last_update FROM ad_options where id = '1'");
 $last_update = $sql->fetch()['last_update'];
 
+// The client already holds this version of the list, so there is nothing to send.
+if (!isset($_GET["slide"]) && $version_request > 0 && $version_request === (int)$last_update) {
+    http_response_code(204);
+    exit();
+}
+
 if(isset($_GET["slide"])){
     $fillename = __DIR__."/../tmp/_list_song_json.txt";
 }else{

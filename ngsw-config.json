@@ -30,5 +30,19 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "liturgy",
+      "urls": [
+        "/api/liturgy/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 4,
+        "maxAge": "1d",
+        "timeout": "5s"
+      }
+    }
   ]
 }

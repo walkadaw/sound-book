@@ -20,9 +20,6 @@
             "outputPath": "dist/sound-book",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
             "tsConfig": "tsconfig.app.json",
             "preserveSymlinks": true,
             "assets": [
@@ -81,8 +78,7 @@
                 "src/favicon.ico",
                 "src/assets",
                 "src/manifest.webmanifest"
-              ],
-              "polyfills": ["zone.js"]
+              ]
             }
           },
           "defaultConfiguration": "production"

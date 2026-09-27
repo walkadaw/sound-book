@@ -1,6 +1,6 @@
 import {
   enableProdMode,
-  provideZoneChangeDetection,
+  provideZonelessChangeDetection,
   provideAppInitializer,
   inject,
   importProvidersFrom,
@@ -51,7 +51,7 @@ bootstrapApplication(AppComponent, {
       return inject(StartUpService).load();
     }),
     provideHttpClient(withXhr(), withInterceptorsFromDi()),
-    provideZoneChangeDetection(),
+    provideZonelessChangeDetection(),
     provideRouter(
       appRoutes,
       withRouterConfig({ onSameUrlNavigation: 'reload' }),

@@ -13,6 +13,7 @@ export class SongService {
 
   readonly songList = this.songListState.asReadonly();
   songVersion: string = null;
+  private lastUpdate: string | null = null;
 
   private songById = computed(() => new Map(this.songList().map((song) => [song.id.toString(), song])));
 
@@ -24,9 +25,16 @@ export class SongService {
     return songId == null ? undefined : this.songById().get(songId.toString());
   }
 
-  loadSongs(): Observable<SongRequest> {
-    return this.http.get<SongRequest>(`${environment.baseUrl}/song/get`).pipe(
+  loadSongs(): Observable<SongRequest | null> {
+    const params = this.lastUpdate ? { last_update: this.lastUpdate } : undefined;
+
+    // The server answers 204 with no body when the list we already have is current.
+    return this.http.get<SongRequest | null>(`${environment.baseUrl}/song/get`, { params }).pipe(
       tap((songListResponse) => {
+        if (!songListResponse) {
+          return;
+        }
+
         this.setSong(songListResponse);
         try {
           localStorage.setItem('songList', JSON.stringify(songListResponse));
@@ -84,6 +92,7 @@ export class SongService {
         })
         .map((song, index) => ({ ...song, songId: index + 1 })),
     );
+    this.lastUpdate = songList.last_update;
     this.songVersion = `${songList.last_update}000`;
   }
 }

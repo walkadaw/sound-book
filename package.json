@@ -29,8 +29,7 @@
     "fuse.js": "^7.5.0",
     "reveal.js": "^6.0.2",
     "rxjs": "^7.5.5",
-    "tslib": "^2.3.1",
-    "zone.js": "~0.15.1"
+    "tslib": "^2.3.1"
   },
   "devDependencies": {
     "@angular-devkit/core": "^22.1.8",
