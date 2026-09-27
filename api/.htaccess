@@ -17,8 +17,8 @@ RewriteEngine On
 RewriteBase /api/
 
 # Endpoint files are meant to be included by index.php only; requested directly they run without $db
-# and leak PHP errors. _parser.php stays reachable because the liturgy import is triggered by URL.
-RewriteRule ^(?!liturgy/_parser\.php$)(.+/)?_[^/]*\.php$ - [F,L]
+# and leak PHP errors.
+RewriteRule ^(.+/)?_[^/]*\.php$ - [F,L]
 
 # Protect hidden files from being viewed
 <Files .*>

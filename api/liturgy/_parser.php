@@ -1,4 +1,9 @@
 <?PHP
+// Run by cron through the CLI only; over HTTP anyone could trigger the scrape.
+if (PHP_SAPI !== 'cli') {
+	http_response_code(403);
+	exit();
+}
 # Автоподгрузка классов
 spl_autoload_register(function ($name) {
 	include dirname(__DIR__)."/classes/_class.".$name.".php";
