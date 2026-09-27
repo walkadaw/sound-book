@@ -1,11 +1,12 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Checks, then the PHP backend, then the prerendered frontend: prerendering loads the songs from the live API,
+# so a backend change has to be deployed before the frontend is built against it.
 name: Deploy
 
 on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["master"]
-  
+
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
@@ -16,7 +17,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  # Lint and tests need no backend, and a failing commit stops here before anything reaches the server.
+  check:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -28,6 +30,50 @@ jobs:
     - run: npm ci
     - run: npm run lint
     - run: npm test -- --watch=false
+
+  deploy-api:
+    needs: check
+    environment: github-pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject DB credentials
+        run: |
+          sed -i 's/$UserDB = ".*"/$UserDB = "${{ secrets.DB_USER }}"/g' ./api/classes/_class.db.php
+          sed -i 's/$BaseDB = ".*"/$BaseDB = "${{ secrets.DB_USER }}"/g' ./api/classes/_class.db.php
+          sed -i 's/$PassDB = ".*";/$PassDB = "${{ secrets.DB_PASSWORD }}";/g' ./api/classes/_class.db.php
+      - name: Set up SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          # Pinned host key instead of trusting whatever answers on first connect.
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          # Keys pasted from Windows carry \r, which OpenSSH rejects as an invalid format.
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/known_hosts ~/.ssh/id_ed25519
+          # Fails here with a clear message if the secret is not a valid private key.
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+          # Key only: otherwise ssh falls back to a password prompt that CI cannot answer.
+          printf 'Host *\n  BatchMode yes\n  IdentitiesOnly yes\n  IdentityFile ~/.ssh/id_ed25519\n' > ~/.ssh/config
+      # tmp/ holds the server-side song cache and is neither uploaded nor deleted.
+      # --checksum: a fresh checkout has fresh timestamps, so size+mtime would resend every file.
+      - name: 📂 Sync API
+        env:
+          TARGET: ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+        run: >
+          rsync -rz --checksum --delete --chmod=D755,F644 --exclude '/tmp/'
+          ./api/ "$TARGET:./api/"
+
+  build:
+    needs: deploy-api
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 24
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: 'npm'
+    - run: npm ci
     - run: npm run build-prod
       env:
         # Origin of the deployed site: prerendering loads the songs from it and uses it for canonical URLs and the sitemap.
@@ -50,27 +96,27 @@ jobs:
         with:
           name: dist-artifact
           path: dist
-      - name: Inject DB credentials
-        run: |
-          sed -i 's/$UserDB = ".*"/$UserDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/browser/api/classes/_class.db.php
-          sed -i 's/$BaseDB = ".*"/$BaseDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/browser/api/classes/_class.db.php
-          sed -i 's/$PassDB = ".*";/$PassDB = "${{ secrets.DB_PASSWORD }}";/g' ./dist/sound-book/browser/api/classes/_class.db.php
       - name: Set up SSH
         run: |
           install -m 700 -d ~/.ssh
           # Pinned host key instead of trusting whatever answers on first connect.
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          # Keys pasted from Windows carry \r, which OpenSSH rejects as an invalid format.
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/known_hosts ~/.ssh/id_ed25519
+          # Fails here with a clear message if the secret is not a valid private key.
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+          # Key only: otherwise ssh falls back to a password prompt that CI cannot answer.
+          printf 'Host *\n  BatchMode yes\n  IdentitiesOnly yes\n  IdentityFile ~/.ssh/id_ed25519\n' > ~/.ssh/config
       # One rsync connection instead of an FTP command per folder: prerendering adds ~900 of them.
       # The SSH home directory is the site root. --delete mirrors the build like the old clean slate did, except:
       # - root dotfiles are protected (P) from deletion: .ssh/authorized_keys lives there, .htaccess is still uploaded;
-      # - api/tmp holds the server-side song cache.
+      # - /api/ belongs to the deploy-api job; the build's copy of it has no DB credentials.
       # --checksum: the downloaded artifact has fresh timestamps, so size+mtime would resend every file.
       - name: 📂 Sync files
         env:
           TARGET: ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
         run: >
           rsync -rz --checksum --delete --chmod=D755,F644
-          --filter='P /.*' --exclude 'api/tmp/'
+          --filter='P /.*' --exclude '/api/'
           ./dist/sound-book/browser/ "$TARGET:./"
