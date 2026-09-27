@@ -1,6 +1,5 @@
 import { Service } from '@angular/core';
 import { CHORD_DATA } from './chord-list';
-import { CHORD_TRANSPILATION } from './chord-transpitaliton';
 import { Chord, Chords } from './chord.interface';
 import {
   ALIAS_MAP, ALIAS_SUFFIX, CHORD_CLEAN_UP, REPLACE_BIMOLE, SHORT_MAP, TO_SHORT_MAP,
@@ -125,7 +124,7 @@ export class ChordService {
     return CHORD_DATA.keys.find((value) => value === base[0]);
   }
 
-  getShortChord(chord: Chord): string {
+  getShortChord(chord: Pick<Chord, 'key' | 'suffix'>): string {
     const suffix = this.getReadableSuffix(chord.suffix);
     let data = chord.key;
 
@@ -160,26 +159,45 @@ export class ChordService {
     return this.replaceBimole(dirtyChord).replace(CHORD_CLEAN_UP, '');
   }
 
+  /** Expects a note already normalized by getChord ("D#", not "Eb") */
   transpilationChord(baseChord: string, transpilation: number) {
-    const index = CHORD_TRANSPILATION.indexOf(baseChord);
-    const allowedSteps = CHORD_TRANSPILATION.length;
+    // keys go chromatically from C, so the index is the semitone
+    const keys = CHORD_DATA.keys;
+    const index = keys.indexOf(baseChord);
 
     if (index === -1) {
       // this not chord
       return baseChord;
     }
 
-    let newPosition: number;
+    return keys[(((index + transpilation) % keys.length) + keys.length) % keys.length];
+  }
 
-    if (transpilation < 0 && index + transpilation < 0) {
-      newPosition = allowedSteps + index + transpilation;
-    } else if (transpilation > 0 && index + transpilation >= allowedSteps) {
-      newPosition = index + transpilation - allowedSteps;
-    } else {
-      newPosition = index + transpilation;
+  /** Returns the chord in the same short notation the song editor saves chords with */
+  transposeChord(text: string, transpilation: number): string {
+    const chord = this.getChord(text);
+
+    if (chord) {
+      const bassIndex = chord.suffix.lastIndexOf('/');
+      const bass = chord.suffix.slice(bassIndex + 1);
+      const suffix = bassIndex === -1
+        ? chord.suffix
+        : chord.suffix.slice(0, bassIndex + 1) + this.transpilationChord(bass, transpilation);
+
+      return this.getShortChord({ key: this.transpilationChord(chord.key, transpilation), suffix });
     }
 
-    return CHORD_TRANSPILATION[newPosition];
+    // slash chord with a bass that is missing from the chord list, e.g. "A/B"
+    const slash = text.lastIndexOf('/');
+
+    if (slash > 0) {
+      const root = this.transposeChord(text.slice(0, slash), transpilation);
+      const bass = this.transposeChord(text.slice(slash + 1), transpilation);
+
+      return `${root}/${bass}`;
+    }
+
+    return text;
   }
 
   getReadableSuffix(suffix: string) {

@@ -60,4 +60,44 @@ describe('ChordService', () => {
       expect(service.getChordsList([line])[0].map((item) => item.text).join('')).toBe(line);
     });
   });
+
+  describe('transposeChord', () => {
+    const transpose = (line: string, steps: number) =>
+      line.split(' ').map((chord) => service.transposeChord(chord, steps)).join(' ');
+
+    it('should transpose plain chords in the short notation', () => {
+      expect(transpose('C G Am F', 2)).toBe('D A b G');
+      expect(transpose('Cmaj7 Am7 Cm7b5 Cdim7', 1)).toBe('C#maj7 bb7 c#7b5 C#dim7');
+    });
+
+    it('should transpose D# and Eb chords', () => {
+      expect(transpose('Eb Ebm D# D#7', 2)).toBe('F f F F7');
+      expect(transpose('Eb', -1)).toBe('D');
+    });
+
+    it('should treat alias spellings equally', () => {
+      expect(transpose('A# Bb Db C# Ab G# H', 1)).toBe('B B D D A A C');
+      expect(transpose('a cis h d#', 1)).toBe('bb D c e');
+    });
+
+    it('should match the notation the song editor saves', () => {
+      ['Eb', 'Bbm7', 'Am/G', 'D/F#', 'Ab7', 'Hm'].forEach((chord) => {
+        expect(service.transposeChord(chord, 12)).toBe(service.getShortChord(service.getChord(chord)));
+      });
+    });
+
+    it('should wrap around the octave', () => {
+      expect(transpose('C D E F G A B', 11)).toBe('B C# D# E F# G# Bb');
+      expect(transpose('C D E F G A B', -11)).toBe('C# D# F F# G# Bb C');
+    });
+
+    it('should transpose the bass of slash chords', () => {
+      expect(transpose('C/E G/B Am/G C7/G', 2)).toBe('D/F# A/C# b/A D7/A');
+      expect(transpose('A/B A/H', 2)).toBe('B/C# B/C#');
+    });
+
+    it('should keep unknown text as is', () => {
+      expect(service.transposeChord('Adonai', 3)).toBe('Adonai');
+    });
+  });
 });

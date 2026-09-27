@@ -30,21 +30,9 @@ export class ChordListComponent {
     }
 
     return originalChordList.map((line) =>
-      line.map((item) => {
-        if (item.type === 'chord') {
-          const chord = this.chordService.getChord(item.text);
-          if (!chord) {
-            // e.g. slash chords, which can't be resolved to a fingering
-            return item;
-          }
-          const suffix = this.chordService.getReadableSuffix(chord.suffix);
-          return {
-            ...item,
-            text: this.chordService.transpilationChord(chord.key, transpilation) + suffix,
-          };
-        }
-        return item;
-      }),
+      line.map((item) =>
+        item.type === 'chord' ? { ...item, text: this.chordService.transposeChord(item.text, transpilation) } : item,
+      ),
     );
   });
 
