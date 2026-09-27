@@ -16,18 +16,21 @@ import { SongDetailsComponent } from './components/song-details/song-details.com
 import { HasSongGuard } from './guards/has-song.guard';
 import { UserService } from './services/user/user.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
+import { playlistTitle, songTitle } from './services/page-title/page-title.strategy';
 
 const soundRoutes: Routes = [
   { path: '', component: MainPageComponent, pathMatch: 'full' },
   {
     path: 'song/:id/:title',
     component: SongDetailsComponent,
+    title: songTitle,
     canActivate: [HasSongGuard, WakeLockService],
     canDeactivate: [WakeLockService],
   },
   {
     path: 'song/:id',
     component: SongDetailsComponent,
+    title: songTitle,
     canActivate: [HasSongGuard, WakeLockService],
     canDeactivate: [WakeLockService],
   },
@@ -37,22 +40,27 @@ const soundRoutes: Routes = [
       {
         path: '',
         component: PlaylistComponent,
+        title: 'Плэйлісты',
         pathMatch: 'full',
       },
       {
         path: 'add',
         component: AddPlaylistComponent,
+        title: 'Новы плэйліст',
       },
       {
         path: 'add/:songId',
         component: AddPlaylistComponent,
+        title: 'Новы плэйліст',
       },
       {
         path: 'edit/:playlistId',
         component: AddPlaylistComponent,
+        title: 'Рэдагаванне плэйліста',
       },
       {
         path: ':createdDate/:name',
+        title: playlistTitle,
         children: [
           {
             path: '',
@@ -67,25 +75,27 @@ const soundRoutes: Routes = [
       },
     ],
   },
-  { path: 'generator/docx', component: PaperGeneratorComponent },
-  { path: 'liturgy', component: LiturgyComponent },
-  { path: 'part-of-mass', component: PartOfMassComponent },
-  { path: 'favorite', component: FavoriteComponent },
-  { path: 'gadzinki', component: GadzinkiComponent },
-  { path: 'about', component: AboutComponent },
-  { path: 'login', component: LoginComponent },
-  { path: '404', component: PageNotFoundComponent },
+  { path: 'generator/docx', component: PaperGeneratorComponent, title: 'Папяровая версія' },
+  { path: 'liturgy', component: LiturgyComponent, title: 'Чытанне дня' },
+  { path: 'part-of-mass', component: PartOfMassComponent, title: 'Часткі імшы' },
+  { path: 'favorite', component: FavoriteComponent, title: 'Закладкі' },
+  { path: 'gadzinki', component: GadzinkiComponent, title: 'Гадзінкі' },
+  { path: 'about', component: AboutComponent, title: 'Пра нас' },
+  { path: 'login', component: LoginComponent, title: 'Уваход' },
+  { path: '404', component: PageNotFoundComponent, title: 'Старонка не знойдзена' },
   {
     path: 'admin',
+    title: 'Адміністраванне',
     loadChildren: () => import('./components/admin/admin.routes').then((m) => m.adminRoutes),
     canActivate: [UserService],
   },
-  { path: '**', component: PageNotFoundComponent },
+  { path: '**', component: PageNotFoundComponent, title: 'Старонка не знойдзена' },
 ];
 
 export const appRoutes: Routes = [
   {
     path: 'presentation',
+    title: 'Прэзентацыя',
     loadChildren: () => import('./components/presentation/presentation.routes').then((m) => m.presentationRoutes),
   },
   { path: '', component: MainSoundComponent, children: soundRoutes },

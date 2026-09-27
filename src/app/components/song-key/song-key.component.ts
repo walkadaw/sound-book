@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, model } from '@angular/core';
+import { Component, model } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 
@@ -6,7 +6,6 @@ import { MatIcon } from '@angular/material/icon';
   selector: 'app-song-key',
   templateUrl: './song-key.component.html',
   styleUrls: ['./song-key.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButton, MatIcon],
 })
 export class SongKeyComponent {

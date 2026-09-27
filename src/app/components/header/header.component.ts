@@ -36,6 +36,7 @@ const SCROLL_EDGE_TOLERANCE_PX = 1;
     SubmenuGhostClickGuardDirective,
   ],
   host: {
+    role: 'banner',
     '(keydown.escape)': 'closePanel()',
   },
 })

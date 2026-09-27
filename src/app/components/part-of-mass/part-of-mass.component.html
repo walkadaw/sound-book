@@ -1,11 +1,11 @@
 <article class="content">
-  <h2>Частки имшы</h2>
+  <h1 class="page-title">Часткі імшы</h1>
 
   @for (song of songs(); track song) {
     <div class="lyrics" [class.chord-right]="song.chordPosition === 'right'">
-      <h5 class="entry-title" itemprop="name">
+      <h2 class="entry-title song-subtitle" itemprop="name">
         {{ song?.title }}
-      </h5>
+      </h2>
       @for (line of song.text; track $index; let i = $index) {
         <div class="line-container">
           @if (showChord() && song.chord[i]) {

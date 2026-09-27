@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -13,7 +13,6 @@ interface JesusSay {
   selector: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIcon],
 })
 export class FooterComponent {
@@ -73,7 +72,7 @@ export class FooterComponent {
       alias: 'Римлянам 12:15',
     },
   ];
-  /* eslint-enabled max-len */
+  /* eslint-enable max-len */
 
   constructor() {
     this.router.events

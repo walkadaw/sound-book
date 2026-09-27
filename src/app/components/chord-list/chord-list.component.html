@@ -1,7 +1,15 @@
 @for (lines of chordList(); track lines) {
   @for (tag of lines; track tag) {
     @if (tag.type === 'chord') {
-      <span class="chord" (click)="showChords(tag.text)" [matMenuTriggerFor]="showChord">{{ tag.text }}</span>
+      <button
+        type="button"
+        class="chord"
+        [attr.aria-label]="'Акорд ' + tag.text + ', паказаць аплікатуру'"
+        [matMenuTriggerFor]="showChord"
+        (click)="showChords(tag.text)"
+      >
+        {{ tag.text }}
+      </button>
     } @else {
       <span>{{ tag.text }}</span>
     }

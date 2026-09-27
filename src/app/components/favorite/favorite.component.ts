@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
@@ -17,7 +17,7 @@ import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
   selector: 'app-favorite',
   templateUrl: './favorite.component.html',
   styleUrls: ['./favorite.component.scss'],
-  imports: [RouterLink, MatIcon, MatIconButton, MatMenuTrigger, MatMenu, PlaylistMenuComponent, ReplaceSpacePipe],
+  imports: [RouterLink, RouterLinkActive, MatIcon, MatIconButton, MatMenuTrigger, MatMenu, PlaylistMenuComponent, ReplaceSpacePipe],
 })
 export class FavoriteComponent {
   private songService = inject(SongService);
@@ -32,8 +32,7 @@ export class FavoriteComponent {
     [...this.favoriteState()].map((songId) => this.songService.getSong(songId)).filter(Boolean),
   );
 
-  toggleFavorite(event: Event, songID: number): void {
-    event.stopPropagation();
+  toggleFavorite(songID: number): void {
     this.store.dispatch(toggleFavoriteAction(songID));
   }
 

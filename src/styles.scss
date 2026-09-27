@@ -1,4 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/cdk';
+
+// CDK only injects .cdk-visually-hidden lazily (with LiveAnnouncer); templates rely on it from the start.
+@include cdk.a11y-visually-hidden();
+
 html {
     font-size: 62.5%;
 
@@ -53,8 +58,26 @@ h5 {
 h6 {
 	font-size: 1.2em;
 }
+
+// Keep the look the pages had before their titles became the page's single h1.
+.page-title {
+	font-size: 1.8em;
+}
+
+.section-title {
+	font-size: 1.6em;
+}
+
+.song-subtitle {
+	font-size: 1.3em;
+}
 a, a:visited, a:active {
     color: #284a66 !important;
+}
+
+// Icon buttons rendered as links should look like the button siblings, not like text links.
+a.mat-mdc-icon-button {
+    color: inherit !important;
 }
 
 .mat-mdc-unelevated-button.mat-primary, .mat-mdc-raised-button.mat-primary, .mat-mdc-fab.mat-primary, .mat-mdc-mini-fab.mat-primary {
@@ -106,6 +129,16 @@ main {
       padding: 10px 10px 10px 0;
     }
 
+    .song-link {
+      flex: 1 1 auto;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      text-decoration: none;
+      color: inherit !important;
+    }
+
     .dashes {
         flex: 1 1 auto;
         border-bottom: 2px dashed #555;
@@ -118,23 +151,35 @@ main {
         display: flex;
         align-items: center;
         height: 0;
-        visibility: hidden;
+        // opacity rather than visibility: a visibility-hidden button can't be reached with Tab.
+        opacity: 0;
         flex: 0 0 auto;
         align-self: center;
 
         @media (max-width: 768px) {
             height: auto;
-            visibility: visible;
+            opacity: 1;
         }
     }
 
-    &:hover {
+    &:hover,
+    &:focus-within {
         .actions {
-            visibility: visible;
+            opacity: 1;
         }
     }
     
     &.active {
         background-color: #cccccc30;
     }
+}
+
+.link-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: #284a66;
+    text-decoration: underline;
+    cursor: pointer;
 }

@@ -1,8 +1,16 @@
 <div class="container">
-  <mat-icon class="burger-menu" [matMenuTriggerFor]="menu">menu</mat-icon>
-  <div class="logo" [class.hide-logo]="searchInputInFocus" (click)="toggleMainMenu()">
-    <h2>Спеўнік</h2>
-  </div>
+  <button type="button" class="burger-menu" aria-label="Галоўнае меню" [matMenuTriggerFor]="menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <button
+    type="button"
+    class="logo"
+    aria-label="Спеўнік: усе песні"
+    [class.hide-logo]="searchInputInFocus"
+    (click)="toggleMainMenu()"
+  >
+    Спеўнік
+  </button>
   <app-song-search class="sticky-search" (isFocusInput)="onInputChangeFocus($event)"></app-song-search>
 
   <div class="filter-panel">
@@ -70,7 +78,7 @@
   <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/presentation">
     <mat-icon>slideshow</mat-icon>
-    <span>Презентація</span>
+    <span>Прэзентацыя</span>
   </button>
   <!-- <mat-divider></mat-divider>
   <button mat-menu-item routerLink="/generator">
@@ -85,7 +93,7 @@
   @if (isAuth()) {
     <button mat-menu-item routerLink="/admin/add">
       <mat-icon>add</mat-icon>
-      <span>Дадать спеу</span>
+      <span>Дадаць песню</span>
     </button>
     <mat-divider></mat-divider>
   }

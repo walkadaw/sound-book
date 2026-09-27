@@ -14,10 +14,9 @@
     padding: 8px 15px;
   }
 
-  a {
+  .link-button {
     display: block;
     margin-top: 8px;
-    cursor: pointer;
   }
 }
 
@@ -27,13 +26,4 @@
   font-size: 0.85em;
   opacity: 0.75;
   overflow-wrap: anywhere;
-}
-
-.song-link {
-  text-decoration: none;
-  color: inherit !important;
-
-  &:visited {
-    color: inherit !important;
-  }
 }

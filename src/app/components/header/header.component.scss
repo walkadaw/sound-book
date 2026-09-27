@@ -15,10 +15,19 @@
 
   .burger-menu {
     flex: none;
-    font-size: 35px;
-    height: 35px;
-    width: 35px;
+    display: flex;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: inherit;
     cursor: pointer;
+
+    mat-icon {
+      font-size: 35px;
+      height: 35px;
+      width: 35px;
+    }
   }
 
   .logo {
@@ -27,16 +36,22 @@
     transition: all .2s ease;
     opacity: 1;
     max-width: 160px;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    white-space: nowrap;
+    font-family: 'Myriad Pro', Helvetica, Arial, sans-serif;
+    font-size: 1.8em;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    color: #333332;
   }
 
   app-song-search {
     margin-left: auto;
   }
-
-    h2 {
-      margin: 0;
-      word-wrap: normal;
-    }
 
     @media (max-width: 468px) {
       .logo {
@@ -46,6 +61,8 @@
       .hide-logo {
         max-width: 0;
         opacity: 0;
+        // Keeps the collapsed logo out of the tab order while the search field has focus.
+        visibility: hidden;
       }
 
       app-song-search {

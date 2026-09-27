@@ -1,12 +1,22 @@
 <footer class="site-footer">
-  @if (words(); as words) {
-    <div class="say-block">
-      <div class="text">
-        {{ words.content }}
-        <div class="alias">{{ words.alias }}</div>
-        <div class="close" (click)="close()"><mat-icon>close</mat-icon></div>
+  <div class="say-live" aria-live="polite">
+    @if (words(); as words) {
+      <div class="say-block">
+        <blockquote class="text" lang="ru">
+          {{ words.content }}
+          <cite class="alias">{{ words.alias }}</cite>
+          <button type="button" class="close" aria-label="Закрыць цытату" (click)="close()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </blockquote>
       </div>
-    </div>
-  }
-  <div class="jesus" [class.say]="words()" (click)="onClick()"></div>
+    }
+  </div>
+  <button
+    type="button"
+    class="jesus"
+    [class.say]="words()"
+    aria-label="Паказаць цытату з Бібліі"
+    (click)="onClick()"
+  ></button>
 </footer>

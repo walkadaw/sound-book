@@ -1,8 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, ElementRef, computed, inject, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { NavigationStart, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { filter, map, startWith } from 'rxjs/operators';
+import { filter, map, skip, startWith } from 'rxjs/operators';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
@@ -19,6 +19,8 @@ import { FooterComponent } from '../../components/footer/footer.component';
 export class MainSoundComponent {
   private store = inject<Store<IAppState>>(Store);
   private router = inject(Router);
+
+  private main = viewChild.required<ElementRef<HTMLElement>>('main');
 
   private navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart));
   private isMenuOpen = this.store.selectSignal(getShowMenu);
@@ -43,5 +45,28 @@ export class MainSoundComponent {
       .subscribe(() => {
         this.store.dispatch(changeShowMenuAction(false));
       });
+
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        skip(1),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.moveFocusAfterNavigation());
+  }
+
+  protected focusMain(event: Event): void {
+    event.preventDefault();
+    this.main().nativeElement.focus();
+  }
+
+  // The link that triggered the navigation is usually destroyed with the old view, which drops
+  // keyboard and screen reader focus back to <body>; the search field is left alone while typing.
+  private moveFocusAfterNavigation(): void {
+    if (document.activeElement?.closest('app-song-search')) {
+      return;
+    }
+
+    this.main().nativeElement.focus({ preventScroll: true });
   }
 }

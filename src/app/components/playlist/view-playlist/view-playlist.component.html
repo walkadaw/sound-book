@@ -7,7 +7,7 @@
             {{ playlist.name }}
           </h1>
           <div class="title-container__actions">
-            <button mat-icon-button [matMenuTriggerFor]="menu">
+            <button type="button" mat-icon-button aria-label="Дзеянні з плэйлістам" [matMenuTriggerFor]="menu">
               <mat-icon>more_horiz</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
@@ -66,24 +66,24 @@
     <div class="songs-list" cdkDropList [cdkDropListData]="playlist.songs" (cdkDropListDropped)="drop($event)">
       @if (playlist.songs.length) {
         @for (song of playlist.songs; track song.id + '-' + $index; let index = $index) {
-          <div
-            class="song-container"
-            routerLinkActive="active"
-            cdkDrag
-            [routerLink]="['/song', song.id, song.title | replaceSpace]"
-          >
-            <span class="favorite">
-              <!-- <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon> -->
-            </span>
-            <span class="song-title">
-              {{ song.songId }}.
-              {{ song.title }}
-            </span>
-            <div class="actions" (click)="$event.stopPropagation()">
-              <button mat-icon-button cdkDragHandle>
+          <div class="song-container" routerLinkActive="active" cdkDrag>
+            <a class="song-link" [routerLink]="['/song', song.id, song.title | replaceSpace]">
+              <span class="favorite"></span>
+              <span class="song-title">
+                {{ song.songId }}.
+                {{ song.title }}
+              </span>
+            </a>
+            <div class="actions">
+              <button type="button" mat-icon-button cdkDragHandle [attr.aria-label]="'Перацягнуць ' + song.title">
                 <mat-icon>drag_handle</mat-icon>
               </button>
-              <button mat-icon-button (click)="deleteSong(index)">
+              <button
+                type="button"
+                mat-icon-button
+                [attr.aria-label]="'Выдаліць з плэйліста: ' + song.title"
+                (click)="deleteSong(index)"
+              >
                 <mat-icon>delete</mat-icon>
               </button>
             </div>

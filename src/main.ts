@@ -8,7 +8,7 @@ import {
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 
 import { provideHttpClient, withXhr, withInterceptorsFromDi } from '@angular/common/http';
-import { provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
+import { TitleStrategy, provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
@@ -23,6 +23,7 @@ import { favoriteReducer } from './app/redux/reducers/favorite.reducer';
 import { FavoriteEffects } from './app/redux/effects/favorite.effect';
 import { WakeLockService } from './app/services/wakelock/wake-lock.service';
 import { AppComponent } from './app/application/app.component';
+import { PageTitleStrategy } from './app/services/page-title/page-title.strategy';
 
 if (environment.production) {
   enableProdMode();
@@ -56,5 +57,6 @@ bootstrapApplication(AppComponent, {
       withRouterConfig({ onSameUrlNavigation: 'reload' }),
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
     ),
+    { provide: TitleStrategy, useClass: PageTitleStrategy },
   ],
 }).catch((err) => console.error(err));

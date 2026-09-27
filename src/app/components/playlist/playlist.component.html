@@ -1,34 +1,39 @@
 <article class="content">
-  <h2>Вашы плэйлісты</h2>
+  <h1 class="page-title">Вашы плэйлісты</h1>
 
   <div class="songs-list" cdkDropList [cdkDropListData]="playlists()" (cdkDropListDropped)="drop($event)">
     @for (playlist of playlists(); track playlist) {
-      <div
-        class="song-container"
-        [routerLink]="[playlist.dateCreate, playlist.name, playlist.songList.join(',')]"
-        cdkDrag
-      >
-        <span class="favorite">
-          <!-- <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon> -->
-        </span>
-        <div class="song-title">
-          <div class="playlist_title">{{ playlist.name }}</div>
-          <div class="date">
-            <div class="playlist_info">Спеваў: {{ playlist.songList.length }}</div>
-            <div class="playlist_info">
-              {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
-              {{ playlist.lastChange | date }}
-            </div>
-          </div>
-        </div>
-        <div class="actions" (click)="$event.stopPropagation()">
-          <button mat-icon-button cdkDragHandle>
+      <div class="song-container" cdkDrag>
+        <a class="song-link" [routerLink]="[playlist.dateCreate, playlist.name, playlist.songList.join(',')]">
+          <span class="favorite"></span>
+          <span class="song-title">
+            <span class="playlist_title">{{ playlist.name }}</span>
+            <span class="date">
+              <span class="playlist_info">Спеваў: {{ playlist.songList.length }}</span>
+              <span class="playlist_info">
+                {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
+                {{ playlist.lastChange | date }}
+              </span>
+            </span>
+          </span>
+        </a>
+        <div class="actions">
+          <button type="button" mat-icon-button cdkDragHandle [attr.aria-label]="'Перацягнуць ' + playlist.name">
             <mat-icon>drag_handle</mat-icon>
           </button>
-          <button mat-icon-button [routerLink]="['/playlist', 'edit', playlist.dateCreate]">
+          <a
+            mat-icon-button
+            [routerLink]="['/playlist', 'edit', playlist.dateCreate]"
+            [attr.aria-label]="'Рэдагаваць ' + playlist.name"
+          >
             <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button (click)="deletePlaylist(playlist)">
+          </a>
+          <button
+            type="button"
+            mat-icon-button
+            [attr.aria-label]="'Выдаліць ' + playlist.name"
+            (click)="deletePlaylist(playlist)"
+          >
             <mat-icon>delete</mat-icon>
           </button>
         </div>

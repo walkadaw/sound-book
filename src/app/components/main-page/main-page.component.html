@@ -1,34 +1,45 @@
+<h1 class="cdk-visually-hidden">Усе песні</h1>
+
 @if (songListFiltered(); as songListFiltered) {
   <div class="songs-list">
     @if (songListFiltered.length) {
       @for (song of songListFiltered; track song.id) {
-        <a
-          class="song-container song-link"
-          routerLinkActive="active"
-          [routerLink]="['/song', song.id, song.title | replaceSpace]"
-        >
-          <span class="favorite">
-            <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
-          </span>
-          <span class="song-title">
-            {{ song.songId }}.
-            {{ song.title | uppercase }}
-            @if (song.snippet; as snippet) {
-              <app-match-highlight class="song-snippet" [snippet]="snippet" />
-            }
-          </span>
-          <div class="actions" (click)="$event.stopPropagation(); $event.preventDefault()">
-            <button mat-icon-button [matMenuTriggerFor]="selectedSongMenu" [matMenuTriggerData]="song">
+        <div class="song-container" routerLinkActive="active">
+          <a class="song-link" [routerLink]="['/song', song.id, song.title | replaceSpace]">
+            <span class="favorite">
+              <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+              @if (song.favorite) {
+                <span class="cdk-visually-hidden">У закладках.</span>
+              }
+            </span>
+            <span class="song-title">
+              {{ song.songId }}.
+              {{ song.title | uppercase }}
+              @if (song.snippet; as snippet) {
+                <app-match-highlight class="song-snippet" [snippet]="snippet" />
+              }
+            </span>
+          </a>
+          <div class="actions">
+            <button
+              type="button"
+              mat-icon-button
+              [attr.aria-label]="'Дзеянні з песняй ' + song.title"
+              [matMenuTriggerFor]="selectedSongMenu"
+              [matMenuTriggerData]="song"
+            >
               <mat-icon>more_horiz</mat-icon>
             </button>
           </div>
-        </a>
+        </div>
       }
     } @else {
       <div class="no-results">
-        Не адна песня не знойдзена па вашаму запыту.
+        Ніводная песня не знойдзена па вашым запыце.
         @if (selectedTag() > 0) {
-          <a (click)="resetSelectedTag($event)">Паспрабаваць без фільтра па тэгу</a>
+          <button type="button" class="link-button" (click)="resetSelectedTag()">
+            Паспрабаваць без фільтра па тэгу
+          </button>
         }
       </div>
     }

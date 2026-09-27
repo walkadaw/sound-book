@@ -94,8 +94,7 @@ export class MainPageComponent {
     this.initScrollListener();
   }
 
-  resetSelectedTag(event: MouseEvent) {
-    event.preventDefault();
+  resetSelectedTag() {
     this.store.dispatch(setSelectedTagAction(0));
   }
 
