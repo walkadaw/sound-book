@@ -41,12 +41,12 @@
     background: none;
     text-align: left;
     white-space: nowrap;
-    font-family: 'Myriad Pro', Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 1.8em;
     font-weight: 700;
     letter-spacing: -1px;
     line-height: 1;
-    color: #333332;
+    color: var(--app-heading);
   }
 
   app-song-search {
@@ -126,12 +126,12 @@
 
   .fade-left {
     left: 0;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0), #ffffff);
+    background: linear-gradient(to left, transparent, var(--mat-sys-surface));
   }
 
   .fade-right {
     right: 0;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #ffffff);
+    background: linear-gradient(to right, transparent, var(--mat-sys-surface));
   }
 
   @media (min-width: 469px) {
@@ -155,10 +155,11 @@
     height: 30px;
     padding: 0 10px;
     border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    background-color: #ffffff;
+    // Tints of the text colour, so the chips stay neutral in both themes.
+    border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+    background-color: var(--mat-sys-surface);
     font-size: 13px;
-    color: #333;
+    color: var(--mat-sys-on-surface);
     white-space: nowrap;
     cursor: pointer;
 
@@ -169,8 +170,8 @@
     }
 
     &.selected {
-      border-color: rgba(0, 0, 0, 0.4);
-      background-color: rgba(0, 0, 0, 0.05);
+      border-color: color-mix(in srgb, currentColor 40%, transparent);
+      background-color: color-mix(in srgb, currentColor 5%, transparent);
       font-weight: 500;
     }
   }

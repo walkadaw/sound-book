@@ -1,5 +1,18 @@
 <app-song-view-settings />
 <mat-divider />
+<div class="row" (click)="$event.stopPropagation()">
+  <span id="theme-label">Тэма:</span>
+  <mat-button-toggle-group
+    hideSingleSelectionIndicator
+    aria-labelledby="theme-label"
+    [value]="themeMode()"
+    (change)="changeTheme($event)"
+  >
+    <mat-button-toggle value="system">Аўта</mat-button-toggle>
+    <mat-button-toggle value="light">Светлая</mat-button-toggle>
+    <mat-button-toggle value="dark">Цёмная</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
 <div class="row version" (click)="$event.stopPropagation()">
   <span>
     Версія песень:

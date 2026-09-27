@@ -16,6 +16,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { environment } from './environments/environment';
 import { StartUpService } from './app/services/start-up-service/start-up.service';
 import { PwaUpdateService } from './app/services/pwa-update/pwa-update.service';
+import { ThemeService } from './app/services/theme/theme.service';
 import { appRoutes } from './app/app.routing';
 import { searchReducer } from './app/redux/reducers/search.reducer';
 import { settingsReducer } from './app/redux/reducers/settings.reducer';
@@ -47,6 +48,7 @@ bootstrapApplication(AppComponent, {
     }),
     provideAppInitializer(() => {
       inject(PwaUpdateService).init();
+      inject(ThemeService);
 
       return inject(StartUpService).load();
     }),

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { CHORD_MAIN, CHORD_TUNINGS } from '../../../services/chord/chord-index';
 import { Position } from '../../../services/chord/chord.interface';
 
@@ -54,7 +54,16 @@ function onlyDots(chord: Position) {
 @Component({
   selector: 'app-chord',
   templateUrl: './chord.component.svg',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // The diagram draws in currentColor; finger numbers sit on filled dots, so they take the menu background.
+  styles: `
+    :host {
+      color: var(--mat-sys-on-surface-variant);
+    }
+
+    .chord-finger {
+      fill: var(--mat-sys-surface-container);
+    }
+  `,
 })
 export class ChordComponent {
   readonly chord = input<Position>();

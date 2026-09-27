@@ -1,7 +1,7 @@
 .site-footer {
   font-size: 13px;
   text-align: center;
-  color: #6b6b69;
+  color: var(--mat-sys-on-surface-variant);
   font-family: sans-serif;
   font-weight: 100;
   margin-top: 20px;
@@ -29,8 +29,8 @@
     &::after,
     &::before {
       content: ' ';
-      background-color: #fff;
-      border: 2px solid #666;
+      background-color: var(--mat-sys-surface);
+      border: 2px solid var(--mat-sys-outline);
       display: block;
       border-radius: 50%;
       position: absolute;
@@ -63,14 +63,14 @@
   .text {
     position: relative;
     display: inline-block;
-    border: 2px solid #666;
-    background: #fff;
+    border: 2px solid var(--mat-sys-outline);
+    background: var(--mat-sys-surface);
     margin: 0;
     border-radius: 18px;
     padding: 5px 7px;
     min-width: 50px;
     font-size: 1.05em;
-    color: #000;
+    color: var(--mat-sys-on-surface);
   }
 
   .alias {
@@ -94,8 +94,8 @@
 
     mat-icon {
       border-radius: 50%;
-      background-color: #fff;
-      border: 2px solid #666;
+      background-color: var(--mat-sys-surface);
+      border: 2px solid var(--mat-sys-outline);
       width: 18px;
       height: 18px;
       font-size: 18px;

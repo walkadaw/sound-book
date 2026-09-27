@@ -1,15 +1,23 @@
 :host {
   display: inline-flex;
-  align-items: center
+  align-items: center;
 }
-.key-button {
+
+.key-button,
+.key-text {
+  --mat-button-protected-label-text-color: var(--mat-sys-on-surface);
+  // // Shadows are invisible on the dark page, so there the buttons get a lighter container instead.
+  --mat-button-protected-container-color: light-dark(var(--mat-sys-surface), var(--mat-sys-surface-container-high));
   flex: none;
   box-sizing: border-box;
-  width: 32px;
   height: 32px;
+  border-radius: 4px;
+}
+
+.key-button {
+  width: 32px;
   min-width: 32px;
   padding: 0;
-  border-radius: 4px;
 
   .mat-icon {
     flex: none;
@@ -21,17 +29,12 @@
 }
 
 .key-text {
-  border: 0;
-  background: #fff;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  font-size: 0.8em;
-  border-radius: 4px;
+  --mat-button-protected-label-text-weight: 400;
   margin: 0 6px;
   padding: 0 12px;
-  height: 32px;
-  line-height: 32px;
   white-space: nowrap;
-  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 15%), 0px 2px 2px 0px rgb(0 0 0 / 8%), 0px 1px 5px 0px rgb(0 0 0 / 4%);
+}
+
+.key-value {
+  font-weight: 500;
 }

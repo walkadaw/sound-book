@@ -9,11 +9,12 @@
 </button>
 <button
   type="button"
+  mat-raised-button
   class="key-text"
   [attr.aria-label]="'Танальнасць ' + selectedTranspilation() + ', скінуць'"
   (click)="reset()"
 >
-  Танальнасць: <b>{{ selectedTranspilation() }}</b>
+  Танальнасць: <span class="key-value">{{ selectedTranspilation() }}</span>
 </button>
 <button type="button" mat-raised-button class="key-button" aria-label="Павысіць танальнасць" (click)="transpilation(1)">
   <mat-icon>expand_less</mat-icon>

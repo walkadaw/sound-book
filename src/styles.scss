@@ -1,19 +1,60 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/cdk';
+@use '@angular/material' as mat;
 
 // CDK only injects .cdk-visually-hidden lazily (with LiveAnnouncer); templates rely on it from the start.
 @include cdk.a11y-visually-hidden();
 
 html {
-    font-size: 62.5%;
+    // Follows the OS setting; ThemeService pins it through data-theme when the user picks one.
+    color-scheme: light dark;
 
-    --mat-menu-item-label-text-size: 14px;
-    --mat-menu-item-icon-color: rgba(0, 0, 0, 0.54);
+    @include mat.theme((
+        color: mat.$azure-palette,
+        // The fallback keeps Material's text sans-serif when the Roboto webfont can't load, e.g. offline.
+        typography: (plain-family: (Roboto, sans-serif), brand-family: (Roboto, sans-serif)),
+        density: 0,
+    ));
+
+    // The light theme keeps the app's original look: a white page, black text, #333 headings and plain
+    // light greys instead of M3's tinted neutrals. The dark values are the azure defaults, repeated because
+    // light-dark() needs both.
+    @include mat.theme-overrides((
+        surface: light-dark(#fff, #121316),
+        surface-container-low: light-dark(#fafafa, #1a1b1f),
+        surface-container: light-dark(#f5f5f5, #1f2022),
+        surface-container-high: light-dark(#f0f0f0, #292a2c),
+        surface-container-highest: light-dark(#ebebeb, #343537),
+        outline-variant: light-dark(#e0e0e0, #44474e),
+    ));
+
+    // Menus as they looked before M3: white, regular-weight labels, dividers without extra gaps.
+    @include mat.menu-overrides((
+        container-color: light-dark(#fff, var(--mat-sys-surface-container)),
+        item-label-text-weight: 400,
+        item-icon-color: light-dark(rgba(0, 0, 0, 0.54), var(--mat-sys-on-surface-variant)),
+        divider-top-spacing: 0,
+        divider-bottom-spacing: 0,
+    ));
+
+    --app-text: light-dark(#000, var(--mat-sys-on-surface));
+    --app-heading: light-dark(#333332, var(--mat-sys-on-surface));
+
+    &[data-theme='light'] {
+        color-scheme: light;
+    }
+
+    &[data-theme='dark'] {
+        color-scheme: dark;
+    }
 }
-html, body { height: 100%; color: #444; margin: 0;}
+
+html, body { height: 100%; margin: 0; }
 body {
-    color: #000000;
-    font: 1.9em Georgia, "Times New Roman", Times, serif;
+    background: var(--mat-sys-surface);
+    color: var(--app-text);
+    // 19px at the default 16px root size; Material's type scale is in rem, so the root keeps the user's size.
+    font: 1.1875rem Georgia, "Times New Roman", Times, serif;
     line-height: 1.5;
 }
 
@@ -24,8 +65,8 @@ h4,
 h5,
 h6 {
 	margin: 20px 0;
-	font-family: "Myriad Pro", Helvetica, Arial, sans-serif;
-	color: #333332;
+	font-family: Helvetica, Arial, sans-serif;
+	color: var(--app-heading);
 	letter-spacing: -1px;
 	font-weight: 700;
 	line-height: 1;
@@ -72,16 +113,12 @@ h6 {
 	font-size: 1.3em;
 }
 a, a:visited, a:active {
-    color: #284a66 !important;
+    color: var(--mat-sys-primary) !important;
 }
 
 // Icon buttons rendered as links should look like the button siblings, not like text links.
 a.mat-mdc-icon-button {
     color: inherit !important;
-}
-
-.mat-mdc-unelevated-button.mat-primary, .mat-mdc-raised-button.mat-primary, .mat-mdc-fab.mat-primary, .mat-mdc-mini-fab.mat-primary {
-    background-color: #444;
 }
 
 .overflow-hidden .mat-mdc-dialog-container {
@@ -115,7 +152,7 @@ main {
     font-size: .93em;
     cursor: pointer;
     align-items: center;
-    border-bottom: 1px solid #cccccc30;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
     
     .favorite {
       flex: 0 0 auto;
@@ -141,7 +178,7 @@ main {
 
     .dashes {
         flex: 1 1 auto;
-        border-bottom: 2px dashed #555;
+        border-bottom: 2px dashed var(--mat-sys-outline);
         margin: 8px;
     }
 
@@ -170,7 +207,7 @@ main {
     }
     
     &.active {
-        background-color: #cccccc30;
+        background-color: var(--mat-sys-surface-container-high);
     }
 }
 
@@ -179,7 +216,7 @@ main {
     border: 0;
     background: none;
     font: inherit;
-    color: #284a66;
+    color: var(--mat-sys-primary);
     text-decoration: underline;
     cursor: pointer;
 }

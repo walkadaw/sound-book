@@ -1,8 +1,8 @@
 
 .entry-title-meta {
-    font-family: "Myriad Pro", Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 13px;
-    color: #767676;
+    color: var(--mat-sys-on-surface-variant);
     font-weight: 100;
     letter-spacing: 1px;
     margin: 0;
@@ -10,14 +10,14 @@
     line-height: 1.4;
 
     span {
-        color: #284a66;
+        color: var(--mat-sys-primary);
         text-decoration: none;
     }
 }
 
 h1.entry-title {
     font-size: 1.40em !important;
-    color: #333 !important;
+    color: var(--app-heading) !important;
     margin: 0 0 6px;
 }
 

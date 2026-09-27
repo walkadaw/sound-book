@@ -1,7 +1,7 @@
 
 .playlist_info {
     font-size: 0.58em;
-    color: #6b6b69;
+    color: var(--mat-sys-on-surface-variant);
     font-weight: 100;
     letter-spacing: 1px;
     margin-bottom: 0px;
@@ -12,7 +12,7 @@
 
 h1.entry-title {
     font-size: 1.6em !important;
-    color: #333 !important;
+    color: var(--app-heading) !important;
 }
 
 .title-container {

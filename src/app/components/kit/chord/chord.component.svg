@@ -3,7 +3,7 @@
     <g transform="translate(13, 13)">
       <g>
         <path
-          stroke="#444"
+          stroke="currentColor"
           stroke-width="0.25"
           stroke-linecap="square"
           stroke-linejoin="square"
@@ -11,7 +11,7 @@
         ></path>
         @if (data.baseFret === 1) {
           <path
-            stroke="#444"
+            stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -21,7 +21,7 @@
         @if (data.baseFret !== 1) {
           <text
             font-size="0.25rem"
-            fill="#444"
+            fill="currentColor"
             font-family="Verdana"
             [attr.x]="getBarreOffset(data.strings, data.frets, data.baseFret, data.capo)"
             y="8"
@@ -33,7 +33,7 @@
           @for (note of data.tuning; track note; let index = $index) {
             <text
               font-size="0.3rem"
-              fill="#444"
+              fill="currentColor"
               font-family="Verdana"
               text-anchor="middle"
               [attr.x]="offsets[data.strings].x + index * 10"
@@ -56,10 +56,10 @@
             ')'
           "
               >
-              <path d="M 0, 0 m -4, 0 a 4,4 0 1,1 8,0 " fill="#555" fill-opacity="0.2" transform="rotate(-90)"></path>
+              <path d="M 0, 0 m -4, 0 a 4,4 0 1,1 8,0 " fill="currentColor" fill-opacity="0.2" transform="rotate(-90)"></path>
             </g>
             <rect
-              fill="#555"
+              fill="currentColor"
               [attr.x]="fretXPosition[data.frets.length][0]"
               [attr.y]="fretYPosition[barre.barre - 1]"
               [attr.width]="(data.strings - 1) * 10"
@@ -75,21 +75,21 @@
             ')'
           "
               >
-              <path d="M 0, 0 m -4, 0 a 4,4 0 1,1 8,0" fill="#555" fill-opacity="0.2" transform="rotate(90)"></path>
+              <path d="M 0, 0 m -4, 0 a 4,4 0 1,1 8,0" fill="currentColor" fill-opacity="0.2" transform="rotate(90)"></path>
             </g>
           </g>
           @for (fret of barre.barreFrets; track fret) {
             <circle
               stroke-width="0.25"
-              stroke="#444"
-              fill="#444"
+              stroke="currentColor"
+              fill="currentColor"
               [attr.cx]="getStringPosition(data.frets.length - fret.position, data.frets.length)"
               [attr.cy]="positions.fret[fret.value]"
               r="4"
             ></circle>
           }
           <rect
-            fill="#444"
+            fill="currentColor"
             [attr.x]="fretXPosition[data.frets.length][barre.barreFrets[0].position]"
             [attr.y]="fretYPosition[barre.barre - 1]"
             [attr.width]="barre.width"
@@ -100,7 +100,7 @@
               font-size="3pt"
               font-family="Verdana"
               text-anchor="middle"
-              fill="white"
+              class="chord-finger"
               [attr.x]="getStringPosition(data.frets.length - fret.position, data.frets.length)"
               [attr.y]="positions.finger[fret.value]"
               >
@@ -114,7 +114,7 @@
           @if (dot.fret === -1) {
             <text
               font-size="0.7rem"
-              fill="#444"
+              fill="currentColor"
               font-family="Verdana"
               text-anchor="middle"
               [attr.x]="getStringPosition(dot.string, dot.strings)"
@@ -123,8 +123,8 @@
           @if (dot.fret !== -1) {
             <circle
               stroke-width="0.25"
-              stroke="#444"
-              [attr.fill]="dot.fret === 0 ? 'transparent' : '#444'"
+              stroke="currentColor"
+              [attr.fill]="dot.fret === 0 ? 'transparent' : 'currentColor'"
               [attr.cx]="getStringPosition(dot.string, dot.strings)"
               [attr.cy]="positions.fret[dot.fret]"
               [attr.r]="dot.fret === 0 ? radius['open'] : radius['fret']"
@@ -135,7 +135,7 @@
               [attr.font-size]="dot.fret === -1 ? '0.7rem' : '3pt'"
               font-family="Verdana"
               text-anchor="middle"
-              fill="white"
+              class="chord-finger"
               [attr.x]="getStringPosition(dot.string, dot.strings)"
               [attr.y]="dot.fret === -1 ? '-2' : positions.finger[dot.fret]"
               >

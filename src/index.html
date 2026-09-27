@@ -5,11 +5,18 @@
     <title>Спеўнік</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // Applies a manually chosen theme before first paint; ThemeService takes over after bootstrap.
+      try {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    </script>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#1976d2" />
+    <meta name="theme-color" content="#ffffff" />
   </head>
   <body>
     <!-- Shown until Angular bootstraps: on a first visit it waits for the song list to download. -->
@@ -25,14 +32,14 @@
           font-family: Helvetica, Arial, sans-serif;
           font-size: 28px;
           font-weight: 700;
-          color: #333332;
+          color: var(--mat-sys-on-surface, #333332);
         }
         .app-loading::after {
           content: '';
           width: 32px;
           height: 32px;
-          border: 3px solid #ddd;
-          border-top-color: #284a66;
+          border: 3px solid var(--mat-sys-outline-variant, #ddd);
+          border-top-color: var(--mat-sys-primary, #284a66);
           border-radius: 50%;
           animation: app-loading-spin 0.8s linear infinite;
         }

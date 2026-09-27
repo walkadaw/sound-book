@@ -11,14 +11,14 @@
   box-sizing: border-box;
   font-size: 16px;
   font-weight: 400;
-  background-color: rgb(238, 243, 248);
+  background-color: var(--mat-sys-surface-container-high);
   border: 1px solid transparent;
   border-radius: 4px;
   text-overflow: ellipsis;
 
   &:focus {
-    border-color: #ccc;
-    outline-color: #ccc;
+    border-color: color-mix(in srgb, currentColor 20%, transparent);
+    outline-color: color-mix(in srgb, currentColor 20%, transparent);
   }
 
   &::-webkit-search-cancel-button {

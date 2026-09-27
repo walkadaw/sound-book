@@ -12,7 +12,7 @@
   }
 
   &_version {
-    color: #6b6b6b;
+    color: var(--mat-sys-on-surface-variant);
     font-size: 0.6em;
   }
 
@@ -32,7 +32,7 @@
     width: 40px;
     height: 40px;
     padding: 0;
-    color: #444;
+    color: var(--mat-sys-on-surface-variant);
 
     .mat-icon {
       width: 40px;

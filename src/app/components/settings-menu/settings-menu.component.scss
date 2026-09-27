@@ -19,7 +19,7 @@
 }
 
 .version {
-  color: #595959;
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .row > span {
@@ -36,5 +36,16 @@ mat-slide-toggle {
       flex-grow: 1;
       text-align: start;
     }
+  }
+}
+
+mat-button-toggle-group {
+  --mat-button-toggle-height: 32px;
+  --mat-button-toggle-label-text-size: 13px;
+  flex-shrink: 0;
+
+  ::ng-deep .mat-button-toggle-label-content {
+    padding: 0 6px;
+    line-height: 32px;
   }
 }

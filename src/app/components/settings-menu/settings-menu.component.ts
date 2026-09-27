@@ -3,11 +3,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/list';
 import { MatMenuItem } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { SongService } from '../../services/song-service/song.service';
+import { ThemeMode, ThemeService } from '../../services/theme/theme.service';
 import { SongViewSettingsComponent } from '../song-view-settings/song-view-settings.component';
 
 @Component({
@@ -17,6 +19,7 @@ import { SongViewSettingsComponent } from '../song-view-settings/song-view-setti
   imports: [
     DatePipe,
     MatButtonModule,
+    MatButtonToggleModule,
     MatDivider,
     MatIcon,
     MatMenuItem,
@@ -27,9 +30,16 @@ import { SongViewSettingsComponent } from '../song-view-settings/song-view-setti
 export class SettingsMenuComponent {
   private songService = inject(SongService);
   private snackBar = inject(MatSnackBar);
+  private themeService = inject(ThemeService);
+
+  protected themeMode = this.themeService.mode;
 
   protected songVersion = signal(this.songService.songVersion);
   protected updating = signal(false);
+
+  protected changeTheme(event: MatButtonToggleChange): void {
+    this.themeService.setMode(event.value as ThemeMode);
+  }
 
   protected updateSongs(event: MouseEvent): void {
     event.stopPropagation();
