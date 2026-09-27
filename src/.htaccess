@@ -13,6 +13,10 @@ DirectoryIndex index.html index.csr.html
   	# RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L]
 	# --
 
+	# The site root is also the SSH home directory: never serve .ssh, shell histories or any other dotfile.
+	# .well-known stays reachable for certificate issuance; 404 rather than 403 so nothing confirms they exist.
+	RewriteRule (^|/)\.(?!well-known(/|$)) - [R=404,L]
+
 	# Prerendered pages (song/:id/:title/index.html) are served under their URL without the trailing slash.
 	RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f
 	RewriteRule ^(.+?)/?$ $1/index.html [L]
