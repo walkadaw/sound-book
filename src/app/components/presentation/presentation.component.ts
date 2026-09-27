@@ -22,6 +22,7 @@ import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { RevealService } from '../../services/reveal-service/reveal.service';
 import { SlidesService } from '../../services/slides/slides.service';
 import { SongService } from '../../services/song-service/song.service';
+import { SongStatsService } from '../../services/song-stats/song-stats.service';
 import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
 
 @Component({
@@ -47,6 +48,12 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private slidesService = inject(SlidesService);
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);
+  private songStats = inject(SongStatsService);
+
+  // Removing a song and adding it back is still one use in this presentation.
+  private countedSongs = new Set<string>();
+  // The speaker notes window loads the same presentation (with ?receiver) in its own frames.
+  private isNotesWindow = /receiver/i.test(this.location.path());
 
   readonly slideList = signal<SlideList[]>([]);
   readonly isReady = this.reveal.ready;
@@ -103,6 +110,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
         ];
       });
 
+      this.countShow(id.toString());
       this.updateLocation();
     }
   }
@@ -184,6 +192,16 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     }, []);
 
     this.slideList.set(slideList);
+    slideList.filter((slide) => this.songService.hasSong(slide.id)).forEach((slide) => this.countShow(slide.id));
+  }
+
+  private countShow(songId: string) {
+    if (this.isNotesWindow || this.countedSongs.has(songId)) {
+      return;
+    }
+
+    this.countedSongs.add(songId);
+    this.songStats.record('show', songId);
   }
 
   private updateLocation() {

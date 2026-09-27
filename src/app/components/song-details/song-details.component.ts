@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, inject, linkedSignal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, effect, inject, linkedSignal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -9,6 +9,7 @@ import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/list';
 import { map } from 'rxjs/operators';
 import { SongService } from '../../services/song-service/song.service';
+import { SongStatsService } from '../../services/song-stats/song-stats.service';
 import { TagNameById } from '../../interfaces/tag-list';
 import { IAppState } from '../../redux/models/IAppState';
 import { getChordPosition, getShowChord } from '../../redux/selector/settings.selector';
@@ -54,6 +55,7 @@ export class SongDetailsComponent {
   private store = inject<Store<IAppState>>(Store);
   private snackBar = inject(MatSnackBar);
   private playlistService = inject(PlaylistService);
+  private songStats = inject(SongStatsService);
 
   private songId = toSignal(this.route.paramMap.pipe(map((paramMap) => paramMap.get('id'))), { requireSync: true });
   private chordPosition = this.store.selectSignal(getChordPosition);
@@ -95,6 +97,19 @@ export class SongDetailsComponent {
   playLists: PlayList[] = this.playlistService.getAllPlaylists();
 
   readonly tagNameById = TagNameById;
+
+  // A boolean, so a background reload of the song list does not count the open song again.
+  private songExists = computed(() => this.songService.hasSong(this.songId()));
+
+  constructor() {
+    effect(() => {
+      const songId = this.songId();
+
+      if (this.songExists()) {
+        untracked(() => this.songStats.record('view', songId));
+      }
+    });
+  }
 
   toggleFavorite(songID: number): void {
     this.store.dispatch(toggleFavoriteAction(songID));
