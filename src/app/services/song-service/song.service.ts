@@ -76,7 +76,7 @@ export class SongService {
       .pipe(switchMap((value) => this.loadSongs().pipe(map(() => value.id))));
   }
 
-  private setSong(songList: SongRequest): void {
+  setSong(songList: SongRequest): void {
     this.songListState.set(
       songList.songs
         .sort((a, b) => {

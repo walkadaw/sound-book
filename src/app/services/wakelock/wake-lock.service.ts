@@ -1,4 +1,4 @@
-import { Service, inject } from '@angular/core';
+import { DOCUMENT, Service, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, CanActivate, CanDeactivate } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
@@ -14,6 +14,7 @@ export class WakeLockService implements CanActivate, CanDeactivate<boolean> {
   private store = inject<Store<IAppState>>(Store);
   private route = inject(ActivatedRoute);
   private actions$ = inject(Actions);
+  private document = inject(DOCUMENT);
 
   private sentinel: WakeLockSentinel | null = null;
   private wanted = false;
@@ -32,7 +33,7 @@ export class WakeLockService implements CanActivate, CanDeactivate<boolean> {
 
   constructor() {
     // The browser releases the lock itself when the page is hidden; re-acquire it when visible again.
-    fromEvent(document, 'visibilitychange')
+    fromEvent(this.document, 'visibilitychange')
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.sync());
   }
@@ -44,7 +45,7 @@ export class WakeLockService implements CanActivate, CanDeactivate<boolean> {
   async enable(): Promise<void> {
     this.wanted = true;
 
-    if (!this.isSupported || this.sentinel || document.visibilityState === 'hidden') {
+    if (!this.isSupported || this.sentinel || this.document.visibilityState === 'hidden') {
       return;
     }
 

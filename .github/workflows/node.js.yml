@@ -29,6 +29,9 @@ jobs:
     - run: npm run lint
     - run: npm test -- --watch=false
     - run: npm run build-prod
+      env:
+        # Origin of the deployed site: prerendering loads the songs from it and uses it for canonical URLs and the sitemap.
+        SITE_URL: ${{ vars.SITE_URL }}
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:

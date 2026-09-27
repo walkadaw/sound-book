@@ -2,6 +2,8 @@
 # https://gist.github.com/julianpoemp/bcf277cb56d2420cc53ec630a04a3566
 # Version 1.4.1
 
+DirectoryIndex index.html index.csr.html
+
 <IfModule mod_rewrite.c>
 	RewriteEngine On
 
@@ -11,11 +13,17 @@
   	# RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L]
 	# --
 
-	RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
-	RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
+	# Prerendered pages (song/:id/:title/index.html) are served under their URL without the trailing slash.
+	RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}/index.html -f
+	RewriteRule ^(.+?)/?$ $1/index.html [L]
+
+	# Only real files pass through: song/ and song/:id/ are bare folders holding prerendered pages,
+	# and serving them as directories would answer 403 instead of the app. /api has its own rules.
+	RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f
 
 	RewriteRule ^.*$ - [NC,L]
-	RewriteRule ^(.*) index.html [NC,L]
+	# With prerendering on, the build names the plain app shell index.csr.html.
+	RewriteRule ^(.*) index.csr.html [NC,L]
 </IfModule>
 
 #------------ BROWSER CACHING (optional)

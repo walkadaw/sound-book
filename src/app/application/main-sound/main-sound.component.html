@@ -8,7 +8,9 @@
   [class.show-menu]="showMenu()"
   [style.font-size.em]="fontSize()"
 >
-  <app-main-page class="menu"></app-main-page>
+  @if (renderMenu()) {
+    <app-main-page class="menu"></app-main-page>
+  }
   @if (!showMenu()) {
     <router-outlet></router-outlet>
   }

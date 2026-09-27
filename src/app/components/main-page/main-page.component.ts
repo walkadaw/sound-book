@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, PLATFORM_ID, computed, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
@@ -8,7 +8,7 @@ import { RouterLinkActive, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuContent } from '@angular/material/menu';
-import { UpperCasePipe } from '@angular/common';
+import { UpperCasePipe, isPlatformBrowser } from '@angular/common';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -74,6 +74,11 @@ export class MainPageComponent {
   private contentScrollYPosition: number;
 
   constructor() {
+    // Scroll position bookkeeping only; the prerendered page has nothing to scroll.
+    if (!isPlatformBrowser(inject(PLATFORM_ID))) {
+      return;
+    }
+
     effect(() => {
       this.searchResults();
       window.scrollTo(0, 0);

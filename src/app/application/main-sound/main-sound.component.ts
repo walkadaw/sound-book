@@ -1,5 +1,6 @@
-import { Component, ElementRef, computed, inject, viewChild } from '@angular/core';
+import { Component, DOCUMENT, ElementRef, PLATFORM_ID, computed, inject, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { PlatformLocation, isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { filter, map, skip, startWith } from 'rxjs/operators';
@@ -19,6 +20,9 @@ import { FooterComponent } from '../../components/footer/footer.component';
 export class MainSoundComponent {
   private store = inject<Store<IAppState>>(Store);
   private router = inject(Router);
+  private document = inject(DOCUMENT);
+  private location = inject(PlatformLocation);
+  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private main = viewChild.required<ElementRef<HTMLElement>>('main');
 
@@ -27,7 +31,7 @@ export class MainSoundComponent {
   private isRootUrl = toSignal(
     this.navigate$.pipe(
       map((value) => value.url),
-      startWith(window.location.pathname),
+      startWith(this.location.pathname),
       map((url) => url === '/'),
     ),
     { requireSync: true },
@@ -35,6 +39,8 @@ export class MainSoundComponent {
 
   protected fontSize = this.store.selectSignal(getFontSize);
   protected showMenu = computed(() => this.isMenuOpen() || this.isRootUrl());
+  // The closed menu lists every song; prerendering it would add ~600 KB of duplicate markup to each song page.
+  protected renderMenu = computed(() => this.isBrowser || this.showMenu());
 
   constructor() {
     this.navigate$
@@ -63,7 +69,7 @@ export class MainSoundComponent {
   // The link that triggered the navigation is usually destroyed with the old view, which drops
   // keyboard and screen reader focus back to <body>; the search field is left alone while typing.
   private moveFocusAfterNavigation(): void {
-    if (document.activeElement?.closest('app-song-search')) {
+    if (this.document.activeElement?.closest('app-song-search')) {
       return;
     }
 

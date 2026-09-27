@@ -35,10 +35,11 @@ export class ThemeService {
   private apply(mode: ThemeMode): void {
     const root = this.document.documentElement;
 
+    // Attributes rather than dataset: the prerender DOM does not implement dataset.
     if (mode === 'system') {
-      delete root.dataset['theme'];
+      root.removeAttribute('data-theme');
     } else {
-      root.dataset['theme'] = mode;
+      root.setAttribute('data-theme', mode);
     }
 
     this.syncThemeColor();
