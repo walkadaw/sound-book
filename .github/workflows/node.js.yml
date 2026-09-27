@@ -55,13 +55,22 @@ jobs:
           sed -i 's/$UserDB = ".*"/$UserDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/browser/api/classes/_class.db.php
           sed -i 's/$BaseDB = ".*"/$BaseDB = "${{ secrets.DB_USER }}"/g' ./dist/sound-book/browser/api/classes/_class.db.php
           sed -i 's/$PassDB = ".*";/$PassDB = "${{ secrets.DB_PASSWORD }}";/g' ./dist/sound-book/browser/api/classes/_class.db.php
+      - name: Set up SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          # Pinned host key instead of trusting whatever answers on first connect.
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/known_hosts ~/.ssh/id_ed25519
+      # One rsync connection instead of an FTP command per folder: prerendering adds ~900 of them.
+      # The SSH home directory is the site root. --delete mirrors the build like the old clean slate did, except:
+      # - root dotfiles are protected (P) from deletion: .ssh/authorized_keys lives there, .htaccess is still uploaded;
+      # - api/tmp holds the server-side song cache.
+      # --checksum: the downloaded artifact has fresh timestamps, so size+mtime would resend every file.
       - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: './dist/sound-book/browser/'
-          dangerous-clean-slate: true
-          exclude: |
-            **/api/tmp/**
+        env:
+          TARGET: ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+        run: >
+          rsync -rz --checksum --delete --chmod=D755,F644
+          --filter='P /.*' --exclude 'api/tmp/'
+          ./dist/sound-book/browser/ "$TARGET:./"
