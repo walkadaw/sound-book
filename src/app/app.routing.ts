@@ -7,6 +7,7 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { PartOfMassComponent } from './components/part-of-mass/part-of-mass.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
 import { HasSongGuard } from './guards/has-song.guard';
+import { shareTargetGuard } from './guards/share-target.guard';
 import { UserService } from './services/user/user.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
 import { songTitle } from './services/page-title/page-title.strategy';
@@ -51,6 +52,8 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./components/liturgy/liturgy.component').then((m) => m.LiturgyComponent),
         title: 'Чытанне дня',
       },
+      // Never renders: the guard always redirects, the component is only there because a route needs one.
+      { path: 'share', component: PageNotFoundComponent, canActivate: [shareTargetGuard] },
       { path: 'part-of-mass', component: PartOfMassComponent, title: 'Часткі імшы' },
       { path: 'favorite', component: FavoriteComponent, title: 'Закладкі' },
       {
