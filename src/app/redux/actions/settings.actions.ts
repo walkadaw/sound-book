@@ -9,13 +9,6 @@ export const chordPositionAction = createAction('[settings] chordPosition', (cho
 export const chordNotationAction = createAction('[settings] chordNotation', (chordNotation: ChordNotation) => ({
   chordNotation,
 }));
-export const showSongNumberAction = createAction('[settings] song number', (showSongNumber: boolean) => ({
-  showSongNumber,
-}));
 export const changeFontSizeAction = createAction('[settings] change font size', (fontSize: number) => ({ fontSize }));
-export const changeNoSleepAction = createAction(
-  '[settings] always on screen',
-  (enableNoSleep: boolean) => ({ enableNoSleep }),
-);
 
 export const changeShowMenuAction = createAction('[UI] change show menu', (showMenu: boolean) => ({ showMenu }));

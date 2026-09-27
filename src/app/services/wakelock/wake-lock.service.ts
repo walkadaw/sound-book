@@ -5,9 +5,9 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { fromEvent } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { changeNoSleepAction, changeShowMenuAction } from '../../redux/actions/settings.actions';
+import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
-import { getEnableNoSleep, getSettingsState } from '../../redux/selector/settings.selector';
+import { getShowMenu } from '../../redux/selector/settings.selector';
 
 @Service()
 export class WakeLockService implements CanActivate, CanDeactivate<boolean> {
@@ -17,15 +17,14 @@ export class WakeLockService implements CanActivate, CanDeactivate<boolean> {
 
   private sentinel: WakeLockSentinel | null = null;
   private wanted = false;
-  private settings = this.store.selectSignal(getSettingsState);
-  private enableNoSleep = this.store.selectSignal(getEnableNoSleep);
+  private showMenu = this.store.selectSignal(getShowMenu);
 
   readonly isSupported = typeof navigator !== 'undefined' && 'wakeLock' in navigator;
 
-  liveHookNoSleep$ = createEffect(
+  syncOnMenuChange$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(changeNoSleepAction, changeShowMenuAction),
+        ofType(changeShowMenuAction),
         tap(() => this.sync()),
       ),
     { dispatch: false },
@@ -78,25 +77,19 @@ export class WakeLockService implements CanActivate, CanDeactivate<boolean> {
   }
 
   canActivate(): boolean {
-    if (this.enableNoSleep()) {
-      this.enable();
-    }
+    this.enable();
 
     return true;
   }
 
   canDeactivate(): boolean {
-    if (this.enableNoSleep()) {
-      this.disable();
-    }
+    this.disable();
 
     return true;
   }
 
   private sync(): void {
-    const { enableNoSleep, showMenu } = this.settings();
-
-    if (!enableNoSleep || showMenu || !this.hasWakeLockGuard()) {
+    if (this.showMenu() || !this.hasWakeLockGuard()) {
       this.disable();
       return;
     }

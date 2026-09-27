@@ -1,39 +1,41 @@
 @if (selectedSong(); as selectedSong) {
   <article>
     <header class="entry-header">
-      <div class="title-container">
-        <div class="name-contaner">
-          <h1 class="entry-title" itemprop="name">
-            @if (showSongNumber()) {
-              {{ selectedSong.songId }}.
-            }
-            {{ selectedSong?.title }}
-          </h1>
-          @if (tagNames()) {
-            <h2 class="entry-title-meta">Тэгі: <span>{{ tagNames() }}</span></h2>
-          }
-        </div>
-        <div class="title-container__actions">
-          <button mat-icon-button (click)="toggleFavorite(selectedSong.id)">
-            <mat-icon>{{ isFavoriteSong() ? 'favorite' : 'favorite_border' }}</mat-icon>
-          </button>
-          <button mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon>more_horiz</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu">
-            <app-playlist-menu
-              [songId]="selectedSong.id"
-              (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, selectedSong.id)"
-            ></app-playlist-menu>
-          </mat-menu>
-        </div>
+      <div class="entry-main">
+        <h1 class="entry-title" itemprop="name">
+          {{ selectedSong.songId }}.
+          {{ selectedSong?.title }}
+        </h1>
+        @if (tagNames()) {
+          <p class="entry-title-meta">
+            Тэгі: <span>{{ tagNames() }}</span>
+          </p>
+        }
+        @if (showChord()) {
+          <app-song-key class="entry-key" [(selectedTranspilation)]="selectedTranspilation"></app-song-key>
+        }
       </div>
-      @if (showChord()) {
-        <div class="guitar-controls">
-          <app-song-key [(selectedTranspilation)]="selectedTranspilation"></app-song-key>
-        </div>
-      }
+      <div class="entry-actions">
+        <button
+          mat-icon-button
+          [attr.aria-label]="isFavoriteSong() ? 'Выдаліць з абраных' : 'Дадаць у абраныя'"
+          (click)="toggleFavorite(selectedSong.id)"
+        >
+          <mat-icon>{{ isFavoriteSong() ? 'favorite' : 'favorite_border' }}</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Дзеянні з песняй" [matMenuTriggerFor]="songMenu">
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+      </div>
     </header>
+    <mat-menu #songMenu="matMenu">
+      <app-playlist-menu
+        [songId]="selectedSong.id"
+        (selectedPlaylist)="addedSongToPlaylist($event.dateCreate, selectedSong.id)"
+      ></app-playlist-menu>
+      <mat-divider />
+      <app-song-view-settings />
+    </mat-menu>
     <div class="lyrics" [class.chord-right]="selectedSong.chordPosition === 'right'">
       @for (line of selectedSong.text; track line; let i = $index) {
         <div class="line-container">

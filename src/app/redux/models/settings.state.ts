@@ -5,8 +5,6 @@ export interface MainSettings {
   showChord: boolean;
   chordPosition: ChordPosition;
   chordNotation: ChordNotation;
-  showSongNumber: boolean;
   fontSize: number;
   showMenu: boolean;
-  enableNoSleep: boolean;
 }

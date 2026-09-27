@@ -6,11 +6,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
+import { MatDivider } from '@angular/material/list';
 import { map } from 'rxjs/operators';
 import { SongService } from '../../services/song-service/song.service';
 import { TagNameById } from '../../interfaces/tag-list';
 import { IAppState } from '../../redux/models/IAppState';
-import { getChordPosition, getShowChord, getShowSongNumber } from '../../redux/selector/settings.selector';
+import { getChordPosition, getShowChord } from '../../redux/selector/settings.selector';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { ChordPosition } from '../../redux/models/settings.state';
@@ -18,6 +19,7 @@ import { PlayList, PlaylistService } from '../../services/playlist/playlist.serv
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SongKeyComponent } from '../song-key/song-key.component';
 import { ChordListComponent } from '../chord-list/chord-list.component';
+import { SongViewSettingsComponent } from '../song-view-settings/song-view-settings.component';
 
 export interface SelectedSong {
   id: number;
@@ -39,9 +41,11 @@ export interface SelectedSong {
     MatIcon,
     MatMenuTrigger,
     MatMenu,
+    MatDivider,
     PlaylistMenuComponent,
     SongKeyComponent,
     ChordListComponent,
+    SongViewSettingsComponent,
   ],
 })
 export class SongDetailsComponent {
@@ -84,7 +88,6 @@ export class SongDetailsComponent {
       .map((key) => this.tagNameById[key])
       .join(', ');
   });
-  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected showChord = this.store.selectSignal(getShowChord);
   protected selectedTranspilation = linkedSignal({ source: this.songId, computation: () => 0 });
 

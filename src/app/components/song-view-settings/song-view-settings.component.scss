@@ -1,0 +1,110 @@
+:host {
+  display: block;
+  min-width: 260px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 16px;
+  color: var(--mat-slide-toggle-label-text-color, var(--mat-sys-on-surface));
+  font-family: var(--mat-slide-toggle-label-text-font, var(--mat-sys-body-medium-font));
+  font-size: var(--mat-slide-toggle-label-text-size, var(--mat-sys-body-medium-size));
+  font-weight: var(--mat-slide-toggle-label-text-weight, var(--mat-sys-body-medium-weight));
+  line-height: var(--mat-slide-toggle-label-text-line-height, var(--mat-sys-body-medium-line-height));
+  letter-spacing: var(--mat-slide-toggle-label-text-tracking, var(--mat-sys-body-medium-tracking));
+}
+
+.row--enter,
+.row--leave {
+  overflow: hidden;
+}
+
+.row--enter {
+  animation: row-expand 200ms ease-out;
+}
+
+.row--leave {
+  animation: row-expand 150ms ease-in reverse forwards;
+}
+
+@keyframes row-expand {
+  from {
+    min-height: 0;
+    max-height: 0;
+    opacity: 0;
+  }
+
+  to {
+    max-height: 48px;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row--enter,
+  .row--leave {
+    animation: none;
+  }
+}
+
+.font-size {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  &__step {
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+  }
+
+  &__value {
+    min-width: 44px;
+    height: 32px;
+    padding: 0 4px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--mat-sys-surface-container-highest, rgba(0, 0, 0, 0.08));
+    }
+  }
+}
+
+.row > span {
+  white-space: nowrap;
+}
+
+mat-slide-toggle {
+  width: 100%;
+
+  ::ng-deep .mat-internal-form-field {
+    width: 100%;
+
+    > label {
+      flex-grow: 1;
+      text-align: start;
+    }
+  }
+}
+
+mat-button-toggle-group {
+  --mat-button-toggle-height: 32px;
+  --mat-button-toggle-label-text-size: 13px;
+  flex-shrink: 0;
+
+  ::ng-deep .mat-button-toggle-label-content {
+    padding: 0 6px;
+    line-height: 32px;
+  }
+}

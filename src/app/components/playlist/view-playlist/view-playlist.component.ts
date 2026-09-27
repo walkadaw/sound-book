@@ -4,15 +4,12 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/list';
 import { DatePipe } from '@angular/common';
 import { Song } from '../../../interfaces/song';
-import { IAppState } from '../../../redux/models/IAppState';
-import { getShowSongNumber } from '../../../redux/selector/settings.selector';
 import { PlayList, PlaylistService } from '../../../services/playlist/playlist.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { ReplaceSpacePipe } from '../../../pipes/replace-space/replace-space.pipe';
@@ -43,14 +40,12 @@ export class ViewPlaylistComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private songService = inject(SongService);
-  private store = inject<Store<IAppState>>(Store);
   private playListService = inject(PlaylistService);
   private clipboard = inject(Clipboard);
   private snackBar = inject(MatSnackBar);
 
   private params = toSignal(this.route.params, { requireSync: true });
 
-  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected playlistData = computed<(PlayList & { songs: Song[] }) | null>(() => {
     const { createdDate, songList = '', name } = this.params();
     // playlist changes are driven by route params, not by the playlists signal

@@ -1,11 +1,11 @@
 
 .entry-title-meta {
+    font-family: "Myriad Pro", Helvetica, Arial, sans-serif;
     font-size: 13px;
-    color: #b3b3b1;
+    color: #767676;
     font-weight: 100;
     letter-spacing: 1px;
-    margin-bottom: 0px;
-    margin-top: 0px;
+    margin: 0;
     font-style: normal;
     line-height: 1.4;
 
@@ -18,11 +18,17 @@
 h1.entry-title {
     font-size: 1.40em !important;
     color: #333 !important;
-    margin-top: 0;
+    margin: 0 0 6px;
+}
+
+article {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 0;
 }
 
 .lyrics {
-    margin-top: 20px;
     line-height: 1.25;
 
     span {
@@ -49,21 +55,26 @@ h1.entry-title {
 
 }
 
-.title-container {
+.entry-header {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    column-gap: 15px;
-
-    &__actions {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+    align-items: flex-start;
+    column-gap: 8px;
 }
-.guitar-controls {
-    margin-top: 5px;
+
+.entry-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.entry-key {
+    margin-top: 12px;
+}
+
+.entry-actions {
     display: flex;
-    gap: 20px;
-    align-items: center;
+    flex-direction: column;
+    // Same font-size as the title (line-height 1), so 0.5em is the middle of its first line;
+    // subtracting half the 48px button puts the 24px glyph's centre on that line at any font size.
+    font-size: 1.4em;
+    margin-top: calc(0.5em - 24px);
 }

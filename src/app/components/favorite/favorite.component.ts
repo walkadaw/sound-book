@@ -8,7 +8,6 @@ import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
-import { getShowSongNumber } from '../../redux/selector/settings.selector';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
@@ -28,7 +27,6 @@ export class FavoriteComponent {
 
   private favoriteState = this.store.selectSignal(getFavoriteState);
 
-  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected songFavoriteList = computed(() =>
     // a favorite can point to a song that was removed on the server
     [...this.favoriteState()].map((songId) => this.songService.getSong(songId)).filter(Boolean),

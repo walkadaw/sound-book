@@ -7,9 +7,7 @@
         <mat-icon (click)="toggleFavorite($event, song.id)">favorite</mat-icon>
       </span>
       <span class="song-title">
-        @if (showSongNumber()) {
-          {{ song.songId }}.
-        }
+        {{ song.songId }}.
         {{ song.title }}
       </span>
       <div class="title-container__actions" (click)="$event.stopPropagation()">

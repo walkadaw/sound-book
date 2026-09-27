@@ -76,9 +76,7 @@
               <!-- <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon> -->
             </span>
             <span class="song-title">
-              @if (showSongNumber()) {
-                {{ song.songId }}.
-              }
+              {{ song.songId }}.
               {{ song.title }}
             </span>
             <div class="actions" (click)="$event.stopPropagation()">

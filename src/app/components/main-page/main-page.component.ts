@@ -14,7 +14,7 @@ import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
-import { getShowMenu, getShowSongNumber } from '../../redux/selector/settings.selector';
+import { getShowMenu } from '../../redux/selector/settings.selector';
 import { FuseService, SongSearchResult } from '../../services/fuse-service/fuse.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
@@ -51,7 +51,6 @@ export class MainPageComponent {
   private showMenu = this.store.selectSignal(getShowMenu);
   private favoriteState = this.store.selectSignal(getFavoriteState);
 
-  protected showSongNumber = this.store.selectSignal(getShowSongNumber);
   protected selectedTag = this.store.selectSignal(getSelectedTag);
 
   private searchTerm = this.store.selectSignal(getSearchTerm);

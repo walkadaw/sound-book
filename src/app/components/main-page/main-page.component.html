@@ -11,9 +11,7 @@
             <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>
           </span>
           <span class="song-title">
-            @if (showSongNumber()) {
-              {{ song.songId }}.
-            }
+            {{ song.songId }}.
             {{ song.title | uppercase }}
             @if (song.snippet; as snippet) {
               <app-match-highlight class="song-snippet" [snippet]="snippet" />
