@@ -8,9 +8,10 @@ interface SongUsage {
   id: number;
   view: number;
   showP: number;
+  favorite: number;
 }
 
-type SortKey = 'view' | 'showP' | 'total';
+type SortKey = 'view' | 'showP' | 'favorite' | 'total';
 
 interface PopularSong extends SongUsage {
   title: string;
@@ -29,6 +30,7 @@ export class PopularComponent {
   protected readonly columns: { key: SortKey; label: string }[] = [
     { key: 'view', label: 'Просмотры' },
     { key: 'showP', label: 'В презентации' },
+    { key: 'favorite', label: 'В избранном' },
     { key: 'total', label: 'Всего' },
   ];
 

@@ -42,11 +42,11 @@ describe('PopularComponent', () => {
     http
       .expectOne((request) => request.url.endsWith('/song/popular'))
       .flush([
-        { id: 1, view: 5, showP: 0 },
-        { id: 2, view: 1, showP: 3 },
-        { id: 3, view: 2, showP: 4 },
+        { id: 1, view: 5, showP: 0, favorite: 0 },
+        { id: 2, view: 1, showP: 3, favorite: 1 },
+        { id: 3, view: 2, showP: 4, favorite: 0 },
         // Deleted song: no title to show.
-        { id: 99, view: 100, showP: 100 },
+        { id: 99, view: 100, showP: 100, favorite: 100 },
       ]);
     await fixture.whenStable();
   });
@@ -66,5 +66,11 @@ describe('PopularComponent', () => {
 
     expect(titles()).toEqual(['Gamma', 'Beta', 'Alpha']);
     expect(fixture.nativeElement.querySelector('th[aria-sort="descending"]').textContent).toContain('В презентации');
+  });
+
+  it('sorts by favorite additions', async () => {
+    await sortBy('В избранном');
+
+    expect(titles()).toEqual(['Beta', 'Alpha', 'Gamma']);
   });
 });

@@ -1,5 +1,5 @@
 <?php
-// Usage counters batched by the client: {"view": {"<id>": count}, "show": {"<id>": count}}.
+// Usage counters batched by the client: {"view": {"<id>": count}, "show": {...}, "favorite": {...}}.
 // Public and unauthenticated, so the input is clamped to keep a single request from skewing the numbers.
 
 // Enough for a long offline stretch; anything above is not a real client.
@@ -21,7 +21,7 @@ if (!is_array($data)) {
 
 $counts = [];
 
-foreach (['view' => 0, 'show' => 1] as $kind => $column) {
+foreach (['view' => 0, 'show' => 1, 'favorite' => 2] as $kind => $column) {
     if (!isset($data[$kind]) || !is_array($data[$kind])) {
         continue;
     }
@@ -34,7 +34,7 @@ foreach (['view' => 0, 'show' => 1] as $kind => $column) {
             continue;
         }
 
-        $counts[$id] = $counts[$id] ?? [0, 0];
+        $counts[$id] = $counts[$id] ?? [0, 0, 0];
         $counts[$id][$column] += $count;
     }
 }
@@ -46,11 +46,11 @@ if (count($counts) > MAX_SONGS) {
 
 if ($counts) {
     // Counters only: `ad_options.last_update` is left alone, so the cached song list stays valid for every client.
-    $sth = $db->prepare("UPDATE `sound_list` SET `view` = `view` + ?, `showP` = `showP` + ? WHERE `id` = ?");
+    $sth = $db->prepare("UPDATE `sound_list` SET `view` = `view` + ?, `showP` = `showP` + ?, `favorite` = `favorite` + ? WHERE `id` = ?");
 
     $db->beginTransaction();
-    foreach ($counts as $id => [$view, $show]) {
-        $sth->execute([$view, $show, $id]);
+    foreach ($counts as $id => [$view, $show, $favorite]) {
+        $sth->execute([$view, $show, $favorite, $id]);
     }
     $db->commit();
 }

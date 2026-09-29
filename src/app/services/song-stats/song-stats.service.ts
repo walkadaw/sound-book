@@ -1,14 +1,21 @@
-import { DOCUMENT, PLATFORM_ID, Service, inject } from '@angular/core';
+import { DOCUMENT, InjectionToken, PLATFORM_ID, Service, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 
-export type SongStatKind = 'view' | 'show';
+const KINDS = ['view', 'show', 'favorite'] as const;
+
+export type SongStatKind = (typeof KINDS)[number];
 
 export type SongStats = Record<SongStatKind, Record<string, number>>;
 
 const STATS_KEY = 'songStats';
 const FLUSH_DELAY = 30_000;
 const STATS_URL = `${environment.baseUrl}/song/stats`;
+
+/** Off outside production builds: `ng serve` proxies the API to the live server and would skew its numbers. */
+export const SONG_STATS_ENABLED = new InjectionToken<boolean>('SONG_STATS_ENABLED', {
+  factory: () => environment.production,
+});
 
 /**
  * Counts song usage locally and sends the totals to the server in batches, so opening a song never waits on the
@@ -17,13 +24,13 @@ const STATS_URL = `${environment.baseUrl}/song/stats`;
 @Service()
 export class SongStatsService {
   private document = inject(DOCUMENT);
-  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private enabled = isPlatformBrowser(inject(PLATFORM_ID)) && inject(SONG_STATS_ENABLED);
 
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private sending = false;
 
   constructor() {
-    if (!this.isBrowser) {
+    if (!this.enabled) {
       return;
     }
 
@@ -43,7 +50,7 @@ export class SongStatsService {
   }
 
   record(kind: SongStatKind, songId: string | number): void {
-    if (!this.isBrowser) {
+    if (!this.enabled) {
       return;
     }
 
@@ -117,11 +124,11 @@ export class SongStatsService {
   private claim(): SongStats | null {
     const stats = this.read();
 
-    if (!navigator.onLine || (!Object.keys(stats.view).length && !Object.keys(stats.show).length)) {
+    if (!navigator.onLine || KINDS.every((kind) => !Object.keys(stats[kind]).length)) {
       return null;
     }
 
-    this.write({ view: {}, show: {} });
+    this.write(emptyStats());
 
     return stats;
   }
@@ -129,7 +136,7 @@ export class SongStatsService {
   private restore(unsent: SongStats): void {
     const stats = this.read();
 
-    for (const kind of ['view', 'show'] as const) {
+    for (const kind of KINDS) {
       for (const [id, count] of Object.entries(unsent[kind])) {
         stats[kind][id] = (stats[kind][id] ?? 0) + count;
       }
@@ -142,9 +149,9 @@ export class SongStatsService {
     try {
       const stats = JSON.parse(localStorage.getItem(STATS_KEY)) as Partial<SongStats> | null;
 
-      return { view: stats?.view ?? {}, show: stats?.show ?? {} };
+      return { view: stats?.view ?? {}, show: stats?.show ?? {}, favorite: stats?.favorite ?? {} };
     } catch {
-      return { view: {}, show: {} };
+      return emptyStats();
     }
   }
 
@@ -155,4 +162,8 @@ export class SongStatsService {
       // Statistics are best effort and must never break the app (quota exceeded, private mode).
     }
   }
+}
+
+function emptyStats(): SongStats {
+  return { view: {}, show: {}, favorite: {} };
 }

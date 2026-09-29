@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SongStatsService } from './song-stats.service';
+import { SONG_STATS_ENABLED, SongStatsService } from './song-stats.service';
 
 const stored = () => JSON.parse(localStorage.getItem('songStats'));
 
@@ -14,7 +14,7 @@ describe('SongStatsService', () => {
     fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
 
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({ providers: [{ provide: SONG_STATS_ENABLED, useValue: true }] });
     service = TestBed.inject(SongStatsService);
   });
 
@@ -28,7 +28,7 @@ describe('SongStatsService', () => {
     service.record('view', 5);
     service.record('show', 7);
 
-    expect(stored()).toEqual({ view: { 5: 2 }, show: { 7: 1 } });
+    expect(stored()).toEqual({ view: { 5: 2 }, show: { 7: 1 }, favorite: {} });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -39,8 +39,8 @@ describe('SongStatsService', () => {
     await vi.runAllTimersAsync();
 
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ view: { 5: 1 }, show: {} });
-    expect(stored()).toEqual({ view: {}, show: {} });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ view: { 5: 1 }, show: {}, favorite: {} });
+    expect(stored()).toEqual({ view: {}, show: {}, favorite: {} });
   });
 
   it('keeps the counts when the request fails', async () => {
@@ -49,7 +49,7 @@ describe('SongStatsService', () => {
 
     await vi.runAllTimersAsync();
 
-    expect(stored()).toEqual({ view: {}, show: { 3: 1 } });
+    expect(stored()).toEqual({ view: {}, show: { 3: 1 }, favorite: {} });
   });
 
   it('keeps the counts when the server rejects them', async () => {
@@ -58,7 +58,7 @@ describe('SongStatsService', () => {
 
     await vi.runAllTimersAsync();
 
-    expect(stored()).toEqual({ view: {}, show: { 3: 1 } });
+    expect(stored()).toEqual({ view: {}, show: { 3: 1 }, favorite: {} });
   });
 
   it('does not resend a batch in flight when the page is hidden', async () => {
@@ -72,7 +72,7 @@ describe('SongStatsService', () => {
     document.dispatchEvent(new Event('visibilitychange'));
 
     expect(sendBeacon).not.toHaveBeenCalled();
-    expect(stored()).toEqual({ view: {}, show: {} });
+    expect(stored()).toEqual({ view: {}, show: {}, favorite: {} });
   });
 
   it('keeps counts recorded while the request is in flight', async () => {
@@ -85,6 +85,26 @@ describe('SongStatsService', () => {
     respond({ ok: true });
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(stored()).toEqual({ view: { 5: 1 }, show: {} });
+    expect(stored()).toEqual({ view: { 5: 1 }, show: {}, favorite: {} });
+  });
+
+  it('sends a batch with favorite additions only', async () => {
+    fetchMock.mockResolvedValue({ ok: true });
+    service.record('favorite', 9);
+
+    await vi.runAllTimersAsync();
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ view: {}, show: {}, favorite: { 9: 1 } });
+  });
+
+  it('neither stores nor sends anything when disabled', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: SONG_STATS_ENABLED, useValue: false }] });
+    TestBed.inject(SongStatsService).record('view', 5);
+
+    await vi.runAllTimersAsync();
+
+    expect(localStorage.getItem('songStats')).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

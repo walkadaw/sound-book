@@ -1,5 +1,5 @@
 <?php
-// Usage counters for the admin: [{"id", "view", "showP"}] for every song that was used at least once.
+// Usage counters for the admin: [{"id", "view", "showP", "favorite"}] for every song that was used at least once.
 start_session();
 
 if (!isset($_SESSION['user_id'])) {
@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Titles are left out: the client already holds the song list and joins by id.
-$sth = $db->query("SELECT `id`, `view`, `showP` FROM `sound_list` WHERE `view` > 0 OR `showP` > 0");
+$sth = $db->query("SELECT `id`, `view`, `showP`, `favorite` FROM `sound_list` WHERE `view` > 0 OR `showP` > 0 OR `favorite` > 0");
 
 $stats = [];
 while ($row = $sth->fetch()) {
@@ -16,6 +16,7 @@ while ($row = $sth->fetch()) {
         "id" => (int)$row["id"],
         "view" => (int)$row["view"],
         "showP" => (int)$row["showP"],
+        "favorite" => (int)$row["favorite"],
     ];
 }
 
