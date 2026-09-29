@@ -15,10 +15,31 @@
     }
 }
 
+// The number matches the paper songbook, so it stays in view, but outside the h1:
+// search engines and screen readers take the heading as the song's name.
+.entry-heading {
+    display: flex;
+    align-items: baseline;
+    column-gap: 0.3em;
+    margin-bottom: 6px;
+}
+
+.entry-number {
+    flex: none;
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 1.40em;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    color: var(--app-heading);
+}
+
 h1.entry-title {
     font-size: 1.40em !important;
     color: var(--app-heading) !important;
-    margin: 0 0 6px;
+    margin: 0;
+    min-width: 0;
 }
 
 article {

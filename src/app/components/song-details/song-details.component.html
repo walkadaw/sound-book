@@ -2,10 +2,13 @@
   <article>
     <header class="entry-header">
       <div class="entry-main">
-        <h1 class="entry-title" itemprop="name">
-          {{ selectedSong.songId }}.
-          {{ selectedSong?.title }}
-        </h1>
+        <div class="entry-heading">
+          <p class="entry-number">
+            <span class="cdk-visually-hidden">Нумар у папяровым спеўніку</span>
+            {{ selectedSong.songId }}.
+          </p>
+          <h1 class="entry-title">{{ selectedSong.title }}</h1>
+        </div>
         @if (tagNames()) {
           <p class="entry-title-meta">
             Тэгі: <span>{{ tagNames() }}</span>
