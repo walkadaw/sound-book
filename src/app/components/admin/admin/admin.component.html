@@ -1,80 +1,41 @@
-<p>
-  <a routerLink="/admin/popular">Популярные песни</a>
-</p>
-
-@if (songWithoutChord.length) {
-  <div>
-    <h3>Песни без аккордов</h3>
-    <ul>
-      @for (song of songWithoutChord; track song) {
-        <li>
-          <a [routerLink]="['/admin/edit', song.id]">{{ song.title }}</a>
-        </li>
-      }
-    </ul>
-  </div>
-}
-
-@if (songChordMistake.length) {
-  <div>
-    <h3>Песни с нераспознанными аккордами</h3>
-    <ul>
-      @for (item of songChordMistake; track item.song.id) {
-        <li>
-          <a [routerLink]="['/admin/edit', item.song.id]">{{ item.song.title }}</a>
-          <app-chord-issues [issues]="item.issues" />
-        </li>
-      }
-    </ul>
-  </div>
-}
-
-@if (songChordUnsupported.length) {
-  <div>
-    <h3>Песни с неподдерживаемыми пометками в аккордах</h3>
-    <ul>
-      @for (item of songChordUnsupported; track item.song.id) {
-        <li>
-          <a [routerLink]="['/admin/edit', item.song.id]">{{ item.song.title }}</a>
-          <app-chord-issues [issues]="item.issues" />
-        </li>
-      }
-    </ul>
-  </div>
-}
-
-@if (songWithoutTag.length) {
-  <div>
-    <h3>Песни без Тегов</h3>
-    <ul>
-      @for (song of songWithoutTag; track song) {
-        <li>
-          <a [routerLink]="['/admin/edit', song.id]">{{ song.title }}</a>
-        </li>
-      }
-    </ul>
-  </div>
-}
-
-<div>
-  <h3>Похожие(дубликаты) песни</h3>
-  @if (!songDuplicate) {
-    <button (click)="checkDuplication()">Проверить</button>
-  }
-
-  @if (songDuplicate?.length) {
-    <ul>
-      @for (song of songDuplicate; track song) {
-        <li>
-          <a [routerLink]="['/song', song[0].id]">{{ song[0].title }}</a>
-          :
-          @for (dbl of song[1]; track dbl) {
-            <a [routerLink]="['/song', dbl.id]">
-              {{ dbl.title }}
-            </a>
-          }
-        </li>
-      }
-    </ul>
-  }
+<div class="heading">
+  <h2>Админка</h2>
+  <a mat-stroked-button routerLink="/admin/add">Добавить песню</a>
 </div>
+
+<section aria-labelledby="checks-heading">
+  <h3 id="checks-heading">Проверка песен</h3>
+  <ul class="cards">
+    @for (check of checks; track check.key) {
+      @let count = check.items().length;
+      <li>
+        <a class="card" [routerLink]="['/admin/check', check.key]">
+          <span class="card__title">{{ check.title }}</span>
+          <span class="card__count" [class.card__count_ok]="!count">
+            {{ count ? count + ' ' + songsWord(count) : 'Всё в порядке' }}
+          </span>
+          <span class="card__description">{{ check.description }}</span>
+        </a>
+      </li>
+    }
+    <li>
+      <a class="card" routerLink="/admin/duplicates">
+        <span class="card__title">Похожие песни</span>
+        <span class="card__count card__count_ok">Проверка по запросу</span>
+        <span class="card__description">Поиск песен с почти одинаковым текстом</span>
+      </a>
+    </li>
+  </ul>
+</section>
+
+<section aria-labelledby="stats-heading">
+  <h3 id="stats-heading">Статистика</h3>
+  <ul class="cards">
+    <li>
+      <a class="card" routerLink="/admin/popular">
+        <span class="card__title">Популярные песни</span>
+        <span class="card__description">Просмотры, показы в презентации и добавления в избранное</span>
+      </a>
+    </li>
+  </ul>
+</section>

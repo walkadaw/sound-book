@@ -3,6 +3,7 @@ import { httpResource } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { SongService } from '../../../services/song-service/song.service';
+import { AdminPageHeaderComponent } from '../admin-page-header/admin-page-header.component';
 
 interface SongUsage {
   id: number;
@@ -22,7 +23,7 @@ interface PopularSong extends SongUsage {
   selector: 'app-popular',
   templateUrl: './popular.component.html',
   styleUrls: ['./popular.component.scss'],
-  imports: [RouterLink],
+  imports: [RouterLink, AdminPageHeaderComponent],
 })
 export class PopularComponent {
   private songService = inject(SongService);

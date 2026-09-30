@@ -16,7 +16,7 @@ import { Song, SongAdd } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { ChordCheckService } from '../../../services/chord/chord-check.service';
 import { SongService } from '../../../services/song-service/song.service';
-import { DuplicateService } from '../../../services/duplicate/duplicate.service';
+import { isSimilarText } from '../../../services/duplicate/similar-text';
 import { SimilarSongDialogComponent } from '../../similar-song-dialog/similar-song-dialog.component';
 import { DiffResultComponent } from '../../diff-result/diff-result.component';
 import { ChordIssuesComponent } from '../chord-issues/chord-issues.component';
@@ -46,7 +46,6 @@ export class EditComponent implements OnInit {
   private chordCheckService = inject(ChordCheckService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private duplicateService = inject(DuplicateService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
@@ -109,9 +108,7 @@ export class EditComponent implements OnInit {
 
     const duplication = this.songService
       .songList()
-      .filter(
-        (originSong) => +originSong.id !== +song.id && this.duplicateService.isSimilar(originSong.text, song.text),
-      );
+      .filter((originSong) => +originSong.id !== +song.id && isSimilarText(originSong.text, song.text));
 
     if (duplication.length) {
       this.dialog
