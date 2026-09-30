@@ -19,9 +19,24 @@
   <div>
     <h3>Песни с нераспознанными аккордами</h3>
     <ul>
-      @for (song of songChordMistake; track song) {
+      @for (item of songChordMistake; track item.song.id) {
         <li>
-          <a [routerLink]="['/admin/edit', song.id]">{{ song.title }}</a>
+          <a [routerLink]="['/admin/edit', item.song.id]">{{ item.song.title }}</a>
+          <app-chord-issues [issues]="item.issues" />
+        </li>
+      }
+    </ul>
+  </div>
+}
+
+@if (songChordUnsupported.length) {
+  <div>
+    <h3>Песни с неподдерживаемыми пометками в аккордах</h3>
+    <ul>
+      @for (item of songChordUnsupported; track item.song.id) {
+        <li>
+          <a [routerLink]="['/admin/edit', item.song.id]">{{ item.song.title }}</a>
+          <app-chord-issues [issues]="item.issues" />
         </li>
       }
     </ul>

@@ -1,9 +1,9 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Change, diffWords } from 'diff';
-import { filter, finalize, map } from 'rxjs/operators';
+import { debounceTime, filter, finalize, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -14,10 +14,12 @@ import { MatButton } from '@angular/material/button';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { Song, SongAdd } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
+import { ChordCheckService } from '../../../services/chord/chord-check.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { DuplicateService } from '../../../services/duplicate/duplicate.service';
 import { SimilarSongDialogComponent } from '../../similar-song-dialog/similar-song-dialog.component';
 import { DiffResultComponent } from '../../diff-result/diff-result.component';
+import { ChordIssuesComponent } from '../chord-issues/chord-issues.component';
 import { EditSongComponent } from './edit-song/edit-song.component';
 
 @Component({
@@ -34,12 +36,14 @@ import { EditSongComponent } from './edit-song/edit-song.component';
     MatIcon,
     MatButton,
     DiffResultComponent,
+    ChordIssuesComponent,
   ],
 })
 export class EditComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private songService = inject(SongService);
   private chordService = inject(ChordService);
+  private chordCheckService = inject(ChordCheckService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private duplicateService = inject(DuplicateService);
@@ -55,6 +59,16 @@ export class EditComponent implements OnInit {
   });
 
   protected readonly saving = signal(false);
+
+  // checked the way the song gets saved, which splits it into chord and lyrics lines
+  protected readonly chordIssues = toSignal(
+    this.songDataForm.controls.text.valueChanges.pipe(
+      debounceTime(300),
+      map((text) => this.chordService.getTextAndChord(text)),
+      map(({ chord, text }) => this.chordCheckService.findIssues(chord, text)),
+    ),
+    { initialValue: [] },
+  );
 
   diff: Change[];
 

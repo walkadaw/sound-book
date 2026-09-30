@@ -1,24 +1,31 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Song } from '../../../interfaces/song';
-import { ChordService } from '../../../services/chord/chord.service';
+import { CHORD_MISTAKES, ChordCheckService, ChordIssue } from '../../../services/chord/chord-check.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { DuplicateService } from '../../../services/duplicate/duplicate.service';
+import { ChordIssuesComponent } from '../chord-issues/chord-issues.component';
+
+interface SongChordIssues {
+  song: Song;
+  issues: ChordIssue[];
+}
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],
-  imports: [RouterLink],
+  imports: [RouterLink, ChordIssuesComponent],
 })
 export class AdminComponent implements OnInit {
   private songService = inject(SongService);
-  private chordService = inject(ChordService);
+  private chordCheckService = inject(ChordCheckService);
   private duplicateService = inject(DuplicateService);
 
   songWithoutChord: Song[] = [];
   songWithoutTag: Song[] = [];
-  songChordMistake: Song[] = [];
+  songChordMistake: SongChordIssues[] = [];
+  songChordUnsupported: SongChordIssues[] = [];
   songDuplicate: [Song, Song[]][];
 
   ngOnInit(): void {
@@ -31,9 +38,11 @@ export class AdminComponent implements OnInit {
         this.songWithoutTag.push(song);
       }
 
-      const chord = this.chordService.getChordsList(song.chord.replace(/[^\w\s]+/g, '').split('\n'));
-      if (!chord.every((data) => data.every((item) => item.type === 'chord' || !item.text.trim()))) {
-        this.songChordMistake.push(song);
+      const issues = this.chordCheckService.findIssues(song.chord, song.text);
+      if (issues.some((issue) => CHORD_MISTAKES.has(issue.reason))) {
+        this.songChordMistake.push({ song, issues });
+      } else if (issues.length) {
+        this.songChordUnsupported.push({ song, issues });
       }
     });
   }
