@@ -54,6 +54,32 @@ describe('ChordService', () => {
       expect(service.getTextAndChord('FCd E4  (E7)').chord).toBe('FCd E4 (E7)\n');
     });
 
+    it('should pair each chord line with the lyrics line under it', () => {
+      expect(service.getTextAndChord('Am    G\nСнова вечер\n\nИ опять\nC  E7\nИ снова')).toEqual({
+        chord: 'a G\n\n\nC E7\n',
+        text: 'Снова вечер\n\nИ опять\nИ снова\n',
+      });
+    });
+
+    it('should save chords typed in Cyrillic with Latin letters', () => {
+      expect(service.getTextAndChord('Аm  С\nСнова вечер').chord).toBe('a C\n');
+    });
+
+    it('should keep a section label and bars on the chord line', () => {
+      expect(service.getTextAndChord('Вступление:  Am  | G |').chord).toBe('Вступление: a | G |\n');
+    });
+
+    it('should save inline chords as a chord line', () => {
+      expect(service.getTextAndChord('[Am]Снова [G]вечер')).toEqual({ chord: 'a G\n', text: 'Снова вечер\n' });
+    });
+
+    it('should keep rows paired when inline chords follow a chord line', () => {
+      expect(service.getTextAndChord('Am G\n[C]Снова вечер\nИ опять')).toEqual({
+        chord: 'a G\nC\n\n',
+        text: '\nСнова вечер\nИ опять\n',
+      });
+    });
+
     it('should keep the original text of the line', () => {
       const line = 'Am  Adonai, C';
 

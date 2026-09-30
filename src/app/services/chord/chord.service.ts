@@ -4,6 +4,7 @@ import { Chord, ChordData, ChordName, Chords } from './chord.interface';
 import {
   ALIAS_MAP, ALIAS_SUFFIX, CHORD_CLEAN_UP, ChordNotation, REPLACE_BIMOLE, SHORT_MAP, TO_SHORT_MAP,
 } from './chord.model';
+import { ChordToken, parseSong } from './song-parser';
 
 export interface ChordList {
   text: string;
@@ -89,39 +90,34 @@ export class ChordService {
     }, []));
   }
 
+  /** Splits the editor text into the chord and lyrics lines a song is saved with; chord line N is over lyrics line N */
   getTextAndChord(text: string) {
     let lastIsChord = false;
-    return this.getChordsList(text.split('\n')).reduce((acc, item) => {
-      const lineSong = item.filter((value) => value.type === 'text' && value.text.trim());
-      const chord = item.filter((value) => value.type === 'chord');
-      const result = item.map((value) => value.text).join('');
 
-      if (!result.trim() || lineSong.length > chord.length) {
-        acc.text += `${result.trim()}\n`;
+    return parseSong(text).reduce((acc, line) => {
+      if (line.kind === 'chords') {
+        acc.chord += `${this.shortenChordLine(line.text, line.chords)}\n`;
+        lastIsChord = true;
 
-        if (!lastIsChord) {
-          acc.chord += '\n';
+        return acc;
+      }
+
+      const lyrics = line.kind === 'empty' ? '' : line.text.trim();
+
+      // inline "[Am]lyrics" chords have no columns to keep once saved, so they become a chord line of their own
+      if (line.kind === 'lyrics' && line.chords.length) {
+        // the chord line above was waiting for this lyrics line, it gets an empty one instead
+        if (lastIsChord) {
+          acc.text += '\n';
         }
 
-        lastIsChord = false;
-      } else if (result) {
-        const chordlist = result.trim().split(/\s+/g).map((data) => {
-          // eslint-disable-next-line @typescript-eslint/no-shadow
-          const chord = this.getChord(data);
-
-          if (!chord) {
-            return data;
-          }
-
-          // keep surrounding special symbols, e.g. "(E7)"
-          const [, before, , after] = /^([^\w+/#♭]*)(.*?)([^\w+/#♭]*)$/.exec(data);
-
-          return `${before}${this.getShortChord(chord)}${after}`;
-        });
-
-        acc.chord += `${chordlist.join(' ')}\n`;
-        lastIsChord = true;
+        acc.chord +=`${line.chords.map(({ chord }) => this.toShortChord(chord)).join(' ')}\n`;
+      } else if (!lastIsChord) {
+        acc.chord += '\n';
       }
+
+      acc.text += `${lyrics}\n`;
+      lastIsChord = false;
 
       return acc;
     }, { text: '', chord: '' });
@@ -242,6 +238,22 @@ export class ChordService {
     );
 
     return this.chordData;
+  }
+
+  /** Keeps what surrounds the chords ("(E7)", "|", labels) and collapses alignment spaces the way songs are saved */
+  private shortenChordLine(line: string, chords: ChordToken[]): string {
+    const shortened = [...chords].reverse().reduce(
+      (acc, { chord, col }) => acc.slice(0, col) + this.toShortChord(chord) + acc.slice(col + chord.length),
+      line,
+    );
+
+    return shortened.trim().split(/\s+/).join(' ');
+  }
+
+  private toShortChord(text: string): string {
+    const chord = this.getChord(text);
+
+    return chord ? this.getShortChord(chord) : text;
   }
 
   private replaceBimole(chord: string): string {

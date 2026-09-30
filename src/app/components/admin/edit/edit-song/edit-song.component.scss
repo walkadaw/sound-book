@@ -1,8 +1,18 @@
+// The text editor scrolls further than its lines by the height of its horizontal scrollbar;
+// the line numbers and the highlight need that much extra room to keep following it to the end.
+$follow-room: 50px;
+
 .edit-content {
   display: flex;
   position: relative;
   height: 65vh;
   font-size: 1.9em Georgia, "Times New Roman", Times, serif !important;
+
+  &__editor {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 
   .textarea  {
     margin: 0;
@@ -18,24 +28,25 @@
     :focus-visible {
       outline:none;
     }
-      
+
     &__edit {
       padding-left: 5px;
       width:100%;
-      border-color:#272822;
-      position: relative; 
-      z-index: 1; 
+      border: 1px solid #272822;
+      position: relative;
+      z-index: 1;
       background-color: transparent;
-      // color: transparent;
-      // caret-color: #444;
     }
 
-    &__conteiner {
-      position: absolute; 
-      top: -5px; 
-      left: 40px;
-      height: 100%;
+    // sits under the transparent textarea, so the stripes line up with its lines
+    &__highlight {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      border: 1px solid transparent;
+      padding-bottom: $follow-room;
       overflow: hidden;
+      pointer-events: none;
     }
 
     &__line-counter {
@@ -45,22 +56,26 @@
       overflow-y: hidden;
       text-align: right;
       box-shadow: none;
-      color: #707070;
-      background-color: #d8d8d8;
-      width: 35px;
-      /* Determine appearance of line counter */
+      width: 48px;
+      padding-bottom: $follow-room;
       background-color:#3E3D32;
       border-color:#3E3D32;
-      color:#928869;
+      color:#c2b89a;
     }
   }
 }
-.song-name {
-  width: 100%;
+
+.highlight-line {
+  height: 1.5em;
+
+  // gray from the text color, so it works in both themes
+  &_chords {
+    background-color: color-mix(in srgb, var(--app-text) 8%, transparent);
+  }
 }
 
-.select-tags__items {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  margin-bottom: 15px;
+.chord-line-summary {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
 }

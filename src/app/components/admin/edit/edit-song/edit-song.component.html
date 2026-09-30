@@ -1,20 +1,31 @@
 <div class="edit-form">
   <div class="edit-content">
-    <textarea #lineCounter class="textarea textarea__line-counter" wrap="off" readonly>{{ lineNumbers() }}</textarea>
-    <!-- <pre
-    #content
-    class="textarea__conteiner"
-    contenteditable="true"
-    *ngIf="songDataForm.controls.text.valueChanges | async as foos"
-    [innerHtml]="foo(foos)"
-  ></pre> -->
     <textarea
-      #textEditor
-      class="textarea textarea__edit textarea__edit_text"
+      #lineCounter
+      class="textarea textarea__line-counter"
       wrap="off"
-      (blur)="onTouched()"
-      [placeholder]="placeholder()"
-      [formControl]="textForm"
-    ></textarea>
+      readonly
+      tabindex="-1"
+      aria-hidden="true"
+      >{{ lineNumbers() }}</textarea>
+    <div class="edit-content__editor">
+      <div #highlight class="textarea textarea__highlight" aria-hidden="true">
+        @for (isChords of chordLines(); track $index) {
+          <div class="highlight-line" [class.highlight-line_chords]="isChords"></div>
+        }
+      </div>
+      <textarea
+        #textEditor
+        class="textarea textarea__edit textarea__edit_text"
+        wrap="off"
+        aria-describedby="chord-line-summary"
+        (blur)="onTouched()"
+        [placeholder]="placeholder()"
+        [formControl]="textForm"
+      ></textarea>
+    </div>
   </div>
+  <p id="chord-line-summary" class="chord-line-summary">
+    Строки аккордов подсвечены и отмечены знаком ♪ в нумерации. Распознано строк аккордов: {{ chordLineCount() }}.
+  </p>
 </div>

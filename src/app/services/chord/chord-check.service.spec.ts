@@ -19,6 +19,7 @@ describe('ChordCheckService', () => {
 
   it('should accept separators, labels and repeat marks', () => {
     expect(reasons('a e › a B7 | E\nПроігрыш: E F# C# A //x2\nB E f# /2р.\nПрыпеў C G')).toEqual([]);
+    expect(reasons('Chorus: a G\nIntro: C\nBridge 2: E')).toEqual([]);
   });
 
   it('should find Cyrillic letters that look like Latin ones', () => {
@@ -33,12 +34,16 @@ describe('ChordCheckService', () => {
     ]);
   });
 
-  it('should find fret positions and unknown symbols', () => {
+  it('should find fret positions', () => {
     expect(reasons('D(V) C\nDC(VIII) GB♭\nC (V) G')).toEqual([
       ['D(V)', 'fret-position'],
       ['DC(VIII)', 'fret-position'],
-      ['(V)', 'unknown-symbol'],
+      ['(V)', 'fret-position'],
     ]);
+  });
+
+  it('should find unknown symbols', () => {
+    expect(reasons('C Intro G\nC ok')).toEqual([['Intro', 'unknown-symbol'], ['ok', 'unknown-symbol']]);
   });
 
   it('should mention a repeated line once', () => {
@@ -46,7 +51,7 @@ describe('ChordCheckService', () => {
   });
 
   it('should find Cyrillic chord lines that were saved as lyrics', () => {
-    const lyrics = 'С9\nАм D\nПрыпеў\nА ты паверыла';
+    const lyrics = 'С9\nАм D\nПрыпеў\nА я иду домой';
 
     expect(service.findIssues('', lyrics)).toEqual([
       { line: 'С9', token: 'С9', reason: 'cyrillic' },
