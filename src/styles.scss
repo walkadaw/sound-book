@@ -142,6 +142,9 @@ main {
 
     @media (max-width: 768px) {
         margin: 0 -15px;
+        // The rows reach the screen edge, so the action button's 48px touch target sticks out past it.
+        // That widens the page on mobile, and the sticky header then shifts while the list scrolls.
+        overflow-x: clip;
     }
 }
 .songs-list .song-container,
