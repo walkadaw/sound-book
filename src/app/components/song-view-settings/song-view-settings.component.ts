@@ -1,9 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
-import { MatButtonToggleChange, MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { ChordPosition } from '../../redux/models/settings.state';
 import { SettingsService } from '../../services/settings/settings.service';
 
 const MIN_FONT_SIZE = 0.4;
@@ -15,13 +13,12 @@ const DEFAULT_FONT_SIZE = 1;
   selector: 'app-song-view-settings',
   templateUrl: './song-view-settings.component.html',
   styleUrl: './song-view-settings.component.scss',
-  imports: [MatButtonToggle, MatButtonToggleGroup, MatIcon, MatIconButton, MatSlideToggle],
+  imports: [MatIcon, MatIconButton, MatSlideToggle],
 })
 export class SongViewSettingsComponent {
   private settings = inject(SettingsService);
 
   protected showChord = this.settings.showChord;
-  protected chordPosition = this.settings.chordPosition;
   private fontSize = this.settings.fontSize;
 
   protected fontSizePercent = computed(() => Math.round(this.fontSize() * 100));
@@ -31,10 +28,6 @@ export class SongViewSettingsComponent {
 
   protected toggleChord(event: MatSlideToggleChange): void {
     this.settings.setShowChord(event.checked);
-  }
-
-  protected changeChordPosition(event: MatButtonToggleChange): void {
-    this.settings.setChordPosition(event.value as ChordPosition);
   }
 
   protected toggleShortChord(event: MatSlideToggleChange): void {

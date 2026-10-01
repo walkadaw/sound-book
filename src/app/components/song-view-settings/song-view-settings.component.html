@@ -6,20 +6,8 @@
 @if (showChord()) {
   <div class="row" animate.enter="row--enter" animate.leave="row--leave" (click)="$event.stopPropagation()">
     <mat-slide-toggle labelPosition="before" [checked]="shortChord()" (change)="toggleShortChord($event)">
-      Кароткі запіс акордаў (a):
+      Кароткія акорды (Am → a):
     </mat-slide-toggle>
-  </div>
-  <div class="row" animate.enter="row--enter" animate.leave="row--leave" (click)="$event.stopPropagation()">
-    <span id="chord-position-label">Пазіцыя акордаў:</span>
-    <mat-button-toggle-group
-      hideSingleSelectionIndicator
-      aria-labelledby="chord-position-label"
-      [value]="chordPosition()"
-      (change)="changeChordPosition($event)"
-    >
-      <mat-button-toggle value="inText">У тэксце</mat-button-toggle>
-      <mat-button-toggle value="right">Справа</mat-button-toggle>
-    </mat-button-toggle-group>
   </div>
 }
 <div class="row row--font" (click)="$event.stopPropagation()">

@@ -59,20 +59,6 @@ article {
             content: "\200b"; // unicode zero width space character
         }
     }
- 
-    &.chord-right .line-container {
-        display: grid;
-        grid-template-columns: 80% 20%;
-        align-items: baseline;
-        column-gap: 5px;
-        
-        > span {
-            order: 1;
-        }
-        .chord {
-            order: 2;
-        }
-    }
 
 }
 

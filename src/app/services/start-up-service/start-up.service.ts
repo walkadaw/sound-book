@@ -6,11 +6,9 @@ import {
   changeFontSizeAction,
   changeShowMenuAction,
   chordNotationAction,
-  chordPositionAction,
   showChordAction,
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
-import { ChordPosition } from '../../redux/models/settings.state';
 import { ChordNotation } from '../chord/chord.model';
 import { MatIconRegistryService } from '../mat-icon-registry-service/mat-icon-registry.service';
 import { SongService } from '../song-service/song.service';
@@ -51,20 +49,14 @@ export class StartUpService {
   }
 
   loadSettings(): Promise<void> {
-    function defaultChordPosition(): ChordPosition {
-      return window.innerWidth > 468 ? 'right' : 'inText';
-    }
-
     return new Promise<void>((resolve) => {
       const fontSize = +window.localStorage.getItem('fontSize') || 1;
-      const showChord = window.localStorage.getItem('showChord') === '1';
-      const chordPosition = (window.localStorage.getItem('chordPosition') as ChordPosition) || defaultChordPosition();
-      const chordNotation: ChordNotation = window.localStorage.getItem('chordNotation') === 'full' ? 'full' : 'short';
+      const showChord = window.localStorage.getItem('showChord') !== '0';
+      const chordNotation: ChordNotation = window.localStorage.getItem('chordNotation') === 'short' ? 'short' : 'full';
       const showMenu = window.location.pathname === '/';
 
       this.store.dispatch(changeFontSizeAction(fontSize));
       this.store.dispatch(showChordAction(showChord));
-      this.store.dispatch(chordPositionAction(chordPosition));
       this.store.dispatch(chordNotationAction(chordNotation));
       this.store.dispatch(changeShowMenuAction(showMenu));
       resolve();

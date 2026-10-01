@@ -97,14 +97,3 @@ mat-slide-toggle {
     }
   }
 }
-
-mat-button-toggle-group {
-  --mat-button-toggle-height: 32px;
-  --mat-button-toggle-label-text-size: 13px;
-  flex-shrink: 0;
-
-  ::ng-deep .mat-button-toggle-label-content {
-    padding: 0 6px;
-    line-height: 32px;
-  }
-}

@@ -2,7 +2,7 @@
   <h1 class="page-title">Часткі імшы</h1>
 
   @for (song of songs(); track song) {
-    <div class="lyrics" [class.chord-right]="song.chordPosition === 'right'">
+    <div class="lyrics">
       <h2 class="entry-title song-subtitle" itemprop="name">
         {{ song?.title }}
       </h2>

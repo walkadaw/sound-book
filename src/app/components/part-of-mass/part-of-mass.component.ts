@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { IAppState } from '../../redux/models/IAppState';
-import { getChordPosition, getShowChord } from '../../redux/selector/settings.selector';
+import { getShowChord } from '../../redux/selector/settings.selector';
 import { SongService } from '../../services/song-service/song.service';
 import { SelectedSong } from '../song-details/song-details.component';
 import { ChordListComponent } from '../chord-list/chord-list.component';
@@ -20,13 +20,10 @@ export class PartOfMassComponent {
   private songService = inject(SongService);
 
   private songList = this.songService.songList;
-  private chordPosition = this.store.selectSignal(getChordPosition);
 
   protected showChord = this.store.selectSignal(getShowChord);
-  protected songs = computed<SelectedSong[]>(() => {
-    const chordPosition = this.chordPosition();
-
-    return this.songList()
+  protected songs = computed<SelectedSong[]>(() =>
+    this.songList()
       .filter((song) => song.tag && Object.keys(song.tag).some((tag) => TAG_PAST_OF_MASS === +tag))
       .map((song) => {
         const text = song.text.split('\n').map((value) => value.trim());
@@ -35,8 +32,7 @@ export class PartOfMassComponent {
           ...song,
           text,
           chord,
-          chordPosition,
         };
-      });
-  });
+      }),
+  );
 }

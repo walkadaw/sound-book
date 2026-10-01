@@ -12,10 +12,9 @@ import { SongService } from '../../services/song-service/song.service';
 import { SongStatsService } from '../../services/song-stats/song-stats.service';
 import { TagNameById } from '../../interfaces/tag-list';
 import { IAppState } from '../../redux/models/IAppState';
-import { getChordPosition, getShowChord } from '../../redux/selector/settings.selector';
+import { getShowChord } from '../../redux/selector/settings.selector';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
-import { ChordPosition } from '../../redux/models/settings.state';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SongKeyComponent } from '../song-key/song-key.component';
@@ -29,7 +28,6 @@ export interface SelectedSong {
   text: string | string[];
   chord: string | string[];
   tag: { [key: string]: number };
-  chordPosition: ChordPosition;
 }
 
 @Component({
@@ -58,7 +56,6 @@ export class SongDetailsComponent {
   private songStats = inject(SongStatsService);
 
   private songId = toSignal(this.route.paramMap.pipe(map((paramMap) => paramMap.get('id'))), { requireSync: true });
-  private chordPosition = this.store.selectSignal(getChordPosition);
   private favoriteState = this.store.selectSignal(getFavoriteState);
 
   protected selectedSong = computed<SelectedSong | null>(() => {
@@ -74,7 +71,6 @@ export class SongDetailsComponent {
       ...song,
       text,
       chord,
-      chordPosition: this.chordPosition(),
     };
   });
 
