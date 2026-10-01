@@ -1,5 +1,6 @@
 import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { TitleStrategy, provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
@@ -27,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHttpClient(withXhr()),
     provideZonelessChangeDetection(),
+    provideClientHydration(withEventReplay()),
     provideRouter(
       appRoutes,
       withRouterConfig({ onSameUrlNavigation: 'reload' }),
