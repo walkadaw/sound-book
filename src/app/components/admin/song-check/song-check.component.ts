@@ -22,6 +22,13 @@ import { SongCheckKey, SongChecksService } from '../song-checks.service';
               @if (item.issues.length) {
                 <app-chord-issues [issues]="item.issues" />
               }
+              @if (item.notes?.length) {
+                <ul>
+                  @for (note of item.notes; track $index) {
+                    <li>{{ note }}</li>
+                  }
+                </ul>
+              }
             </li>
           }
         </ul>

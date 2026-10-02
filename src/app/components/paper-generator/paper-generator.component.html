@@ -107,26 +107,6 @@
       </mat-form-field>
     }
 
-    @if (issues().length) {
-      <details class="issues">
-        <summary>
-          Заўвагі да тэкстаў: {{ issues().length }}
-          @if (mistakeCount()) {
-            <span class="mistakes">(памылак: {{ mistakeCount() }})</span>
-          }
-        </summary>
-        <ul>
-          @for (issue of issues(); track $index) {
-            <li [class.hint-issue]="issue.hint">
-              <a [routerLink]="['/song', issue.song.id]">{{ issue.song.songId }}. {{ issue.song.title }}</a
-              >:
-              {{ issue.message }}
-            </li>
-          }
-        </ul>
-      </details>
-    }
-
     <p class="summary">{{ summary() }}</p>
     <button
       mat-flat-button

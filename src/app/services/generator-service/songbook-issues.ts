@@ -1,5 +1,4 @@
 import { Song } from '../../interfaces/song';
-import { ChordIssueReason } from '../chord/chord-check.service';
 import { SongStructure, StructureIssue } from '../chord/song-structure';
 import { approximateMeasure, layoutSong } from './songbook-layout';
 import { PrintOptions, printSong } from './songbook-model';
@@ -13,11 +12,6 @@ export interface SongbookIssue {
 
 const CYRILLIC = /\p{Script=Cyrillic}/u;
 const LATIN = /[A-Za-z]/;
-
-export const CHORD_REASON: Partial<Record<ChordIssueReason, string>> = {
-  cyrillic: 'кірылічная літара замест лацінскай',
-  'unknown-chord': 'такога акорда няма ў базе',
-};
 
 export function structureIssueMessage(issue: StructureIssue): string {
   switch (issue.kind) {

@@ -62,18 +62,6 @@ describe('PaperGeneratorComponent', () => {
     expect(element.textContent).toContain('каля 12 старонак');
   });
 
-  it('should list the mistakes in the texts of the songs to print with links to them', () => {
-    const summary = element.querySelector('.issues summary');
-    const items = [...element.querySelectorAll('.issues li')].map((item) =>
-      item.textContent?.replace(/\s+/g, ' ').trim(),
-    );
-
-    expect(summary?.textContent).toContain('Заўвагі да тэкстаў: 2');
-    expect(summary?.textContent).toContain('памылак: 1');
-    expect(items[0]).toContain('Нумары куплетаў ідуць не па парадку: 1, 3');
-    expect(element.querySelector('.issues li a')?.getAttribute('href')).toBe('/song/2');
-  });
-
   it('should print only the selected songs and disable download without any', async () => {
     button('Выбраць (0)').click();
     await fixture.whenStable();

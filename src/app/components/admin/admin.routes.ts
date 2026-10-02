@@ -33,6 +33,18 @@ export const adminRoutes: Routes = [
         data: { check: 'chord-notations' },
         title: 'Неподдерживаемые пометки',
       },
+      {
+        path: 'check/text-mistakes',
+        component: SongCheckComponent,
+        data: { check: 'text-mistakes' },
+        title: 'Ошибки разметки текста',
+      },
+      {
+        path: 'check/print-hints',
+        component: SongCheckComponent,
+        data: { check: 'print-hints' },
+        title: 'Подсказки для печати',
+      },
       { path: 'check/no-tags', component: SongCheckComponent, data: { check: 'no-tags' }, title: 'Песни без тегов' },
       { path: '', component: AdminComponent, pathMatch: 'full' },
     ],

@@ -11,14 +11,10 @@ import { MatInput } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterLink } from '@angular/router';
 import { PARTS_OF_MASS_TAG_ID, TAGS_LIST } from '../../constants/tag-list';
 import { Song } from '../../interfaces/song';
-import { CHORD_MISTAKES, ChordCheckService } from '../../services/chord/chord-check.service';
-import { songStructure } from '../../services/chord/song-structure';
 import { FuseService } from '../../services/fuse-service/fuse.service';
 import { GeneratorService } from '../../services/generator-service/generator.service';
-import { CHORD_REASON, SongbookIssue, lengthIssues, songIssues } from '../../services/generator-service/songbook-issues';
 import { SongService } from '../../services/song-service/song.service';
 
 const SONG_ROW_HEIGHT = 48;
@@ -63,7 +59,6 @@ const songCount = (count: number) => plural(count, 'песня', 'песні', '
     MatInput,
     MatProgressSpinner,
     MatSlideToggle,
-    RouterLink,
   ],
 })
 export class PaperGeneratorComponent {
@@ -71,7 +66,6 @@ export class PaperGeneratorComponent {
   private fuseService = inject(FuseService);
   private generatorService = inject(GeneratorService);
   private snackBar = inject(MatSnackBar);
-  private chordCheck = inject(ChordCheckService);
 
   protected readonly rowHeight = SONG_ROW_HEIGHT;
   protected readonly tags = TAGS_LIST.filter(({ id }) => id !== PARTS_OF_MASS_TAG_ID);
@@ -119,38 +113,13 @@ export class PaperGeneratorComponent {
     return visible.length > 0 && visible.every(({ id }) => ids.has(id));
   });
 
-  // single fields, so typing a title or a search does not check every song again
+  // typing a title does not filter the songs again
   private mode = computed(() => this.model().mode);
-  private showChords = computed(() => this.model().showChords);
-  private repeatChoruses = computed(() => this.model().repeatChoruses);
-  private addPartsOfMass = computed(() => this.model().addPartsOfMass);
 
   private songsToPrint = computed(() => {
     const ids = this.selectedIds();
     return this.mode() === 'all' ? this.songs() : this.songs().filter(({ id }) => ids.has(id));
   });
-
-  /** Mistakes in the texts that would show in print, so they can be fixed before downloading */
-  protected issues = computed<SongbookIssue[]>(() => {
-    const options = { showChords: this.showChords(), showTags: false, repeatChoruses: this.repeatChoruses() };
-    const songs = [
-      ...this.songsToPrint().map((song) => ({ song, numbered: true })),
-      ...(this.addPartsOfMass() ? this.partsOfMass().map((song) => ({ song, numbered: false })) : []),
-    ];
-
-    return songs.flatMap(({ song, numbered }) => [
-      ...songIssues(song, songStructure(song)),
-      ...(options.showChords
-        ? this.chordCheck
-          .findIssues(song.chord ?? '', song.text)
-          .filter(({ reason }) => CHORD_MISTAKES.has(reason))
-          .map(({ token, reason }) => ({ song, message: `Акорд «${token}»: ${CHORD_REASON[reason]}` }))
-        : []),
-      ...lengthIssues(song, options, numbered),
-    ]);
-  });
-
-  protected mistakeCount = computed(() => this.issues().filter(({ hint }) => !hint).length);
 
   protected summary = computed(() => {
     const { addPartsOfMass, addGadzinki } = this.model();
