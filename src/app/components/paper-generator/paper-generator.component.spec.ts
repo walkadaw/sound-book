@@ -56,8 +56,6 @@ describe('PaperGeneratorComponent', () => {
       addGadzinki: false,
       toc: true,
       notesPages: 4,
-      title: '',
-      subtitle: '',
     });
     expect(element.textContent).toContain('каля 12 старонак');
   });

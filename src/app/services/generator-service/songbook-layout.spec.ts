@@ -156,10 +156,7 @@ describe('songbook-layout', () => {
       );
 
     it('should move a song that does not fit what is left of a page to the next one', () => {
-      const plan = planSongbook([{ title: 'Спевы', songs: [tall(1), tall(2), tall(3)] }], {
-        titlePage: false,
-        toc: false,
-      });
+      const plan = planSongbook([{ title: 'Спевы', songs: [tall(1), tall(2), tall(3)] }], { toc: false });
       const [first, second, third] = plan.songs[0];
 
       expect(plan.sectionPages).toEqual([1]);
@@ -167,16 +164,16 @@ describe('songbook-layout', () => {
       expect(third.pageBreakBefore).toBe(false);
     });
 
-    it('should count the title page and the contents before the songs', () => {
+    it('should count the contents before the songs', () => {
       const plan = planSongbook(
         [{ title: 'Спевы', songs: [tall(1)] }, { title: 'Нататкі', height: 2 * BODY_HEIGHT }],
-        { titlePage: true, toc: true },
+        { toc: true },
       );
 
       expect(plan.tocPages).toBe(1);
-      expect(plan.sectionPages).toEqual([3, 4]);
-      expect(plan.songs[0][0].page).toBe(3);
-      expect(plan.pages).toBe(6);
+      expect(plan.sectionPages).toEqual([2, 3]);
+      expect(plan.songs[0][0].page).toBe(2);
+      expect(plan.pages).toBe(5);
     });
 
     it('should break the page before a two-column song that does not fit, as columns stop "keep with next"', () => {
@@ -184,10 +181,7 @@ describe('songbook-layout', () => {
         [verse('1', ['Раз', 'a']), ...[2, 3, 4, 5].flatMap((id) => tall(id).stanzas)],
         { id: 3 },
       );
-      const plan = planSongbook([{ title: 'Спевы', songs: [tall(1), tall(2), columnsSong] }], {
-        titlePage: false,
-        toc: false,
-      });
+      const plan = planSongbook([{ title: 'Спевы', songs: [tall(1), tall(2), columnsSong] }], { toc: false });
 
       expect(plan.songs[0][2]).toMatchObject({ pageBreakBefore: true, page: 2 });
       expect(plan.songs[0][2].columnsFrom).toBe(1);
@@ -198,7 +192,7 @@ describe('songbook-layout', () => {
         Array.from({ length: 20 }, (_, index) => verse(String(index + 1), ['Радок', 'a'], ['Радок', 'G'])),
         { id: 2, number: 2 },
       );
-      const plan = planSongbook([{ title: 'Спевы', songs: [tall(1), withChords] }], { titlePage: false, toc: false });
+      const plan = planSongbook([{ title: 'Спевы', songs: [tall(1), withChords] }], { toc: false });
 
       expect(plan.songs[0][1]).toMatchObject({ keepTogether: false, page: 1 });
       expect(plan.pages).toBe(2);

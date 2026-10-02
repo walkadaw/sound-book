@@ -22,8 +22,6 @@ const OPTIONS: PaperOptions = {
   addGadzinki: false,
   toc: true,
   notesPages: 1,
-  title: '',
-  subtitle: '',
 };
 
 const SONGS = [
@@ -66,6 +64,12 @@ const read = async (zip: JSZip, path: string) => zip.file(path)!.async('string')
 const paragraphs = (xml: string) => xml.match(/<w:p>[\s\S]*?<\/w:p>|<w:p [\s\S]*?<\/w:p>/g) ?? [];
 const paragraphWith = (xml: string, text: string, style?: string) =>
   paragraphs(xml).find((p) => p.includes(`>${text}<`) && (!style || p.includes(`<w:pStyle w:val="${style}"/>`))) ?? '';
+/** The number Word puts in front of a paragraph: the start of the list it is the only item of */
+const verseNumber = (numbering: string, paragraph: string) => {
+  const [, numId] = /<w:numId w:val="(\d+)"\/>/.exec(paragraph) ?? [];
+  const list = numbering.match(/<w:num [\s\S]*?<\/w:num>/g)?.find((num) => num.includes(`w:numId="${numId}"`)) ?? '';
+  return numId ? /<w:startOverride w:val="(\d+)"\/>/.exec(list)?.[1] : undefined;
+};
 
 describe('songbook-docx', () => {
   let xml: string;
@@ -121,12 +125,18 @@ describe('songbook-docx', () => {
     expect(paragraphWith(xml, 'Трэці радок')).not.toContain('<w:keepNext/>');
   });
 
-  it('should hang the verse number in front of the first line and line the next lines up with its text', () => {
+  it('should hang the verse number in front of the first line as a list number and line the next lines up', async () => {
+    const numbering = await read(zip, 'word/numbering.xml');
     const first = paragraphWith(xml, 'Першы радок');
 
     expect(first).toContain('<w:pStyle w:val="ListParagraph"/>');
-    expect(first).toMatch(/>1\.<\/w:t>[\s\S]*<w:tab\/>[\s\S]*Першы радок/);
+    expect(first).not.toContain('<w:tab/>');
+    expect(verseNumber(numbering, first)).toBe('1');
+    expect(verseNumber(numbering, paragraphWith(xml, 'Трэці радок'))).toBe('2');
+    expect(paragraphWith(xml, 'Другі радок')).not.toContain('<w:numPr>');
     expect(paragraphWith(xml, 'Другі радок')).toContain('<w:ind w:left="284" w:hanging="0"/>');
+    expect(numbering).toContain('<w:lvlText w:val="%1."/>');
+    expect(numbering).toContain('<w:suff w:val="tab"/>');
   });
 
   it('should print a named interlude across the line, above the number of the verse it leads into', async () => {
@@ -139,14 +149,16 @@ describe('songbook-docx', () => {
     });
     const { document } = buildSongbook(docx, { songs: [withInterlude], partsOfMass: [], options: OPTIONS });
     const zipped = await JSZip.loadAsync(await packSongbook(docx, document, []));
+    const numbering = await read(zipped, 'word/numbering.xml');
     const rows = (await read(zipped, 'word/document.xml')).match(/<w:tr>[\s\S]*?<\/w:tr>/g)!;
     const interlude = rows.find((row) => row.includes('Проігрыш:'))!;
     const next = rows[rows.indexOf(interlude) + 1];
 
     expect(interlude).toContain('<w:gridSpan w:val="2"/>');
     expect(interlude).toContain('E F# (x2)');
-    expect(interlude).not.toContain('>2.<');
-    expect(next).toMatch(/>2\.<\/w:t>[\s\S]*Два/);
+    expect(interlude).not.toContain('<w:numPr>');
+    expect(verseNumber(numbering, next)).toBe('2');
+    expect(next).toContain('Два');
   });
 
   it('should flow the verses after the chords into two columns when the song is too long for a page', () => {
@@ -188,14 +200,6 @@ describe('songbook-docx', () => {
     expect(plain).not.toContain('PAGEREF');
     expect(plain).not.toContain('Нататкі');
     expect(plain).not.toContain('СВЯТЫ');
-  });
-
-  it('should add a title page without a page number', async () => {
-    const titled = await songbookZip({ title: 'Спеўнік', subtitle: '2026' });
-    const document = await read(titled, 'word/document.xml');
-
-    expect(paragraphWith(document, 'Спеўнік')).toContain('<w:pStyle w:val="Title"/>');
-    expect(paragraphWith(document, 'Змест')).toContain('<w:pageBreakBefore/>');
   });
 
   describe('packSongbook', () => {

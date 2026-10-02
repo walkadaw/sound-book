@@ -49,6 +49,32 @@ export function tocTabStops(docx: Docx) {
     { type: docx.TabStopType.RIGHT, position: TOC_COLUMN_WIDTH, leader: docx.LeaderType.DOT },
   ];
 }
+export const verseNumberingReference = (number: number) => `verse${number}`;
+
+/**
+ * A verse number is a list number rather than typed text: Google Docs ignores tab stops,
+ * so a typed number and a tab pushed the first line far past the others.
+ * Each number gets its own list starting at it, as a song may skip or repeat numbers.
+ */
+export function verseNumbering(docx: Docx, number: number) {
+  return {
+    reference: verseNumberingReference(number),
+    levels: [
+      {
+        level: 0,
+        format: docx.LevelFormat.DECIMAL,
+        text: '%1.',
+        start: number,
+        suffix: docx.LevelSuffix.TAB,
+        style: {
+          // the number is never bold, even in front of a refrain
+          run: { bold: false },
+          paragraph: { indent: { left: VERSE_INDENT, hanging: VERSE_INDENT } },
+        },
+      },
+    ],
+  };
+}
 /** 17 pt, as the icons of the 2023 songbook */
 export const ICON_PX = 23;
 export const NOTE_LINE = 470;
@@ -65,7 +91,6 @@ export const STYLE = {
   tocHeading: 'TOCHeading',
   legend: 'Legend',
   footer: 'Footer',
-  title: 'Title',
 } as const;
 
 const exact = (docx: Docx, line: number) => ({ line, lineRule: docx.LineRuleType.EXACT });
@@ -81,10 +106,6 @@ export function songbookStyles(docx: Docx): IStylesOptions {
       document: {
         run: { font: FONTS.text, size: TEXT_SIZE, language: { value: 'be-BY' } },
         paragraph: { spacing: { before: 0, after: STANZA_AFTER, ...exact(docx, LINE) } },
-      },
-      title: {
-        run: { ...heading, size: 48, allCaps: true },
-        paragraph: { alignment: docx.AlignmentType.CENTER, spacing: { before: 2400, after: 480, ...single(docx) } },
       },
       heading1: {
         run: { ...heading, size: SECTION_TITLE.size, allCaps: true },

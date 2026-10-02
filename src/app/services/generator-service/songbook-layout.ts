@@ -512,7 +512,7 @@ function tocHeight(sections: PlanSection[], measure: MeasureText): number {
  */
 export function planSongbook(
   sections: PlanSection[],
-  options: { titlePage: boolean; toc: boolean },
+  options: { toc: boolean },
   measure: MeasureText = approximateMeasure,
 ): SongbookPlan {
   let page = 0;
@@ -521,10 +521,6 @@ export function planSongbook(
     page++;
     used = 0;
   };
-
-  if (options.titlePage) {
-    newPage();
-  }
 
   let tocPages = 0;
 

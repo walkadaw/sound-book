@@ -46,6 +46,8 @@ import {
   VERSE_INDENT,
   songbookStyles,
   tocTabStops,
+  verseNumbering,
+  verseNumberingReference,
 } from './songbook-styles';
 
 export interface PaperOptions extends PrintOptions {
@@ -54,10 +56,6 @@ export interface PaperOptions extends PrintOptions {
   toc: boolean;
   /** Pages of lines for notes at the end, 0 for none */
   notesPages: number;
-  /** Title page text, empty for no title page */
-  title: string;
-  /** Printed under the title */
-  subtitle: string;
 }
 
 export interface SongbookContent {
@@ -80,7 +78,7 @@ export interface Songbook {
 interface DocumentSection {
   columns: 1 | 2;
   gap?: number;
-  footer?: 'empty' | 'page-number';
+  pageNumbers?: boolean;
   children: FileChild[];
 }
 
@@ -95,6 +93,9 @@ const TOC_ICON_PX = 18;
 
 export const songBookmark = (song: Pick<PrintSong, 'id'>) => `song${song.id}`;
 const sectionBookmark = (index: number) => `section${index}`;
+
+/** The list number of a verse: every numbered stanza is a list of its own, or Word would count on from the last one */
+type NumberVerse = (number: string) => { reference: string; level: number; instance: number };
 
 /**
  * The songbook as a Word document: what goes where comes from the plan of the pages,
@@ -111,7 +112,7 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
     ...(options.addGadzinki ? [{ title: GADZINKI_TITLE, height: gadzinkiHeight(measure) }] : []),
     ...(options.notesPages > 0 ? [{ title: SECTION_TITLES.notes, height: options.notesPages * BODY_HEIGHT }] : []),
   ];
-  const plan = planSongbook(planned, { titlePage: !!options.title, toc: options.toc }, measure);
+  const plan = planSongbook(planned, { toc: options.toc }, measure);
 
   const sections: DocumentSection[] = [];
   const current = () => sections[sections.length - 1];
@@ -124,16 +125,18 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
     }
   };
   const add = (...children: FileChild[]) => current().children.push(...children);
+  const verseNumbers = new Set<number>();
+  let verses = 0;
+  const numberVerse: NumberVerse = (number) => {
+    verseNumbers.add(Number(number));
+    return { reference: verseNumberingReference(Number(number)), level: 0, instance: ++verses };
+  };
   const icon = (id: number, size = ICON_PX) => {
     const data = tagIcons.get(id);
     return data ? [new docx.ImageRun({ type: 'png', data, transformation: { width: size, height: size } })] : [];
   };
 
-  if (options.title) {
-    sections.push({ columns: 1, footer: 'empty', children: titlePage(docx, options) });
-  }
-
-  sections.push({ columns: 1, footer: 'page-number', children: [] });
+  sections.push({ columns: 1, pageNumbers: true, children: [] });
 
   if (options.toc) {
     add(new docx.Paragraph({ style: STYLE.tocHeading, pageBreakBefore: hasContent(), text: SECTION_TITLES.toc }));
@@ -171,7 +174,7 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
 
         if (layout.covered) {
           const moreAfter = layout.covered <= last && columnsFrom > layout.covered;
-          add(songTable(docx, song, layout, layout.keepTogether && moreAfter));
+          add(songTable(docx, song, layout, layout.keepTogether && moreAfter, numberVerse));
         }
 
         song.stanzas.slice(layout.covered).forEach((stanza, offset) => {
@@ -182,7 +185,7 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
           }
 
           const keepNext = layout.keepTogether && stanzaIndex < Math.min(last, columnsFrom);
-          add(stanzaParagraph(docx, stanza, keepNext, layout.compact));
+          add(stanzaParagraph(docx, stanza, numberVerse, keepNext, layout.compact));
         });
 
         if (columnsFrom < song.stanzas.length) {
@@ -190,7 +193,7 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
         }
       });
     } else if (section.title === GADZINKI_TITLE) {
-      add(...gadzinkiParagraphs(docx));
+      add(...gadzinkiParagraphs(docx, numberVerse));
     } else {
       add(...notesBlocks(docx, options.notesPages, (id) => icon(id)));
     }
@@ -198,9 +201,10 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
 
   const document = new docx.Document({
     creator: 'Спеўнік',
-    title: options.title || 'Спеўнік',
+    title: 'Спеўнік',
     features: { updateFields: true },
     styles: songbookStyles(docx),
+    numbering: { config: [...verseNumbers].map((number) => verseNumbering(docx, number)) },
     sections: sections
       .filter((section) => section.children.length)
       .map((section, index) => ({
@@ -209,7 +213,7 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
           page: { size: { width: PAGE.width, height: PAGE.height }, margin: PAGE.margin },
           ...(section.columns === 2 ? { column: { count: 2, space: section.gap, equalWidth: true } } : {}),
         },
-        ...(section.footer ? { footers: { default: footer(docx, section.footer) } } : {}),
+        ...(section.pageNumbers ? { footers: { default: footer(docx) } } : {}),
         children: section.children,
       })),
   });
@@ -217,24 +221,11 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
   return { document, plan, songs: [...songs, ...partsOfMass] };
 }
 
-function titlePage(docx: Docx, options: PaperOptions): Paragraph[] {
-  return [
-    new docx.Paragraph({ style: STYLE.title, text: options.title }),
-    ...(options.subtitle
-      ? [new docx.Paragraph({ alignment: docx.AlignmentType.CENTER, text: options.subtitle })]
-      : []),
-  ];
-}
-
 /**
  * A thick rule on both sides of the page number, as in the 2023 songbook.
  * The rules are cell borders, which every word processor draws the same way, unlike tab leaders.
  */
-function footer(docx: Docx, kind: DocumentSection['footer']): Footer {
-  if (kind === 'empty') {
-    return new docx.Footer({ children: [new docx.Paragraph({ style: STYLE.footer })] });
-  }
-
+function footer(docx: Docx): Footer {
   const none = { style: docx.BorderStyle.NONE, size: 0, color: 'auto' };
   const ruleWidth = (BODY_WIDTH - FOOTER.numberWidth) / 2;
   const rule = () =>
@@ -360,7 +351,13 @@ function chordRuns(docx: Docx, { chords, letterSpacing }: ChordRow, breakBefore:
  * so the chords of the lines after it stay level with them whatever the measuring got wrong.
  * A table rather than a floating frame keeps lyrics and chords on the same page and the heading clear of them.
  */
-function songTable(docx: Docx, song: PrintSong, layout: SongLayout, keepNext: boolean): Table {
+function songTable(
+  docx: Docx,
+  song: PrintSong,
+  layout: SongLayout,
+  keepNext: boolean,
+  numberVerse: NumberVerse,
+): Table {
   const none = { style: docx.BorderStyle.NONE, size: 0, color: 'auto' };
   const borders = { top: none, bottom: none, left: none, right: none };
   const chordsWidth = layout.chordWidth + CHORDS.fromText;
@@ -414,6 +411,7 @@ function songTable(docx: Docx, song: PrintSong, layout: SongLayout, keepNext: bo
                 keepLines: true,
                 keepNext: keep && (layout.keepTogether || !last),
                 spacing,
+                ...(lineIndex === numbered && stanza.number ? { numbering: numberVerse(stanza.number) } : {}),
                 // the number hangs in front of the first line, the other lines line up with the text after it
                 ...(stanza.number
                   ? {
@@ -423,9 +421,6 @@ function songTable(docx: Docx, song: PrintSong, layout: SongLayout, keepNext: bo
                   }
                   : {}),
                 children: [
-                  ...(lineIndex === numbered && stanza.number
-                    ? [new docx.TextRun({ bold: false, children: [`${stanza.number}.`, new docx.Tab()] })]
-                    : []),
                   new docx.TextRun({ text: lyrics.text, size: fit?.size, characterSpacing: fit?.letterSpacing }),
                   ...(row?.label ? interludeRuns(docx, row) : []),
                 ],
@@ -462,7 +457,13 @@ const compactSpacing = (docx: Docx) => ({
 });
 
 /** A stanza without chords beside it, as one paragraph; a long song is set a little tighter */
-function stanzaParagraph(docx: Docx, stanza: Stanza, keepNext: boolean, compact = false): Paragraph {
+function stanzaParagraph(
+  docx: Docx,
+  stanza: Stanza,
+  numberVerse: NumberVerse,
+  keepNext: boolean,
+  compact = false,
+): Paragraph {
   const lines = stanza.lines.filter(({ text }) => text);
 
   return new docx.Paragraph({
@@ -471,23 +472,19 @@ function stanzaParagraph(docx: Docx, stanza: Stanza, keepNext: boolean, compact 
     keepNext,
     ...(compact ? { spacing: compactSpacing(docx) } : {}),
     ...(stanza.number && stanza.kind !== 'verse' ? { indent: { left: VERSE_INDENT, hanging: VERSE_INDENT } } : {}),
-    children: [
-      // the number is never bold, even in front of a refrain
-      ...(stanza.number
-        ? [new docx.TextRun({ bold: false, children: [`${stanza.number}.`, new docx.Tab()] })]
-        : []),
-      ...lines.map(({ text }, index) => new docx.TextRun({ text, break: index ? 1 : undefined })),
-    ],
+    ...(stanza.number ? { numbering: numberVerse(stanza.number) } : {}),
+    children: lines.map(({ text }, index) => new docx.TextRun({ text, break: index ? 1 : undefined })),
   });
 }
 
-function gadzinkiBlock(docx: Docx, block: GadzinkiBlock): Paragraph[] {
+function gadzinkiBlock(docx: Docx, block: GadzinkiBlock, numberVerse: NumberVerse): Paragraph[] {
   switch (block.kind) {
     case 'list':
       return block.items.map((item, index) =>
         stanzaParagraph(
           docx,
           { kind: 'verse', number: String(index + 1), lines: item.split('\n').map((text) => ({ text, chords: '' })) },
+          numberVerse,
           false,
         ),
       );
@@ -509,10 +506,10 @@ function gadzinkiBlock(docx: Docx, block: GadzinkiBlock): Paragraph[] {
   }
 }
 
-function gadzinkiParagraphs(docx: Docx): Paragraph[] {
+function gadzinkiParagraphs(docx: Docx, numberVerse: NumberVerse): Paragraph[] {
   return GADZINKI.flatMap((section) => [
     new docx.Paragraph({ heading: docx.HeadingLevel.HEADING_3, text: section.title }),
-    ...section.blocks.flatMap((block) => gadzinkiBlock(docx, block)),
+    ...section.blocks.flatMap((block) => gadzinkiBlock(docx, block, numberVerse)),
   ]);
 }
 

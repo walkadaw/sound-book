@@ -83,8 +83,6 @@ export class PaperGeneratorComponent {
     addGadzinki: false,
     toc: true,
     notesPages: 4,
-    title: '',
-    subtitle: '',
   });
 
   protected paperForm = form(this.model, (path) => {
@@ -115,7 +113,7 @@ export class PaperGeneratorComponent {
     return visible.length > 0 && visible.every(({ id }) => ids.has(id));
   });
 
-  // typing a title does not filter the songs again
+  // changing the print options does not filter the songs again
   private mode = computed(() => this.model().mode);
 
   private songsToPrint = computed(() => {
@@ -186,8 +184,7 @@ export class PaperGeneratorComponent {
       return;
     }
 
-    const { showChords, showTags, repeatChoruses, addPartsOfMass, addGadzinki, toc, notesPages, title, subtitle } =
-      this.model();
+    const { showChords, showTags, repeatChoruses, addPartsOfMass, addGadzinki, toc, notesPages } = this.model();
 
     this.generating.set(true);
     this.status.set('Ствараецца файл…');
@@ -201,8 +198,6 @@ export class PaperGeneratorComponent {
         addGadzinki,
         toc,
         notesPages: Math.min(MAX_NOTES_PAGES, Math.max(0, Math.round(Number(notesPages) || 0))),
-        title: title.trim(),
-        subtitle: subtitle.trim(),
       });
       this.status.set(`Файл створаны і спампоўваецца: каля ${plural(pages, 'старонкі', 'старонак', 'старонак')}.`);
     } catch (error) {

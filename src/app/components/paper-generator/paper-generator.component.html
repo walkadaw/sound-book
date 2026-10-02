@@ -95,17 +95,6 @@
       <mat-label>Старонкі для нататак</mat-label>
       <input matInput type="number" step="1" [formField]="paperForm.notesPages" />
     </mat-form-field>
-    <mat-form-field class="field" subscriptSizing="dynamic">
-      <mat-label>Назва на тытульнай старонцы</mat-label>
-      <input matInput autocomplete="off" [formField]="paperForm.title" aria-describedby="title-hint" />
-    </mat-form-field>
-    <p id="title-hint" class="hint">Без назвы тытульнай старонкі не будзе</p>
-    @if (paperForm.title().value().trim()) {
-      <mat-form-field class="field" subscriptSizing="dynamic">
-        <mat-label>Подпіс пад назвай</mat-label>
-        <input matInput autocomplete="off" [formField]="paperForm.subtitle" />
-      </mat-form-field>
-    }
 
     <p class="summary">{{ summary() }}</p>
     <button
