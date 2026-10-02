@@ -95,7 +95,7 @@ export function songbookStyles(docx: Docx): IStylesOptions {
         },
       },
       heading2: {
-        run: { ...heading, size: HEADING.size, characterSpacing: HEADING.letterSpacing },
+        run: { ...heading, size: HEADING.size, allCaps: true, characterSpacing: HEADING.letterSpacing },
         paragraph: {
           keepNext: true,
           keepLines: true,

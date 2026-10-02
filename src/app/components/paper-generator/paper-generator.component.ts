@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { UpperCasePipe } from '@angular/common';
 import { FormField, form, max, min } from '@angular/forms/signals';
 import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -59,6 +60,7 @@ const songCount = (count: number) => plural(count, 'песня', 'песні', '
     MatInput,
     MatProgressSpinner,
     MatSlideToggle,
+    UpperCasePipe,
   ],
 })
 export class PaperGeneratorComponent {

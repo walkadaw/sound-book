@@ -228,7 +228,8 @@ export const lastChordStanza = (stanzas: Stanza[]) =>
 export function headingHeight(song: Pick<PrintSong, 'number' | 'title' | 'tagIds'>, measure: MeasureText): number {
   const text = song.number ? `${song.number}. ${song.title}` : song.title;
   const icons = song.tagIds.length ? song.tagIds.length * ICON_WIDTH + 200 : 0;
-  const lines = lineCount(text, BODY_WIDTH - HEADING.indent - icons, TEXT_STYLES.heading, measure);
+  // the heading style prints in capitals
+  const lines = lineCount(text.toUpperCase(), BODY_WIDTH - HEADING.indent - icons, TEXT_STYLES.heading, measure);
 
   return HEADING.before + lines * HEADING.line + HEADING.border;
 }

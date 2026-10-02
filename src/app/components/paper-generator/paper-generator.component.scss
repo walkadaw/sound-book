@@ -1,3 +1,9 @@
+:host {
+  // Arsenal is narrower and its lowercase shorter than Roboto's: 16px reads as the labels' 14px did
+  --mat-checkbox-label-text-size: 1rem;
+  --mat-slide-toggle-label-text-size: 1rem;
+}
+
 .intro {
   margin: 0 0 16px;
   color: var(--mat-sys-on-surface-variant);
@@ -82,12 +88,20 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+// The hint sits under the label text, so the checkbox box hangs out to the left of the option.
 .option {
   margin-bottom: 4px;
+  padding-left: 40px;
+
+  mat-checkbox {
+    display: block;
+    // the checkbox's 40px touch target is taller than its label
+    margin: 0 0 -12px -40px;
+  }
 }
 
 .hint {
-  margin: -8px 0 0 40px;
+  margin: 4px 0 0;
   font-size: 0.85em;
   color: var(--mat-sys-on-surface-variant);
 }
@@ -95,10 +109,6 @@
 .field {
   width: 100%;
   margin-top: 12px;
-}
-
-.field-hint {
-  margin: 4px 0 0;
 }
 
 .summary {

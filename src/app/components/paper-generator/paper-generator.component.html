@@ -48,7 +48,7 @@
         <cdk-virtual-scroll-viewport class="song-list" role="group" aria-label="Спіс песень" [itemSize]="rowHeight">
           <div *cdkVirtualFor="let song of visibleSongs(); trackBy: trackById" class="song-row">
             <mat-checkbox [checked]="selectedIds().has(song.id)" (change)="toggleSong($event, song.id)">
-              <span class="song-number">{{ song.songId }}.</span> {{ song.title }}
+              <span class="song-number">{{ song.songId }}.</span> {{ song.title | uppercase }}
             </mat-checkbox>
           </div>
         </cdk-virtual-scroll-viewport>
@@ -99,7 +99,7 @@
       <mat-label>Назва на тытульнай старонцы</mat-label>
       <input matInput autocomplete="off" [formField]="paperForm.title" aria-describedby="title-hint" />
     </mat-form-field>
-    <p id="title-hint" class="hint field-hint">Без назвы тытульнай старонкі не будзе</p>
+    <p id="title-hint" class="hint">Без назвы тытульнай старонкі не будзе</p>
     @if (paperForm.title().value().trim()) {
       <mat-form-field class="field" subscriptSizing="dynamic">
         <mat-label>Подпіс пад назвай</mat-label>
