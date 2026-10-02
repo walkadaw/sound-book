@@ -1,0 +1,21 @@
+:host {
+    display: block;
+    line-height: 1.25;
+}
+
+.text {
+    display: block;
+
+    &:empty:before {
+        content: "\200b"; // unicode zero width space character
+    }
+}
+
+// the same marks as in the paper songbook
+.chorus .text {
+    font-weight: 700;
+}
+
+.bridge .text {
+    font-style: italic;
+}

@@ -11,8 +11,8 @@ html {
 
     @include mat.theme((
         color: mat.$azure-palette,
-        // The fallback keeps Material's text sans-serif when the Roboto webfont can't load, e.g. offline.
-        typography: (plain-family: (Roboto, sans-serif), brand-family: (Roboto, sans-serif)),
+        // The paper songbook's font; the fallback keeps the text sans-serif when the webfont can't load.
+        typography: (plain-family: (Arsenal, sans-serif), brand-family: (Arsenal, sans-serif)),
         density: 0,
     ));
 
@@ -32,6 +32,8 @@ html {
     @include mat.menu-overrides((
         container-color: light-dark(#fff, var(--mat-sys-surface-container)),
         item-label-text-weight: 400,
+        // Arsenal is narrower and its lowercase shorter than Roboto's: 16px takes the room the menu's 14px Roboto did
+        item-label-text-size: 1rem,
         item-icon-color: light-dark(rgba(0, 0, 0, 0.54), var(--mat-sys-on-surface-variant)),
         divider-top-spacing: 0,
         divider-bottom-spacing: 0,
@@ -39,6 +41,12 @@ html {
 
     --app-text: light-dark(#000, var(--mat-sys-on-surface));
     --app-heading: light-dark(#333332, var(--mat-sys-on-surface));
+    // The accent a step quieter, for chords and tags next to the lyrics; on the light page only down to 85%,
+    // below that the text falls under 4.5:1 contrast.
+    --app-accent-muted: light-dark(
+        color-mix(in srgb, var(--mat-sys-primary) 85%, transparent),
+        color-mix(in srgb, var(--mat-sys-primary) 75%, transparent)
+    );
 
     &[data-theme='light'] {
         color-scheme: light;
@@ -54,7 +62,7 @@ body {
     background: var(--mat-sys-surface);
     color: var(--app-text);
     // 19px at the default 16px root size; Material's type scale is in rem, so the root keeps the user's size.
-    font: 1.1875rem Georgia, "Times New Roman", Times, serif;
+    font: 1.1875rem Arsenal, Helvetica, Arial, sans-serif;
     line-height: 1.5;
 }
 

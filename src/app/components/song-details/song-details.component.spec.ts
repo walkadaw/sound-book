@@ -46,8 +46,8 @@ describe('SongDetailsComponent', () => {
   });
 
   it('should mark the refrain and the bridge and hide their labels', () => {
-    const lines: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.line-container'));
-    const text = lines.map((line) => line.querySelector(':scope > span')?.textContent?.trim());
+    const lines: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.line'));
+    const text = lines.map((line) => line.querySelector('.text')?.textContent?.trim());
 
     expect(text).toEqual(['1. Ты даў мне сонца', '', 'А без Цябе', '', 'О-о-о']);
     expect(lines[2].classList).toContain('chorus');

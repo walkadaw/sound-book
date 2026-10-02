@@ -20,7 +20,7 @@ import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SongKeyComponent } from '../song-key/song-key.component';
-import { ChordListComponent } from '../chord-list/chord-list.component';
+import { SongLyricsComponent } from '../song-lyrics/song-lyrics.component';
 import { SongViewSettingsComponent } from '../song-view-settings/song-view-settings.component';
 
 export interface SelectedSong extends Song {
@@ -40,7 +40,7 @@ export interface SelectedSong extends Song {
     MatDivider,
     PlaylistMenuComponent,
     SongKeyComponent,
-    ChordListComponent,
+    SongLyricsComponent,
     SongViewSettingsComponent,
   ],
 })

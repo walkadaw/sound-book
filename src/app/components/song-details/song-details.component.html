@@ -39,19 +39,10 @@
       <mat-divider />
       <app-song-view-settings />
     </mat-menu>
-    <div class="lyrics">
-      @for (row of selectedSong.rows; track $index) {
-        <div class="line-container" [class.chorus]="row.kind === 'chorus'" [class.bridge]="row.kind === 'bridge'">
-          @if (showChord() && row.chords) {
-            <app-chord-list
-              class="chord"
-              [chords]="row.chords"
-              [transpilation]="selectedTranspilation()"
-            ></app-chord-list>
-          }
-          <span>{{ row.text }}</span>
-        </div>
-      }
-    </div>
+    <app-song-lyrics
+      [rows]="selectedSong.rows"
+      [showChord]="showChord()"
+      [transpilation]="selectedTranspilation()"
+    ></app-song-lyrics>
   </article>
 }

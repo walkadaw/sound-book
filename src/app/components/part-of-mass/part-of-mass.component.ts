@@ -6,14 +6,14 @@ import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
 import { displayRows, songStructure } from '../../services/chord/song-structure';
 import { SongService } from '../../services/song-service/song.service';
 import { SelectedSong } from '../song-details/song-details.component';
-import { ChordListComponent } from '../chord-list/chord-list.component';
+import { SongLyricsComponent } from '../song-lyrics/song-lyrics.component';
 
 @Component({
   selector: 'app-part-of-mass',
   templateUrl: './part-of-mass.component.html',
   styleUrls: ['./part-of-mass.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ChordListComponent],
+  imports: [SongLyricsComponent],
 })
 export class PartOfMassComponent {
   private store = inject<Store<IAppState>>(Store);

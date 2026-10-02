@@ -1,6 +1,8 @@
 :host {
   display: block;
   min-width: 260px;
+  // the rows read as menu items, so they take the menu's text size
+  --mat-slide-toggle-label-text-size: var(--mat-menu-item-label-text-size);
 }
 
 .row {
@@ -41,7 +43,7 @@ mat-slide-toggle {
 
 mat-button-toggle-group {
   --mat-button-toggle-height: 32px;
-  --mat-button-toggle-label-text-size: 13px;
+  --mat-button-toggle-label-text-size: 15px;
   flex-shrink: 0;
 
   ::ng-deep .mat-button-toggle-label-content {

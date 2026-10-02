@@ -1,6 +1,8 @@
 :host {
   display: block;
   min-width: 260px;
+  // the rows read as menu items, so they take the menu's text size
+  --mat-slide-toggle-label-text-size: var(--mat-menu-item-label-text-size);
 }
 
 .row {

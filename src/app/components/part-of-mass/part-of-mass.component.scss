@@ -1,20 +1,3 @@
 .lyrics {
     margin-top: 20px;
-    line-height: 1.25;
-
-    span {
-        display: block;
-
-        &:empty:before {
-            content: "\200b"; // unicode zero width space character
-        }
-    }
-
-    .chorus span {
-        font-weight: 700;
-    }
-
-    .bridge span {
-        font-style: italic;
-    }
 }

@@ -15,7 +15,7 @@
           "/*.js"
         ],
         "urls": [
-          "https://fonts.gstatic.com/s/roboto/**",
+          "https://fonts.gstatic.com/s/arsenal/**",
           "https://fonts.gstatic.com/s/materialicons/**",
           "https://fonts.gstatic.com/s/ubuntu/**"
         ]

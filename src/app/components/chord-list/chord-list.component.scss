@@ -6,7 +6,8 @@
     background: none;
     font: inherit;
     line-height: inherit;
-    color: inherit;
+    // the accent keeps the chords apart from the lyrics, a bold chorus included
+    color: var(--app-accent-muted);
     font-weight: 700;
     cursor: pointer;
     display: inline-block;

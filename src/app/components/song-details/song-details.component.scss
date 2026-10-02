@@ -10,7 +10,7 @@
     line-height: 1.4;
 
     span {
-        color: var(--mat-sys-primary);
+        color: var(--app-accent-muted);
         text-decoration: none;
     }
 }
@@ -47,27 +47,6 @@ article {
     flex-direction: column;
     gap: 16px;
     padding: 16px 0;
-}
-
-.lyrics {
-    line-height: 1.25;
-
-    span {
-        display: block;
-
-        &:empty:before {
-            content: "\200b"; // unicode zero width space character
-        }
-    }
-
-    // the same marks as in the paper songbook
-    .chorus span {
-        font-weight: 700;
-    }
-
-    .bridge span {
-        font-style: italic;
-    }
 }
 
 .entry-header {

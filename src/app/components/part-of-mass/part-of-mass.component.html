@@ -6,14 +6,7 @@
       <h2 class="entry-title song-subtitle" itemprop="name">
         {{ song?.title }}
       </h2>
-      @for (row of song.rows; track $index) {
-        <div class="line-container" [class.chorus]="row.kind === 'chorus'" [class.bridge]="row.kind === 'bridge'">
-          @if (showChord() && row.chords) {
-            <app-chord-list class="chord" [chords]="row.chords" [transpilation]="0"></app-chord-list>
-          }
-          <span>{{ row.text }}</span>
-        </div>
-      }
+      <app-song-lyrics [rows]="song.rows" [showChord]="showChord()"></app-song-lyrics>
     </div>
   }
 </article>
