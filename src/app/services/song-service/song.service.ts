@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Service, computed, inject, signal } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { Observable, defer, of, throwError } from 'rxjs';
+import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Song, SongAdd, SongRequest } from '../../interfaces/song';
 
@@ -10,8 +10,10 @@ export class SongService {
   private http = inject(HttpClient);
 
   private songListState = signal<Song[]>([]);
+  private pendingLoads = signal(0);
 
   readonly songList = this.songListState.asReadonly();
+  readonly loading = computed(() => this.pendingLoads() > 0);
   songVersion: string = null;
   private lastUpdate: string | null = null;
 
@@ -26,28 +28,33 @@ export class SongService {
   }
 
   loadSongs(): Observable<SongRequest | null> {
-    const params = this.lastUpdate ? { last_update: this.lastUpdate } : undefined;
+    return defer(() => {
+      const params = this.lastUpdate ? { last_update: this.lastUpdate } : undefined;
 
-    // The server answers 204 with no body when the list we already have is current.
-    return this.http.get<SongRequest | null>(`${environment.baseUrl}/song/get`, { params }).pipe(
-      tap((songListResponse) => {
-        if (!songListResponse) {
-          return;
-        }
+      this.pendingLoads.update((count) => count + 1);
 
-        this.setSong(songListResponse);
-        try {
-          localStorage.setItem('songList', JSON.stringify(songListResponse));
-        } catch (error) {
-          // the cache is optional (quota exceeded, private mode), the loaded songs are still usable
-          console.error('cache songList', error);
-        }
-      }),
-      catchError((error) => {
-        console.error('loadSongs', error);
-        return of(null);
-      }),
-    );
+      // The server answers 204 with no body when the list we already have is current.
+      return this.http.get<SongRequest | null>(`${environment.baseUrl}/song/get`, { params }).pipe(
+        tap((songListResponse) => {
+          if (!songListResponse) {
+            return;
+          }
+
+          this.setSong(songListResponse);
+          try {
+            localStorage.setItem('songList', JSON.stringify(songListResponse));
+          } catch (error) {
+            // the cache is optional (quota exceeded, private mode), the loaded songs are still usable
+            console.error('cache songList', error);
+          }
+        }),
+        catchError((error) => {
+          console.error('loadSongs', error);
+          return of(null);
+        }),
+        finalize(() => this.pendingLoads.update((count) => count - 1)),
+      );
+    });
   }
 
   loadSongFromCache(): Observable<SongRequest> {
@@ -67,7 +74,10 @@ export class SongService {
   }
 
   getSongWithoutCache(id?: string): Observable<Song> {
-    return this.http.get<Song>(`${environment.baseUrl}/song/get`, { params: { id } });
+    return this.http.get<Song>(`${environment.baseUrl}/song/get`, {
+      params: { id },
+      headers: { 'ngsw-bypass': '' },
+    });
   }
 
   updateSong(song: SongAdd): Observable<number> {

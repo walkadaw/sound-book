@@ -1,18 +1,22 @@
-import { Service, inject } from '@angular/core';
-import { ActivatedRouteSnapshot, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { CanActivateFn, RedirectCommand, Router } from '@angular/router';
+import { first, map } from 'rxjs';
 import { SongService } from '../services/song-service/song.service';
 
-@Service()
-export class HasSongGuard {
-  private songService = inject(SongService);
-  private route = inject(Router);
+export const hasSongGuard: CanActivateFn = (route) => {
+  const songService = inject(SongService);
+  const router = inject(Router);
+  const songId = route.paramMap.get('id');
+  const check = () =>
+    songService.hasSong(songId) || new RedirectCommand(router.parseUrl('/404'), { skipLocationChange: true });
 
-  canActivate(next: ActivatedRouteSnapshot): boolean {
-    const songId = next.paramMap.get('id');
-    if (this.songService.hasSong(songId)) {
-      return true;
-    }
-    this.route.navigate(['/404'], { skipLocationChange: true });
-    return false;
+  if (songService.hasSong(songId) || !songService.loading()) {
+    return check();
   }
-}
+
+  return toObservable(songService.loading).pipe(
+    first((loading) => !loading),
+    map(check),
+  );
+};

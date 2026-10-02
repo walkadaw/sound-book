@@ -31,6 +31,19 @@ export class StartUpService {
     ]);
 
     firstValueFrom(this.songService.loadSongs());
+    this.keepOfflineData();
+  }
+
+  private keepOfflineData(): void {
+    // Firefox asks the user for this, so only the installed app asks, not every visitor of the site.
+    if (!window.matchMedia('(display-mode: standalone)').matches) {
+      return;
+    }
+
+    navigator.storage
+      ?.persisted?.()
+      .then((persisted) => persisted || navigator.storage.persist())
+      .catch(() => {});
   }
 
   loadFavorite(): Promise<void> {

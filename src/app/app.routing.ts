@@ -6,7 +6,7 @@ import { FavoriteComponent } from './components/favorite/favorite.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PartOfMassComponent } from './components/part-of-mass/part-of-mass.component';
 import { SongDetailsComponent } from './components/song-details/song-details.component';
-import { HasSongGuard } from './guards/has-song.guard';
+import { hasSongGuard } from './guards/has-song.guard';
 import { shareTargetGuard } from './guards/share-target.guard';
 import { UserService } from './services/user/user.service';
 import { WakeLockService } from './services/wakelock/wake-lock.service';
@@ -27,14 +27,14 @@ export const appRoutes: Routes = [
         path: 'song/:id/:title',
         component: SongDetailsComponent,
         title: songTitle,
-        canActivate: [HasSongGuard, WakeLockService],
+        canActivate: [hasSongGuard, WakeLockService],
         canDeactivate: [WakeLockService],
       },
       {
         path: 'song/:id',
         component: SongDetailsComponent,
         title: songTitle,
-        canActivate: [HasSongGuard, WakeLockService],
+        canActivate: [hasSongGuard, WakeLockService],
         canDeactivate: [WakeLockService],
       },
       {

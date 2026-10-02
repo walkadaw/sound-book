@@ -9,13 +9,15 @@
         "files": [
           "/favicon.ico",
           "/index.html",
+          "/index.csr.html",
           "/manifest.webmanifest",
           "/*.css",
           "/*.js"
         ],
         "urls": [
           "https://fonts.gstatic.com/s/roboto/**",
-          "https://fonts.gstatic.com/s/materialicons/**"
+          "https://fonts.gstatic.com/s/materialicons/**",
+          "https://fonts.gstatic.com/s/ubuntu/**"
         ]
       }
     },
@@ -32,6 +34,18 @@
     }
   ],
   "dataGroups": [
+    {
+      "name": "songs",
+      "urls": [
+        "/api/song/get"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 4,
+        "maxAge": "365d",
+        "timeout": "10s"
+      }
+    },
     {
       "name": "liturgy",
       "urls": [
