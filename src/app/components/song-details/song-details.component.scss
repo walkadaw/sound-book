@@ -60,6 +60,14 @@ article {
         }
     }
 
+    // the same marks as in the paper songbook
+    .chorus span {
+        font-weight: 700;
+    }
+
+    .bridge span {
+        font-style: italic;
+    }
 }
 
 .entry-header {

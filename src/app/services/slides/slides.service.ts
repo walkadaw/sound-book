@@ -1,6 +1,7 @@
 import { Service, signal } from '@angular/core';
 import { filter, take, timer } from 'rxjs';
 import { Slide } from '../../interfaces/slide';
+import { withoutMarks } from '../chord/song-structure';
 
 @Service()
 export class SlidesService {
@@ -50,7 +51,8 @@ export class SlidesService {
     Вторая  | блок 2
     Третья -
     */
-    const songBlocks = songText.replace(/\r/g, '').split('\n\n');
+    // "Прыпеў:" marks the text up, the audience only sees the lyrics
+    const songBlocks = withoutMarks(songText.replace(/\r/g, '')).split('\n\n');
 
     songBlocks.forEach((dirtySongBlock) => {
       const songBlock = dirtySongBlock.trim();

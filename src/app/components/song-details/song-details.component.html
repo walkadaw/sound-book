@@ -40,16 +40,16 @@
       <app-song-view-settings />
     </mat-menu>
     <div class="lyrics">
-      @for (line of selectedSong.text; track $index; let i = $index) {
-        <div class="line-container">
-          @if (showChord() && selectedSong.chord[i]) {
+      @for (row of selectedSong.rows; track $index) {
+        <div class="line-container" [class.chorus]="row.kind === 'chorus'" [class.bridge]="row.kind === 'bridge'">
+          @if (showChord() && row.chords) {
             <app-chord-list
               class="chord"
-              [chords]="selectedSong.chord[i]"
+              [chords]="row.chords"
               [transpilation]="selectedTranspilation()"
             ></app-chord-list>
           }
-          <span>{{ line }}</span>
+          <span>{{ row.text }}</span>
         </div>
       }
     </div>

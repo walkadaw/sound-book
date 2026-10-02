@@ -1,4 +1,4 @@
-import { isChord, parseSong, SongLine } from './song-parser';
+import { isChord, parseSong, sectionLabel, SongLine } from './song-parser';
 
 const kinds = (text: string) => parseSong(text).map((line) => line.kind);
 const chords = (line: SongLine) => ('chords' in line ? line.chords.map(({ chord }) => chord) : []);
@@ -87,6 +87,30 @@ describe('song-parser', () => {
 
     it('should not take lyrics starting with a label word for a label', () => {
       expect(kinds('Мост через реку')).toEqual(['lyrics']);
+    });
+
+    it('should read the stanza labels of the paper songbook', () => {
+      expect(kinds('Прыпеў:\nБрыдж:\nРэфрэн')).toEqual(['label', 'label', 'label']);
+    });
+
+    it('should read a "{name: value}" line as a directive', () => {
+      expect(parseSong('{columns: 2}')[0]).toEqual({
+        kind: 'directive',
+        text: '{columns: 2}',
+        name: 'columns',
+        value: '2',
+      });
+      expect(parseSong('{ New_Page }')[0]).toMatchObject({ kind: 'directive', name: 'new_page', value: '' });
+    });
+  });
+
+  describe('sectionLabel', () => {
+    it('should name the section of a label line and ignore lyrics and labelled chord lines', () => {
+      expect(sectionLabel('Прыпеў:')).toBe('прыпеў');
+      expect(sectionLabel(' 2. Chorus ')).toBe('chorus');
+      expect(sectionLabel('Брыдж 2:')).toBe('брыдж');
+      expect(sectionLabel('Мост через реку')).toBeNull();
+      expect(sectionLabel('Проігрыш: О-о-уоуо')).toBeNull();
     });
 
     it('should read chords typed with Cyrillic look-alike letters', () => {

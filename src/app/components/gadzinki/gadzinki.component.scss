@@ -1,0 +1,9 @@
+.subtitle {
+  margin: 0;
+  font-weight: bold;
+}
+
+// stanza lines are separated by line breaks, as in the paper songbook
+li {
+  white-space: pre-line;
+}

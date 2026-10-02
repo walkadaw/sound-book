@@ -1,30 +1,146 @@
-.docx-options {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-
-    .column {
-        flex: 0 0 50%;
-
-        .mat-mdc-radio-button, .mat-mdc-checkbox {
-            display: block;
-        }
-    }
-    .column-full {
-        flex: 1 1 100%;
-    }
-    .download-button {
-        margin-top: 15px;;
-    }
+.intro {
+  margin: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
 }
 
-.song-content {
-    overflow: auto;
-    height: 300px;
-    margin: 0 2px 3px;
-    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),0px 1px 1px 0px rgba(0, 0, 0, 0.14),0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+.layout {
+  display: grid;
+  gap: 16px;
+  align-items: start;
 
-    .song-container {
-        padding: 0 10px;
-    }
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}
+
+.card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container);
+}
+
+.options {
+  @media (min-width: 900px) {
+    position: sticky;
+    top: 80px;
+    order: 1;
+  }
+}
+
+.card-title {
+  margin: 0 0 12px;
+  font-size: 1.2em;
+}
+
+.mode {
+  margin-bottom: 16px;
+}
+
+.search {
+  width: 100%;
+}
+
+.tags {
+  display: block;
+  margin: 8px 0;
+}
+
+.list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-bottom: 8px;
+}
+
+.only-selected {
+  margin-left: auto;
+}
+
+.song-list {
+  height: 360px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  background: var(--mat-sys-surface);
+}
+
+.song-row {
+  height: 48px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.song-number {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.empty {
+  margin: 16px 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.option {
+  margin-bottom: 4px;
+}
+
+.hint {
+  margin: -8px 0 0 40px;
+  font-size: 0.85em;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.field {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.field-hint {
+  margin: 4px 0 0;
+}
+
+.issues {
+  margin-top: 16px;
+
+  summary {
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .mistakes {
+    color: var(--mat-sys-error);
+  }
+
+  ul {
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 8px 0 0;
+    padding-left: 20px;
+    font-size: 0.9em;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+
+  .hint-issue {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.summary {
+  margin: 16px 0 12px;
+  font-weight: 500;
+}
+
+.download {
+  width: 100%;
+
+  mat-progress-spinner {
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
 }

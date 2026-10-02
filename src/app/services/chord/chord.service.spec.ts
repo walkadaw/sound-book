@@ -61,6 +61,13 @@ describe('ChordService', () => {
       });
     });
 
+    it('should save a stanza label and a directive as lyrics lines with empty chord rows', () => {
+      expect(service.getTextAndChord('{columns: 2}\nПрыпеў:\nAm  G\nСнова вечер')).toEqual({
+        chord: '\n\na G\n',
+        text: '{columns: 2}\nПрыпеў:\nСнова вечер\n',
+      });
+    });
+
     it('should save chords typed in Cyrillic with Latin letters', () => {
       expect(service.getTextAndChord('Аm  С\nСнова вечер').chord).toBe('a C\n');
     });

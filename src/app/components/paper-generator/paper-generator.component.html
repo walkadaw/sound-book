@@ -1,76 +1,148 @@
 <h1 class="page-title">Стварэнне папяровай версіі</h1>
+<p class="intro">Спампуйце спеўнік у фармаце .docx (старонкі A5), каб раздрукаваць яго або адрэдагаваць у Word.</p>
 
-<form [formGroup]="songListForm" class="docx-options">
-  <div class="column">
-    <label id="song-radio-group-label">Якія песні неабходна дадаць</label>
-    <mat-radio-group formControlName="allSong" aria-labelledby="song-radio-group-label" color="primary">
-      <mat-radio-button [value]="true">Усе песні</mat-radio-button>
-      <mat-radio-button [value]="false">Выбраць песні</mat-radio-button>
-    </mat-radio-group>
-  </div>
+<div class="layout">
+  <section class="card songs" aria-labelledby="songs-title">
+    <h2 id="songs-title" class="card-title">Песні</h2>
+    <mat-button-toggle-group
+      class="mode"
+      hideSingleSelectionIndicator
+      aria-labelledby="songs-title"
+      [formField]="paperForm.mode"
+    >
+      <mat-button-toggle value="all">Усе ({{ songs().length }})</mat-button-toggle>
+      <mat-button-toggle value="selected">Выбраць ({{ selectedIds().size }})</mat-button-toggle>
+    </mat-button-toggle-group>
 
-  <div class="column">
-    <label>Дадатковыя опцыі</label>
-    <mat-checkbox formControlName="isShowChord" color="primary">
-      Акорды
-      <mat-icon matTooltip="Адлюстраванне акордаў у створаным варыянце">info</mat-icon>
-    </mat-checkbox>
-    <mat-checkbox formControlName="isShowTag" color="primary">
-      Тэгі
-      <mat-icon matTooltip="Паказваць тэгі ў створаным варыянце">info</mat-icon>
-    </mat-checkbox>
-    <mat-checkbox formControlName="isAddChastki" color="primary">Часткі Імшы</mat-checkbox>
-    <mat-checkbox formControlName="isAddGadzinki" color="primary">Вяночак да божай міласерднасті </mat-checkbox>
-  </div>
-
-  @if (!isAllSong() && selectedSongs(); as selectedSongList) {
-    <div class="column-full">
-      <mat-form-field class="example-form-field">
-        <mat-label>Пошук</mat-label>
-        <input matInput formControlName="search" type="text" />
-        <button matSuffix mat-icon-button aria-label="очистить" (click)="clearFilterSong()">
-          <mat-icon>close</mat-icon>
-        </button>
+    @if (paperForm.mode().value() === 'selected') {
+      <mat-form-field class="search" subscriptSizing="dynamic">
+        <mat-label>Назва, тэкст або нумар</mat-label>
+        <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+        <input matInput type="search" autocomplete="off" [formField]="paperForm.search" />
+        @if (paperForm.search().value()) {
+          <button matSuffix mat-icon-button type="button" aria-label="Ачысціць пошук" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
       </mat-form-field>
-      <mat-tab-group animationDuration="0ms" (selectedIndexChange)="selectedIndexChange($event)">
-        <mat-tab label="Пошук песен">
-          @if (songListFiltered(); as songList) {
-            <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
-              @if (songList.length) {
-                <div
-                  class="song-container"
-                  *cdkVirtualFor="let song of songList; trackBy: trackBy; templateCacheSize: 0"
-                >
-                  <mat-checkbox (change)="changeSelectedSong($event, song.id)">{{ song.title }}</mat-checkbox>
-                </div>
-              } @else {
-                <div>Не адна песня не знойдзена па вашаму запыту.</div>
-              }
-            </cdk-virtual-scroll-viewport>
-          }
-        </mat-tab>
-        <mat-tab [label]="'Выбранные (' + selectedSongList.length + ')'">
-          <cdk-virtual-scroll-viewport [itemSize]="28" class="song-content">
-            @if (selectedSongList.length) {
-              <div
-                class="song-container"
-                *cdkVirtualFor="let song of selectedSongList; trackBy: trackBy; templateCacheSize: 0"
-              >
-                <mat-checkbox [checked]="true" (change)="changeSelectedSong($event, song.id)"
-                  >{{ song.title }}
-                </mat-checkbox>
-              </div>
-            } @else {
-              <div>Няма выбраных песень.</div>
-            }
-          </cdk-virtual-scroll-viewport>
-        </mat-tab>
-      </mat-tab-group>
-    </div>
-  }
 
-  <button mat-raised-button color="primary" class="download-button" (click)="generateDocx()">
-    <mat-icon>get_app</mat-icon>
-    Спампаваць
-  </button>
-</form>
+      <mat-chip-listbox class="tags" aria-label="Фільтр па тэгу" (change)="changeTag($event)">
+        @for (tag of tags; track tag.id) {
+          <mat-chip-option [value]="tag.id" [selected]="selectedTag() === tag.id">{{ tag.title }}</mat-chip-option>
+        }
+      </mat-chip-listbox>
+
+      <div class="list-actions">
+        <button mat-button type="button" [disabled]="!visibleSongs().length" (click)="toggleAllVisible()">
+          {{ allVisibleSelected() ? 'Зняць знойдзеныя' : 'Выбраць знойдзеныя' }} ({{ visibleSongs().length }})
+        </button>
+        <button mat-button type="button" [disabled]="!selectedIds().size" (click)="clearSelection()">
+          Зняць выбар
+        </button>
+        <mat-slide-toggle class="only-selected" [formField]="paperForm.onlySelected">
+          Толькі выбраныя
+        </mat-slide-toggle>
+      </div>
+
+      @if (visibleSongs().length) {
+        <cdk-virtual-scroll-viewport class="song-list" role="group" aria-label="Спіс песень" [itemSize]="rowHeight">
+          <div *cdkVirtualFor="let song of visibleSongs(); trackBy: trackById" class="song-row">
+            <mat-checkbox [checked]="selectedIds().has(song.id)" (change)="toggleSong($event, song.id)">
+              <span class="song-number">{{ song.songId }}.</span> {{ song.title }}
+            </mat-checkbox>
+          </div>
+        </cdk-virtual-scroll-viewport>
+      } @else {
+        <p class="empty">
+          {{ paperForm.onlySelected().value() ? 'Няма выбраных песень.' : 'Ніводная песня не знойдзена.' }}
+        </p>
+      }
+    }
+  </section>
+
+  <section class="card options" aria-labelledby="options-title">
+    <h2 id="options-title" class="card-title">Што паказаць і дадаць</h2>
+    <div class="option">
+      <mat-checkbox [formField]="paperForm.showChords" aria-describedby="chords-hint">Акорды</mat-checkbox>
+      <p id="chords-hint" class="hint">Слупком справа, як у папяровым спеўніку</p>
+    </div>
+    <div class="option">
+      <mat-checkbox [formField]="paperForm.showTags" aria-describedby="tags-hint">Тэгі</mat-checkbox>
+      <p id="tags-hint" class="hint">Значкамі побач з назвай песні</p>
+    </div>
+    <div class="option">
+      <mat-checkbox [formField]="paperForm.repeatChoruses" aria-describedby="choruses-hint">
+        Паўторныя прыпевы
+      </mat-checkbox>
+      <p id="choruses-hint" class="hint">Друкаваць прыпеў кожны раз, калі тэкст яго паўтарае</p>
+    </div>
+    <div class="option">
+      <mat-checkbox [formField]="paperForm.toc" aria-describedby="toc-hint">Змест</mat-checkbox>
+      <p id="toc-hint" class="hint">У дзве калонкі, з нумарамі старонак</p>
+    </div>
+    <div class="option">
+      <mat-checkbox [formField]="paperForm.addPartsOfMass" aria-describedby="mass-hint">Часткі імшы</mat-checkbox>
+      <p id="mass-hint" class="hint">Асобным раздзелам у канцы</p>
+    </div>
+    <div class="option">
+      <mat-checkbox [formField]="paperForm.addGadzinki" aria-describedby="gadzinki-hint">
+        Гадзінкі аб Беззаганным Зачацці
+      </mat-checkbox>
+      <p id="gadzinki-hint" class="hint">Асобным раздзелам у канцы</p>
+    </div>
+
+    <mat-form-field class="field" subscriptSizing="dynamic">
+      <mat-label>Старонкі для нататак</mat-label>
+      <input matInput type="number" step="1" [formField]="paperForm.notesPages" />
+    </mat-form-field>
+    <mat-form-field class="field" subscriptSizing="dynamic">
+      <mat-label>Назва на тытульнай старонцы</mat-label>
+      <input matInput autocomplete="off" [formField]="paperForm.title" aria-describedby="title-hint" />
+    </mat-form-field>
+    <p id="title-hint" class="hint field-hint">Без назвы тытульнай старонкі не будзе</p>
+    @if (paperForm.title().value().trim()) {
+      <mat-form-field class="field" subscriptSizing="dynamic">
+        <mat-label>Подпіс пад назвай</mat-label>
+        <input matInput autocomplete="off" [formField]="paperForm.subtitle" />
+      </mat-form-field>
+    }
+
+    @if (issues().length) {
+      <details class="issues">
+        <summary>
+          Заўвагі да тэкстаў: {{ issues().length }}
+          @if (mistakeCount()) {
+            <span class="mistakes">(памылак: {{ mistakeCount() }})</span>
+          }
+        </summary>
+        <ul>
+          @for (issue of issues(); track $index) {
+            <li [class.hint-issue]="issue.hint">
+              <a [routerLink]="['/song', issue.song.id]">{{ issue.song.songId }}. {{ issue.song.title }}</a
+              >:
+              {{ issue.message }}
+            </li>
+          }
+        </ul>
+      </details>
+    }
+
+    <p class="summary">{{ summary() }}</p>
+    <button
+      mat-flat-button
+      type="button"
+      class="download"
+      [disabled]="!canDownload()"
+      [attr.aria-busy]="generating()"
+      (click)="generateDocx()"
+    >
+      @if (generating()) {
+        <mat-progress-spinner mode="indeterminate" diameter="20" aria-hidden="true" />
+      } @else {
+        <mat-icon aria-hidden="true">download</mat-icon>
+      }
+      Спампаваць .docx
+    </button>
+    <p class="cdk-visually-hidden" aria-live="polite">{{ status() }}</p>
+  </section>
+</div>

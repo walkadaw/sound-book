@@ -8,6 +8,8 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/list';
 import { map } from 'rxjs/operators';
+import { Song } from '../../interfaces/song';
+import { DisplayRow, displayRows, songStructure } from '../../services/chord/song-structure';
 import { SongService } from '../../services/song-service/song.service';
 import { SongStatsService } from '../../services/song-stats/song-stats.service';
 import { TagNameById } from '../../interfaces/tag-list';
@@ -21,13 +23,8 @@ import { SongKeyComponent } from '../song-key/song-key.component';
 import { ChordListComponent } from '../chord-list/chord-list.component';
 import { SongViewSettingsComponent } from '../song-view-settings/song-view-settings.component';
 
-export interface SelectedSong {
-  id: number;
-  songId: number;
-  title: string;
-  text: string | string[];
-  chord: string | string[];
-  tag: { [key: string]: number };
+export interface SelectedSong extends Song {
+  rows: DisplayRow[];
 }
 
 @Component({
@@ -65,13 +62,7 @@ export class SongDetailsComponent {
       return null;
     }
 
-    const text = song.text.split('\n').map((value) => value.trim());
-    const chord = song.chord.split('\n').map((value) => value.trim());
-    return {
-      ...song,
-      text,
-      chord,
-    };
+    return { ...song, rows: displayRows(songStructure(song)) };
   });
 
   protected isFavoriteSong = computed(() => this.favoriteState().has(this.selectedSong()?.id));

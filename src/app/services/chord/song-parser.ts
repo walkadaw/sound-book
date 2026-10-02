@@ -8,8 +8,14 @@ export interface ChordToken {
 export type SongLine =
   | { kind: 'empty' }
   | { kind: 'label'; text: string }
+  | { kind: 'directive'; text: string; name: string; value: string }
   | { kind: 'chords'; text: string; label?: string; chords: ChordToken[] }
   | { kind: 'lyrics'; text: string; chords: ChordToken[] };
+
+export interface SongDirective {
+  name: string;
+  value: string;
+}
 
 /**
  * weak: a chord that is also a common word ("a", "e", Cyrillic "А", "с");
@@ -55,12 +61,15 @@ const NEUTRAL = new RegExp([
 const FRET = /^[IVX]+$/;
 
 const SECTION_LABEL = new RegExp(
-  '^\\s*(?:\\d+\\.?\\s*)?(?:припев|прыпеў|приспів|куплет|запев|вступление|вступ|уступ|проигрыш|проігрыш|прайгрыш'
-  + '|кода|концовка|окончание|бридж|мост|соло'
-  + '|intro|verse|chorus|pre-?chorus|bridge|interlude|instrumental|solo|outro|coda)'
-  + '(?:\\s*\\d+)?\\s*([.:])?\\s*',
+  '^\\s*(?:\\d+\\.?\\s*)?(?<word>припев|прыпеў|приспів|рэфрэн|куплет|запев|вступление|вступ|уступ|проигрыш|проігрыш'
+  + '|прайгрыш|кода|концовка|окончание|бридж|брыдж|мост|соло'
+  + '|intro|verse|chorus|refrain|pre-?chorus|bridge|interlude|instrumental|solo|outro|coda)'
+  + '(?:\\s*\\d+)?\\s*(?<end>[.:])?\\s*',
   'iu',
 );
+
+// ChordPro style "{name: value}"; none is in use, such lines are hidden and reported
+const DIRECTIVE = /^\s*\{\s*([a-z_]+)\s*(?::\s*([^}]*?))?\s*\}\s*$/i;
 
 const HOMOGLYPHS: Record<string, string> = {
   А: 'A', В: 'B', С: 'C', Е: 'E', Н: 'H', а: 'a', с: 'c', е: 'e', м: 'm', і: 'i',
@@ -112,7 +121,7 @@ export type LineToken = Token & (
  */
 export function tokenizeLine(line: string): LineToken[] {
   const label = SECTION_LABEL.exec(line);
-  const from = label?.[1] ? label[0].length : 0;
+  const from = label?.groups?.['end'] ? label[0].length : 0;
 
   return tokenize(line, from).map((token) => {
     const classified = classifyToken(token);
@@ -128,9 +137,36 @@ export function isChord(text: string): boolean {
   return CHORD.test(text);
 }
 
+/** The section name, lowercased, when the whole line is a label like "Прыпеў:" */
+export function sectionLabel(line: string): string | null {
+  const label = SECTION_LABEL.exec(line);
+
+  return label && !line.slice(label[0].length).trim() ? (label.groups?.['word'] ?? '').toLowerCase() : null;
+}
+
+/** A chord row with a section name in front, like "Проігрыш: E F# C# A" */
+export function labelledChords(line: string): { label: string; chords: string } | null {
+  const label = SECTION_LABEL.exec(line);
+  const chords = label ? line.slice(label[0].length).trim() : '';
+
+  return label && chords ? { label: label[0].trim(), chords } : null;
+}
+
+export function parseDirective(line: string): SongDirective | null {
+  const match = DIRECTIVE.exec(line);
+
+  return match ? { name: match[1].toLowerCase(), value: match[2] ?? '' } : null;
+}
+
 function classifyLine(line: string): Candidate {
   if (!line.trim()) {
     return { kind: 'empty' };
+  }
+
+  const directive = parseDirective(line);
+
+  if (directive) {
+    return { kind: 'directive', text: line, ...directive };
   }
 
   const inline = parseInlineChords(line);
@@ -149,7 +185,7 @@ function classifyLine(line: string): Candidate {
     }
 
     // "Мост через реку" is lyrics; only "Label:" followed by chords is a labelled chord line
-    const chordLine = label[1] ? classifyTokens(line, label[0].length) : null;
+    const chordLine = label.groups?.['end'] ? classifyTokens(line, label[0].length) : null;
 
     if (chordLine) {
       return { ...chordLine, label: label[0].trim() };

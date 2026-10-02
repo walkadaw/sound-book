@@ -60,3 +60,5 @@ export const TAGS_LIST: TagList[] = [
 ];
 
 export const SEARCH_FILTERS: TagList[] = [ALL_TAGS, ...TAGS_LIST];
+
+export const PARTS_OF_MASS_TAG_ID = 10;

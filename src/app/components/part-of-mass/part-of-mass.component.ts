@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { Store } from '@ngrx/store';
 import { IAppState } from '../../redux/models/IAppState';
 import { getShowChord } from '../../redux/selector/settings.selector';
+import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
+import { displayRows, songStructure } from '../../services/chord/song-structure';
 import { SongService } from '../../services/song-service/song.service';
 import { SelectedSong } from '../song-details/song-details.component';
 import { ChordListComponent } from '../chord-list/chord-list.component';
-
-const TAG_PAST_OF_MASS = 10;
 
 @Component({
   selector: 'app-part-of-mass',
@@ -24,15 +24,7 @@ export class PartOfMassComponent {
   protected showChord = this.store.selectSignal(getShowChord);
   protected songs = computed<SelectedSong[]>(() =>
     this.songList()
-      .filter((song) => song.tag && Object.keys(song.tag).some((tag) => TAG_PAST_OF_MASS === +tag))
-      .map((song) => {
-        const text = song.text.split('\n').map((value) => value.trim());
-        const chord = song.chord.split('\n').map((value) => value.trim());
-        return {
-          ...song,
-          text,
-          chord,
-        };
-      }),
+      .filter((song) => song.tag && Object.keys(song.tag).some((tag) => PARTS_OF_MASS_TAG_ID === +tag))
+      .map((song) => ({ ...song, rows: displayRows(songStructure(song)) })),
   );
 }

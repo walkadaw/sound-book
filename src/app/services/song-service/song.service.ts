@@ -3,6 +3,7 @@ import { Service, computed, inject, signal } from '@angular/core';
 import { Observable, defer, of, throwError } from 'rxjs';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
 import { Song, SongAdd, SongRequest } from '../../interfaces/song';
 
 @Service()
@@ -90,11 +91,11 @@ export class SongService {
     this.songListState.set(
       songList.songs
         .sort((a, b) => {
-          if (a.tag[10] !== 1 && b.tag[10] === 1) {
+          if (a.tag[PARTS_OF_MASS_TAG_ID] !== 1 && b.tag[PARTS_OF_MASS_TAG_ID] === 1) {
             return -1;
           }
 
-          if (a.tag[10] === 1 && b.tag[10] !== 1) {
+          if (a.tag[PARTS_OF_MASS_TAG_ID] === 1 && b.tag[PARTS_OF_MASS_TAG_ID] !== 1) {
             return 1;
           }
 
