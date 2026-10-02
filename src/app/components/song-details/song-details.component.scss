@@ -17,15 +17,15 @@
 
 // The number matches the paper songbook, so it stays in view, but outside the h1:
 // search engines and screen readers take the heading as the song's name.
+// Both run inline, so a long title wraps back under the number rather than leaving it a column of its own.
 .entry-heading {
-    display: flex;
-    align-items: baseline;
-    column-gap: 0.3em;
     margin-bottom: 6px;
+    // the lines take the height of the 1.4em text, without the body's taller line
+    line-height: 1;
 }
 
 .entry-number {
-    flex: none;
+    display: inline;
     margin: 0;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 1.40em;
@@ -38,8 +38,8 @@
 h1.entry-title {
     font-size: 1.40em !important;
     color: var(--app-heading) !important;
+    display: inline;
     margin: 0;
-    min-width: 0;
 }
 
 article {
