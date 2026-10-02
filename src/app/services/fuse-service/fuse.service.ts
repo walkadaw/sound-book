@@ -3,6 +3,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import Fuse, { IFuseOptions } from 'fuse.js';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Song } from '../../interfaces/song';
+import { withoutMarks } from '../chord/song-structure';
 import { MatchSnippet, getMatchSnippet, replaceSimilarChars } from './search-text';
 
 export interface SongSearchResult {
@@ -49,7 +50,7 @@ export class FuseService {
           .search(this.replaceChar(searchText))
           .map(({ item, matches }): SongSearchResult => ({
             song: item,
-            snippet: getMatchSnippet(matches, 'text', item.text),
+            snippet: getMatchSnippet(matches, 'text', withoutMarks(item.text)),
           }));
       }
       return songList().map((song): SongSearchResult => ({ song, snippet: null }));
@@ -73,6 +74,11 @@ export class FuseService {
         },
       ],
       getFn: (obj, path) => {
+        // labels like "Прыпеў:" are markup, a search for them must not find every song
+        if (path === 'text' || (Array.isArray(path) && path.join('.') === 'text')) {
+          return this.replaceChar(withoutMarks(obj.text));
+        }
+
         const value = Fuse.config.getFn(obj, path);
         return Array.isArray(value) ? value.map((item) => this.replaceChar(item)) : this.replaceChar(value as string);
       },

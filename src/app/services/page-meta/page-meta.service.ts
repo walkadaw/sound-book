@@ -3,6 +3,7 @@ import { Meta } from '@angular/platform-browser';
 import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlSerializer, createUrlTreeFromSnapshot } from '@angular/router';
 import { Song } from '../../interfaces/song';
 import { songSlug } from '../../utils/song-slug';
+import { withoutMarks } from '../chord/song-structure';
 import { SongService } from '../song-service/song.service';
 import { SITE_ORIGIN } from './site-origin.token';
 
@@ -69,7 +70,7 @@ function deepestChild(route: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
 }
 
 function songDescription(song: Song): string {
-  const text = song.text.replace(/\s+/g, ' ').trim();
+  const text = withoutMarks(song.text).replace(/\s+/g, ' ').trim();
 
   if (text.length <= DESCRIPTION_LENGTH) {
     return text;

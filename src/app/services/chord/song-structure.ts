@@ -162,6 +162,13 @@ export function withoutMarks(text: string): string {
     .join('\n');
 }
 
+/** Lyrics with the chord row of each line, without label and directive lines, for the presenter's notes */
+export function lyricsWithChords(song: { text: string; chord?: string | null }): { text: string; chord: string } {
+  const rows = displayRows(songStructure(song));
+
+  return { text: rows.map(({ text }) => text).join('\n'), chord: rows.map(({ chords }) => chords).join('\n') };
+}
+
 /** Lines as the site shows them: one empty line between stanzas, the verse number back in front of the first words */
 export function displayRows({ stanzas }: SongStructure): DisplayRow[] {
   return stanzas.flatMap((stanza, stanzaIndex) => {

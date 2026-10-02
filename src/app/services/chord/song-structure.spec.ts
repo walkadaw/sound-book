@@ -1,4 +1,4 @@
-import { displayRows, normalizeLyrics, songStructure, withoutMarks } from './song-structure';
+import { displayRows, lyricsWithChords, normalizeLyrics, songStructure, withoutMarks } from './song-structure';
 
 describe('song-structure', () => {
   describe('songStructure', () => {
@@ -91,6 +91,15 @@ describe('song-structure', () => {
       expect(withoutMarks('{columns: 2}\n1. Раз\n\nПрыпеў:\nАллелюя\n\nПроігрыш: О-о-о')).toBe(
         '1. Раз\n\nАллелюя\n\nПроігрыш: О-о-о',
       );
+    });
+  });
+
+  describe('lyricsWithChords', () => {
+    it('should drop label lines together with their chord rows, keeping the rest aligned', () => {
+      expect(lyricsWithChords({ text: '1. Раз\n\nПрыпеў:\nАллелюя', chord: 'a\n\n\nC' })).toEqual({
+        text: '1. Раз\n\nАллелюя',
+        chord: 'a\n\nC',
+      });
     });
   });
 

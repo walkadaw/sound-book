@@ -18,6 +18,7 @@ import { BehaviorSubject, forkJoin } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { ALL_LITURGY, LITURGY_ACRONYM } from '../../constants/liturgy-acronym';
 import { SlideList } from '../../interfaces/slide';
+import { lyricsWithChords } from '../../services/chord/song-structure';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
 import { RevealService } from '../../services/reveal-service/reveal.service';
 import { SlidesService } from '../../services/slides/slides.service';
@@ -90,8 +91,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   addSlide(idSong: string) {
     if (this.songService.hasSong(idSong)) {
-      const { id, title, text, chord } = this.songService.getSong(idSong);
-      const slides = this.slidesService.getSongSlide(text);
+      const song = this.songService.getSong(idSong);
+      const { id, title } = song;
+      const slides = this.slidesService.getSongSlide(song.text);
 
       this.slideList.update((list) => {
         const lastIndex = list.length ? list[list.length - 1].endIndex : -1;
@@ -102,8 +104,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
             id: id.toString(),
             slides,
             title,
-            text,
-            chord,
+            ...lyricsWithChords(song),
             startIndex: lastIndex + 1,
             endIndex: lastIndex + slides.length,
           },
@@ -181,8 +182,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
           id: song.id.toString(),
           title: song.title,
           slides: slide,
-          chord: song.chord,
-          text: song.text,
+          ...lyricsWithChords(song),
           startIndex: lastIndex + 1,
           endIndex: lastIndex + slide.length,
         });
