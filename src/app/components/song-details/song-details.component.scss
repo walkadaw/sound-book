@@ -71,4 +71,7 @@ article {
     // subtracting half the 48px button puts the 24px glyph's centre on that line at any font size.
     font-size: 1.4em;
     margin-top: calc(0.5em - 24px);
+    // Under a short title the two buttons outgrow the text beside them; they may reach into
+    // the gap above the lyrics, so that gap does not grow by the leftover.
+    margin-bottom: -16px;
 }

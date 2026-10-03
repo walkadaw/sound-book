@@ -1,14 +1,23 @@
 :host {
     display: block;
+    font-size: 1.05em;
     line-height: 1.25;
 }
 
 .text {
     display: block;
+    // A wrapped line continues indented, so it does not read as the next line of the song.
+    padding-left: 1em;
+    text-indent: -1em;
 
     &:empty:before {
         content: "\200b"; // unicode zero width space character
     }
+}
+
+// Stanzas are set apart by half a line rather than a whole empty one, so more of the song fits on the screen.
+.gap .text {
+    height: .6em;
 }
 
 // the same marks as in the paper songbook

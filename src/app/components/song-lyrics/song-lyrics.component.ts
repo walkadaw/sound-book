@@ -6,7 +6,12 @@ import { ChordListComponent } from '../chord-list/chord-list.component';
   selector: 'app-song-lyrics',
   template: `
     @for (row of rows(); track $index) {
-      <div class="line" [class.chorus]="row.kind === 'chorus'" [class.bridge]="row.kind === 'bridge'">
+      <div
+        class="line"
+        [class.chorus]="row.kind === 'chorus'"
+        [class.bridge]="row.kind === 'bridge'"
+        [class.gap]="row.kind === 'gap'"
+      >
         @if (showChord() && row.chords) {
           <app-chord-list [chords]="row.chords" [transpilation]="transpilation()"></app-chord-list>
         }
