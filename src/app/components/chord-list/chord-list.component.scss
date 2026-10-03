@@ -11,8 +11,10 @@
     font-weight: 700;
     cursor: pointer;
     display: inline-block;
-    padding: .1em .5em .15em;
-    margin: -.1em -.3em -.15em;
+    // A tall touch target (~2.1em, 36px at 100%) for tapping on the move; the negative margins
+    // keep it out of the line box, so the rows stay where they were.
+    padding: .4em .5em .45em;
+    margin: -.4em -.3em -.45em;
     border-radius: 2px;
     position: relative;
 
@@ -28,8 +30,9 @@
       content: "";
       display: block;
       position: absolute;
-      top: .2em;
-      bottom: .2em;
+      // the tint stays the size of the text, inside the larger padding
+      top: .5em;
+      bottom: .5em;
       left: .25em;
       right: .25em;
       border-radius: 2px;
