@@ -54,12 +54,20 @@ export const appRoutes: Routes = [
       },
       // Never renders: the guard always redirects, the component is only there because a route needs one.
       { path: 'share', component: PageNotFoundComponent, canActivate: [shareTargetGuard] },
-      { path: 'part-of-mass', component: PartOfMassComponent, title: 'Часткі імшы' },
+      {
+        path: 'part-of-mass',
+        component: PartOfMassComponent,
+        title: 'Часткі імшы',
+        canActivate: [WakeLockService],
+        canDeactivate: [WakeLockService],
+      },
       { path: 'favorite', component: FavoriteComponent, title: 'Закладкі' },
       {
         path: 'gadzinki',
         loadComponent: () => import('./components/gadzinki/gadzinki.component').then((m) => m.GadzinkiComponent),
         title: 'Гадзінкі',
+        canActivate: [WakeLockService],
+        canDeactivate: [WakeLockService],
       },
       { path: 'about', component: AboutComponent, title: 'Пра нас' },
       {
