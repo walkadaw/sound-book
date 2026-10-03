@@ -125,7 +125,7 @@ describe('songbook-docx', () => {
     expect(paragraphWith(xml, 'Трэці радок')).not.toContain('<w:keepNext/>');
   });
 
-  it('should hang the verse number in front of the first line as a list number and line the next lines up', async () => {
+  it('should hang the verse number before the first line as a list number and line the next lines up', async () => {
     const numbering = await read(zip, 'word/numbering.xml');
     const first = paragraphWith(xml, 'Першы радок');
 
