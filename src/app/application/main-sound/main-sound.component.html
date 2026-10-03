@@ -1,5 +1,5 @@
 <a class="skip-link" href="#main-content" (click)="focusMain($event)">Перайсці да зместу</a>
-<app-header [class.fixed-menu]="showMenu()"></app-header>
+<app-header class="fixed-menu" [class.header-hidden]="headerHidden()"></app-header>
 <main
   #main
   id="main-content"

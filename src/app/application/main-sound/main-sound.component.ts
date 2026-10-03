@@ -1,8 +1,9 @@
-import { Component, DOCUMENT, ElementRef, PLATFORM_ID, computed, inject, viewChild } from '@angular/core';
+import { Component, DOCUMENT, ElementRef, PLATFORM_ID, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { PlatformLocation, isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { fromEvent } from 'rxjs';
 import { filter, map, skip, startWith } from 'rxjs/operators';
 import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -10,6 +11,11 @@ import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector
 import { HeaderComponent } from '../../components/header/header.component';
 import { MainPageComponent } from '../../components/main-page/main-page.component';
 import { FooterComponent } from '../../components/footer/footer.component';
+
+// Scrolling less than this either way leaves the header as it is, so a shaky hand does not make it flicker.
+const HEADER_SCROLL_THRESHOLD_PX = 12;
+// Near the top of the page the header always shows: it is part of the page there, not covering anything.
+const HEADER_ALWAYS_SHOWN_PX = 120;
 
 @Component({
   selector: 'app-main-sound',
@@ -41,6 +47,9 @@ export class MainSoundComponent {
   protected showMenu = computed(() => this.isMenuOpen() || this.isRootUrl());
   // The closed menu lists every song; prerendering it would add ~600 KB of duplicate markup to each song page.
   protected renderMenu = computed(() => this.isBrowser || this.showMenu());
+  // The song list keeps its search in view; on the other pages the header gives the screen back to the text.
+  private scrolledDown = signal(false);
+  protected headerHidden = computed(() => this.scrolledDown() && !this.showMenu());
 
   constructor() {
     this.navigate$
@@ -59,6 +68,39 @@ export class MainSoundComponent {
         takeUntilDestroyed(),
       )
       .subscribe(() => this.moveFocusAfterNavigation());
+
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.scrolledDown.set(false));
+
+    if (this.isBrowser) {
+      this.hideHeaderOnScroll();
+    }
+  }
+
+  // Hides the header while the page scrolls down and brings it back on any scroll up.
+  private hideHeaderOnScroll(): void {
+    let lastY = window.scrollY;
+
+    fromEvent(window, 'scroll', { passive: true })
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        const y = window.scrollY;
+
+        if (y <= HEADER_ALWAYS_SHOWN_PX) {
+          this.scrolledDown.set(false);
+        } else if (Math.abs(y - lastY) < HEADER_SCROLL_THRESHOLD_PX) {
+          // small moves add up until they pass the threshold
+          return;
+        } else {
+          this.scrolledDown.set(y > lastY);
+        }
+
+        lastY = y;
+      });
   }
 
   protected focusMain(event: Event): void {

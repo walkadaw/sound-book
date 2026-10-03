@@ -36,6 +36,17 @@
     top: 0;
     background: var(--mat-sys-surface);
     z-index: 2;
+    transition: transform 0.2s ease;
+
+    // Stays on screen while it is being used: a focused field or button, or an open menu.
+    &.header-hidden:not(:focus-within):not(:has([aria-expanded='true'])) {
+      // past its own height, so the shadow goes too
+      transform: translateY(calc(-100% - 12px));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   .menu {

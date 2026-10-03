@@ -8,6 +8,8 @@
 html {
     // Follows the OS setting; ThemeService pins it through data-theme when the user picks one.
     color-scheme: light dark;
+    // The sticky header comes back on any scroll up; this keeps an element scrolled to by focus clear of it.
+    scroll-padding-top: 64px;
 
     @include mat.theme((
         color: mat.$azure-palette,
