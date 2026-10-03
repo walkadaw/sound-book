@@ -14,7 +14,7 @@
       <a class="song-link" [routerLink]="['/song', song.id, song.title | replaceSpace]">
         <span class="song-title">
           {{ song.songId }}.
-          {{ song.title }}
+          <span class="song-name">{{ song.title }}</span>
         </span>
       </a>
       <div class="title-container__actions">

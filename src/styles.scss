@@ -122,6 +122,12 @@ h6 {
 .song-subtitle {
 	font-size: 1.3em;
 }
+
+// Song titles show in capitals everywhere, as in the paper songbook; CSS keeps the stored text
+// for screen readers, search engines and copying.
+.song-name {
+	text-transform: uppercase;
+}
 a, a:visited, a:active {
     color: var(--mat-sys-primary) !important;
 }

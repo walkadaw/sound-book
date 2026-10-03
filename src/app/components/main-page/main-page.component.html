@@ -14,7 +14,7 @@
             </span>
             <span class="song-title">
               {{ song.songId }}.
-              {{ song.title | uppercase }}
+              <span class="song-name">{{ song.title }}</span>
               @if (song.snippet; as snippet) {
                 <app-match-highlight class="song-snippet" [snippet]="snippet" />
               }

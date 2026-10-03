@@ -3,9 +3,7 @@
 
   @for (song of songs(); track song) {
     <div class="lyrics">
-      <h2 class="entry-title song-subtitle" itemprop="name">
-        {{ song?.title }}
-      </h2>
+      <h2 class="entry-title song-subtitle song-name" itemprop="name">{{ song.title }}</h2>
       <app-song-lyrics [rows]="song.rows" [showChord]="showChord()"></app-song-lyrics>
     </div>
   }

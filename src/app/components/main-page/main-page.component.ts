@@ -8,7 +8,7 @@ import { RouterLinkActive, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuContent } from '@angular/material/menu';
-import { UpperCasePipe, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { SongFavorite } from '../../interfaces/song';
 import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
@@ -36,7 +36,6 @@ import { MatchHighlightComponent } from '../match-highlight/match-highlight.comp
     MatMenu,
     MatMenuContent,
     PlaylistMenuComponent,
-    UpperCasePipe,
     ReplaceSpacePipe,
     MatchHighlightComponent,
   ],
