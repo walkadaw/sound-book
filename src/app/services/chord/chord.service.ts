@@ -123,6 +123,23 @@ export class ChordService {
     }, { text: '', chord: '' });
   }
 
+  /** The reverse of getTextAndChord: puts every non-empty chord line back over its lyrics line */
+  mergeTextAndChord(song: { text: string; chord: string }): string {
+    const text = song.text.split('\n');
+    const chord = song.chord.split('\n');
+    const item = text.length > chord.length ? text : chord;
+
+    return item
+      .map((_, index) => {
+        if (chord[index]?.trim()) {
+          return `${chord[index]}\n${text[index] ?? ''}`;
+        }
+
+        return text[index] ?? '';
+      })
+      .join('\n');
+  }
+
   getBaseChord(chord: string): string {
     const base = chord.slice(0, 2);
 

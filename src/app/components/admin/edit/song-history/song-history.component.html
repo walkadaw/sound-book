@@ -1,0 +1,79 @@
+<section class="history" aria-labelledby="song-history-title">
+  <h5 id="song-history-title">
+    <button
+      mat-button
+      type="button"
+      aria-controls="song-history-panel"
+      [attr.aria-expanded]="open()"
+      (click)="toggle()"
+    >
+      Гісторыя змен
+    </button>
+  </h5>
+
+  @if (open()) {
+    <div id="song-history-panel">
+      @if (history.isLoading()) {
+        <p role="status">Загрузка…</p>
+      } @else if (history.error()) {
+        <p role="alert">Не атрымалася загрузіць гісторыю</p>
+      } @else if (history.hasValue()) {
+        @if (history.value().length) {
+          <ul class="history__list">
+            @for (version of history.value(); track version.id) {
+              <li>
+                <button
+                  mat-button
+                  type="button"
+                  class="history__version"
+                  [attr.aria-expanded]="version.id === selectedId()"
+                  [attr.aria-controls]="'song-version-' + version.id"
+                  (click)="select(version)"
+                >
+                  @if (version.createdAt === null) {
+                    Зыходная версія
+                  } @else {
+                    {{ (version.updatedAt ?? version.createdAt) * 1000 | date: 'd.MM.yyyy HH:mm' }}
+                    · {{ version.userName ?? '—' }}
+                  }
+                </button>
+
+                @if (version.id === selectedId() && comparison(); as comparison) {
+                  <div class="history__diff" [id]="'song-version-' + version.id" aria-live="polite">
+                    <p>
+                      @switch (comparison.mode) {
+                        @case ('previous') {
+                          Што змянілася ў гэтай версіі:
+                        }
+                        @case ('created') {
+                          Песня створана:
+                        }
+                        @case ('editor') {
+                          Розніца з тэкстам у рэдактары:
+                        }
+                      }
+                    </p>
+                    @if (comparison.canCompareWithEditor) {
+                      <mat-checkbox [checked]="compareWithEditor()" (change)="compareWithEditor.set($event.checked)">
+                        Параўнаць з тэкстам у рэдактары
+                      </mat-checkbox>
+                    }
+                    @if (comparison.before.title !== comparison.after.title) {
+                      <app-diff-result [before]="comparison.before.title" [after]="comparison.after.title" />
+                    }
+                    <app-diff-result [before]="comparison.before.text" [after]="comparison.after.text" />
+                    <button mat-stroked-button type="button" (click)="restore.emit(version)">
+                      Аднавіць гэту версію
+                    </button>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p>Песню яшчэ не змянялі</p>
+        }
+      }
+    </div>
+  }
+</section>

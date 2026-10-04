@@ -1,6 +1,5 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
-import { Change, diffWords } from 'diff';
 import { MatButton } from '@angular/material/button';
 import { Song } from '../../interfaces/song';
 import { DiffResultComponent } from '../diff-result/diff-result.component';
@@ -10,11 +9,6 @@ interface SimilarData {
   duplication: Song[];
 }
 
-interface DiffResult {
-  song: Song;
-  diff: Change[];
-}
-
 @Component({
   selector: 'app-similar-song-dialog',
   templateUrl: './similar-song-dialog.component.html',
@@ -22,12 +16,6 @@ interface DiffResult {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DiffResultComponent, MatButton, MatDialogClose],
 })
-export class SimilarSongDialogComponent implements OnInit {
+export class SimilarSongDialogComponent {
   data = inject<SimilarData>(MAT_DIALOG_DATA);
-
-  diffs: DiffResult[];
-
-  ngOnInit(): void {
-    this.diffs = this.data.duplication.map((song) => ({ song, diff: diffWords(song.text, this.data.song.text) }));
-  }
 }

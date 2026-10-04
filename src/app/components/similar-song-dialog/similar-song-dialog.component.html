@@ -1,7 +1,7 @@
 <h3>Разница текстов</h3>
-@for (item of diffs; track item) {
-  <h5>{{ item.song.title }}</h5>
-  <app-diff-result [diff]="item.diff"></app-diff-result>
+@for (song of data.duplication; track song.id) {
+  <h5>{{ song.title }}</h5>
+  <app-diff-result [before]="song.text" [after]="data.song.text" />
 }
 
 <div class="action">

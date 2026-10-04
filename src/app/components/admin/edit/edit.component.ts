@@ -2,7 +2,6 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Change, diffWords } from 'diff';
 import { debounceTime, filter, finalize, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,15 +11,15 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton } from '@angular/material/button';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
-import { Song, SongAdd } from '../../../interfaces/song';
+import { Song, SongAdd, SongVersion } from '../../../interfaces/song';
 import { ChordService } from '../../../services/chord/chord.service';
 import { ChordCheckService } from '../../../services/chord/chord-check.service';
 import { SongService } from '../../../services/song-service/song.service';
 import { isSimilarText } from '../../../services/duplicate/similar-text';
 import { SimilarSongDialogComponent } from '../../similar-song-dialog/similar-song-dialog.component';
-import { DiffResultComponent } from '../../diff-result/diff-result.component';
 import { ChordIssuesComponent } from '../chord-issues/chord-issues.component';
 import { EditSongComponent } from './edit-song/edit-song.component';
+import { SongHistoryComponent } from './song-history/song-history.component';
 
 @Component({
   selector: 'app-edit',
@@ -35,8 +34,8 @@ import { EditSongComponent } from './edit-song/edit-song.component';
     MatCheckbox,
     MatIcon,
     MatButton,
-    DiffResultComponent,
     ChordIssuesComponent,
+    SongHistoryComponent,
   ],
 })
 export class EditComponent implements OnInit {
@@ -58,6 +57,11 @@ export class EditComponent implements OnInit {
   });
 
   protected readonly saving = signal(false);
+  protected readonly historyReloadKey = signal(0);
+  protected readonly formValue = toSignal(
+    this.songDataForm.valueChanges.pipe(map(() => this.songDataForm.getRawValue())),
+    { initialValue: this.songDataForm.getRawValue() },
+  );
 
   // checked the way the song gets saved, which splits it into chord and lyrics lines
   protected readonly chordIssues = toSignal(
@@ -68,8 +72,6 @@ export class EditComponent implements OnInit {
     ),
     { initialValue: [] },
   );
-
-  diff: Change[];
 
   get songID(): number {
     return +this.route.snapshot.params['id'];
@@ -89,12 +91,6 @@ export class EditComponent implements OnInit {
 
     const { songID } = this;
     const content = this.chordService.getTextAndChord(text);
-
-    if (songID) {
-      const songff = this.songService.getSong(songID);
-      // TODO we heead it?
-      this.diff = diffWords(this.mergeChordWidthText(songff), this.mergeChordWidthText(content as Song));
-    }
 
     const song: SongAdd = {
       id: songID,
@@ -144,9 +140,10 @@ export class EditComponent implements OnInit {
           this.router.navigate(['admin', 'edit', id], { relativeTo: this.route.root.firstChild });
           this.songDataForm.setValue({
             title: song.title,
-            text: this.mergeChordWidthText(song as unknown as Song), // update with chord
+            text: this.chordService.mergeTextAndChord(song), // update with chord
             tags: this.setTag((arg) => selectedTags.has(arg.id.toString())),
           });
+          this.historyReloadKey.update((key) => key + 1);
         },
         error: () => this.snackBar.open('Не атрымалася захаваць песню', 'Зачыніць', { duration: 2000 }),
       });
@@ -162,10 +159,25 @@ export class EditComponent implements OnInit {
       .subscribe((song) => {
         this.songDataForm.setValue({
           title: song.title,
-          text: this.mergeChordWidthText(song), // update with chord
+          text: this.chordService.mergeTextAndChord(song), // update with chord
           tags: this.setTag((arg) => !!song.tag[arg.id]),
         });
       });
+  }
+
+  // saving stays a separate step, so a restore becomes a new version only once the user confirms it
+  protected onRestore(version: SongVersion): void {
+    const selectedTags = new Set(version.tag.split(','));
+
+    this.songDataForm.setValue({
+      title: version.title,
+      text: this.chordService.mergeTextAndChord(version),
+      tags: this.setTag((arg) => selectedTags.has(arg.id.toString())),
+    });
+    this.songDataForm.markAsDirty();
+    this.snackBar.open('Версія падстаўлена ў рэдактар — націсніце «Изменить», каб захаваць', 'Зачыніць', {
+      duration: 4000,
+    });
   }
 
   private setTag<T>(getValue: (arg: TagList) => T) {
@@ -174,21 +186,5 @@ export class EditComponent implements OnInit {
 
       return acc;
     }, {});
-  }
-
-  private mergeChordWidthText(song: Song): string {
-    const text = song.text.split('\n');
-    const chord = song.chord.split('\n');
-    const item = text.length > chord.length ? text : chord;
-
-    return item
-      .map((_, index) => {
-        if (chord[index]?.trim()) {
-          return `${chord[index]}\n${text[index] ?? ''}`;
-        }
-
-        return text[index] ?? '';
-      })
-      .join('\n');
   }
 }

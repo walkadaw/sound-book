@@ -1,0 +1,16 @@
+.history__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history__version[aria-expanded='true'] {
+  font-weight: bold;
+}
+
+.history__diff {
+  margin: 4px 0 16px;
+  padding-left: 12px;
+  // ties the comparison to the version it was opened from
+  border-left: 2px solid var(--mat-sys-outline-variant);
+}

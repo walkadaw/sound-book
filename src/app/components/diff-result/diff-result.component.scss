@@ -1,0 +1,83 @@
+:host {
+  display: block;
+
+  // Text stays the theme's own colour on every background, so contrast only depends on these pale fills.
+  --diff-removed-line: light-dark(#ffebe9, #3d1f22);
+  --diff-removed-word: light-dark(#ffb8b2, #7d2f35);
+  --diff-added-line: light-dark(#e6ffec, #1a3524);
+  --diff-added-word: light-dark(#a6f0b8, #2b6a3d);
+}
+
+.diff {
+  color: var(--app-text);
+}
+
+.diff__summary {
+  margin: 0 0 4px;
+}
+
+.diff__count {
+  font-weight: bold;
+  padding: 0 4px;
+  border-radius: 4px;
+
+  &--added {
+    background: var(--diff-added-word);
+  }
+
+  &--removed {
+    background: var(--diff-removed-word);
+  }
+}
+
+.diff__line {
+  display: flex;
+
+  &--removed {
+    background: var(--diff-removed-line);
+  }
+
+  &--added {
+    background: var(--diff-added-line);
+  }
+}
+
+.diff__sign {
+  flex: 0 0 1.5em;
+  text-align: center;
+  user-select: none;
+}
+
+.diff__text {
+  flex: 1;
+  min-width: 0;
+  // Keeps the spacing and chord columns of the song, yet wraps long lines on a phone.
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+del,
+ins {
+  color: inherit;
+  border-radius: 2px;
+}
+
+// The strike-through and underline tell the words apart without relying on the colours.
+del {
+  background: var(--diff-removed-word);
+  text-decoration: line-through;
+}
+
+ins {
+  background: var(--diff-added-word);
+  text-decoration: underline;
+}
+
+.diff__empty {
+  opacity: 0.7;
+}
+
+.diff__expand {
+  width: 100%;
+  justify-content: flex-start;
+}

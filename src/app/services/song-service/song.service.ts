@@ -4,7 +4,7 @@ import { Observable, defer, of, throwError } from 'rxjs';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
-import { Song, SongAdd, SongRequest } from '../../interfaces/song';
+import { Song, SongAdd, SongRequest, SongVersion } from '../../interfaces/song';
 
 @Service()
 export class SongService {
@@ -76,6 +76,13 @@ export class SongService {
 
   getSongWithoutCache(id?: string): Observable<Song> {
     return this.http.get<Song>(`${environment.baseUrl}/song/get`, {
+      params: { id },
+      headers: { 'ngsw-bypass': '' },
+    });
+  }
+
+  getSongHistory(id: number): Observable<SongVersion[]> {
+    return this.http.get<SongVersion[]>(`${environment.baseUrl}/song/history`, {
       params: { id },
       headers: { 'ngsw-bypass': '' },
     });

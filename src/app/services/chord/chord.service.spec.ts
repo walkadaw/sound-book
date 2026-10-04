@@ -94,6 +94,20 @@ describe('ChordService', () => {
     });
   });
 
+  describe('mergeTextAndChord', () => {
+    it('should put chord lines over their lyrics and skip empty ones', () => {
+      expect(service.mergeTextAndChord({ chord: 'a G\n\nC', text: 'Снова вечер\nИ опять\nИ снова' })).toBe(
+        'a G\nСнова вечер\nИ опять\nC\nИ снова',
+      );
+    });
+
+    it('should restore what getTextAndChord split', () => {
+      const text = 'Am G\nСнова вечер\n\nИ опять';
+
+      expect(service.mergeTextAndChord(service.getTextAndChord(text)).trimEnd()).toBe('a G\nСнова вечер\n\nИ опять');
+    });
+  });
+
   describe('transposeChord', () => {
     const transpose = (line: string, steps: number) =>
       line.split(' ').map((chord) => service.transposeChord(chord, steps)).join(' ');

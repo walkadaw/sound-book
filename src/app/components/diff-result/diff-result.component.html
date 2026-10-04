@@ -1,13 +1,46 @@
-<div style="white-space: pre">
-  @for (change of diff(); track change) {
-    @if (change.removed && change.value.trim()) {
-      <span style="color: red">{{ change.value }}</span>
+<div class="diff">
+  <p class="diff__summary">
+    @if (diff().added || diff().removed) {
+      <span class="diff__count diff__count--added">+{{ diff().added }}</span>
+      <span class="diff__count diff__count--removed">−{{ diff().removed }}</span>
+      радкоў
+    } @else {
+      Без змен
     }
-    @if (change.added) {
-      <span style="color: green">{{ change.value }}</span>
-    }
-    @if (!change.added && !change.removed) {
-      {{ change.value }}
+  </p>
+
+  @if (diff().added || diff().removed) {
+    @for (block of diff().blocks; track $index) {
+      @if (block.kind === 'collapsed' && !expanded().has($index)) {
+        <button mat-button type="button" class="diff__expand" (click)="expand($index)">
+          Паказаць яшчэ {{ block.lines.length }} радкоў без змен
+        </button>
+      } @else {
+        @for (line of block.lines; track $index) {
+          <div class="diff__line" [class]="'diff__line--' + line.kind">
+            <span class="diff__sign" aria-hidden="true">{{ signs[line.kind] }}</span>
+            <!-- every piece is an element: whitespace between elements is dropped, text nodes would keep it -->
+            <span class="diff__text">
+              @if (line.kind !== 'same') {
+                <span class="cdk-visually-hidden">{{ labels[line.kind] }}</span>
+              }
+              @for (part of line.parts; track $index) {
+                @if (!part.changed) {
+                  <span>{{ part.text }}</span>
+                } @else if (line.kind === 'removed') {
+                  <del>{{ part.text }}</del>
+                } @else {
+                  <ins>{{ part.text }}</ins>
+                }
+              }
+              @if (line.empty && line.kind !== 'same') {
+                <span class="diff__empty" aria-hidden="true">↵</span>
+                <span class="cdk-visually-hidden">пусты радок</span>
+              }
+            </span>
+          </div>
+        }
+      }
     }
   }
 </div>

@@ -37,4 +37,12 @@
     </button>
   </div>
 </div>
-<app-diff-result [diff]="diff"></app-diff-result>
+@if (songID) {
+  <app-song-history
+    [songId]="songID"
+    [title]="formValue().title"
+    [text]="formValue().text"
+    [reloadKey]="historyReloadKey()"
+    (restore)="onRestore($event)"
+  />
+}

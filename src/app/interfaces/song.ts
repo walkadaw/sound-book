@@ -17,6 +17,20 @@ export interface SongAdd {
   tag: string;
 }
 
+export interface SongVersion {
+  id: number;
+  title: string;
+  text: string;
+  chord: string;
+  tag: string;
+  /** null for the version a song had before its history started */
+  userName: string | null;
+  /** unix seconds; null for the version a song had before its history started */
+  createdAt: number | null;
+  /** unix seconds of the last save folded into this version */
+  updatedAt: number | null;
+}
+
 export interface SongFavorite extends Song {
   favorite?: boolean;
 }
