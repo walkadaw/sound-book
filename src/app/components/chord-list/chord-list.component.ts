@@ -30,8 +30,8 @@ export class ChordListComponent {
     const notation = this.chordNotation();
     const originalChordList = this.originalChordList();
 
-    // songs are stored in the short notation, so there is nothing to convert
-    if (transpilation === 0 && notation === 'short') {
+    // songs are stored in the full notation, so there is nothing to convert
+    if (transpilation === 0 && notation === 'full') {
       return originalChordList;
     }
 

@@ -16,7 +16,10 @@ function accidental(sign: string | undefined): string {
   return sign === 'b' || sign === '♭' ? '♭' : '#';
 }
 
-/** "B♭maj7/D": the root and the bass stay on the line, the chord type is raised as in the paper songbook */
+/**
+ * "B♭maj7/D": the root and the bass stay on the line, the chord type is raised as in the paper songbook.
+ * Songs are stored in the full notation, the paper songbook prints the short one: "Am7" is "a" with a raised "7".
+ */
 function chordRuns(chord: string): ChordRun[] {
   const parts = CHORD_PARTS.exec(chord);
 
@@ -25,12 +28,11 @@ function chordRuns(chord: string): ChordRun[] {
   }
 
   const [, root, rootSign, suffix, bass, bassSign, bassMinor] = parts;
-  // a minor written as "Am" keeps its "m" on the line, the rest of the type goes up
-  const minor = /^m(?!aj)/.exec(suffix)?.[0] ?? '';
-  const raised = suffix.slice(minor.length);
+  const minor = /^m(?!aj)/.test(suffix);
+  const raised = minor ? suffix.slice(1) : suffix;
 
   return [
-    { text: `${root}${accidental(rootSign)}${minor}` },
+    { text: `${minor ? root.toLowerCase() : root}${accidental(rootSign)}` },
     ...(raised ? [{ text: raised, superscript: true }] : []),
     ...(bass ? [{ text: `/${bass}${accidental(bassSign)}${bassMinor}` }] : []),
   ];

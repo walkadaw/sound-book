@@ -50,41 +50,46 @@ describe('ChordService', () => {
       expect(service.getChord('h').suffix).toBe('minor');
     });
 
-    it('should keep special symbols around chords when shortening', () => {
-      expect(service.getTextAndChord('FCd E4  (E7)').chord).toBe('FCd E4 (E7)\n');
+    it('should keep special symbols around chords when saving', () => {
+      expect(service.getTextAndChord('FCd E4  (E7)').chord).toBe('FCDm E4 (E7)\n');
     });
 
     it('should pair each chord line with the lyrics line under it', () => {
       expect(service.getTextAndChord('Am    G\nСнова вечер\n\nИ опять\nC  E7\nИ снова')).toEqual({
-        chord: 'a G\n\n\nC E7\n',
+        chord: 'Am G\n\n\nC E7\n',
         text: 'Снова вечер\n\nИ опять\nИ снова\n',
       });
     });
 
     it('should save a stanza label and a directive as lyrics lines with empty chord rows', () => {
       expect(service.getTextAndChord('{columns: 2}\nПрыпеў:\nAm  G\nСнова вечер')).toEqual({
-        chord: '\n\na G\n',
+        chord: '\n\nAm G\n',
         text: '{columns: 2}\nПрыпеў:\nСнова вечер\n',
       });
     });
 
     it('should save chords typed in Cyrillic with Latin letters', () => {
-      expect(service.getTextAndChord('Аm  С\nСнова вечер').chord).toBe('a C\n');
+      expect(service.getTextAndChord('Аm  С\nСнова вечер').chord).toBe('Am C\n');
     });
 
     it('should keep a section label and bars on the chord line', () => {
-      expect(service.getTextAndChord('Вступление:  Am  | G |').chord).toBe('Вступление: a | G |\n');
+      expect(service.getTextAndChord('Вступление:  Am  | G |').chord).toBe('Вступление: Am | G |\n');
     });
 
     it('should save inline chords as a chord line', () => {
-      expect(service.getTextAndChord('[Am]Снова [G]вечер')).toEqual({ chord: 'a G\n', text: 'Снова вечер\n' });
+      expect(service.getTextAndChord('[Am]Снова [G]вечер')).toEqual({ chord: 'Am G\n', text: 'Снова вечер\n' });
     });
 
     it('should keep rows paired when inline chords follow a chord line', () => {
       expect(service.getTextAndChord('Am G\n[C]Снова вечер\nИ опять')).toEqual({
-        chord: 'a G\nC\n\n',
+        chord: 'Am G\nC\n\n',
         text: '\nСнова вечер\nИ опять\n',
       });
+    });
+
+    it('should save chords typed in the short notation in the full one', () => {
+      expect(service.getTextAndChord('a  c#7  bb  h  D/f#  b/A  Cis\nСнова вечер').chord)
+        .toBe('Am C#m7 Bbm Bm D/F# Bm/A C#\n');
     });
 
     it('should keep the original text of the line', () => {
@@ -104,13 +109,32 @@ describe('ChordService', () => {
     it('should restore what getTextAndChord split', () => {
       const text = 'Am G\nСнова вечер\n\nИ опять';
 
-      expect(service.mergeTextAndChord(service.getTextAndChord(text)).trimEnd()).toBe('a G\nСнова вечер\n\nИ опять');
+      expect(service.mergeTextAndChord(service.getTextAndChord(text)).trimEnd()).toBe('Am G\nСнова вечер\n\nИ опять');
+    });
+  });
+
+  describe('toFullChord', () => {
+    it('should write minors with "m" and normalize the spelling the way the chord list does', () => {
+      const chords = ['a', 'c#7', 'bb', 'eb', 'h', 'Hm', 'fis', 'Asus', 'B♭maj7', 'Eb'];
+
+      expect(chords.map((chord) => service.toFullChord(chord)))
+        .toEqual(['Am', 'C#m7', 'Bbm', 'D#m', 'Bm', 'Bm', 'F#', 'Asus4', 'Bbmaj7', 'D#']);
+    });
+
+    it('should read the bass of a short notation slash chord as a note', () => {
+      expect(['D/f#', 'B/f#', 'c#/E', 'C/Em', 'A/h', 'A/H', 'D/fis'].map((chord) => service.toFullChord(chord)))
+        .toEqual(['D/F#', 'B/F#', 'C#m/E', 'C/Em', 'A/B', 'A/B', 'D/F#']);
+    });
+
+    it('should rewrite only the root of a chord missing from the chord list', () => {
+      expect(['a4', 'c#9sus4', 'E9sus4', 'Gb'].map((chord) => service.toFullChord(chord)))
+        .toEqual(['Am4', 'C#m9sus4', 'E9sus4', 'Gb']);
     });
   });
 
   describe('transposeChord', () => {
     const transpose = (line: string, steps: number) =>
-      line.split(' ').map((chord) => service.transposeChord(chord, steps)).join(' ');
+      line.split(' ').map((chord) => service.transposeChord(chord, steps, 'short')).join(' ');
 
     it('should transpose plain chords in the short notation', () => {
       expect(transpose('C G Am F', 2)).toBe('D A b G');
@@ -129,7 +153,7 @@ describe('ChordService', () => {
 
     it('should match the notation the song editor saves', () => {
       ['Eb', 'Bbm7', 'Am/G', 'D/F#', 'Ab7', 'Hm'].forEach((chord) => {
-        expect(service.transposeChord(chord, 12)).toBe(service.getShortChord(service.getChord(chord)));
+        expect(service.transposeChord(chord, 12)).toBe(service.toFullChord(chord));
       });
     });
 
@@ -149,6 +173,11 @@ describe('ChordService', () => {
 
       expect(full('a c#7 bb7 C D/F# b/A', 0)).toBe('Am C#m7 Bbm7 C D/F# Bm/A');
       expect(full('a Am7 A/B', 2)).toBe('Bm Bm7 B/C#');
+    });
+
+    it('should write a chord missing from the chord list in the short notation when asked', () => {
+      expect(['Am4', 'C#m9sus4', 'E9sus4', 'Amaj9#11'].map((chord) => service.transposeChord(chord, 0, 'short')))
+        .toEqual(['a4', 'c#9sus4', 'E9sus4', 'Amaj9#11']);
     });
 
     it('should keep unknown text as is', () => {

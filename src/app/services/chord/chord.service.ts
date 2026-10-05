@@ -96,7 +96,8 @@ export class ChordService {
 
     return parseSong(text).reduce((acc, line) => {
       if (line.kind === 'chords') {
-        acc.chord += `${this.shortenChordLine(line.text, line.chords)}\n`;
+        // the spaces kept chords over their syllables in the editor; saved rows are not aligned
+        acc.chord += `${this.toFullChordLine(line.text, line.chords).trim().split(/\s+/).join(' ')}\n`;
         lastIsChord = true;
 
         return acc;
@@ -111,7 +112,7 @@ export class ChordService {
           acc.text += '\n';
         }
 
-        acc.chord +=`${line.chords.map(({ chord }) => this.toShortChord(chord)).join(' ')}\n`;
+        acc.chord += `${line.chords.map(({ chord }) => this.toFullChord(chord)).join(' ')}\n`;
       } else if (!lastIsChord) {
         acc.chord += '\n';
       }
@@ -203,8 +204,8 @@ export class ChordService {
     return keys[(((index + transpilation) % keys.length) + keys.length) % keys.length];
   }
 
-  /** Short notation is the one the song editor saves chords with */
-  transposeChord(text: string, transpilation: number, notation: ChordNotation = 'short'): string {
+  /** Full notation is the one the song editor saves chords with */
+  transposeChord(text: string, transpilation: number, notation: ChordNotation = 'full'): string {
     const chord = this.getChord(text);
 
     if (chord) {
@@ -229,7 +230,10 @@ export class ChordService {
       return `${root}/${bass}`;
     }
 
-    return text;
+    // a chord missing from the chord list, like "Am4", still follows the chosen notation
+    return notation === 'short'
+      ? text.replace(/^([A-H])(#|b)?m(?!aj)/, (_, root: string, sign = '') => root.toLowerCase() + sign)
+      : text;
   }
 
   getReadableSuffix(suffix: string) {
@@ -257,20 +261,33 @@ export class ChordService {
     return this.chordData;
   }
 
-  /** Keeps what surrounds the chords ("(E7)", "|", labels) and collapses alignment spaces the way songs are saved */
-  private shortenChordLine(line: string, chords: ChordToken[]): string {
-    const shortened = [...chords].reverse().reduce(
-      (acc, { chord, col }) => acc.slice(0, col) + this.toShortChord(chord) + acc.slice(col + chord.length),
+  /** Rewrites the chords of a chord line in the full notation, keeping everything around them ("(E7)", "|", labels) */
+  toFullChordLine(line: string, chords: ChordToken[]): string {
+    return [...chords].reverse().reduce(
+      (acc, { chord, col }) => acc.slice(0, col) + this.toFullChord(chord) + acc.slice(col + chord.length),
       line,
     );
-
-    return shortened.trim().split(/\s+/).join(' ');
   }
 
-  private toShortChord(text: string): string {
+  /** "a" → "Am", "D/f#" → "D/F#"; a chord missing from the chord list only gets its root rewritten */
+  toFullChord(text: string): string {
     const chord = this.getChord(text);
 
-    return chord ? this.getShortChord(chord) : text;
+    if (chord) {
+      return this.getFullChord(chord);
+    }
+
+    const slash = text.lastIndexOf('/');
+
+    if (slash > 0) {
+      // in the short notation the bass is a note, so "D/f#" is D over F#, not over F#m
+      const bass = text.slice(slash + 1);
+      const note = this.convertAlias(this.replaceBimole(bass[0].toUpperCase() + bass.slice(1)));
+
+      return `${this.toFullChord(text.slice(0, slash))}/${note}`;
+    }
+
+    return this.convertAlias(this.replaceBimole(text));
   }
 
   private replaceBimole(chord: string): string {

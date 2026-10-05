@@ -9,6 +9,16 @@ describe('chordLineRuns', () => {
     expect(chordLineRuns('Asus4')).toEqual([{ text: 'A' }, sup('sus4')]);
   });
 
+  it('should print the full notation the songs are stored in as the short one', () => {
+    expect(chordLineRuns('Am C#m7 Bbm Bmaj7 Am/G Hm')).toEqual([
+      { text: 'a c#' },
+      sup('7'),
+      { text: ' b♭ B' },
+      sup('maj7'),
+      { text: ' a/G h' },
+    ]);
+  });
+
   it('should print flats as ♭ and German "is" as #', () => {
     expect(chordLineRuns('Bb B♭maj7 eb fis')).toEqual([
       { text: 'B♭ B♭' },
