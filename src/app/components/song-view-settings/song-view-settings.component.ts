@@ -4,7 +4,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { SettingsService } from '../../services/settings/settings.service';
 
-const MIN_FONT_SIZE = 0.4;
+const MIN_FONT_SIZE = 0.8;
 const MAX_FONT_SIZE = 2;
 const FONT_SIZE_STEP = 0.1;
 const DEFAULT_FONT_SIZE = 1;

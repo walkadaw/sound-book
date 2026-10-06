@@ -6,7 +6,6 @@ $follow-room: 50px;
   display: flex;
   position: relative;
   height: 65vh;
-  font-size: 1.9em Georgia, "Times New Roman", Times, serif !important;
 
   &__editor {
     position: relative;
@@ -76,6 +75,6 @@ $follow-room: 50px;
 
 .chord-line-summary {
   margin: 4px 0 0;
-  font-size: 0.875rem;
+  font-size: var(--app-fs-small);
   color: var(--mat-sys-on-surface-variant);
 }

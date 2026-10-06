@@ -22,10 +22,8 @@
 }
 
 .copyright {
-    font-size: 13px;
+    font-size: var(--app-fs-meta);
     text-align: center;
     color: var(--mat-sys-on-surface-variant);
-    font-family: sans-serif;
-    font-weight: 100;
     margin-top: 20px;
 }

@@ -9,8 +9,8 @@
           <span class="song-title">
             <span class="playlist_title">{{ playlist.name }}</span>
             <span class="date">
-              <span class="playlist_info">Спеваў: {{ playlist.songList.length }}</span>
-              <span class="playlist_info">
+              <span class="meta">Спеваў: {{ playlist.songList.length }}</span>
+              <span class="meta">
                 {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
                 {{ playlist.lastChange | date }}
               </span>

@@ -44,13 +44,13 @@ section {
   }
 
   &__title {
-    font-weight: 500;
+    font-weight: 700;
   }
 
   &__count {
     color: var(--mat-sys-error);
     font-size: 1.25em;
-    font-weight: 500;
+    font-weight: 700;
 
     &_ok {
       color: var(--mat-sys-on-surface-variant);
@@ -61,6 +61,6 @@ section {
 
   &__description {
     color: var(--mat-sys-on-surface-variant);
-    font-size: 0.875em;
+    font-size: var(--app-fs-small);
   }
 }

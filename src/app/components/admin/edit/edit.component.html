@@ -1,5 +1,5 @@
 <div class="edit-form" [formGroup]="songDataForm">
-  <mat-form-field class="song-name" appearance="fill">
+  <mat-form-field class="title-field" appearance="fill">
     <mat-label>Назва спеву</mat-label>
     <input type="text" matInput formControlName="title" maxlength="120" />
   </mat-form-field>
@@ -12,7 +12,7 @@
     ></app-edit-song>
 
     <div class="select-tags" formGroupName="tags">
-      <h5>Выберете теги:</h5>
+      <h5 class="subsection-title">Выберете теги:</h5>
       <div class="select-tags__items">
         @for (tag of tagList; track tag) {
           <mat-checkbox [formControlName]="tag.id">
@@ -26,7 +26,7 @@
 
   <div role="status">
     @if (chordIssues().length) {
-      <h5>Проверьте аккорды:</h5>
+      <h5 class="subsection-title">Проверьте аккорды:</h5>
       <app-chord-issues [issues]="chordIssues()" />
     }
   </div>

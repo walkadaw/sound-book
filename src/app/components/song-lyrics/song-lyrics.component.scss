@@ -9,6 +9,8 @@
     // A wrapped line continues indented, so it does not read as the next line of the song.
     padding-left: 1em;
     text-indent: -1em;
+    // a line wrapped on a narrow screen does not leave a single word alone on its continuation
+    text-wrap: pretty;
 
     &:empty:before {
         content: "\200b"; // unicode zero width space character

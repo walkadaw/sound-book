@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   template: `
     <a class="back" routerLink="/admin">← Админка</a>
-    <h2>{{ title() }}</h2>
+    <h2 class="page-title">{{ title() }}</h2>
     <ng-content />
   `,
   styles: `

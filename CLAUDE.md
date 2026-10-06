@@ -51,6 +51,21 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use the async pipe to handle observables
 - Do not assume globals like (`new Date()`) are available.
 
+## Typography
+
+The songbook is read both at a music stand and on the move (a phone in hand, outdoors), so text must stay legible at any size the reader picks. The tokens live in `src/styles.scss`.
+
+- Text uses Arsenal (`--app-font-text`, inherited from `body`); headings, the logo and song numbers use `--app-font-heading`. Do NOT add other font families or set `font-family` on body text
+- Inside `<main>`, size text with the em tokens (`--app-fs-page-title`, `--app-fs-title`, `--app-fs-subtitle`, `--app-fs-small`, `--app-fs-meta`) so the reader's font size setting scales it. Do NOT size text in `px`
+- Outside `<main>` (header, footer, menus, dialogs and other overlays) use `rem`
+- Keep text at 14px or more at the default size: `--app-fs-meta` (0.8em) or `0.875rem` is the smallest
+- Size headings by role class (`.page-title`, `.section-title`, `.song-subtitle`, `.subsection-title`), not by heading level, and do NOT override a heading's size or color with `!important`
+- Arsenal only has weights 400 and 700. Do NOT use 100–600: they silently render as 400 or 700, or as a thin fallback font on phones
+- Secondary text (counts, dates, tags) uses the `.meta` class: a smaller size and `--mat-sys-on-surface-variant`, never a thin weight or added letter-spacing
+- Show song titles in capitals with the `.song-name` class; never uppercase the stored text. Do NOT put `.song-name` on form fields or labels
+- Set Material text sizes once with the system tokens in `mat.theme-overrides` in `src/styles.scss`, not with per-component `--mat-*-text-size` overrides
+- Use `--app-text`, `--app-heading` and `--app-accent-muted` (chords, tag names) for text colors
+
 ## Services
 
 - Design services around a single responsibility

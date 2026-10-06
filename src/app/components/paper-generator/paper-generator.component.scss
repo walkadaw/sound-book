@@ -1,9 +1,3 @@
-:host {
-  // Arsenal is narrower and its lowercase shorter than Roboto's: 16px reads as the labels' 14px did
-  --mat-checkbox-label-text-size: 1rem;
-  --mat-slide-toggle-label-text-size: 1rem;
-}
-
 .intro {
   margin: 0 0 16px;
   color: var(--mat-sys-on-surface-variant);
@@ -37,7 +31,7 @@
 
 .card-title {
   margin: 0 0 12px;
-  font-size: 1.2em;
+  font-size: var(--app-fs-subtitle);
 }
 
 .mode {
@@ -102,7 +96,7 @@
 
 .hint {
   margin: 4px 0 0;
-  font-size: 0.85em;
+  font-size: var(--app-fs-small);
   color: var(--mat-sys-on-surface-variant);
 }
 
@@ -113,7 +107,7 @@
 
 .summary {
   margin: 16px 0 12px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .download {

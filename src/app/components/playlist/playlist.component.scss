@@ -1,19 +1,9 @@
 .playlist_title,
 .date,
-.playlist_info {
+.meta {
     display: block;
 }
 
-.playlist_info {
-    font-size: 0.58em;
-    color: var(--mat-sys-on-surface-variant);
-    font-weight: 100;
-    letter-spacing: 1px;
-    margin-bottom: 0px;
-    margin-top: 0px;
-    font-style: normal;
-    line-height: 1.4;
-}
 .cdk-drag-preview {
     box-sizing: border-box;
     border-radius: 4px;

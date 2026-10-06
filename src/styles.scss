@@ -8,6 +8,9 @@
 html {
     // Follows the OS setting; ThemeService pins it through data-theme when the user picks one.
     color-scheme: light dark;
+    // Without it iOS Safari enlarges some of the text in landscape, out of proportion with the rest.
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     // The sticky header comes back on any scroll up; this keeps an element scrolled to by focus clear of it.
     scroll-padding-top: 64px;
 
@@ -28,18 +31,31 @@ html {
         surface-container-high: light-dark(#f0f0f0, #292a2c),
         surface-container-highest: light-dark(#ebebeb, #343537),
         outline-variant: light-dark(#e0e0e0, #44474e),
+        // Arsenal is narrower and its lowercase shorter than Roboto's, so the M3 sizes come out small:
+        // 16px reads as the buttons', menus' and labels' 14px Roboto did.
+        label-large-size: 1rem,
+        body-medium-size: 1rem,
+        body-small-size: 0.875rem,
     ));
 
     // Menus as they looked before M3: white, regular-weight labels, dividers without extra gaps.
     @include mat.menu-overrides((
         container-color: light-dark(#fff, var(--mat-sys-surface-container)),
         item-label-text-weight: 400,
-        // Arsenal is narrower and its lowercase shorter than Roboto's: 16px takes the room the menu's 14px Roboto did
-        item-label-text-size: 1rem,
         item-icon-color: light-dark(rgba(0, 0, 0, 0.54), var(--mat-sys-on-surface-variant)),
         divider-top-spacing: 0,
         divider-bottom-spacing: 0,
     ));
+
+    // The text face is the paper songbook's; headings keep a system sans-serif.
+    --app-font-text: Arsenal, Helvetica, Arial, sans-serif;
+    --app-font-heading: Helvetica, Arial, sans-serif;
+    // In em, so inside <main> they follow the reader's font size setting.
+    --app-fs-page-title: 1.8em;
+    --app-fs-title: 1.4em;
+    --app-fs-subtitle: 1.2em;
+    --app-fs-small: 0.85em;
+    --app-fs-meta: 0.8em;
 
     --app-text: light-dark(#000, var(--mat-sys-on-surface));
     --app-heading: light-dark(#333332, var(--mat-sys-on-surface));
@@ -64,7 +80,7 @@ body {
     background: var(--mat-sys-surface);
     color: var(--app-text);
     // 19px at the default 16px root size; Material's type scale is in rem, so the root keeps the user's size.
-    font: 1.1875rem Arsenal, Helvetica, Arial, sans-serif;
+    font: 1.1875rem var(--app-font-text);
     line-height: 1.5;
 }
 
@@ -75,11 +91,13 @@ h4,
 h5,
 h6 {
 	margin: 20px 0;
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: var(--app-font-heading);
 	color: var(--app-heading);
-	letter-spacing: -1px;
+	letter-spacing: -0.02em;
 	font-weight: 700;
-	line-height: 1;
+	// above 1, so a title wrapped on a phone keeps the breves of Й and Ў clear of the line above
+	line-height: 1.15;
+	text-wrap: balance;
 	-webkit-hyphens: none;
 	-moz-hyphens: none;
 	hyphens: none;
@@ -110,23 +128,34 @@ h6 {
 	font-size: 1.2em;
 }
 
-// Keep the look the pages had before their titles became the page's single h1.
+// Headings take their size from the role, not the level, so every page title looks the same.
 .page-title {
-	font-size: 1.8em;
+	font-size: var(--app-fs-page-title);
 }
 
-.section-title {
-	font-size: 1.6em;
-}
-
+.section-title,
 .song-subtitle {
-	font-size: 1.3em;
+	font-size: var(--app-fs-title);
+}
+
+.subsection-title {
+	font-size: var(--app-fs-subtitle);
 }
 
 // Song titles show in capitals everywhere, as in the paper songbook; CSS keeps the stored text
 // for screen readers, search engines and copying.
 .song-name {
 	text-transform: uppercase;
+	// capitals packed as tight as lowercase run together
+	letter-spacing: 0.02em;
+}
+
+// The secondary line under a title: song count, dates, tags.
+.meta {
+	margin: 0;
+	font-size: var(--app-fs-meta);
+	line-height: 1.4;
+	color: var(--mat-sys-on-surface-variant);
 }
 a, a:visited, a:active {
     color: var(--mat-sys-primary) !important;

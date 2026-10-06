@@ -30,8 +30,6 @@
 
 .key-text {
   --mat-button-protected-label-text-weight: 400;
-  // Arsenal is narrower and its lowercase shorter than Roboto's: 16px reads as the button's 14px did
-  --mat-button-protected-label-text-size: 1rem;
   margin: 0 6px;
   padding: 0 12px;
   white-space: nowrap;

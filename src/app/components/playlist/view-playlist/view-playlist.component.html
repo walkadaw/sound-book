@@ -3,7 +3,7 @@
     @if (playlist) {
       <header class="entry-header">
         <div class="title-container">
-          <h1 class="entry-title" itemprop="name">
+          <h1 class="entry-title page-title" itemprop="name">
             {{ playlist.name }}
           </h1>
           <div class="title-container__actions">
@@ -51,8 +51,8 @@
             </mat-menu>
           </div>
         </div>
-        <div class="playlist_info">Спеваў: {{ playlist.songs.length }}</div>
-        <div class="playlist_info">
+        <div class="meta">Спеваў: {{ playlist.songs.length }}</div>
+        <div class="meta">
           {{ (playlist.dateCreate | date) !== (playlist.lastChange | date) ? 'Дата стварэння:' : 'Дата змены:' }}
           {{ playlist.lastChange | date }}
         </div>

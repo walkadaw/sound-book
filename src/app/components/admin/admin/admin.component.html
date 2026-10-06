@@ -1,10 +1,10 @@
 <div class="heading">
-  <h2>Админка</h2>
+  <h2 class="page-title">Админка</h2>
   <a mat-stroked-button routerLink="/admin/add">Добавить песню</a>
 </div>
 
 <section aria-labelledby="checks-heading">
-  <h3 id="checks-heading">Проверка песен</h3>
+  <h3 id="checks-heading" class="section-title">Проверка песен</h3>
   <ul class="cards">
     @for (check of checks; track check.key) {
       @let count = check.items().length;
@@ -29,7 +29,7 @@
 </section>
 
 <section aria-labelledby="stats-heading">
-  <h3 id="stats-heading">Статистика</h3>
+  <h3 id="stats-heading" class="section-title">Статистика</h3>
   <ul class="cards">
     <li>
       <a class="card" routerLink="/admin/popular">

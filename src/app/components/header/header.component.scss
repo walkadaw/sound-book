@@ -41,10 +41,10 @@
     background: none;
     text-align: left;
     white-space: nowrap;
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: var(--app-font-heading);
     font-size: 1.8em;
     font-weight: 700;
-    letter-spacing: -1px;
+    letter-spacing: -0.02em;
     line-height: 1;
     color: var(--app-heading);
   }
@@ -158,7 +158,7 @@
     // Tints of the text colour, so the chips stay neutral in both themes.
     border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
     background-color: var(--mat-sys-surface);
-    font-size: 13px;
+    font-size: 0.875rem;
     color: var(--mat-sys-on-surface);
     white-space: nowrap;
     cursor: pointer;
@@ -172,7 +172,8 @@
     &.selected {
       border-color: color-mix(in srgb, currentColor 40%, transparent);
       background-color: color-mix(in srgb, currentColor 5%, transparent);
-      font-weight: 500;
+      // Arsenal has no medium weight
+      font-weight: 700;
     }
   }
 }
