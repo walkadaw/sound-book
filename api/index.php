@@ -36,6 +36,7 @@ switch($page){
 	case "song/stats":  include("song/_stats.php"); break;
 	case "song/popular":  include("song/_popular.php"); break;
 	case "song/history":  include("song/_history.php"); break;
+	case "song/media":  include("song/_media.php"); break;
 
 	case "auth/login":  include("auth/_login.php"); break;
 	case "auth/check":  include("auth/_check.php"); break;
