@@ -8,5 +8,5 @@ export const searchReducer = createReducer(
   SEARCH_STATE_DEFAULT,
   on(setSearchTermAction, (state, { searchTerm }): SearchInput => ({ ...state, searchTerm })),
   on(setSelectedTagAction, (state, { selectedTag }): SearchInput => ({ ...state, selectedTag })),
-  on(clearSearchAction, () => ({ ...SEARCH_STATE_DEFAULT })),
+  on(clearSearchAction, (state): SearchInput => ({ ...state, searchTerm: SEARCH_STATE_DEFAULT.searchTerm })),
 );

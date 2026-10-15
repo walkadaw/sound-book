@@ -5,12 +5,10 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/list';
 import { ALL_TAGS, SEARCH_FILTERS } from '../../constants/tag-list';
-import { clearSearchAction, setSelectedTagAction } from '../../redux/actions/search.actions';
-import { changeShowMenuAction } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getSelectedTag } from '../../redux/selector/search.selector';
-import { getShowMenu } from '../../redux/selector/settings.selector';
 import { PlayList } from '../../services/playlist/playlist.service';
+import { SongListService } from '../../services/song-list/song-list.service';
 import { UserService } from '../../services/user/user.service';
 import { SongSearchComponent } from '../song-search/song-search.component';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
@@ -37,7 +35,7 @@ const SCROLL_EDGE_TOLERANCE_PX = 1;
   ],
   host: {
     role: 'banner',
-    '(keydown.escape)': 'closePanel()',
+    '(keydown.escape)': 'closePanel($event)',
   },
 })
 export class HeaderComponent {
@@ -48,9 +46,9 @@ export class HeaderComponent {
   private songSearch = viewChild.required(SongSearchComponent);
   private chipScroll = viewChild<ElementRef<HTMLElement>>('chipScroll');
 
-  private showMenu = this.store.selectSignal(getShowMenu);
   private selectedTagId = this.store.selectSignal(getSelectedTag);
 
+  protected songList = inject(SongListService);
   protected isAuth = this.userService.isAuth;
   protected readonly filters = SEARCH_FILTERS;
   protected readonly selectedFilter = computed(
@@ -63,18 +61,8 @@ export class HeaderComponent {
 
   searchInputInFocus = false;
 
-  toggleMainMenu(show?: boolean) {
-    const toggle = this.showMenu();
-
-    if (show) {
-      this.store.dispatch(clearSearchAction());
-
-      if (show === toggle) {
-        return;
-      }
-    }
-
-    this.store.dispatch(changeShowMenuAction(!toggle));
+  protected showAllSongs(): void {
+    this.songList.showTag(0, { clearSearch: true });
   }
 
   onInputChangeFocus(isFocus: boolean) {
@@ -92,11 +80,12 @@ export class HeaderComponent {
   }
 
   protected selectFilter(filterId: number): void {
-    this.store.dispatch(setSelectedTagAction(filterId));
+    this.songList.showTag(filterId);
     this.songSearch().focusSearch();
   }
 
-  protected closePanel(): void {
+  protected closePanel(event: Event): void {
+    event.stopPropagation();
     (document.activeElement as HTMLElement | null)?.blur();
   }
 

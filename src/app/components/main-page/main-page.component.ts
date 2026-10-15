@@ -1,16 +1,26 @@
-import { ChangeDetectionStrategy, Component, PLATFORM_ID, computed, effect, inject } from '@angular/core';
+import {
+  Component,
+  EffectRef,
+  ElementRef,
+  Injector,
+  PLATFORM_ID,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { fromEvent } from 'rxjs';
-import { debounceTime, filter } from 'rxjs/operators';
-import { RouterLinkActive, RouterLink } from '@angular/router';
+import { debounceTime, filter, skip } from 'rxjs/operators';
+import { Router, RouterLink, Scroll } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatMenuTrigger, MatMenu, MatMenuContent } from '@angular/material/menu';
 import { isPlatformBrowser } from '@angular/common';
 import { SongFavorite } from '../../interfaces/song';
-import { setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
@@ -18,6 +28,7 @@ import { getShowMenu } from '../../redux/selector/settings.selector';
 import { FuseService, SongSearchResult } from '../../services/fuse-service/fuse.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { SongService } from '../../services/song-service/song.service';
+import { SongListService, resumesList } from '../../services/song-list/song-list.service';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { ReplaceSpacePipe } from '../../pipes/replace-space/replace-space.pipe';
 import { MatchHighlightComponent } from '../match-highlight/match-highlight.component';
@@ -26,9 +37,7 @@ import { MatchHighlightComponent } from '../match-highlight/match-highlight.comp
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RouterLinkActive,
     RouterLink,
     MatIcon,
     MatIconButton,
@@ -46,6 +55,13 @@ export class MainPageComponent {
   private store = inject<Store<IAppState>>(Store);
   private playlistService = inject(PlaylistService);
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+  private injector = inject(Injector);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  private songList = inject(SongListService);
+
+  protected openSongId = this.songList.openSongId;
 
   private showMenu = this.store.selectSignal(getShowMenu);
   private favoriteState = this.store.selectSignal(getFavoriteState);
@@ -69,8 +85,8 @@ export class MainPageComponent {
     }));
   });
 
-  private menuScrollYPosition: number;
-  private contentScrollYPosition: number;
+  private waitForSongs?: EffectRef;
+  private menuScrollYPosition = 0;
 
   constructor() {
     // Scroll position bookkeeping only; the prerendered page has nothing to scroll.
@@ -79,27 +95,81 @@ export class MainPageComponent {
     }
 
     effect(() => {
-      this.searchResults();
-      window.scrollTo(0, 0);
+      this.selectedTag();
+      this.searchTerm();
+
+      untracked(() => {
+        if (this.songList.takeChangedByHistory()) {
+          return;
+        }
+
+        this.menuScrollYPosition = 0;
+
+        if (this.showMenu()) {
+          window.scrollTo(0, 0);
+        }
+      });
     });
 
     this.store
       .select(getShowMenu)
-      .pipe(debounceTime(0), takeUntilDestroyed())
+      .pipe(skip(1), takeUntilDestroyed())
       .subscribe((showMenu) => {
-        if (showMenu && this.menuScrollYPosition) {
-          this.contentScrollYPosition = window.scrollY;
-          window.scrollTo(0, this.menuScrollYPosition);
-        } else if (this.contentScrollYPosition) {
-          window.scrollTo(0, this.contentScrollYPosition);
+        const navigation = this.router.currentNavigation();
+
+        if (!showMenu || navigation?.extras.scroll !== 'manual') {
+          return;
         }
+
+        const resumed = resumesList(navigation.extras.state);
+        afterNextRender(() => (resumed ? this.scrollListIntoPlace() : window.scrollTo(0, 0)), {
+          injector: this.injector,
+        });
       });
+
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof Scroll),
+        filter((event) => !event.position && event.scrollBehavior !== 'manual'),
+        filter(() => this.showMenu() && this.openSongId() !== null && this.songList.resumed()),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.revealOpenSongWhenListed());
 
     this.initScrollListener();
   }
 
+  private revealOpenSongWhenListed(): void {
+    this.waitForSongs?.destroy();
+
+    const ref = effect(
+      () => {
+        if (this.songService.songList().length) {
+          ref.destroy();
+          afterNextRender(() => this.revealOpenSong(), { injector: this.injector });
+        }
+      },
+      { injector: this.injector },
+    );
+
+    this.waitForSongs = ref;
+  }
+
+  private scrollListIntoPlace(): void {
+    window.scrollTo(0, this.menuScrollYPosition);
+    this.revealOpenSong();
+  }
+
+  private revealOpenSong(): void {
+    const openSong = this.host.nativeElement.querySelector('.song-container.active');
+
+    if (openSong && !isInView(openSong)) {
+      openSong.scrollIntoView({ block: 'center' });
+    }
+  }
+
   resetSelectedTag() {
-    this.store.dispatch(setSelectedTagAction(0));
+    this.songList.resetTag();
   }
 
   initScrollListener() {
@@ -120,4 +190,10 @@ export class MainPageComponent {
 
     this.snackBar.open(`Песня дададзена ў плэйліст: ${playlist.name}`, 'Зачыніць', { duration: 2000 });
   }
+}
+
+function isInView(element: Element): boolean {
+  const { top, bottom } = element.getBoundingClientRect();
+
+  return top >= window.innerHeight * 0.25 && bottom <= window.innerHeight;
 }

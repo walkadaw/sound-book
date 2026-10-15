@@ -9,9 +9,14 @@
           </p>
           <h1 class="entry-title song-name">{{ selectedSong.title }}</h1>
         </div>
-        @if (tagNames()) {
+        @if (tags().length) {
           <p class="entry-title-meta meta">
-            Тэгі: <span>{{ tagNames() }}</span>
+            Тэгі:
+            @for (tag of tags(); track tag.id) {
+              <button type="button" class="tag-link" (click)="showTag(tag.id)">
+                {{ tag.name }}<span class="cdk-visually-hidden">: усе песні з тэгам</span></button
+              >{{ $last ? '' : ',' }}
+            }
           </p>
         }
         @if (showChord()) {

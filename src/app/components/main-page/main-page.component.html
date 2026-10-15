@@ -4,7 +4,7 @@
   <div class="songs-list">
     @if (songListFiltered.length) {
       @for (song of songListFiltered; track song.id) {
-        <div class="song-container" routerLinkActive="active">
+        <div class="song-container" [class.active]="song.id === openSongId()">
           <a class="song-link" [routerLink]="['/song', song.id, song.title | replaceSpace]">
             <span class="favorite">
               <mat-icon>{{ song.favorite ? 'favorite' : 'favorite_border' }}</mat-icon>

@@ -1,16 +1,16 @@
 import { Component, DOCUMENT, ElementRef, PLATFORM_ID, computed, inject, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { PlatformLocation, isPlatformBrowser } from '@angular/common';
-import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { isPlatformBrowser } from '@angular/common';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { fromEvent } from 'rxjs';
-import { filter, map, skip, startWith } from 'rxjs/operators';
-import { changeShowMenuAction } from '../../redux/actions/settings.actions';
+import { filter, skip } from 'rxjs/operators';
 import { IAppState } from '../../redux/models/IAppState';
 import { getFontSize, getShowMenu } from '../../redux/selector/settings.selector';
 import { HeaderComponent } from '../../components/header/header.component';
 import { MainPageComponent } from '../../components/main-page/main-page.component';
 import { FooterComponent } from '../../components/footer/footer.component';
+import { SongListService } from '../../services/song-list/song-list.service';
 
 // Scrolling less than this either way leaves the header as it is, so a shaky hand does not make it flicker.
 const HEADER_SCROLL_THRESHOLD_PX = 12;
@@ -22,29 +22,22 @@ const HEADER_ALWAYS_SHOWN_PX = 120;
   templateUrl: './main-sound.component.html',
   styleUrls: ['./main-sound.component.scss'],
   imports: [HeaderComponent, MainPageComponent, RouterOutlet, FooterComponent],
+  host: {
+    '(document:keydown.escape)': 'closeSongList($event)',
+  },
 })
 export class MainSoundComponent {
   private store = inject<Store<IAppState>>(Store);
   private router = inject(Router);
   private document = inject(DOCUMENT);
-  private location = inject(PlatformLocation);
   private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private songList = inject(SongListService);
 
   private main = viewChild.required<ElementRef<HTMLElement>>('main');
 
-  private navigate$ = this.router.events.pipe(filter((event) => event instanceof NavigationStart));
-  private isMenuOpen = this.store.selectSignal(getShowMenu);
-  private isRootUrl = toSignal(
-    this.navigate$.pipe(
-      map((value) => value.url),
-      startWith(this.location.pathname),
-      map((url) => url === '/'),
-    ),
-    { requireSync: true },
-  );
+  protected showMenu = this.store.selectSignal(getShowMenu);
 
   protected fontSize = this.store.selectSignal(getFontSize);
-  protected showMenu = computed(() => this.isMenuOpen() || this.isRootUrl());
   // The closed menu lists every song; prerendering it would add ~600 KB of duplicate markup to each song page.
   protected renderMenu = computed(() => this.isBrowser || this.showMenu());
   // The song list keeps its search in view; on the other pages the header gives the screen back to the text.
@@ -52,15 +45,6 @@ export class MainSoundComponent {
   protected headerHidden = computed(() => this.scrolledDown() && !this.showMenu());
 
   constructor() {
-    this.navigate$
-      .pipe(
-        filter(() => this.isMenuOpen()),
-        takeUntilDestroyed(),
-      )
-      .subscribe(() => {
-        this.store.dispatch(changeShowMenuAction(false));
-      });
-
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -101,6 +85,12 @@ export class MainSoundComponent {
 
         lastY = y;
       });
+  }
+
+  protected closeSongList(event: Event): void {
+    if (!event.defaultPrevented) {
+      this.songList.close();
+    }
   }
 
   protected focusMain(event: Event): void {

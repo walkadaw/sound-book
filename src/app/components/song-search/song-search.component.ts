@@ -6,11 +6,10 @@ import { MatIcon } from '@angular/material/icon';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 import { ALL_TAGS, SEARCH_FILTERS } from '../../constants/tag-list';
-import { changeShowMenuAction } from '../../redux/actions/settings.actions';
-import { clearSearchAction, setSearchTermAction } from '../../redux/actions/search.actions';
+import { clearSearchAction, setSearchTermAction, setSelectedTagAction } from '../../redux/actions/search.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { getSearchTerm, getSelectedTag } from '../../redux/selector/search.selector';
-import { getShowMenu } from '../../redux/selector/settings.selector';
+import { SongListService } from '../../services/song-list/song-list.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -28,6 +27,7 @@ export class SongSearchComponent {
   private store = inject<Store<IAppState>>(Store);
   private destroyRef = inject(DestroyRef);
   private hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private songList = inject(SongListService);
 
   private searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
 
@@ -36,7 +36,6 @@ export class SongSearchComponent {
   private readonly filters = SEARCH_FILTERS;
   protected readonly searchTerm = new FormControl('', { nonNullable: true });
   private selectedTagId = this.store.selectSignal(getSelectedTag);
-  private showMenu = this.store.selectSignal(getShowMenu);
   private isFocused = false;
 
   protected readonly selectedFilter = computed(
@@ -56,11 +55,15 @@ export class SongSearchComponent {
       .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe((value) => this.store.dispatch(setSearchTermAction(value)));
 
-    this.destroyRef.onDestroy(() => this.store.dispatch(clearSearchAction()));
+    this.destroyRef.onDestroy(() => {
+      this.store.dispatch(clearSearchAction());
+      this.store.dispatch(setSelectedTagAction(0));
+    });
   }
 
   protected clear(): void {
     this.store.dispatch(clearSearchAction());
+    this.songList.resetTag();
     this.searchTerm.setValue('', { emitEvent: false });
     this.searchInput().nativeElement.focus();
   }
@@ -91,10 +94,7 @@ export class SongSearchComponent {
   }
 
   private openSongMenu(): void {
-    if (!this.showMenu()) {
-      this.store.dispatch(changeShowMenuAction(true));
-    }
-
+    this.songList.open();
     setTimeout(() => this.searchInput().nativeElement.focus());
   }
 }

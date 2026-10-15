@@ -17,6 +17,7 @@ import { IAppState } from '../../redux/models/IAppState';
 import { getShowChord } from '../../redux/selector/settings.selector';
 import { getFavoriteState } from '../../redux/selector/favorite.selector';
 import { toggleFavoriteAction } from '../../redux/actions/favorite.actions';
+import { SongListService } from '../../services/song-list/song-list.service';
 import { PlayList, PlaylistService } from '../../services/playlist/playlist.service';
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SongKeyComponent } from '../song-key/song-key.component';
@@ -51,6 +52,7 @@ export class SongDetailsComponent {
   private snackBar = inject(MatSnackBar);
   private playlistService = inject(PlaylistService);
   private songStats = inject(SongStatsService);
+  private songList = inject(SongListService);
 
   private songId = toSignal(this.route.paramMap.pipe(map((paramMap) => paramMap.get('id'))), { requireSync: true });
   private favoriteState = this.store.selectSignal(getFavoriteState);
@@ -66,16 +68,16 @@ export class SongDetailsComponent {
   });
 
   protected isFavoriteSong = computed(() => this.favoriteState().has(this.selectedSong()?.id));
-  protected tagNames = computed(() => {
+  protected tags = computed(() => {
     const tag = this.selectedSong()?.tag;
 
     if (!tag || Array.isArray(tag)) {
-      return '';
+      return [];
     }
 
     return Object.keys(tag)
-      .map((key) => this.tagNameById[key])
-      .join(', ');
+      .filter((key) => this.tagNameById[key])
+      .map((key) => ({ id: +key, name: this.tagNameById[key] }));
   });
 
   protected showChord = this.store.selectSignal(getShowChord);
@@ -96,6 +98,10 @@ export class SongDetailsComponent {
         untracked(() => this.songStats.record('view', songId));
       }
     });
+  }
+
+  protected showTag(tagId: number): void {
+    this.songList.showTag(tagId, { clearSearch: true });
   }
 
   toggleFavorite(songID: number): void {
