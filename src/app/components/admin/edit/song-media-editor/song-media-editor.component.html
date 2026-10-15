@@ -1,0 +1,93 @@
+<section class="media-editor" aria-labelledby="song-media-editor-title">
+  <h5 id="song-media-editor-title" class="subsection-title">Запісы песні</h5>
+
+  @if (media.error()) {
+    <p role="alert">Не атрымалася загрузіць запісы</p>
+  } @else if (media.isLoading() && !items().length) {
+    <p role="status">Загрузка…</p>
+  } @else {
+    @if (items().length) {
+      <ol class="media-editor__list">
+        @for (item of items(); track item.media.id; let index = $index, first = $first, last = $last) {
+          <li class="media-editor__item">
+            <div class="media-editor__row">
+              <span class="media-editor__text">
+                <a [href]="item.link" target="_blank" rel="noopener">
+                  {{ item.label }}<span class="cdk-visually-hidden"> (адкрыецца ў новай укладцы)</span>
+                </a>
+                <span class="meta">{{ item.details }}</span>
+              </span>
+              <span class="media-editor__actions">
+                <button
+                  mat-icon-button
+                  disabledInteractive
+                  type="button"
+                  [id]="'song-media-up-' + item.media.id"
+                  [attr.aria-label]="'Вышэй: ' + item.label"
+                  [disabled]="first || busy()"
+                  (click)="move(index, -1)"
+                >
+                  <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  disabledInteractive
+                  type="button"
+                  [id]="'song-media-down-' + item.media.id"
+                  [attr.aria-label]="'Ніжэй: ' + item.label"
+                  [disabled]="last || busy()"
+                  (click)="move(index, 1)"
+                >
+                  <mat-icon>arrow_downward</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [attr.aria-label]="'Змяніць: ' + item.label"
+                  [attr.aria-expanded]="editing() === item.media.id"
+                  [attr.aria-controls]="'song-media-form-' + item.media.id"
+                  (click)="edit(item.media.id)"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  disabledInteractive
+                  type="button"
+                  [attr.aria-label]="'Выдаліць: ' + item.label"
+                  [disabled]="busy()"
+                  (click)="remove(item.media, item.label)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </span>
+            </div>
+            <div [id]="'song-media-form-' + item.media.id">
+              @if (editing() === item.media.id) {
+                <app-song-media-form [media]="item.media" [save]="save" (cancelled)="editing.set(null)" />
+              }
+            </div>
+          </li>
+        }
+      </ol>
+    } @else {
+      <p>У песні яшчэ няма запісаў</p>
+    }
+
+    <button
+      mat-stroked-button
+      type="button"
+      aria-controls="song-media-form-new"
+      [attr.aria-expanded]="editing() === 'new'"
+      (click)="edit('new')"
+    >
+      <mat-icon>add</mat-icon>
+      Дадаць запіс
+    </button>
+    <div id="song-media-form-new">
+      @if (editing() === 'new') {
+        <app-song-media-form [save]="save" (cancelled)="editing.set(null)" />
+      }
+    </div>
+  }
+</section>

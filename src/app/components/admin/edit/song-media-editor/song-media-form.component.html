@@ -1,0 +1,80 @@
+<form class="media-form" novalidate (submit)="onSubmit($event)">
+  <mat-form-field class="media-form__wide">
+    <mat-label>Спасылка</mat-label>
+    <input
+      #linkInput
+      matInput
+      type="url"
+      autocomplete="off"
+      [formField]="mediaForm.link"
+      (input)="onLinkInput(linkInput.value)"
+    />
+    <mat-hint>YouTube, Google Drive або https-спасылка на файл</mat-hint>
+    <mat-error>{{ mediaForm.link().errors()[0]?.message }}</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Назва (неабавязкова)</mat-label>
+    <input matInput [formField]="mediaForm.title" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Аўтар (неабавязкова)</mat-label>
+    <input matInput [formField]="mediaForm.author" />
+  </mat-form-field>
+
+  @if (youtubeId(); as videoId) {
+    <app-youtube-preview class="media-form__wide" [videoId]="videoId" [start]="startAt()" (ready)="onPlayerReady()" />
+  }
+
+  <mat-checkbox class="media-form__wide" [formField]="mediaForm.fragment"> Песня — толькі частка запісу </mat-checkbox>
+
+  @for (field of mediaForm.fragment().value() ? times : []; track field.key) {
+    <div class="media-form__time">
+      <mat-form-field>
+        <mat-label>{{ field.label }}{{ field.optional ? ' (неабавязкова)' : '' }}</mat-label>
+        <input matInput inputmode="numeric" autocomplete="off" [formField]="mediaForm[field.key]" />
+        <mat-hint>хв:сс</mat-hint>
+        <mat-error>{{ mediaForm[field.key]().errors()[0]?.message }}</mat-error>
+      </mat-form-field>
+      @if (youtubeId()) {
+        <button mat-stroked-button type="button" [disabled]="!playerReady()" (click)="takeTime(field.key)">
+          {{ field.label }} — цяпер
+        </button>
+        <button
+          mat-button
+          type="button"
+          [disabled]="!playerReady() || (field.key === 'start' ? startAt() : endAt()) === null"
+          (click)="listen(field.key)"
+        >
+          {{ field.key === 'start' ? 'Праслухаць пачатак' : 'Праслухаць канец' }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (fragmentDuration(); as duration) {
+    <p class="media-form__wide meta">Працягласць: {{ formatDuration(duration) }}</p>
+  }
+  @if (!mediaForm.duration().hidden()) {
+    <mat-form-field>
+      <mat-label>Працягласць (неабавязкова)</mat-label>
+      <input matInput inputmode="numeric" autocomplete="off" [formField]="mediaForm.duration" />
+      <mat-hint>хв:сс, для ўсяго запісу</mat-hint>
+      <mat-error>{{ mediaForm.duration().errors()[0]?.message }}</mat-error>
+    </mat-form-field>
+  }
+
+  <div class="media-form__wide" role="alert">
+    @if (saveError()) {
+      <p class="media-form__error">Не атрымалася захаваць запіс</p>
+    }
+  </div>
+
+  <div class="media-form__wide media-form__actions">
+    <button mat-flat-button type="submit" [disabled]="mediaForm().submitting()">
+      {{ media() ? 'Захаваць' : 'Дадаць' }}
+    </button>
+    <button mat-button type="button" (click)="cancelled.emit()">Адмяніць</button>
+  </div>
+</form>

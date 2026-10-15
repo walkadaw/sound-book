@@ -3,8 +3,9 @@ import { SongMedia } from '../../interfaces/song-media';
 export type SongMediaPlayer =
   { type: 'iframe'; url: string } | { type: 'audio' | 'video'; url: string } | { type: 'link'; url: string };
 
-const YOUTUBE_ID = /^[\w-]{11}$/;
-const DRIVE_ID = /^[\w-]+$/;
+export const YOUTUBE_ID = /^[\w-]{11}$/;
+export const DRIVE_ID = /^[\w-]+$/;
+const VIDEO_FILE = /\.(mp4|m4v|webm|mov|ogv)$/i;
 
 /**
  * The iframe URLs end up trusted as resource URLs, so every ref is checked here
@@ -40,15 +41,25 @@ export function songMediaPlayer(media: SongMedia): SongMediaPlayer | null {
       const end = media.endAt ? `,${media.endAt}` : '';
       const fragment = media.startAt || media.endAt ? `#t=${media.startAt ?? 0}${end}` : '';
 
-      return { type: media.kind === 'video' ? 'video' : 'audio', url: media.ref + fragment };
+      return { type: VIDEO_FILE.test(new URL(media.ref).pathname) ? 'video' : 'audio', url: media.ref + fragment };
     }
     default:
       return isHttpsUrl(media.ref) ? { type: 'link', url: media.ref } : null;
   }
 }
 
+export const SOURCE_NAMES: Record<string, string> = {
+  youtube: 'YouTube',
+  gdrive: 'Google Drive',
+  file: 'Файл',
+};
+
 export function formatDuration(seconds: number): string {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const rest = String(seconds % 60).padStart(2, '0');
+
+  return hours ? `${hours}:${String(minutes).padStart(2, '0')}:${rest}` : `${minutes}:${rest}`;
 }
 
 function isHttpsUrl(value: string): boolean {

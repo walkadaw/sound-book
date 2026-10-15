@@ -37,6 +37,7 @@
     </button>
   </div>
 </div>
+<app-song-media-editor [songId]="songID || null" />
 @if (songID) {
   <app-song-history
     [songId]="songID"

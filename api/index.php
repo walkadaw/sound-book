@@ -23,6 +23,36 @@ function start_session(){
 	session_start();
 }
 
+// Admin writes: a signed-in user and a JSON POST, exits with the error status otherwise.
+function read_admin_json(){
+	start_session();
+
+	if (!isset($_SESSION['user_id'])) {
+		http_response_code(403);
+		exit();
+	}
+
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+		http_response_code(405);
+		exit();
+	}
+
+	// A cross-site <form> can only send text/plain or form content types, never application/json.
+	if (stripos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== 0) {
+		http_response_code(415);
+		exit();
+	}
+
+	$data = json_decode(file_get_contents('php://input'), true);
+
+	if (!is_array($data)) {
+		http_response_code(400);
+		exit();
+	}
+
+	return $data;
+}
+
 $db = new db();
 $db = $db->connect();
 $page = trim($_GET["mpage"], "/");
@@ -37,6 +67,9 @@ switch($page){
 	case "song/popular":  include("song/_popular.php"); break;
 	case "song/history":  include("song/_history.php"); break;
 	case "song/media":  include("song/_media.php"); break;
+	case "song/media/save":  include("song/_media_save.php"); break;
+	case "song/media/delete":  include("song/_media_delete.php"); break;
+	case "song/media/order":  include("song/_media_order.php"); break;
 
 	case "auth/login":  include("auth/_login.php"); break;
 	case "auth/check":  include("auth/_check.php"); break;

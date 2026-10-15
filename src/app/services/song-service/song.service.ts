@@ -5,7 +5,7 @@ import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
 import { Song, SongAdd, SongRequest, SongVersion } from '../../interfaces/song';
-import { SongMedia } from '../../interfaces/song-media';
+import { SongMedia, SongMediaDraft } from '../../interfaces/song-media';
 
 @Service()
 export class SongService {
@@ -91,6 +91,28 @@ export class SongService {
 
   getSongMedia(id: number): Observable<SongMedia[]> {
     return this.http.get<SongMedia[]>(`${environment.baseUrl}/song/media`, { params: { id } });
+  }
+
+  // the admin edits the list, so it must not get the service worker's copy when the network is slow
+  getSongMediaWithoutCache(id: number): Observable<SongMedia[]> {
+    return this.http.get<SongMedia[]>(`${environment.baseUrl}/song/media`, {
+      params: { id },
+      headers: { 'ngsw-bypass': '' },
+    });
+  }
+
+  saveSongMedia(songId: number, media: SongMediaDraft): Observable<number> {
+    return this.http
+      .post<{ id: number }>(`${environment.baseUrl}/song/media/save`, { ...media, songId })
+      .pipe(map(({ id }) => id));
+  }
+
+  deleteSongMedia(id: number): Observable<void> {
+    return this.http.post<void>(`${environment.baseUrl}/song/media/delete`, { id });
+  }
+
+  orderSongMedia(songId: number, ids: number[]): Observable<void> {
+    return this.http.post<void>(`${environment.baseUrl}/song/media/order`, { songId, ids });
   }
 
   updateSong(song: SongAdd): Observable<number> {

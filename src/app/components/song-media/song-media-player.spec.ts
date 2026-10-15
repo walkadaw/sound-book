@@ -4,7 +4,6 @@ import { formatDuration, songMediaPlayer } from './song-media-player';
 const media = (overrides: Partial<SongMedia>): SongMedia => ({
   id: 1,
   source: 'youtube',
-  kind: 'video',
   ref: 'nYBfHdbf-6M',
   title: null,
   author: null,
@@ -25,11 +24,11 @@ describe('songMediaPlayer', () => {
   it('gives no player for a ref that could leave the embed URL', () => {
     expect(songMediaPlayer(media({ ref: '../../evil' }))).toBeNull();
     expect(songMediaPlayer(media({ source: 'gdrive', ref: 'id/../x' }))).toBeNull();
-    expect(songMediaPlayer(media({ source: 'file', kind: 'audio', ref: 'javascript:alert(1)' }))).toBeNull();
+    expect(songMediaPlayer(media({ source: 'file', ref: 'javascript:alert(1)' }))).toBeNull();
   });
 
   it('embeds the Google Drive preview', () => {
-    const drive = media({ source: 'gdrive', kind: 'audio', ref: '1Sn1kj8C3iqbcggMhDe2AaJ4Er_1V4QLM' });
+    const drive = media({ source: 'gdrive', ref: '1Sn1kj8C3iqbcggMhDe2AaJ4Er_1V4QLM' });
 
     expect(songMediaPlayer(drive)).toEqual({
       type: 'iframe',
@@ -38,15 +37,22 @@ describe('songMediaPlayer', () => {
   });
 
   it('plays a file with a media fragment', () => {
-    expect(songMediaPlayer(media({ source: 'file', kind: 'audio', ref: 'https://example.com/a.mp3' }))).toEqual({
+    expect(songMediaPlayer(media({ source: 'file', ref: 'https://example.com/a.mp3' }))).toEqual({
       type: 'audio',
       url: 'https://example.com/a.mp3',
     });
-    const file = media({ source: 'file', kind: 'audio', ref: 'https://example.com/a.mp3', startAt: 10 });
+    const file = media({ source: 'file', ref: 'https://example.com/a.mp3', startAt: 10 });
 
     expect(songMediaPlayer(file)).toEqual({
       type: 'audio',
       url: 'https://example.com/a.mp3#t=10',
+    });
+  });
+
+  it('plays a video file by its extension', () => {
+    expect(songMediaPlayer(media({ source: 'file', ref: 'https://example.com/a.MP4?x=1' }))).toEqual({
+      type: 'video',
+      url: 'https://example.com/a.MP4?x=1',
     });
   });
 
@@ -62,5 +68,9 @@ describe('formatDuration', () => {
   it('pads the seconds', () => {
     expect(formatDuration(229)).toBe('3:49');
     expect(formatDuration(36)).toBe('0:36');
+  });
+
+  it('shows the hours of a long recording', () => {
+    expect(formatDuration(9243)).toBe('2:34:03');
   });
 });

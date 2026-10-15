@@ -7,21 +7,16 @@ import { SongMedia } from '../../interfaces/song-media';
 import { NetworkService } from '../../services/network/network.service';
 import { SettingsService } from '../../services/settings/settings.service';
 import { SongService } from '../../services/song-service/song.service';
-import { SongMediaPlayer, formatDuration, songMediaPlayer } from './song-media-player';
+import { SOURCE_NAMES, SongMediaPlayer, formatDuration, songMediaPlayer } from './song-media-player';
 
 interface MediaItem {
   media: SongMedia;
   label: string;
   details: string;
+  icon: 'smart_display' | 'headphones';
   player: SongMediaPlayer;
   frameUrl: SafeResourceUrl | null;
 }
-
-const SOURCE_NAMES: Record<string, string> = {
-  youtube: 'YouTube',
-  gdrive: 'Google Drive',
-  file: 'Аўдыяфайл',
-};
 
 @Component({
   selector: 'app-song-media',
@@ -60,6 +55,8 @@ export class SongMediaComponent {
       details: [item.author, item.duration ? formatDuration(item.duration) : null, SOURCE_NAMES[item.source]]
         .filter(Boolean)
         .join(' · '),
+      // YouTube is always a video; Drive does not tell its files apart, and most of them are audio
+      icon: item.source === 'youtube' || player.type === 'video' ? 'smart_display' : 'headphones',
       player,
       frameUrl: player.type === 'iframe' ? this.sanitizer.bypassSecurityTrustResourceUrl(player.url) : null,
     }));

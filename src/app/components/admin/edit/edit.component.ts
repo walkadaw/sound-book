@@ -1,8 +1,9 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, filter, finalize, map } from 'rxjs/operators';
+import { from, of } from 'rxjs';
+import { debounceTime, filter, finalize, map, switchMap } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -20,6 +21,7 @@ import { SimilarSongDialogComponent } from '../../similar-song-dialog/similar-so
 import { ChordIssuesComponent } from '../chord-issues/chord-issues.component';
 import { EditSongComponent } from './edit-song/edit-song.component';
 import { SongHistoryComponent } from './song-history/song-history.component';
+import { SongMediaEditorComponent } from './song-media-editor/song-media-editor.component';
 
 @Component({
   selector: 'app-edit',
@@ -36,6 +38,7 @@ import { SongHistoryComponent } from './song-history/song-history.component';
     MatButton,
     ChordIssuesComponent,
     SongHistoryComponent,
+    SongMediaEditorComponent,
   ],
 })
 export class EditComponent implements OnInit {
@@ -55,6 +58,8 @@ export class EditComponent implements OnInit {
     text: new FormControl('', { nonNullable: true, validators: Validators.required }),
     tags: new FormGroup(this.setTag(() => new FormControl(false, { nonNullable: true }))),
   });
+
+  private mediaEditor = viewChild(SongMediaEditorComponent);
 
   protected readonly saving = signal(false);
   protected readonly historyReloadKey = signal(0);
@@ -123,17 +128,29 @@ export class EditComponent implements OnInit {
   private saveSong(song: SongAdd): void {
     this.saving.set(true);
 
+    const isCreating = !this.songID;
+
+    // a new song's records can only be stored once it has an id; the duplicate dialog may also pick an existing song
     this.songService
       .updateSong(song)
       .pipe(
+        switchMap((id) =>
+          (isCreating ? from(this.mediaEditor()?.saveDrafts(id) ?? of(0)) : of(0)).pipe(
+            map((unsavedMedia) => ({ id, unsavedMedia })),
+          ),
+        ),
         finalize(() => this.saving.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (id) => {
-          this.snackBar.open(song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена', 'Зачыніць', {
-            duration: 2000,
-          });
+        next: ({ id, unsavedMedia }) => {
+          if (unsavedMedia) {
+            this.snackBar.open(`Песня захавана, але не захаваліся запісы: ${unsavedMedia}`, 'Зачыніць');
+          } else {
+            this.snackBar.open(song.id ? 'Песня Успешно изменена' : 'Песня Успешно добавлена', 'Зачыніць', {
+              duration: 2000,
+            });
+          }
 
           const selectedTags = new Set(song.tag.split(','));
 

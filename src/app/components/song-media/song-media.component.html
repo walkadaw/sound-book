@@ -37,13 +37,7 @@
               (click)="toggle(item.media.id)"
             >
               <mat-icon class="media__icon" aria-hidden="true">
-                {{
-                  openId() === item.media.id
-                    ? 'expand_less'
-                    : item.media.kind === 'video'
-                      ? 'smart_display'
-                      : 'headphones'
-                }}
+                {{ openId() === item.media.id ? 'expand_less' : item.icon }}
               </mat-icon>
               <span class="media__text">
                 <span class="media__label">{{ item.label }}</span>

@@ -1,0 +1,39 @@
+.media-editor {
+  margin: 24px 0;
+}
+
+.media-editor__list {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.media-editor__item {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.media-editor__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.media-editor__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.media-editor__actions {
+  display: flex;
+  flex: none;
+}
+
+app-song-media-form {
+  display: block;
+  margin: 8px 0 16px;
+}

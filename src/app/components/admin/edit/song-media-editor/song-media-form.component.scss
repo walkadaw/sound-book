@@ -1,0 +1,35 @@
+.media-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  align-items: start;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.media-form__wide {
+  grid-column: 1 / -1;
+}
+
+.media-form__time {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+
+  mat-form-field {
+    flex: 1 1 100%;
+  }
+}
+
+.media-form__error {
+  margin: 0;
+  color: var(--mat-sys-error);
+}
+
+.media-form__actions {
+  display: flex;
+  gap: 8px;
+}
