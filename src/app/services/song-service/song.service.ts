@@ -5,6 +5,7 @@ import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
 import { Song, SongAdd, SongRequest, SongVersion } from '../../interfaces/song';
+import { SongMedia } from '../../interfaces/song-media';
 
 @Service()
 export class SongService {
@@ -86,6 +87,10 @@ export class SongService {
       params: { id },
       headers: { 'ngsw-bypass': '' },
     });
+  }
+
+  getSongMedia(id: number): Observable<SongMedia[]> {
+    return this.http.get<SongMedia[]>(`${environment.baseUrl}/song/media`, { params: { id } });
   }
 
   updateSong(song: SongAdd): Observable<number> {

@@ -10,6 +10,11 @@
     </mat-slide-toggle>
   </div>
 }
+<div class="row" (click)="$event.stopPropagation()">
+  <mat-slide-toggle labelPosition="before" [checked]="showMedia()" (change)="toggleMedia($event)">
+    Паказваць запісы песні:
+  </mat-slide-toggle>
+</div>
 <div class="row row--font" (click)="$event.stopPropagation()">
   <span id="font-size-label">Памер шрыфта:</span>
   <div class="font-size" role="group" aria-labelledby="font-size-label">

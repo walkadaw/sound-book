@@ -5,6 +5,7 @@ export const showChordAction = createAction('[settings] chord', (showChord: bool
 export const chordNotationAction = createAction('[settings] chordNotation', (chordNotation: ChordNotation) => ({
   chordNotation,
 }));
+export const showMediaAction = createAction('[settings] media', (showMedia: boolean) => ({ showMedia }));
 export const changeFontSizeAction = createAction('[settings] change font size', (fontSize: number) => ({ fontSize }));
 
 export const changeShowMenuAction = createAction('[UI] change show menu', (showMenu: boolean) => ({ showMenu }));

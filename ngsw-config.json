@@ -47,6 +47,18 @@
       }
     },
     {
+      "name": "song-media",
+      "urls": [
+        "/api/song/media"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 1000,
+        "maxAge": "30d",
+        "timeout": "5s"
+      }
+    },
+    {
       "name": "liturgy",
       "urls": [
         "/api/liturgy/**"

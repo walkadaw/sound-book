@@ -19,6 +19,7 @@ export class SongViewSettingsComponent {
   private settings = inject(SettingsService);
 
   protected showChord = this.settings.showChord;
+  protected showMedia = this.settings.showMedia;
   private fontSize = this.settings.fontSize;
 
   protected fontSizePercent = computed(() => Math.round(this.fontSize() * 100));
@@ -32,6 +33,10 @@ export class SongViewSettingsComponent {
 
   protected toggleShortChord(event: MatSlideToggleChange): void {
     this.settings.setChordNotation(event.checked ? 'short' : 'full');
+  }
+
+  protected toggleMedia(event: MatSlideToggleChange): void {
+    this.settings.setShowMedia(event.checked);
   }
 
   protected changeFontSize(direction: 1 | -1): void {

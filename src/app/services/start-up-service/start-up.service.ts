@@ -7,6 +7,7 @@ import {
   changeShowMenuAction,
   chordNotationAction,
   showChordAction,
+  showMediaAction,
 } from '../../redux/actions/settings.actions';
 import { IAppState } from '../../redux/models/IAppState';
 import { ChordNotation } from '../chord/chord.model';
@@ -65,11 +66,13 @@ export class StartUpService {
     return new Promise<void>((resolve) => {
       const fontSize = +window.localStorage.getItem('fontSize') || 1;
       const showChord = window.localStorage.getItem('showChord') !== '0';
+      const showMedia = window.localStorage.getItem('showMedia') !== '0';
       const chordNotation: ChordNotation = window.localStorage.getItem('chordNotation') === 'short' ? 'short' : 'full';
       const showMenu = window.location.pathname === '/';
 
       this.store.dispatch(changeFontSizeAction(fontSize));
       this.store.dispatch(showChordAction(showChord));
+      this.store.dispatch(showMediaAction(showMedia));
       this.store.dispatch(chordNotationAction(chordNotation));
       this.store.dispatch(changeShowMenuAction(showMenu));
       resolve();

@@ -5,4 +5,5 @@ export interface MainSettings {
   chordNotation: ChordNotation;
   fontSize: number;
   showMenu: boolean;
+  showMedia: boolean;
 }

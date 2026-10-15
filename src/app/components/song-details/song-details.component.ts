@@ -22,6 +22,7 @@ import { PlayList, PlaylistService } from '../../services/playlist/playlist.serv
 import { PlaylistMenuComponent } from '../playlist/playlist-menu/playlist-menu.component';
 import { SongKeyComponent } from '../song-key/song-key.component';
 import { SongLyricsComponent } from '../song-lyrics/song-lyrics.component';
+import { SongMediaComponent } from '../song-media/song-media.component';
 import { SongViewSettingsComponent } from '../song-view-settings/song-view-settings.component';
 
 export interface SelectedSong extends Song {
@@ -42,6 +43,7 @@ export interface SelectedSong extends Song {
     PlaylistMenuComponent,
     SongKeyComponent,
     SongLyricsComponent,
+    SongMediaComponent,
     SongViewSettingsComponent,
   ],
 })

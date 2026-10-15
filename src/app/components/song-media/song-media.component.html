@@ -1,0 +1,83 @@
+@if (items().length) {
+  <section class="media" aria-labelledby="song-media-title">
+    <h2 id="song-media-title" class="subsection-title">Паслухаць</h2>
+    @if (!online()) {
+      <p class="media__offline meta">Здаецца, у вас знік інтэрнэт. Запісы можна будзе паслухаць, калі ён з’явіцца.</p>
+    }
+    <ul class="media__list">
+      @for (item of items(); track item.media.id) {
+        <li>
+          @if (!online() && openId() !== item.media.id) {
+            <div class="media__item media__item--offline">
+              <mat-icon class="media__icon" aria-hidden="true">cloud_off</mat-icon>
+              <span class="media__text">
+                <span class="media__label">{{ item.label }}</span>
+                @if (item.details) {
+                  <span class="meta">{{ item.details }}</span>
+                }
+              </span>
+            </div>
+          } @else if (item.player.type === 'link') {
+            <a class="media__item" [href]="item.player.url" target="_blank" rel="noopener">
+              <mat-icon class="media__icon" aria-hidden="true">open_in_new</mat-icon>
+              <span class="media__text">
+                <span class="media__label">{{ item.label }}</span>
+                @if (item.details) {
+                  <span class="meta">{{ item.details }}</span>
+                }
+              </span>
+              <span class="cdk-visually-hidden">(адкрыецца ў новай укладцы)</span>
+            </a>
+          } @else {
+            <button
+              type="button"
+              class="media__item"
+              [attr.aria-expanded]="openId() === item.media.id"
+              [attr.aria-controls]="'song-media-' + item.media.id"
+              (click)="toggle(item.media.id)"
+            >
+              <mat-icon class="media__icon" aria-hidden="true">
+                {{
+                  openId() === item.media.id
+                    ? 'expand_less'
+                    : item.media.kind === 'video'
+                      ? 'smart_display'
+                      : 'headphones'
+                }}
+              </mat-icon>
+              <span class="media__text">
+                <span class="media__label">{{ item.label }}</span>
+                @if (item.details) {
+                  <span class="meta">{{ item.details }}</span>
+                }
+              </span>
+            </button>
+            <div [id]="'song-media-' + item.media.id">
+              @if (openId() === item.media.id) {
+                @switch (item.player.type) {
+                  @case ('iframe') {
+                    <iframe
+                      class="media__frame"
+                      [src]="item.frameUrl"
+                      [title]="item.label"
+                      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                      referrerpolicy="strict-origin-when-cross-origin"
+                    ></iframe>
+                  }
+                  @case ('audio') {
+                    <audio class="media__audio" controls autoplay preload="none" [src]="item.player.url">
+                      <a [href]="item.player.url" target="_blank" rel="noopener">Адкрыць запіс</a>
+                    </audio>
+                  }
+                  @case ('video') {
+                    <video class="media__frame" controls autoplay preload="none" [src]="item.player.url"></video>
+                  }
+                }
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+}
