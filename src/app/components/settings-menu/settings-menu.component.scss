@@ -43,7 +43,7 @@ mat-slide-toggle {
 
 mat-button-toggle-group {
   --mat-button-toggle-height: 32px;
-  --mat-button-toggle-label-text-size: 15px;
+  --mat-button-toggle-label-text-size: 0.875rem;
   flex-shrink: 0;
 
   ::ng-deep .mat-button-toggle-label-content {

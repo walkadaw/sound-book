@@ -172,8 +172,7 @@
     &.selected {
       border-color: color-mix(in srgb, currentColor 40%, transparent);
       background-color: color-mix(in srgb, currentColor 5%, transparent);
-      // Arsenal has no medium weight
-      font-weight: 700;
+      font-weight: 500;
     }
   }
 }

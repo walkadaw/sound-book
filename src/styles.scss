@@ -16,8 +16,8 @@ html {
 
     @include mat.theme((
         color: mat.$azure-palette,
-        // The paper songbook's font; the fallback keeps the text sans-serif when the webfont can't load.
-        typography: (plain-family: (Arsenal, sans-serif), brand-family: (Arsenal, sans-serif)),
+        // The fallback keeps the text sans-serif when the webfont can't load.
+        typography: (plain-family: ('Golos Text', sans-serif), brand-family: ('Golos Text', sans-serif)),
         density: 0,
     ));
 
@@ -31,10 +31,7 @@ html {
         surface-container-high: light-dark(#f0f0f0, #292a2c),
         surface-container-highest: light-dark(#ebebeb, #343537),
         outline-variant: light-dark(#e0e0e0, #44474e),
-        // Arsenal is narrower and its lowercase shorter than Roboto's, so the M3 sizes come out small:
-        // 16px reads as the buttons', menus' and labels' 14px Roboto did.
-        label-large-size: 1rem,
-        body-medium-size: 1rem,
+        // M3's 12px is below the 14px minimum.
         body-small-size: 0.875rem,
     ));
 
@@ -47,8 +44,8 @@ html {
         divider-bottom-spacing: 0,
     ));
 
-    // The text face is the paper songbook's; headings keep a system sans-serif.
-    --app-font-text: Arsenal, Helvetica, Arial, sans-serif;
+    // Headings keep a system sans-serif.
+    --app-font-text: 'Golos Text', Helvetica, Arial, sans-serif;
     --app-font-heading: Helvetica, Arial, sans-serif;
     // In em, so inside <main> they follow the reader's font size setting.
     --app-fs-page-title: 1.8em;
@@ -197,7 +194,7 @@ main {
     flex: 0 0 100%;
     display: flex;
     justify-content: space-between;
-    font-size: 1em;
+    font-size: .93em;
     cursor: pointer;
     align-items: center;
     border-bottom: 1px solid var(--mat-sys-outline-variant);
