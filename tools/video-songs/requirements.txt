@@ -1,0 +1,10 @@
+# transcribe.py decodes audio itself because faster-whisper 1.2.1 passes an argument PyAV 19 no longer accepts
+faster-whisper==1.2.1
+ctranslate2==4.8.3
+av==19.0.1
+numpy==2.5.4
+rapidfuzz==3.14.6
+nvidia-cublas-cu12==12.9.2.10
+nvidia-cudnn-cu12==9.27.0.42
+# left unpinned: run.py upgrades it before each download, since YouTube keeps breaking older releases
+yt-dlp

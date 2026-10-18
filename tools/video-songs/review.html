@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Праверка песень у відэа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a header strip, then the clip list on the left and the selected clip (video, timing, verdict, text) on the right. */
+:root {
+  --bg: #f6f7fb; --surface: #ffffff; --ink: #1b2233; --muted: #5b6478; --line: #dde1ec;
+  --accent: #2f55b5; --accent-soft: #e6ecfa;
+  --yes: #1f7a4a; --yes-soft: #e1f3e8; --no: #b3322b; --no-soft: #fbe5e3; --other: #8a5a00; --other-soft: #fbf0d9;
+  --font-display: "Literata", "PT Serif", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151f; --surface: #1a2030; --ink: #e7eaf3; --muted: #9aa3b8; --line: #2c3447;
+    --accent: #8eaaf5; --accent-soft: #233056;
+    --yes: #6fd39b; --yes-soft: #17352a; --no: #f08b84; --no-soft: #3d1f1d; --other: #e8bb5c; --other-soft: #3a2e14;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151f; --surface: #1a2030; --ink: #e7eaf3; --muted: #9aa3b8; --line: #2c3447;
+  --accent: #8eaaf5; --accent-soft: #233056;
+  --yes: #6fd39b; --yes-soft: #17352a; --no: #f08b84; --no-soft: #3d1f1d; --other: #e8bb5c; --other-soft: #3a2e14;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); }
+h1, h2 { font-family: var(--font-display); font-weight: 650; margin: 0; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; color: inherit; }
+
+.app { display: grid; grid-template-rows: auto 1fr; height: 100vh; height: 100dvh; }
+.head { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.head h1 { font-size: 1.2rem; }
+.progress { display: flex; align-items: center; gap: 10px; flex: 1 1 260px; }
+.meter { flex: 1 1 140px; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; display: flex; }
+.meter span { height: 100%; }
+.m-yes { background: var(--yes); } .m-no { background: var(--no); } .m-other { background: var(--other); } .m-new { background: var(--accent); }
+.count { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-size: 13px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+.cols { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); min-height: 0; }
+.list { overflow: auto; border-right: 1px solid var(--line); padding: 8px; display: grid; align-content: start; gap: 4px; }
+.year { font: 600 12px var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 10px 8px 2px; }
+.item { display: grid; grid-template-columns: auto 1fr; gap: 0 10px; text-align: left; width: 100%; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 8px; cursor: pointer; }
+.item[data-v="yes"] { border-left-color: var(--yes); }
+.item[data-v="no"] { border-left-color: var(--no); }
+.item[data-v="other"] { border-left-color: var(--other); }
+.item[data-v="new"] { border-left-color: var(--accent); }
+.item[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.item .t { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); padding-top: 1px; }
+.item .n { font: 500 12px var(--font-mono); color: var(--muted); margin-right: 4px; }
+.item .s { font-weight: 500; }
+.item .sub { grid-column: 2; font-size: 12px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; vertical-align: 1px; }
+.dot.high { background: var(--yes); } .dot.mid { background: var(--other); } .dot.low { background: var(--no); } .dot.none { background: var(--muted); }
+
+.marks { display: inline-flex; gap: 3px; align-items: center; }
+.pm { width: 9px; height: 9px; border-radius: 2px; border: 1px solid var(--muted); }
+.pm[data-v="yes"] { background: var(--yes); border-color: var(--yes); }
+.pm[data-v="no"] { background: var(--no); border-color: var(--no); }
+.pm[data-v="other"] { background: var(--other); border-color: var(--other); }
+.pm[data-v="new"] { background: var(--accent); border-color: var(--accent); }
+.perf-list { display: grid; gap: 6px; }
+.perf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; text-align: left; padding: 7px 10px; background: var(--bg); border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 8px; cursor: pointer; }
+.perf[data-v="yes"] { border-left-color: var(--yes); }
+.perf[data-v="no"] { border-left-color: var(--no); }
+.perf[data-v="other"] { border-left-color: var(--other); }
+.perf[data-v="new"] { border-left-color: var(--accent); }
+.perf[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.perf .py { font-weight: 600; }
+.perf .pt { font: 500 14px var(--font-mono); font-variant-numeric: tabular-nums; }
+.perf .pc, .perf .pv { font-size: 13px; color: var(--muted); }
+.card[hidden] { display: none; }
+a.ghostbtn { color: var(--ink); text-decoration: none; }
+.onsite { color: var(--ink); }
+.onsite[data-many="true"] { color: var(--other); font-weight: 600; }
+.site-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.site-item { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 6px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+.site-item[data-playing="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.site-item .st { font-weight: 500; flex: 1 1 14em; min-width: 0; }
+.site-item .sm { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+.site-item .sn { font-size: 13px; color: var(--other); }
+.result { margin-top: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 10px; }
+.result h2 { font-size: 1.05rem; }
+.stats { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.stats b { font: 650 1.2rem var(--font-display); color: var(--ink); margin-right: 3px; }
+textarea { width: 100%; min-height: 160px; font: 12px/1.5 var(--font-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; resize: vertical; }
+.btn { background: var(--accent); color: var(--surface); border: 0; border-radius: 6px; padding: 7px 13px; font-weight: 600; cursor: pointer; }
+.status { font-size: 13px; color: var(--muted); }
+
+.detail { overflow: auto; padding: 14px 18px 40px; display: grid; align-content: start; gap: 14px; }
+.d-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.d-head h2 { font-size: 1.35rem; }
+.d-head .n { font: 500 14px var(--font-mono); color: var(--muted); }
+.d-meta { font-size: 13px; color: var(--muted); }
+.nav { margin-left: auto; display: flex; gap: 6px; }
+.ghostbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+.pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.left-col { display: grid; gap: 12px; min-width: 0; }
+.frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; }
+.frame iframe, .frame #yt { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 10px; }
+.card h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.timing { display: grid; gap: 8px; }
+.trow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.trow label { width: 4.2em; font-size: 14px; }
+.trow input { width: 6.4em; font: 500 14px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
+.trow input[data-changed="true"] { border-color: var(--other); }
+.step { border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 3px 7px; font: 500 12px var(--font-mono); cursor: pointer; }
+.now { font: 500 13px var(--font-mono); color: var(--muted); }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.verdict { display: flex; flex-wrap: wrap; gap: 6px; }
+.vbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 6px 11px; cursor: pointer; }
+.vbtn[data-k="yes"][aria-pressed="true"] { background: var(--yes-soft); border-color: var(--yes); color: var(--yes); font-weight: 600; }
+.vbtn[data-k="no"][aria-pressed="true"] { background: var(--no-soft); border-color: var(--no); color: var(--no); font-weight: 600; }
+.vbtn[data-k="other"][aria-pressed="true"] { background: var(--other-soft); border-color: var(--other); color: var(--other); font-weight: 600; }
+.vbtn[data-k="new"][aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.extra { display: flex; flex-wrap: wrap; gap: 8px; }
+.extra label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+.extra input { font: inherit; font-size: 14px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.extra .num { width: 7em; }
+.extra label:last-child { flex: 1 1 18em; }
+.extra .note { width: 100%; }
+
+.texts { min-width: 0; display: grid; gap: 12px; position: sticky; top: 0; }
+.texts h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.heard-list { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px; max-height: 34dvh; overflow: auto; display: grid; gap: 1px; }
+.hl { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 3px 6px; border-radius: 6px; cursor: pointer; text-align: left; background: none; border: 0; }
+.hl .ht { font: 500 12px var(--font-mono); color: var(--muted); padding-top: 2px; }
+.hl.out { opacity: .55; }
+.hl[aria-current="true"] { background: var(--accent-soft); }
+.lyrics { min-width: 0; display: grid; gap: 6px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 3px 9px; font-size: 13px; cursor: pointer; }
+.tab[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.lyrics pre { white-space: pre-wrap; margin: 0; font: 15px/1.6 var(--font-body); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; max-height: calc(66dvh - 190px); min-height: 200px; overflow: auto; }
+.empty { color: var(--muted); padding: 30px; }
+
+@media (max-width: 1150px) { .pair { grid-template-columns: 1fr; } .texts { position: static; } .lyrics pre { max-height: none; } }
+@media (max-width: 760px) {
+  .app { height: auto; display: block; }
+  .cols { grid-template-columns: 1fr; }
+  .detail { order: -1; overflow: visible; padding: 12px 16px; }
+  .list { overflow: visible; border-right: 0; padding: 8px 16px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <h1 id="page-title">Праверка песень</h1>
+    <div class="progress">
+      <div class="meter" aria-hidden="true"><span class="m-yes" id="m-yes"></span><span class="m-other" id="m-other"></span><span class="m-new" id="m-new"></span><span class="m-no" id="m-no"></span></div>
+      <span class="count" id="count" aria-live="polite"></span>
+    </div>
+    <div class="filters" role="group" aria-label="Фильтр">
+      <button class="chip" data-f="all" aria-pressed="true">Все</button>
+      <button class="chip" data-f="todo" aria-pressed="false">Не отмечены</button>
+      <span id="video-chips" style="display: contents"></span>
+      <button class="chip" data-f="low" aria-pressed="false">Сомнительные</button>
+      <button class="chip" data-f="none" aria-pressed="false" id="chip-none">Без совпадения</button>
+    </div>
+    <datalist id="song-options"></datalist>
+  </header>
+
+  <div class="cols">
+    <nav class="list" id="list" aria-label="Фрагменты"></nav>
+    <main class="detail" id="detail" aria-live="off">
+      <div class="pair">
+        <div class="left-col">
+          <div class="d-head" id="d-head"></div>
+          <section class="card" id="perfs" aria-label="Исполнения"></section>
+          <div class="frame"><div id="yt"></div></div>
+          <section class="card" id="site" aria-labelledby="site-h" hidden></section>
+          <section class="card timing" aria-labelledby="timing-h">
+            <h3 id="timing-h">Время выбранного исполнения</h3>
+            <div id="timing"></div>
+          </section>
+          <section class="card" aria-labelledby="verdict-h">
+            <h3 id="verdict-h">Отметка выбранного исполнения</h3>
+            <div id="verdict"></div>
+          </section>
+        </div>
+        <div class="texts">
+          <section class="heard" aria-labelledby="heard-h">
+            <h3 id="heard-h">Распознано в видео</h3>
+            <div class="heard-list" id="heard" tabindex="0"></div>
+          </section>
+          <section class="lyrics" aria-labelledby="lyrics-h">
+            <h3 id="lyrics-h">Текст из песенника</h3>
+            <div id="lyrics"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const DATA = __DATA__;
+const VIDEOS = Object.keys(DATA.videos);
+const STORE_KEY = "song-review:" + VIDEOS.join(",");
+const CONF = { high: "высокая", mid: "средняя", low: "низкая", none: "нет в песеннике" };
+const LABEL = { yes: "Совпадает", no: "Не совпадает", other: "Другая песня" };
+// A stretch that matched no song is either a song to add, one already in the songbook, or not a song at all.
+const LABEL_NONE = { new: "Новая песня", other: "Есть в песеннике", no: "Не песня" };
+const state = {};            // clip id -> {v, other, title, note, start, end}
+const shown = {};            // clip id -> song id whose text is shown
+let filter = "all";
+let current = null;
+
+const byId = Object.fromEntries(DATA.clips.map(c => [c.id, c]));
+function ts(t) { t = Math.max(0, Math.round(t)); return `${Math.floor(t / 3600)}:${String(Math.floor(t % 3600 / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; }
+function parseTs(v) {
+  const p = v.trim().split(":").map(Number);
+  if (!p.length || p.some(x => !Number.isFinite(x) || x < 0)) return null;
+  return p.reduce((a, x) => a * 60 + x, 0);
+}
+function songName(id) { return DATA.titles[id] || ""; }
+// Clips without a song each form their own group, keyed by video and time.
+function keyOf(c) { return c.song || `x${VIDEOS.indexOf(c.year)}-${c.start}`; }
+function itemOf(key) { return document.querySelector(`.item[data-song="${CSS.escape(key)}"]`); }
+function label(c, v) { return (c.song ? LABEL : LABEL_NONE)[v]; }
+function clipName(c) {
+  if (c.song) return songName(c.song);
+  const s = state[c.id] || {};
+  if (s.v === "other" && s.other) return `→ №${s.other} ${songName(s.other)}`;
+  if (s.v === "new" && s.title) return s.title;
+  return s.v === "no" ? "Не песня" : "Не найдено в песеннике";
+}
+function songIdOf(v) { const m = String(v || "").match(/^\s*№?\s*(\d+)/); return m ? m[1] : ""; }
+function startOf(c) { const s = state[c.id]; return s && Number.isFinite(s.start) ? s.start : c.start; }
+function endOf(c) { const s = state[c.id]; return s && Number.isFinite(s.end) ? s.end : c.end; }
+function retimed(c) { return startOf(c) !== c.start || endOf(c) !== c.end; }
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v);
+  }
+  for (const k of kids) if (k != null) n.append(k);
+  return n;
+}
+
+function loadLocal() { try { Object.assign(state, JSON.parse(localStorage.getItem(STORE_KEY) || "{}")); } catch (e) { /* storage unavailable */ } }
+function saveLocal() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable */ } }
+let saveTimer = null;
+function persist() {
+  saveLocal();
+  // One write per pause in typing; the server keeps the whole set in one file.
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      const r = await fetch("/verdicts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(state) });
+      setStatus(r.ok ? "Сохранено" : "Не удалось сохранить, отметки остались в этом браузере");
+    } catch (e) { setStatus("Сервер не отвечает, отметки остались в этом браузере"); }
+  }, 400);
+}
+function setStatus(t) { const s = document.getElementById("save-status"); if (s) s.textContent = t; }
+function patch(id, fields) { state[id] = { ...(state[id] || {}), ...fields }; persist(); }
+
+function visible(c) {
+  if (filter === "all") return true;
+  if (filter === "todo") return !(state[c.id] && state[c.id].v);
+  if (filter === "low") return c.conf === "low" || c.pass === 2;
+  if (filter === "none") return !c.song;
+  return String(c.year) === filter;
+}
+
+// ---------- left: list, one row per song ----------
+function byOrder(a, b) { return VIDEOS.indexOf(a.year) - VIDEOS.indexOf(b.year) || a.start - b.start; }
+function perfsOf(key) { return DATA.clips.filter(c => keyOf(c) === key).sort(byOrder); }
+function groups() {
+  const map = new Map();
+  for (const c of DATA.clips) if (visible(c)) { const k = keyOf(c); if (!map.has(k)) map.set(k, []); map.get(k).push(c); }
+  // Songs by number, then the unmatched stretches in the order they play.
+  return [...map.entries()].map(([key, clips]) => [key, clips.sort(byOrder)])
+    .sort((a, b) => (!a[1][0].song - !b[1][0].song) || (a[1][0].song ? Number(a[0]) - Number(b[0]) : byOrder(a[1][0], b[1][0])));
+}
+const RANK = { high: 3, mid: 2, low: 1, none: 0 };
+function plural(n) { return n % 10 === 1 && n % 100 !== 11 ? "исполнение" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "исполнения" : "исполнений"; }
+function firstTodo(clips) { return clips.find(c => !(state[c.id] && state[c.id].v)) || clips[0]; }
+
+function renderList() {
+  const list = document.getElementById("list");
+  const keep = list.scrollTop;
+  list.replaceChildren();
+  const gs = groups();
+  const matched = gs.filter(g => g[1][0].song);
+  if (matched.length) list.append(el("div", { class: "year", text: `${matched.length} песен · ${matched.reduce((a, g) => a + g[1].length, 0)} исполнений` }));
+  for (const [song, clips] of matched) list.append(groupItem(song, clips));
+  const rest = gs.filter(g => !g[1][0].song);
+  if (rest.length) list.append(el("div", { class: "year", text: `Без совпадения · ${rest.length}` }));
+  for (const [key, clips] of rest) list.append(groupItem(key, clips));
+  if (!gs.length) list.append(el("p", { class: "status", text: "В этом фильтре ничего не осталось." }));
+  list.append(resultBox());
+  list.scrollTop = keep;
+  summary();
+}
+function groupItem(song, clips) {
+  const all = perfsOf(song);
+  const marks = all.map(c => (state[c.id] && state[c.id].v) || "");
+  const same = marks.every(m => m && m === marks[0]) ? marks[0] : "";
+  const best = all.reduce((a, c) => RANK[c.conf] > RANK[a] ? c.conf : a, all[0].song ? "low" : "none");
+  const years = VIDEOS.map(y => [y, all.filter(c => c.year === y).length]).filter(([, n]) => n).map(([y, n]) => n > 1 ? `${y} ×${n}` : `${y}`);
+  const done = marks.filter(Boolean).length;
+  const first = all[0];
+  return el("button", {
+    class: "item", type: "button", "data-song": song, "data-v": same, "aria-current": String(Boolean(current) && keyOf(byId[current]) === song),
+    onclick: () => select(firstTodo(clips).id, true),
+  },
+    el("span", { class: "t", text: first.song ? `${all.length}×` : ts(startOf(first)) }),
+    el("span", {}, first.song ? el("span", { class: "n", text: `№${song}` }) : null, el("span", { class: "s", text: clipName(first) })),
+    el("span", { class: "sub" },
+      el("span", {}, el("span", { class: `dot ${best}` }), CONF[best]),
+      first.song && siteMedia[song] ? el("span", { class: "onsite", "data-many": String(siteMedia[song].length >= MANY), text: `на сайте: ${siteMedia[song].length}` }) : null,
+      VIDEOS.length > 1 ? el("span", { text: years.join(", ") }) : null,
+      el("span", { class: "marks", "aria-label": `отмечено ${done} из ${all.length}` },
+        ...all.map(c => el("span", { class: "pm", "data-v": (state[c.id] && state[c.id].v) || "", title: `${c.year} ${ts(startOf(c))}` })))));
+}
+function refreshItem(id) {
+  const song = keyOf(byId[id]);
+  const old = itemOf(song);
+  const g = groups().find(([s]) => s === song);
+  if (old && g) old.replaceWith(groupItem(song, g[1]));
+  summary();
+}
+
+// ---------- right: selected song and performance ----------
+function select(id, play) {
+  const prev = current;
+  current = id;
+  if (prev) refreshItem(prev);
+  refreshItem(id);
+  renderDetail();
+  if (play) playRange(startOf(byId[id]), endOf(byId[id]));
+  else cue();
+}
+function step(dir) {
+  const gs = groups();
+  const i = gs.findIndex(([s]) => s === keyOf(byId[current]));
+  const next = gs[i + dir];
+  if (!next) return;
+  select(firstTodo(next[1]).id, true);
+  itemOf(next[0])?.scrollIntoView({ block: "nearest" });
+}
+function renderPerfs() {
+  const c = byId[current];
+  const all = perfsOf(keyOf(c));
+  const box = document.getElementById("perfs");
+  box.replaceChildren(el("h3", { id: "perfs-h", text: `Исполнения: ${all.length} ${plural(all.length)}` }));
+  const row = el("div", { class: "perf-list", role: "group", "aria-labelledby": "perfs-h" });
+  for (const p of all) {
+    const s = state[p.id] || {};
+    row.append(el("button", { class: "perf", type: "button", "data-v": s.v || "", "aria-pressed": String(p.id === current),
+      onclick: () => select(p.id, true) },
+      VIDEOS.length > 1 ? el("span", { class: "py", text: String(p.year) }) : null,
+      el("span", { class: "pt", text: `${ts(startOf(p))} – ${ts(endOf(p))}` }),
+      el("span", { class: "pc" }, el("span", { class: `dot ${p.conf}` }), CONF[p.conf] + (p.pass === 2 ? ", 2-й проход" : "")),
+      el("span", { class: "pv", text: s.v ? (s.v === "other" && s.other ? `→ №${s.other}` : label(p, s.v)) : "не отмечено" }),
+      retimed(p) ? el("span", { class: "pc", text: "время изменено" }) : null));
+  }
+  box.append(row);
+}
+
+function renderDetail() {
+  const c = byId[current];
+  renderHead();
+  renderPerfs();
+  renderSite();
+  renderTiming();
+  renderVerdict();
+  renderLyrics();
+  renderHeard(true);
+}
+
+// ---------- recordings the site already has ----------
+const MANY = 3;              // from this many recordings a weak performance is better left out
+const siteMedia = {};        // song id -> the site's recordings of it, once loaded
+let sitePlaying = null;      // the site recording in the player, while one plays instead of this video
+function siteSong(c) {
+  const s = state[c.id];
+  return s && s.v === "other" && DATA.titles[s.other] ? s.other : c.song;
+}
+async function loadSiteMedia() {
+  const ids = [...new Set(DATA.clips.map(c => c.song).filter(Boolean))];
+  // A few requests at a time: each one goes through the local server to the site.
+  const worker = async () => {
+    for (let id; (id = ids.shift());) await fetchSiteMedia(id);
+  };
+  await Promise.all(Array.from({ length: 6 }, worker));
+  renderList();
+}
+async function fetchSiteMedia(id) {
+  try {
+    const r = await fetch(`/media?id=${encodeURIComponent(id)}`);
+    if (!r.ok) return;
+    siteMedia[id] = await r.json();
+  } catch (e) { return; }
+  if (current && siteSong(byId[current]) === String(id)) renderSite();
+}
+function siteLink(m) {
+  return m.source === "youtube" ? `https://www.youtube.com/watch?v=${m.ref}${m.startAt ? `&t=${m.startAt}s` : ""}`
+    : m.source === "gdrive" ? `https://drive.google.com/file/d/${m.ref}/view` : m.ref;
+}
+function renderSite() {
+  const c = byId[current];
+  const song = siteSong(c);
+  const box = document.getElementById("site");
+  box.hidden = !song;
+  if (!song) return;
+  if (song !== c.song && !(song in siteMedia)) fetchSiteMedia(song);
+  const media = siteMedia[song];
+  const title = media ? `На сайте у №${song}: ${media.length} ${media.length === 1 ? "запись" : [2, 3, 4].includes(media.length % 10) && ![12, 13, 14].includes(media.length % 100) ? "записи" : "записей"}` : `На сайте у №${song}`;
+  box.replaceChildren(el("h3", { id: "site-h", text: title }));
+  if (!media) { box.append(el("p", { class: "status", text: "Загружаю…" })); return; }
+  if (!media.length) { box.append(el("p", { class: "status", text: "Записей ещё нет." })); return; }
+  const list = el("ul", { class: "site-list" });
+  for (const m of media) {
+    const range = m.startAt != null || m.endAt != null ? `${ts(m.startAt || 0)}–${m.endAt != null ? ts(m.endAt) : "конец"}` : m.duration ? ts(m.duration) : "";
+    const name = [m.title, m.author].filter(Boolean).join(" · ") || siteLink(m);
+    list.append(el("li", { class: "site-item", "data-playing": String(sitePlaying === m.id) },
+      el("span", { class: "st", text: name }),
+      range ? el("span", { class: "sm", text: range }) : null,
+      m.source === "youtube" && m.ref === c.video ? el("span", { class: "sn", text: "из этого видео" }) : null,
+      m.source === "youtube"
+        ? el("button", { class: "ghostbtn", type: "button", onclick: () => playSite(m), "aria-label": `Смотреть: ${name}`, text: "▶ Смотреть" })
+        : el("a", { class: "ghostbtn", href: siteLink(m), target: "_blank", rel: "noopener", "aria-label": `Открыть: ${name}`, text: "Открыть ↗" })));
+  }
+  box.append(list);
+}
+async function playSite(m) {
+  const p = await ensurePlayer();
+  sitePlaying = m.id;
+  p.loadVideoById({ videoId: m.ref, startSeconds: m.startAt || 0, ...(m.endAt != null ? { endSeconds: m.endAt } : {}) });
+  renderSite();
+}
+function stopSite() {
+  if (sitePlaying == null) return;
+  sitePlaying = null;
+  renderSite();
+}
+function renderHead() {
+  const c = byId[current];
+  document.getElementById("d-head").replaceChildren(...[
+    c.song ? el("span", { class: "n" }, el("a", { href: `https://holysongs.ru/song/${c.song}`, target: "_blank", rel: "noopener", text: `№${c.song}` })) : null,
+    el("h2", { text: clipName(c) }),
+    el("span", { class: "nav" },
+      el("button", { class: "ghostbtn", type: "button", onclick: () => step(-1), text: "← Предыдущая песня" }),
+      el("button", { class: "ghostbtn", type: "button", onclick: () => step(1), text: "Следующая песня →" })),
+    !c.song ? el("div", { class: "d-meta", text: "Ни одна песня из песенника не совпала. Отметьте новую песню, найдите её в песеннике или отметьте, что это не песня." }) : null,
+    c.song && c.alts.length ? el("div", { class: "d-meta", text: `похожие для этого исполнения: ${c.alts.map(a => `№${a} ${songName(a)}`).join(", ")}` }) : null].filter(Boolean));
+}
+
+// The whole transcript is built once per language; moving between clips or bounds only re-marks the lines inside.
+const heardLines = {};
+function heardLinesOf(lang) {
+  return heardLines[lang] ??= (DATA.transcripts[lang] || []).map(([t, text]) => el("button", {
+    class: "hl", type: "button", "data-t": String(t), title: "Проиграть с этого места",
+    onclick: () => { const c = byId[current]; playRange(t, endOf(c) > t ? endOf(c) : t + 30); },
+  }, el("span", { class: "ht", text: ts(t) }), el("span", { text })));
+}
+const LANG_NAMES = { be: "по-белорусски", ru: "по-русски" };
+
+function renderHeard(toClip = false) {
+  const c = byId[current];
+  const box = document.getElementById("heard");
+  const lines = heardLinesOf(c.lang);
+  if (box.dataset.lang !== c.lang) {
+    box.replaceChildren(...(lines.length ? lines : [el("p", { class: "status", text: "Ничего не распознано" })]));
+    box.dataset.lang = c.lang;
+    const several = Object.keys(DATA.transcripts).length > 1;
+    document.getElementById("heard-h").textContent = "Распознано в видео" + (several ? ` ${LANG_NAMES[c.lang] || c.lang}` : "");
+  }
+  for (const x of lines) {
+    const t = Number(x.dataset.t);
+    x.classList.toggle("out", t < startOf(c) || t > endOf(c));
+  }
+  // A newly opened clip shows its own start first; the rest of the recording is a scroll up or down.
+  const first = lines.find(x => Number(x.dataset.t) >= startOf(c));
+  if (toClip) box.scrollTop = first ? first.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 6 : box.scrollHeight;
+}
+
+function renderTiming() {
+  const c = byId[current];
+  const row = (key, label) => {
+    const val = key === "start" ? startOf(c) : endOf(c);
+    const orig = c[key];
+    const input = el("input", { id: `t-${key}`, value: ts(val), inputmode: "numeric", "aria-label": label, "data-changed": String(val !== orig) });
+    input.addEventListener("change", () => {
+      const v = parseTs(input.value);
+      if (v == null) { input.value = ts(val); return; }
+      setTime(key, v);
+    });
+    const shift = d => el("button", { class: "step", type: "button", "aria-label": `${label} ${d > 0 ? "+" : "−"}${Math.abs(d)} с`, onclick: () => setTime(key, (key === "start" ? startOf(c) : endOf(c)) + d), text: `${d > 0 ? "+" : "−"}${Math.abs(d)}` });
+    return el("div", { class: "trow" },
+      el("label", { for: `t-${key}`, text: label }),
+      shift(-10), shift(-1), input, shift(1), shift(10),
+      el("button", { class: "ghostbtn", type: "button", onclick: () => player && setTime(key, player.getCurrentTime()), text: "= текущее" }),
+      val !== orig ? el("span", { class: "status", text: `было ${ts(orig)}` }) : null);
+  };
+  document.getElementById("timing").replaceChildren(
+    row("start", "Начало"), row("end", "Конец"),
+    el("div", { class: "now", id: "now", text: "Позиция: —" }),
+    el("div", { class: "actions" },
+      el("button", { class: "btn", type: "button", onclick: () => playRange(startOf(c), endOf(c)), text: "▶ Весь фрагмент" }),
+      el("button", { class: "ghostbtn", type: "button", onclick: () => playRange(startOf(c), Math.min(endOf(c), startOf(c) + 10)), text: "▶ Первые 10 с" }),
+      el("button", { class: "ghostbtn", type: "button", onclick: () => playRange(Math.max(startOf(c), endOf(c) - 10), endOf(c)), text: "▶ Последние 10 с" }),
+      el("button", { class: "ghostbtn", type: "button", onclick: () => playRange(Math.max(0, startOf(c) - 30), startOf(c) + 5), text: "▶ 30 с до начала" }),
+      el("button", { class: "ghostbtn", type: "button", onclick: () => playRange(endOf(c) - 5, endOf(c) + 30), text: "▶ 30 с после конца" }),
+      retimed(c) ? el("button", { class: "ghostbtn", type: "button", onclick: () => { patch(c.id, { start: null, end: null }); renderTiming(); renderPerfs(); refreshItem(c.id); }, text: "Вернуть исходное время" }) : null));
+}
+function setTime(key, v) {
+  const c = byId[current];
+  v = Math.max(0, Math.round(v));
+  const start = key === "start" ? v : startOf(c);
+  const end = key === "end" ? v : endOf(c);
+  if (end <= start) { setStatus("Конец должен быть позже начала"); renderTiming(); return; }
+  patch(c.id, { start: start === c.start ? null : start, end: end === c.end ? null : end });
+  renderTiming();
+  renderPerfs();
+  renderHeard();
+  refreshItem(c.id);
+}
+
+function renderVerdict() {
+  const c = byId[current];
+  const s = state[c.id] || {};
+  const group = el("div", { class: "verdict", role: "group", "aria-label": "Отметка" });
+  for (const k of c.song ? ["yes", "no", "other"] : ["new", "other", "no"]) {
+    group.append(el("button", { class: "vbtn", type: "button", "data-k": k, "aria-pressed": String(s.v === k), text: label(c, k),
+      onclick: () => { patch(c.id, { v: s.v === k ? "" : k }); renderVerdict(); renderHead(); renderSite(); renderLyrics(); renderPerfs(); refreshItem(c.id); } }));
+  }
+  const extra = el("div", { class: "extra" });
+  if (s.v === "other") {
+    // Typing a title offers matching songs from the songbook; the leading number is what gets stored.
+    const n = el("input", { class: "note", id: "other-num", list: "song-options", placeholder: "№ или название песни",
+      value: s.other ? `${s.other} ${songName(s.other)}`.trim() : "" });
+    n.addEventListener("input", () => {
+      const v = songIdOf(n.value) || n.value.trim();
+      patch(c.id, { other: v });
+      if (DATA.lyrics[v]) shown[c.id] = v;
+      renderHead(); renderSite(); renderLyrics(); renderPerfs(); refreshItem(c.id);
+    });
+    extra.append(el("label", { for: "other-num" }, c.song ? "Какая песня на самом деле" : "Какая песня из песенника", n));
+  }
+  if (s.v === "new") {
+    const t = el("input", { class: "note", id: "new-title", placeholder: "например: Мама Марыя", value: s.title || "" });
+    t.addEventListener("input", () => { patch(c.id, { title: t.value }); renderHead(); refreshItem(c.id); summary(); });
+    extra.append(el("label", { for: "new-title" }, "Название новой песни", t));
+  }
+  const note = el("input", { class: "note", id: "note", placeholder: "например: поют только припев", value: s.note || "" });
+  note.addEventListener("input", () => { patch(c.id, { note: note.value }); summary(); });
+  extra.append(el("label", { for: "note" }, "Комментарий", note));
+  document.getElementById("verdict").replaceChildren(group, extra);
+}
+
+// The matched song, the similar ones and the number typed as "another song".
+function candidates(c) {
+  const ids = c.song ? [c.song, ...c.alts] : [...c.alts];
+  const s = state[c.id];
+  if (s && s.v === "other" && DATA.lyrics[s.other] && !ids.includes(s.other)) ids.push(s.other);
+  return ids;
+}
+function renderLyrics() {
+  const c = byId[current];
+  const ids = candidates(c);
+  const cur = ids.includes(shown[c.id]) ? shown[c.id] : ids[0];
+  const box = document.getElementById("lyrics");
+  box.replaceChildren();
+  if (!ids.length) {
+    box.append(el("p", { class: "status", text: "Похожих песен не нашлось. Выберите «Есть в песеннике» и введите номер или название, чтобы сравнить текст." }));
+    return;
+  }
+  if (!c.song) box.append(el("p", { class: "status", text: "Ближайшие по тексту песни из песенника:" }));
+  if (ids.length > 1 || !c.song) {
+    const tabs = el("div", { class: "tabs", role: "group", "aria-label": "Чей текст показать" });
+    for (const id of ids) tabs.append(el("button", { class: "tab", type: "button", "aria-pressed": String(id === cur), text: `№${id} ${songName(id)}`,
+      onclick: () => { shown[c.id] = id; renderLyrics(); } }));
+    box.append(tabs);
+  }
+  box.append(el("pre", { tabindex: "0", "aria-label": `Текст песни №${cur}`, text: DATA.lyrics[cur] || "Текста нет в песеннике" }));
+}
+
+// ---------- player ----------
+let player = null, playerReady = null;
+function ensurePlayer() {
+  if (playerReady) return playerReady;
+  playerReady = new Promise(resolve => {
+    window.onYouTubeIframeAPIReady = () => {
+      player = new YT.Player("yt", { playerVars: { rel: 0, playsinline: 1 }, events: { onReady: () => resolve(player) } });
+    };
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.append(tag);
+  });
+  return playerReady;
+}
+async function playRange(start, end) {
+  const c = byId[current];
+  const p = await ensurePlayer();
+  stopSite();
+  p.loadVideoById({ videoId: c.video, startSeconds: Math.max(0, Math.floor(start)), endSeconds: Math.ceil(end) });
+}
+async function cue() {
+  const c = byId[current];
+  const p = await ensurePlayer();
+  stopSite();
+  p.cueVideoById({ videoId: c.video, startSeconds: startOf(c), endSeconds: endOf(c) });
+}
+setInterval(() => {
+  const n = document.getElementById("now");
+  if (!(player && player.getCurrentTime)) return;
+  const now = player.getCurrentTime();
+  if (n) n.textContent = sitePlaying == null ? `Позиция: ${ts(now)}` : "Позиция: — (играет запись с сайта)";
+  // The site recording's clock says nothing about where this video's transcript is.
+  if (sitePlaying != null) return;
+  const items = [...document.querySelectorAll("#heard .hl")];
+  const at = items.filter(x => Number(x.dataset.t) <= now + 0.5).pop();
+  for (const x of items) {
+    const on = x === at;
+    if ((x.getAttribute("aria-current") === "true") !== on) {
+      x.setAttribute("aria-current", String(on));
+      if (on) x.scrollIntoView({ block: "nearest" });
+    }
+  }
+}, 250);
+
+// ---------- result ----------
+function resultBox() {
+  return el("section", { class: "result", "aria-labelledby": "res-h" },
+    el("h2", { id: "res-h", text: "Результат" }),
+    el("div", { class: "stats", id: "stats" }),
+    el("textarea", { id: "out", readonly: "", "aria-label": "Текст результата" }),
+    el("div", { class: "actions" },
+      el("button", { class: "btn", type: "button", onclick: () => copy("out"), text: "Скопировать" }),
+      el("button", { class: "btn", type: "button", onclick: showSql, text: "SQL для базы" }),
+      el("span", { class: "status", id: "save-status", "aria-live": "polite" })),
+    el("textarea", { id: "sql", readonly: "", hidden: "", "aria-label": "SQL для базы" }));
+}
+function summary() {
+  const total = DATA.clips.length;
+  const by = { yes: [], no: [], other: [], new: [], skip: [] };
+  for (const c of DATA.clips) {
+    const v = state[c.id] && state[c.id].v;
+    // "Not a song" on an unmatched stretch is a dismissal, not a wrong match, so it is kept out of the result list.
+    if (v) by[!c.song && v === "no" ? "skip" : v].push(c);
+  }
+  const done = by.yes.length + by.no.length + by.other.length + by.new.length + by.skip.length;
+  for (const k of ["yes", "no", "other", "new"]) document.getElementById("m-" + k).style.width = ((by[k].length + (k === "no" ? by.skip.length : 0)) / total * 100) + "%";
+  document.getElementById("count").textContent = `отмечено ${done} из ${total}`;
+  const stats = document.getElementById("stats");
+  if (!stats) return;
+  stats.replaceChildren(...[["yes", "совпадает"], ["other", "другая"], ["new", "новая"], ["no", "не совпадает"], ["skip", "не песня"], ["", "не отмечено"]]
+    .map(([k, t]) => el("span", {}, el("b", { text: String(k ? by[k].length : total - done) }), t)));
+  const line = c => {
+    const s = state[c.id];
+    const was = c.song ? `было №${c.song}` : "не было совпадения";
+    const song = s.v === "new" ? `новая песня «${s.title || "без названия"}»`
+      : s.v === "other" ? (s.other ? `№${s.other} ${songName(s.other)}`.trim() + ` (${was})` : `другая песня (${was})`) : `№${c.song} ${c.title}`;
+    const time = `${ts(startOf(c))}–${ts(endOf(c))}${retimed(c) ? " (время исправлено)" : ""}`;
+    return `${c.year}  ${time}  ${song}  https://www.youtube.com/watch?v=${c.video}&t=${startOf(c)}s${s.note ? "  // " + s.note : ""}`;
+  };
+  document.getElementById("out").value = [
+    `Совпадает (${by.yes.length}):`, ...by.yes.map(line), "",
+    `Другая песня (${by.other.length}):`, ...by.other.map(line), "",
+    `Новая песня (${by.new.length}):`, ...by.new.map(line), "",
+    `Не совпадает (${by.no.length}):`, ...by.no.map(line)].join("\n");
+  const sql = document.getElementById("sql");
+  if (sql && !sql.hidden) sql.value = sqlText();
+}
+function copy(id) {
+  const ta = document.getElementById(id);
+  navigator.clipboard.writeText(ta.value).then(() => setStatus("Скопировано"), () => { ta.focus(); ta.select(); setStatus("Выделено: нажмите Ctrl+C"); });
+}
+function showSql() {
+  const ta = document.getElementById("sql");
+  ta.value = sqlText();
+  ta.hidden = false;
+  copy("sql");
+}
+
+// ---------- SQL ----------
+function sqlStr(v) { return v == null ? "NULL" : `'${String(v).replace(/\\/g, "\\\\").replace(/'/g, "''")}'`; }
+// The rows the songbook API would write: new songs into sound_list, every confirmed performance into sound_media.
+function sqlText() {
+  const out = [];
+  const newSongs = new Map();   // title -> SQL variable holding its id
+  const media = [];
+  for (const c of [...DATA.clips].sort(byOrder)) {
+    const s = state[c.id];
+    if (!s || !s.v) continue;
+    let song = null;
+    if (s.v === "yes" && c.song) song = c.song;
+    else if (s.v === "other" && DATA.titles[s.other]) song = s.other;
+    else if (s.v === "new" && (s.title || "").trim()) {
+      const title = s.title.trim();
+      if (!newSongs.has(title)) newSongs.set(title, `@new_song_${newSongs.size + 1}`);
+      song = newSongs.get(title);
+    }
+    if (song) media.push([c, song]);
+  }
+  if (!media.length) return "-- Нет отмеченных фрагментов: отметьте «Совпадает», «Другая песня», «Есть в песеннике» или «Новая песня».";
+  const names = VIDEOS.map(v => { const id = DATA.videos[v]; return `"${((DATA.meta || {})[id] || {}).title || v}" (youtube ${id})`; });
+  out.push(`-- Song recordings from ${names.join(", ")}, checked by hand on the review page.`,
+    "-- Safe to re-run: an existing song with the same title, or a row for the same song, video and start, is skipped.", "", "START TRANSACTION;", "");
+  for (const [title, v] of newSongs) {
+    const t = sqlStr(title);
+    // The text is left empty to be typed in the admin; the history gets its first version on that first edit.
+    out.push(`INSERT INTO \`sound_list\` (\`title\`, \`text\`, \`chord\`, \`tag\`)`,
+      `  SELECT ${t}, '', '', '' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM \`sound_list\` WHERE \`title\` = ${t});`,
+      `SET ${v} = (SELECT MAX(\`id\`) FROM \`sound_list\` WHERE \`title\` = ${t});`, "");
+  }
+  for (const [c, song] of media) {
+    const meta = (DATA.meta || {})[c.video] || { title: c.year, author: null };
+    const start = startOf(c), end = endOf(c);
+    out.push(`-- ${ts(start)}–${ts(end)} ${song.startsWith("@") ? [...newSongs].find(([, v]) => v === song)[0] : `№${song} ${songName(song)}`}`,
+      "INSERT INTO `sound_media` (`song_id`, `position`, `source`, `ref`, `title`, `author`, `duration`, `start_at`, `end_at`, `created_at`)",
+      `  SELECT ${song}, (SELECT COALESCE(MAX(\`position\`) + 1, 0) FROM \`sound_media\` WHERE \`song_id\` = ${song}), 'youtube', ${sqlStr(c.video)}, ${sqlStr(meta.title)}, ${sqlStr(meta.author)}, ${end - start}, ${start}, ${end}, UNIX_TIMESTAMP()`,
+      `  FROM \`sound_list\` WHERE \`id\` = ${song}`,
+      `    AND NOT EXISTS (SELECT 1 FROM \`sound_media\` WHERE \`song_id\` = ${song} AND \`ref\` = ${sqlStr(c.video)} AND \`start_at\` = ${start});`);
+  }
+  // Clients reload the song list only when this stamp moves, so new songs need it.
+  if (newSongs.size) out.push("", "UPDATE `ad_options` SET `last_update` = UNIX_TIMESTAMP() WHERE `id` = 1;");
+  out.push("", "COMMIT;");
+  return out.join("\n");
+}
+
+const chips = document.getElementById("video-chips");
+if (VIDEOS.length > 1) for (const v of VIDEOS) chips.append(el("button", { class: "chip", "data-f": v, "aria-pressed": "false", text: v }));
+document.getElementById("page-title").textContent = DATA.name || "Праверка песень";
+if (!DATA.clips.some(c => !c.song)) document.getElementById("chip-none").remove();
+document.getElementById("song-options").replaceChildren(...Object.keys(DATA.titles).sort((a, b) => a - b)
+  .map(id => el("option", { value: `${id} ${DATA.titles[id]}` })));
+for (const b of document.querySelectorAll(".chip")) {
+  b.addEventListener("click", () => {
+    filter = b.dataset.f;
+    for (const x of document.querySelectorAll(".chip")) x.setAttribute("aria-pressed", String(x === b));
+    renderList();
+  });
+}
+
+loadLocal();
+current = firstTodo(groups()[0][1]).id;
+renderList();
+renderDetail();
+cue();
+loadSiteMedia();
+(async () => {
+  try {
+    const r = await fetch("/verdicts");
+    if (r.ok) {
+      Object.assign(state, await r.json());
+      saveLocal();
+      renderList();
+      renderDetail();
+    }
+  } catch (e) { setStatus("Сервер не отвечает, отметки хранятся только в этом браузере"); }
+})();
+</script>
+</body>
+</html>
