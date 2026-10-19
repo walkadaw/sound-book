@@ -56,6 +56,13 @@ describe('songMediaPlayer', () => {
     });
   });
 
+  it('plays an uploaded file from this site', () => {
+    const upload = media({ source: 'upload', ref: '0123456789abcdef.mp3', startAt: 10, endAt: 70 });
+
+    expect(songMediaPlayer(upload)).toEqual({ type: 'audio', url: '/api/media/0123456789abcdef.mp3#t=10,70' });
+    expect(songMediaPlayer(media({ source: 'upload', ref: '../index.php' }))).toBeNull();
+  });
+
   it('links to a source this client does not know', () => {
     expect(songMediaPlayer(media({ source: 'soundcloud', ref: 'https://soundcloud.com/x' }))).toEqual({
       type: 'link',

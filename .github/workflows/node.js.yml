@@ -54,13 +54,14 @@ jobs:
           ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
           # Key only: otherwise ssh falls back to a password prompt that CI cannot answer.
           printf 'Host *\n  BatchMode yes\n  IdentitiesOnly yes\n  IdentityFile ~/.ssh/id_ed25519\n' > ~/.ssh/config
-      # tmp/ holds the server-side song cache and is neither uploaded nor deleted.
+      # Excluded folders are neither uploaded nor deleted (no --delete-excluded):
+      # tmp/ holds the server-side song cache, media/ the recordings uploaded in the admin.
       # --checksum: a fresh checkout has fresh timestamps, so size+mtime would resend every file.
       - name: 📂 Sync API
         env:
           TARGET: ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
         run: >
-          rsync -rz --checksum --delete --chmod=D755,F644 --exclude '/tmp/'
+          rsync -rz --checksum --delete --chmod=D755,F644 --exclude '/tmp/' --exclude '/media/'
           ./api/ "$TARGET:./api/"
 
   build:

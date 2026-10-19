@@ -1,5 +1,5 @@
 import { SongMedia, SongMediaSource } from '../../../../interfaces/song-media';
-import { DRIVE_ID, YOUTUBE_ID } from '../../../song-media/song-media-player';
+import { DRIVE_ID, YOUTUBE_ID, uploadUrl } from '../../../song-media/song-media-player';
 
 export interface MediaLink {
   source: SongMediaSource;
@@ -47,6 +47,8 @@ export function mediaLink({ source, ref }: Pick<SongMedia, 'source' | 'ref'>): s
       return `https://www.youtube.com/watch?v=${ref}`;
     case 'gdrive':
       return `https://drive.google.com/file/d/${ref}/view`;
+    case 'upload':
+      return uploadUrl(ref);
     default:
       return ref;
   }

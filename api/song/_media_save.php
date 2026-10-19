@@ -16,12 +16,14 @@ $refPatterns = [
     'youtube' => '/^[\w-]{11}$/',
     'gdrive' => '/^[\w-]+$/',
     'file' => '/^https:\/\/\S+$/',
+    'upload' => MEDIA_UPLOAD_REF,
 ];
 
 if (
     !isset($refPatterns[$source]) || !preg_match($refPatterns[$source], $ref) || strlen($ref) > 1024
     || $duration === false || $startAt === false || $endAt === false
     || ($startAt !== null && $endAt !== null && $endAt <= $startAt)
+    || ($source === 'upload' && !is_file(media_upload_path($ref)))
 ) {
     http_response_code(400);
     exit();
@@ -40,12 +42,14 @@ if (!$sth->fetch()) {
 }
 
 $fields = [$source, $ref, $title, $author, $duration, $startAt, $endAt];
+$previous = null;
 
 if ($id > 0) {
-    $sth = $db->prepare("SELECT 1 FROM `sound_media` WHERE `id`=? AND `song_id`=?");
+    $sth = $db->prepare("SELECT `source`, `ref` FROM `sound_media` WHERE `id`=? AND `song_id`=?");
     $sth->execute([$id, $songId]);
+    $previous = $sth->fetch();
 
-    if (!$sth->fetch()) {
+    if (!$previous) {
         $db->rollBack();
         http_response_code(404);
         exit();
@@ -65,6 +69,11 @@ if ($id > 0) {
 }
 
 $db->commit();
+
+// a record whose file was replaced or that now links elsewhere leaves the old file behind
+if ($previous && $previous['source'] === 'upload' && $previous['ref'] !== $ref) {
+    delete_unused_upload($db, $previous['ref']);
+}
 
 send_gzip(gzencode(json_encode(['id' => $id])));
 

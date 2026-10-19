@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { SongMedia } from '../../interfaces/song-media';
 
 export type SongMediaPlayer =
@@ -6,6 +7,14 @@ export type SongMediaPlayer =
 export const YOUTUBE_ID = /^[\w-]{11}$/;
 export const DRIVE_ID = /^[\w-]+$/;
 const VIDEO_FILE = /\.(mp4|m4v|webm|mov|ogv)$/i;
+/** the formats a file uploaded in the admin may have, the same list as MEDIA_UPLOAD_EXTENSIONS in api/index.php */
+export const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac'];
+/** the name the server gives an uploaded file, the same check as api/index.php */
+export const UPLOAD_REF = new RegExp(`^[0-9a-f]{16}\\.(${AUDIO_EXTENSIONS.join('|')})$`);
+
+export function uploadUrl(ref: string): string {
+  return `${environment.baseUrl}/media/${ref}`;
+}
 
 /**
  * The iframe URLs end up trusted as resource URLs, so every ref is checked here
@@ -33,16 +42,15 @@ export function songMediaPlayer(media: SongMedia): SongMediaPlayer | null {
       return DRIVE_ID.test(media.ref)
         ? { type: 'iframe', url: `https://drive.google.com/file/d/${media.ref}/preview` }
         : null;
-    case 'file': {
-      if (!isHttpsUrl(media.ref)) {
-        return null;
-      }
-
-      const end = media.endAt ? `,${media.endAt}` : '';
-      const fragment = media.startAt || media.endAt ? `#t=${media.startAt ?? 0}${end}` : '';
-
-      return { type: VIDEO_FILE.test(new URL(media.ref).pathname) ? 'video' : 'audio', url: media.ref + fragment };
-    }
+    case 'file':
+      return isHttpsUrl(media.ref)
+        ? {
+            type: VIDEO_FILE.test(new URL(media.ref).pathname) ? 'video' : 'audio',
+            url: media.ref + mediaFragment(media),
+          }
+        : null;
+    case 'upload':
+      return UPLOAD_REF.test(media.ref) ? { type: 'audio', url: uploadUrl(media.ref) + mediaFragment(media) } : null;
     default:
       return isHttpsUrl(media.ref) ? { type: 'link', url: media.ref } : null;
   }
@@ -52,6 +60,7 @@ export const SOURCE_NAMES: Record<string, string> = {
   youtube: 'YouTube',
   gdrive: 'Google Drive',
   file: 'Файл',
+  upload: 'Аўдыяфайл',
 };
 
 export function formatDuration(seconds: number): string {
@@ -60,6 +69,12 @@ export function formatDuration(seconds: number): string {
   const rest = String(seconds % 60).padStart(2, '0');
 
   return hours ? `${hours}:${String(minutes).padStart(2, '0')}:${rest}` : `${minutes}:${rest}`;
+}
+
+function mediaFragment({ startAt, endAt }: Pick<SongMedia, 'startAt' | 'endAt'>): string {
+  const end = endAt ? `,${endAt}` : '';
+
+  return startAt || endAt ? `#t=${startAt ?? 0}${end}` : '';
 }
 
 function isHttpsUrl(value: string): boolean {

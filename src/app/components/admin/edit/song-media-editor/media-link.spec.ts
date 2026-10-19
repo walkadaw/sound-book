@@ -45,6 +45,10 @@ describe('parseMediaLink', () => {
       expect(parseMediaLink(mediaLink(media))).toMatchObject(media);
     }
   });
+
+  it('links to an uploaded file on this site', () => {
+    expect(mediaLink({ source: 'upload', ref: '0123456789abcdef.mp3' })).toBe('/api/media/0123456789abcdef.mp3');
+  });
 });
 
 describe('parseTime', () => {

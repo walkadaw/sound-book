@@ -26,6 +26,8 @@ describe('SongMediaFormComponent', () => {
     fixture.nativeElement.querySelector('button[type="submit"]').click();
     await fixture.whenStable();
   };
+  const alertText = () =>
+    [...fixture.nativeElement.querySelectorAll('[role="alert"]')].map((alert: HTMLElement) => alert.textContent).join();
   const toggleFragment = async () => {
     fixture.nativeElement.querySelector('mat-checkbox input').click();
     await fixture.whenStable();
@@ -83,7 +85,7 @@ describe('SongMediaFormComponent', () => {
     await type('Спасылка', DRIVE_LINK);
     await submit();
 
-    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('Не атрымалася захаваць');
+    expect(alertText()).toContain('Не атрымалася захаваць');
   });
 
   it('should fill the names from YouTube without replacing what was typed', async () => {
@@ -203,6 +205,141 @@ describe('SongMediaFormComponent', () => {
     await fixture.whenStable();
 
     expect(input('Назва').value).toBe('Новая назва');
+  });
+
+  describe('file upload', () => {
+    const pick = async (file: File) => {
+      const fileInput = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
+      Object.defineProperty(fileInput, 'files', { value: [file], configurable: true });
+      fileInput.dispatchEvent(new Event('change'));
+      await fixture.whenStable();
+    };
+    const button = (text: string) =>
+      [...fixture.nativeElement.querySelectorAll('button')].find(
+        (item: HTMLButtonElement) => item.textContent.trim() === text,
+      ) as HTMLButtonElement | undefined;
+    const uploadRequest = () => http.expectOne((item) => item.url === '/api/song/media/upload');
+
+    beforeEach(() => {
+      // jsdom has no object URLs; the duration is then simply not read
+      URL.createObjectURL = vi.fn(() => 'blob:song');
+      URL.revokeObjectURL = vi.fn();
+    });
+
+    it('should save an uploaded file in place of a link', async () => {
+      await create();
+      await pick(new File(['audio'], 'Ave_Maria.mp3', { type: 'audio/mpeg' }));
+      const request = uploadRequest();
+      expect(request.request.params.get('name')).toBe('Ave_Maria.mp3');
+      expect(request.request.headers.get('Content-Type')).toBe('application/octet-stream');
+      request.flush({ ref: '0123456789abcdef.mp3' });
+      await fixture.whenStable();
+
+      expect(input('Спасылка')).toBeUndefined();
+      expect(fixture.nativeElement.textContent).toContain('Файл: Ave_Maria.mp3');
+      expect(input('Назва').value).toBe('Ave Maria');
+      expect(document.activeElement).toBe(button('Замяніць файл'));
+
+      await submit();
+      expect(saved).toEqual([expect.objectContaining({ source: 'upload', ref: '0123456789abcdef.mp3' })]);
+    });
+
+    it('should offer a file only while there is no link', async () => {
+      await create();
+      expect(button('Або загрузіце аўдыяфайл')).toBeDefined();
+
+      await type('Спасылка', DRIVE_LINK);
+      expect(button('Або загрузіце аўдыяфайл')).toBeUndefined();
+    });
+
+    it('should show a stored file and go back to a link once it is removed', async () => {
+      await create({
+        id: 3,
+        source: 'upload',
+        ref: '0123456789abcdef.mp3',
+        title: 'Ave Maria',
+        author: null,
+        duration: 200,
+        startAt: null,
+        endAt: null,
+      });
+
+      expect(input('Спасылка')).toBeUndefined();
+      expect(fixture.nativeElement.querySelector('audio').getAttribute('src')).toBe('/api/media/0123456789abcdef.mp3');
+
+      button('Прыбраць файл')?.click();
+      await fixture.whenStable();
+      expect(fixture.nativeElement.querySelector('audio')).toBeNull();
+      expect(document.activeElement).toBe(input('Спасылка'));
+      await submit();
+      expect(saved).toEqual([]);
+
+      await type('Спасылка', DRIVE_LINK);
+      await submit();
+      expect(saved).toEqual([expect.objectContaining({ source: 'gdrive' })]);
+    });
+
+    const storedUpload: SongMedia = {
+      id: 3,
+      source: 'upload',
+      ref: '0123456789abcdef.mp3',
+      title: 'Ave Maria',
+      author: null,
+      duration: 200,
+      startAt: null,
+      endAt: null,
+    };
+
+    it('should drop a replacement still uploading once the file is removed', async () => {
+      await create(storedUpload);
+      await pick(new File(['audio'], 'mass.mp3'));
+      const request = uploadRequest();
+
+      button('Прыбраць файл')?.click();
+      await fixture.whenStable();
+
+      expect(request.cancelled).toBe(true);
+      expect(fixture.nativeElement.querySelector('mat-progress-bar')).toBeNull();
+      expect(input('Спасылка')).toBeDefined();
+    });
+
+    it("should not keep the replaced file's length, but keep a length typed in", async () => {
+      await create(storedUpload);
+      await pick(new File(['audio'], 'mass.mp3'));
+      uploadRequest().flush({ ref: 'fedcba9876543210.mp3' });
+      await fixture.whenStable();
+      expect(input('Працягласць').value).toBe('');
+      expect(input('Назва').value).toBe('Ave Maria');
+
+      await type('Працягласць', '4:00');
+      await pick(new File(['audio'], 'other.mp3'));
+      uploadRequest().flush({ ref: '00112233445566aa.mp3' });
+      await fixture.whenStable();
+      expect(input('Працягласць').value).toBe('4:00');
+    });
+
+    it('should not send a file that is not audio or is too large', async () => {
+      await create();
+
+      await pick(new File(['x'], 'notes.pdf'));
+      expect(alertText()).toContain('Патрэбны аўдыяфайл');
+
+      const large = new File(['x'], 'mass.mp3');
+      Object.defineProperty(large, 'size', { value: 31 * 1024 * 1024 });
+      await pick(large);
+      expect(alertText()).toContain('Файл большы за 30 МБ');
+    });
+
+    it('should show that the upload failed', async () => {
+      await create();
+
+      await pick(new File(['audio'], 'song.mp3'));
+      uploadRequest().flush(null, { status: 413, statusText: 'Payload Too Large' });
+      await fixture.whenStable();
+
+      expect(alertText()).toContain('Сервер не прымае такі вялікі файл');
+      expect(fixture.nativeElement.querySelector('audio')).toBeNull();
+    });
   });
 
   it('should drop the YouTube names that arrive after the link changed', async () => {

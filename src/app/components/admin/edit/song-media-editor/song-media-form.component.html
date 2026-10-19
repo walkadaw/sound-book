@@ -1,17 +1,66 @@
 <form class="media-form" novalidate (submit)="onSubmit($event)">
-  <mat-form-field class="media-form__wide">
-    <mat-label>Спасылка</mat-label>
-    <input
-      #linkInput
-      matInput
-      type="url"
-      autocomplete="off"
-      [formField]="mediaForm.link"
-      (input)="onLinkInput(linkInput.value)"
+  @if (upload(); as ref) {
+    <div class="media-form__wide media-form__upload">
+      <p class="media-form__file">Файл: {{ uploadName() ?? ref }}</p>
+      <audio controls preload="metadata" aria-label="Праслухаць файл" [src]="uploadUrl(ref)"></audio>
+      <!-- stays focusable while disabled, so the focus is still here when the upload ends -->
+      <button
+        #replaceFile
+        mat-stroked-button
+        disabledInteractive
+        type="button"
+        [disabled]="uploadProgress() !== null"
+        (click)="pickFile(fileInput)"
+      >
+        Замяніць файл
+      </button>
+      <button mat-button type="button" (click)="removeUpload()">Прыбраць файл</button>
+    </div>
+  } @else {
+    <mat-form-field class="media-form__wide">
+      <mat-label>Спасылка</mat-label>
+      <input
+        #linkInput
+        matInput
+        type="url"
+        autocomplete="off"
+        [formField]="mediaForm.link"
+        (input)="onLinkInput(linkInput.value)"
+      />
+      <mat-hint>YouTube, Google Drive або https-спасылка на файл</mat-hint>
+      <mat-error>{{ mediaForm.link().errors()[0]?.message }}</mat-error>
+    </mat-form-field>
+    @if (canUpload()) {
+      <div class="media-form__wide media-form__upload">
+        <button
+          mat-stroked-button
+          disabledInteractive
+          type="button"
+          [disabled]="uploadProgress() !== null"
+          (click)="pickFile(fileInput)"
+        >
+          Або загрузіце аўдыяфайл
+        </button>
+        <span class="meta">mp3, m4a, ogg, opus, wav або flac да 30 МБ</span>
+      </div>
+    }
+  }
+
+  <input #fileInput type="file" [accept]="accept" hidden (change)="onFileSelected(fileInput)" />
+  @if (uploadProgress() !== null) {
+    <mat-progress-bar
+      class="media-form__wide"
+      mode="determinate"
+      aria-label="Загрузка файла"
+      [value]="uploadProgress() ?? 0"
     />
-    <mat-hint>YouTube, Google Drive або https-спасылка на файл</mat-hint>
-    <mat-error>{{ mediaForm.link().errors()[0]?.message }}</mat-error>
-  </mat-form-field>
+  }
+
+  <div class="media-form__wide" role="alert">
+    @if (uploadError(); as error) {
+      <p class="media-form__error">{{ error }}</p>
+    }
+  </div>
 
   <mat-form-field>
     <mat-label>Назва (неабавязкова)</mat-label>
@@ -72,7 +121,7 @@
   </div>
 
   <div class="media-form__wide media-form__actions">
-    <button mat-flat-button type="submit" [disabled]="mediaForm().submitting()">
+    <button mat-flat-button type="submit" [disabled]="mediaForm().submitting() || uploadProgress() !== null">
       {{ media() ? 'Захаваць' : 'Дадаць' }}
     </button>
     <button mat-button type="button" (click)="cancelled.emit()">Адмяніць</button>

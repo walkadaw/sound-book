@@ -1,20 +1,38 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, computed, inject, input, linkedSignal, output, signal, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpClient, HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import {
+  Component,
+  DOCUMENT,
+  DestroyRef,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormField, form, hidden, maxLength, required, submit, validate } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { EMPTY, Subject, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { MatProgressBar } from '@angular/material/progress-bar';
+import { EMPTY, Subject, merge, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { SongMedia, SongMediaDraft } from '../../../../interfaces/song-media';
-import { formatDuration } from '../../../song-media/song-media-player';
+import { SongService } from '../../../../services/song-service/song.service';
+import { AUDIO_EXTENSIONS, formatDuration, uploadUrl } from '../../../song-media/song-media-player';
 import { mediaLink, parseMediaLink, parseTime } from './media-link';
 import { YoutubePreviewComponent } from './youtube-preview.component';
 
 interface MediaFormModel {
   link: string;
+  /** the name the server gave an uploaded file; while it is set the record is this file, not the link */
+  upload: string;
   title: string;
   author: string;
   /** the song is only a part of the recording, so it has a start and an end */
@@ -33,6 +51,10 @@ interface YoutubeInfo {
 
 /** the columns are SMALLINT UNSIGNED */
 const MAX_SECONDS = 65535;
+
+/** the same limit as api/song/_media_upload.php */
+const MAX_UPLOAD_BYTES = 30 * 1024 * 1024;
+const AUDIO_FILE = new RegExp(`\\.(${AUDIO_EXTENSIONS.join('|')})$`, 'i');
 
 const timeError = (value: string) => {
   const seconds = parseTime(value);
@@ -55,12 +77,16 @@ const timeError = (value: string) => {
     MatHint,
     MatInput,
     MatLabel,
+    MatProgressBar,
     YoutubePreviewComponent,
   ],
 })
 export class SongMediaFormComponent {
   private http = inject(HttpClient);
+  private songService = inject(SongService);
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
+  private document = inject(DOCUMENT);
 
   /** null adds a new record */
   readonly media = input<SongMedia | null>(null);
@@ -78,7 +104,8 @@ export class SongMediaFormComponent {
     const media = this.stored();
 
     return {
-      link: media ? mediaLink(media) : '',
+      link: media && media.source !== 'upload' ? mediaLink(media) : '',
+      upload: media?.source === 'upload' ? media.ref : '',
       title: media?.title ?? '',
       author: media?.author ?? '',
       fragment: media?.startAt != null || media?.endAt != null,
@@ -89,7 +116,8 @@ export class SongMediaFormComponent {
   });
 
   protected readonly mediaForm = form(this.model, (path) => {
-    required(path.link, { message: 'Устаўце спасылку' });
+    hidden(path.link, { when: ({ valueOf }) => !!valueOf(path.upload) });
+    required(path.link, { message: 'Устаўце спасылку або загрузіце файл' });
     maxLength(path.link, 1024);
     maxLength(path.title, 255);
     maxLength(path.author, 255);
@@ -126,8 +154,13 @@ export class SongMediaFormComponent {
   ] as const;
 
   protected readonly formatDuration = formatDuration;
+  protected readonly uploadUrl = uploadUrl;
+  protected readonly accept = ['audio/*', ...AUDIO_EXTENSIONS.map((extension) => `.${extension}`)].join(',');
 
-  protected readonly link = computed(() => parseMediaLink(this.model().link));
+  protected readonly upload = computed(() => this.model().upload);
+  protected readonly link = computed(() => (this.upload() ? null : parseMediaLink(this.model().link)));
+  /** a file is offered only while there is no link, so a record never shows both */
+  protected readonly canUpload = computed(() => !this.upload() && !this.model().link.trim());
   protected readonly youtubeId = computed(() => {
     const link = this.link();
 
@@ -146,18 +179,34 @@ export class SongMediaFormComponent {
   private appliedLink = linkedSignal(() => {
     const media = this.stored();
 
-    return media ? mediaLink(media) : '';
+    return media && media.source !== 'upload' ? mediaLink(media) : '';
   });
 
   private player = viewChild(YoutubePreviewComponent);
+  private linkInput = viewChild<ElementRef<HTMLInputElement>>('linkInput');
+  // the ref sits on a MatButton component, which a plain query would return instead of the element
+  private replaceFileButton = viewChild('replaceFile', { read: ElementRef<HTMLButtonElement> });
   protected readonly playerReady = signal(false);
   protected readonly saveError = signal(false);
+
+  /** the name of the file picked here; a stored record only knows the server's name */
+  protected readonly uploadName = linkedSignal<SongMedia | null, string | null>({
+    source: this.stored,
+    computation: () => null,
+  });
+
+  /** percent, null while nothing is being uploaded */
+  protected readonly uploadProgress = signal<number | null>(null);
+  protected readonly uploadError = signal<string | null>(null);
 
   /** what the form filled in by itself; the next link may replace these, but never what the admin typed */
   private autoFilled: Pick<MediaFormModel, AutoField> = { title: '', author: '', duration: '' };
 
   /** null cancels the request for the previous link */
   private youtubeInfo = new Subject<string | null>();
+
+  /** a file starts its upload, null cancels the one in progress */
+  private uploads = new Subject<File | null>();
 
   constructor() {
     this.youtubeInfo
@@ -174,6 +223,36 @@ export class SongMediaFormComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ title, author_name }) => this.autoFill({ title: title ?? '', author: author_name ?? '' }));
+
+    // another record resets the model, so a file still uploading for the previous one must not land in it
+    merge(this.uploads, toObservable(this.stored).pipe(map((): null => null)))
+      .pipe(
+        switchMap((file) => {
+          this.uploadProgress.set(file ? 0 : null);
+
+          return file
+            ? this.songService.uploadSongMedia(file).pipe(
+                map((event) => ({ file, event })),
+                catchError((error: HttpErrorResponse) => {
+                  this.uploadProgress.set(null);
+                  this.uploadError.set(
+                    error.status === 413 ? 'Сервер не прымае такі вялікі файл' : 'Не атрымалася загрузіць файл',
+                  );
+                  return EMPTY;
+                }),
+              )
+            : EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(({ file, event }) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.uploadProgress.set(Math.round((event.loaded / event.total) * 100));
+        } else if (event.type === HttpEventType.Response && event.body) {
+          this.uploadProgress.set(null);
+          this.onUploaded(file, event.body.ref);
+        }
+      });
   }
 
   // a new link brings its own start, while an existing record keeps its own on load
@@ -186,6 +265,7 @@ export class SongMediaFormComponent {
 
     this.appliedLink.set(mediaLink(link));
     this.playerReady.set(false);
+    this.releaseStoredDuration();
     // the previous link's names and length do not belong to the new one
     this.autoFill({ title: '', author: '', duration: '' });
     this.model.update((model) => ({
@@ -218,6 +298,83 @@ export class SongMediaFormComponent {
     }
 
     this.model.set(model);
+  }
+
+  /** the stored length belongs to the stored recording, so a new link or file may replace it unless it was edited */
+  private releaseStoredDuration(): void {
+    const duration = this.stored()?.duration;
+
+    if (duration != null && this.model().duration === formatDuration(duration)) {
+      this.autoFilled.duration = this.model().duration;
+    }
+  }
+
+  protected pickFile(fileInput: HTMLInputElement): void {
+    if (this.uploadProgress() === null) {
+      fileInput.click();
+    }
+  }
+
+  protected onFileSelected(fileInput: HTMLInputElement): void {
+    const file = fileInput.files?.[0];
+    // so picking the same file again after an error still gives a change event
+    fileInput.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!AUDIO_FILE.test(file.name)) {
+      this.uploadError.set('Патрэбны аўдыяфайл: mp3, m4a, aac, ogg, opus, wav або flac');
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      this.uploadError.set('Файл большы за 30 МБ');
+      return;
+    }
+
+    this.uploadError.set(null);
+    this.uploads.next(file);
+  }
+
+  private onUploaded(file: File, ref: string): void {
+    this.model.update((model) => ({ ...model, upload: ref }));
+    this.uploadName.set(file.name);
+    this.playerReady.set(false);
+    // a YouTube link typed before is no longer used, nor are the names it brought
+    this.youtubeInfo.next(null);
+    this.releaseStoredDuration();
+    this.autoFill({ title: fileTitle(file.name), author: '', duration: '' });
+    this.readDuration(file);
+    // the upload button gives way to the file, so the focus goes to the button that replaces it
+    afterNextRender(() => this.replaceFileButton()?.nativeElement.focus(), { injector: this.injector });
+  }
+
+  private readDuration(file: File): void {
+    const audio = this.document.createElement('audio');
+    const url = URL.createObjectURL(file);
+    const done = () => URL.revokeObjectURL(url);
+
+    audio.preload = 'metadata';
+    audio.addEventListener('error', done);
+    audio.addEventListener('loadedmetadata', () => {
+      done();
+      const duration = Math.round(audio.duration);
+      // the file's length is only right for a record that plays the whole file
+      if (Number.isFinite(duration) && duration && !this.model().fragment) {
+        this.autoFill({ duration: formatDuration(duration) });
+      }
+    });
+    audio.src = url;
+  }
+
+  protected removeUpload(): void {
+    this.uploads.next(null);
+    this.model.update((model) => ({ ...model, upload: '' }));
+    this.uploadName.set(null);
+    // the pressed button is gone, so the focus goes to the link field that takes the file's place
+    afterNextRender(() => this.linkInput()?.nativeElement.focus(), { injector: this.injector });
   }
 
   protected takeTime(field: 'start' | 'end'): void {
@@ -259,13 +416,12 @@ export class SongMediaFormComponent {
   }
 
   private toDraft(): SongMediaDraft | null {
-    const link = this.link();
+    const { title, author, duration, upload } = this.model();
+    const link = upload ? { source: 'upload' as const, ref: upload } : this.link();
 
     if (!link) {
       return null;
     }
-
-    const { title, author, duration } = this.model();
 
     return {
       id: this.media()?.id ?? null,
@@ -278,6 +434,14 @@ export class SongMediaFormComponent {
       endAt: this.endAt(),
     };
   }
+}
+
+/** `01_Ave-Maria.mp3` → `01 Ave Maria` */
+function fileTitle(name: string): string {
+  return name
+    .replace(/\.[^.]+$/, '')
+    .replace(/[_-]+/g, ' ')
+    .trim();
 }
 
 function fragmentLength(start: string, end: string): number | null {

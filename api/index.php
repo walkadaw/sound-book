@@ -23,8 +23,9 @@ function start_session(){
 	session_start();
 }
 
-// Admin writes: a signed-in user and a JSON POST, exits with the error status otherwise.
-function read_admin_json(){
+// Admin writes: a signed-in user and a POST of the given content type, exits with the error status otherwise.
+// A cross-site <form> can only send text/plain or form content types, so requiring any other type keeps it out.
+function require_admin_post($contentType){
 	start_session();
 
 	if (!isset($_SESSION['user_id'])) {
@@ -37,11 +38,14 @@ function read_admin_json(){
 		exit();
 	}
 
-	// A cross-site <form> can only send text/plain or form content types, never application/json.
-	if (stripos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== 0) {
+	if (stripos($_SERVER['CONTENT_TYPE'] ?? '', $contentType) !== 0) {
 		http_response_code(415);
 		exit();
 	}
+}
+
+function read_admin_json(){
+	require_admin_post('application/json');
 
 	$data = json_decode(file_get_contents('php://input'), true);
 
@@ -51,6 +55,31 @@ function read_admin_json(){
 	}
 
 	return $data;
+}
+
+// Uploaded recordings live in media/, which the deploy never touches (see the rsync excludes).
+const MEDIA_UPLOAD_DIR = __DIR__.'/media';
+// the same list as AUDIO_EXTENSIONS in song-media-player.ts
+const MEDIA_UPLOAD_EXTENSIONS = 'mp3|m4a|aac|ogg|oga|opus|wav|flac';
+const MEDIA_UPLOAD_NAME = '^[0-9a-f]{16}\.('.MEDIA_UPLOAD_EXTENSIONS.')$';
+const MEDIA_UPLOAD_REF = '/'.MEDIA_UPLOAD_NAME.'/';
+
+function media_upload_path($ref){
+	return MEDIA_UPLOAD_DIR.'/'.$ref;
+}
+
+// Called after a record stops pointing at an uploaded file; another record may still use it.
+function delete_unused_upload($db, $ref){
+	if (!preg_match(MEDIA_UPLOAD_REF, $ref)) {
+		return;
+	}
+
+	$sth = $db->prepare("SELECT 1 FROM `sound_media` WHERE `source`='upload' AND `ref`=? LIMIT 1");
+	$sth->execute([$ref]);
+
+	if (!$sth->fetch() && is_file(media_upload_path($ref))) {
+		unlink(media_upload_path($ref));
+	}
 }
 
 $db = new db();
@@ -70,6 +99,7 @@ switch($page){
 	case "song/media/save":  include("song/_media_save.php"); break;
 	case "song/media/delete":  include("song/_media_delete.php"); break;
 	case "song/media/order":  include("song/_media_order.php"); break;
+	case "song/media/upload":  include("song/_media_upload.php"); break;
 
 	case "auth/login":  include("auth/_login.php"); break;
 	case "auth/check":  include("auth/_check.php"); break;

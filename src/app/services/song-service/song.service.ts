@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Service, computed, inject, signal } from '@angular/core';
 import { Observable, defer, of, throwError } from 'rxjs';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
@@ -105,6 +105,16 @@ export class SongService {
     return this.http
       .post<{ id: number }>(`${environment.baseUrl}/song/media/save`, { ...media, songId })
       .pipe(map(({ id }) => id));
+  }
+
+  /** emits the upload progress, then the response with the name the server gave the file */
+  uploadSongMedia(file: File): Observable<HttpEvent<{ ref: string }>> {
+    return this.http.post<{ ref: string }>(`${environment.baseUrl}/song/media/upload`, file, {
+      params: { name: file.name },
+      headers: { 'Content-Type': 'application/octet-stream' },
+      reportProgress: true,
+      observe: 'events',
+    });
   }
 
   deleteSongMedia(id: number): Observable<void> {
