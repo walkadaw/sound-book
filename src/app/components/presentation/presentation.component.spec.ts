@@ -65,6 +65,7 @@ describe('PresentationComponent', () => {
           provide: RevealService,
           useValue: {
             ready: signal(false),
+            remoteId: 'spec',
             isSpeakerNotes: () => false,
             init: () => {},
             destroy: () => {},
@@ -108,6 +109,19 @@ describe('PresentationComponent', () => {
 
     component.addSlide('l2');
     expect(listed().length).toBe(3);
+  });
+
+  it('should give the speaker view the masses it is built from', async () => {
+    await create('l');
+    const speakerView = new BroadcastChannel('reveal-menu-spec');
+    const answer = new Promise<MessageEvent>((resolve) => (speakerView.onmessage = resolve));
+
+    speakerView.postMessage({ type: 'requestLiturgy' });
+
+    const { data } = await answer;
+    expect(data.type).toBe('liturgy');
+    expect(data.masses.map(({ title }: Liturgy) => title)).toEqual(['Чацвер', 'Успамін']);
+    speakerView.close();
   });
 
   it('should remove the whole mass with any of its parts', async () => {

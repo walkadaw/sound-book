@@ -105,7 +105,7 @@
       }
       @if (!isSearchFocused()) {
         <ul class="slide-menu-items">
-          @for (song of slideList(); track song; let index = $index) {
+          @for (song of slideList(); track $index; let index = $index) {
             <li
               class="slide-menu-item"
               [class.past]="song.endIndex < selectedSlide()"
@@ -125,12 +125,16 @@
       }
     </div>
   </nav>
-  <div class="slide-menu-overlay" [class.active]="active()" (click)="toggleMenu()"></div>
+  @if (!isPinned) {
+    <div class="slide-menu-overlay" [class.active]="active()" (click)="toggleMenu()"></div>
+  }
 </div>
 
 @if (isShowControls) {
   <div class="slide-menu-button">
-    <mat-icon class="slide-button" (click)="toggleMenu()">menu</mat-icon>
+    @if (!isPinned) {
+      <mat-icon class="slide-button" (click)="toggleMenu()">menu</mat-icon>
+    }
     @if (!isSpeakerNotes) {
       <mat-icon class="slide-button" (click)="fullScreen()">
         @if (!isFullscreen()) {

@@ -1,5 +1,5 @@
 import { Service, signal } from '@angular/core';
-import Reveal, { RevealApi } from 'reveal.js';
+import Reveal, { RevealApi, RevealConfig } from 'reveal.js';
 import RevealNotes from 'reveal.js/plugin/notes';
 import { fromEvent, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
@@ -11,6 +11,9 @@ interface NotesPlugin {
 @Service()
 export class RevealService {
   readonly ready = signal(false);
+  // The speaker view loads the presentation with this id, so the windows of one presentation find each other
+  // and two presentations open at once stay apart.
+  readonly remoteId = new URLSearchParams(window.location.search).get('remote') ?? Math.random().toString(36).slice(2);
 
   private reveal: RevealApi;
   private initTimer: ReturnType<typeof setTimeout>;
@@ -32,8 +35,18 @@ export class RevealService {
     return this.reveal && this.reveal.isPaused();
   }
 
-  getNotesPlugin(): NotesPlugin {
-    return this.reveal.getPlugin('notes') as unknown as NotesPlugin;
+  openNotes(): void {
+    // The notes plugin loads its previews from config.url, which RevealConfig does not declare.
+    const options: RevealConfig & { url: string } = {
+      url: `${window.location.origin}${window.location.pathname}?remote=${this.remoteId}`,
+    };
+
+    this.reveal.configure(options);
+    (this.reveal.getPlugin('notes') as unknown as NotesPlugin).open();
+  }
+
+  layout(): void {
+    this.reveal.layout();
   }
 
   getRevealElement(): HTMLElement {

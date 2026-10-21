@@ -1,7 +1,7 @@
 <div class="reveal" [class.speakerNotes]="isSpeakerNotes()">
   <div class="slides">
     @if (slideList().length) {
-      @for (slides of slideList(); track trackBySlides($index, slides)) {
+      @for (slides of slideList(); track $index) {
         @for (slide of slides.slides; track slide) {
           <section [style.font-size.px]="slide.fontSize">
             <span>{{ slide.text }}</span>

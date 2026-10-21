@@ -408,6 +408,16 @@ body.print-pdf .slide-menu-wrapper .slide-menu-overlay {
   height: 100%;
   line-height: 35px;
 }
+// The control window shows the slide beside the pinned menu. Reveal scales the slide to the body,
+// the first .reveal element on the page.
+body.menuPinned {
+  margin-left: 300px;
+  width: calc(100% - 300px);
+}
+body.menuPinned .slide-menu-button {
+  left: 320px;
+}
+
 .hideMenu .slide-menu-button .slide-button,
 .hideMenu .navigate-left .controls-arrow,
 .hideMenu .navigate-right .controls-arrow {

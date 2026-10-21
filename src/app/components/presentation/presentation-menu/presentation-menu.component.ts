@@ -15,7 +15,7 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { fromEvent } from 'rxjs';
-import { filter, debounceTime, distinctUntilChanged, startWith, map } from 'rxjs/operators';
+import { filter, debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
@@ -26,6 +26,10 @@ import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
+import {
+  PresentationChannel,
+  PresentationMessage,
+} from '../../../services/presentation-channel/presentation-channel.service';
 
 @Component({
   selector: 'app-presentation-menu',
@@ -39,6 +43,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   private fuseService = inject(FuseService);
   private songService = inject(SongService);
   private reveal = inject(RevealService);
+  private channel = inject(PresentationChannel);
 
   readonly slideList = input<SlideList[]>();
   // the masses of the day that can be added, listed before the songs
@@ -49,9 +54,12 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
 
   readonly searchElement = viewChild<ElementRef<HTMLInputElement>>('searchElement');
 
-  readonly active = signal(false);
-  isShowControls = false;
-  isSpeakerNotes = false;
+  readonly isShowControls = this.reveal.isShowControls();
+  readonly isSpeakerNotes = this.reveal.isSpeakerNotes();
+  // The control window keeps the menu open beside the slide; the upcoming slide preview has no controls.
+  readonly isPinned = this.isSpeakerNotes && this.isShowControls;
+  private isUpcomingPreview = this.isSpeakerNotes && !this.isShowControls;
+  readonly active = signal(this.isPinned);
   readonly isSearchFocused = signal(false);
   readonly isFullscreen = signal(!!document.fullscreenElement);
   readonly hideMenu = signal(false);
@@ -86,56 +94,49 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
 
   readonly selectedSlide = signal(this.reveal.getActiveSlide());
 
-  private revealNotes = this.reveal.getNotesPlugin();
-
   ngOnInit(): void {
     this.initTag();
     this.initSearch();
-    this.isShowControls = this.reveal.isShowControls();
-    this.isSpeakerNotes = this.reveal.isSpeakerNotes();
 
-    if (!this.slideList()?.length) {
+    // the upcoming slide preview of the speaker view shows only the slide
+    if (!this.slideList()?.length && !this.isSpeakerNotes) {
       this.toggleMenu();
+    }
+
+    if (this.isPinned) {
+      document.body.classList.add('menuPinned');
+      this.reveal.layout();
     }
 
     fromEvent(document, 'fullscreenchange')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.isFullscreen.set(!!document.fullscreenElement));
 
-    fromEvent<MessageEvent>(window, 'message')
-      .pipe(
-        filter((event) => event && event.data && event.source !== window.self),
-        map((event) => JSON.parse(event.data)),
-        filter((data) => data && data.namespace === 'reveal-menu'),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((data) => {
-        switch (data.type) {
-          case 'addSong':
-            this.addedSong.emit(data.payload.toString());
-            break;
-          case 'removeSong':
-            this.removeSong.emit(data.payload);
-            break;
-          case 'hideMenuControl':
-            this.toggleShowIconMenu(false);
-            break;
-          case 'changeTheme':
-            this.toggleTheme(false);
-            break;
+    this.channel.messages$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((message) => this.onMessage(message));
 
-          default:
-            break;
-        }
-      });
+    this.destroyRef.onDestroy(() => {
+      // the body outlives the presentation
+      document.body.classList.remove('menuPinned', 'hideMenu', 'white');
+    });
+
+    if (this.isSpeakerNotes) {
+      // The main window may have hidden its controls before the speaker view was opened, and the speaker view
+      // moves the upcoming preview only once, maybe before its songs have loaded.
+      this.channel.send({ type: 'requestState' });
+    }
   }
 
   ngAfterViewInit() {
     this.initHighlightCurrentSlide();
+
+    // an empty presentation starts with choosing songs
+    if (!this.slideList()?.length && !this.isSpeakerNotes) {
+      this.searchElement()?.nativeElement.focus();
+    }
   }
 
   openRemoteControl() {
-    this.revealNotes.open();
+    this.reveal.openNotes();
   }
 
   toggleTheme(dispatch = true) {
@@ -144,23 +145,19 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
     }
 
     if (dispatch) {
-      this.sendPostMessage('changeTheme');
+      this.channel.send({ type: 'changeTheme' });
     }
   }
 
   toggleMenu() {
-    this.active.update((active) => !active);
+    if (!this.isPinned) {
+      this.active.update((active) => !active);
+    }
   }
 
-  toggleShowIconMenu(dispatch = true) {
-    this.hideMenu.update((hideMenu) => !hideMenu);
-    if (!this.isSpeakerNotes) {
-      document.body.classList.toggle('hideMenu');
-    }
-
-    if (dispatch) {
-      this.sendPostMessage('hideMenuControl');
-    }
+  toggleShowIconMenu() {
+    this.setHideMenu(!this.hideMenu());
+    this.channel.send({ type: 'hideMenu', hidden: this.hideMenu() });
   }
 
   openSlide(song: SlideList) {
@@ -187,23 +184,18 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
 
   onClickSearchSong(song: Song) {
     this.search.setValue('');
-    this.addedSong.emit(song.id.toString());
-
-    this.sendPostMessage('addSong', song.id);
+    this.addSong(song.id.toString());
   }
 
   onClickSearchLiturgy(id: string) {
     this.search.setValue('');
-    this.addedSong.emit(id);
-
-    this.sendPostMessage('addSong', id);
+    this.addSong(id);
   }
 
   onClickRemovedSong(event: Event, index: number) {
     event.stopPropagation();
     this.removeSong.emit(index);
-
-    this.sendPostMessage('removeSong', index);
+    this.channel.send({ type: 'removeSong', index });
   }
 
   toggleSelectedTag() {
@@ -232,8 +224,46 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
     }, 250);
   }
 
-  trackBySong(index: number, song: Song) {
-    return song.id;
+  private addSong(id: string) {
+    this.addedSong.emit(id);
+    this.channel.send({ type: 'addSong', id });
+  }
+
+  private setHideMenu(hidden: boolean) {
+    this.hideMenu.set(hidden);
+
+    if (!this.isSpeakerNotes) {
+      document.body.classList.toggle('hideMenu', hidden);
+    }
+  }
+
+  private onMessage(message: PresentationMessage) {
+    switch (message.type) {
+      case 'addSong':
+        this.addedSong.emit(message.id);
+        break;
+      case 'removeSong':
+        this.removeSong.emit(message.index);
+        break;
+      case 'hideMenu':
+        this.setHideMenu(message.hidden);
+        break;
+      case 'changeTheme':
+        this.toggleTheme(false);
+        break;
+      case 'requestState':
+        if (!this.isSpeakerNotes) {
+          this.channel.send({ type: 'state', hidden: this.hideMenu(), slide: this.reveal.getActiveSlide() });
+        }
+        break;
+      case 'state':
+        this.setHideMenu(message.hidden);
+
+        if (this.isUpcomingPreview) {
+          this.reveal.slide(message.slide + 1);
+        }
+        break;
+    }
   }
 
   private enterFullscreen() {
@@ -261,7 +291,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
       },
       ...TAGS_LIST,
     ];
-    this.onClickTag(0);
+    this.selectedTag.set(this.tagsList[0]);
   }
 
   private initSearch() {
@@ -286,15 +316,5 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
           this.toggleMenu();
         }
       });
-  }
-
-  private sendPostMessage(type: string, payload?: number | string) {
-    const message = {
-      namespace: 'reveal-menu',
-      isSpeakerNotes: this.isSpeakerNotes,
-      payload,
-      type,
-    };
-    window.parent.postMessage(JSON.stringify(message), '*');
   }
 }
