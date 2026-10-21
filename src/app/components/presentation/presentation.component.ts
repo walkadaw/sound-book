@@ -15,8 +15,9 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
-import { ALL_LITURGY, LITURGY_ACRONYM } from '../../constants/liturgy-acronym';
+import { filter, take, tap } from 'rxjs/operators';
+import { liturgyId, liturgyIndex } from '../../constants/liturgy';
+import { Liturgy, LiturgyChoice } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 import { lyricsWithChords } from '../../services/chord/song-structure';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
@@ -60,6 +61,17 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly isReady = this.reveal.ready;
   readonly isSpeakerNotes = computed(() => this.reveal.ready() && this.reveal.isSpeakerNotes());
 
+  private masses = signal<Liturgy[]>([]);
+
+  // the masses of the day that are not in the presentation yet
+  readonly liturgyChoices = computed<LiturgyChoice[]>(() => {
+    const added = new Set(this.slideList().map(({ liturgy }) => liturgy));
+
+    return this.masses()
+      .map(({ title }, index) => ({ id: liturgyId(index), title }))
+      .filter(({ id }) => !added.has(id));
+  });
+
   private isDataLoaded$ = new BehaviorSubject(false);
 
   ngOnInit() {
@@ -89,47 +101,30 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  addSlide(idSong: string) {
-    if (this.songService.hasSong(idSong)) {
-      const song = this.songService.getSong(idSong);
-      const { id, title } = song;
-      const slides = this.slidesService.getSongSlide(song.text);
+  addSlide(id: string) {
+    const isLiturgy = liturgyIndex(id) !== null;
+    const added = isLiturgy && this.slideList().some(({ liturgy }) => liturgy === id) ? [] : this.slidesFor(id);
 
-      this.slideList.update((list) => {
-        const lastIndex = list.length ? list[list.length - 1].endIndex : -1;
+    if (added.length) {
+      this.slideList.update((list) => withIndexes([...list, ...added]));
 
-        return [
-          ...list,
-          {
-            id: id.toString(),
-            slides,
-            title,
-            ...lyricsWithChords(song),
-            startIndex: lastIndex + 1,
-            endIndex: lastIndex + slides.length,
-          },
-        ];
-      });
+      if (!isLiturgy) {
+        this.countShow(id);
+      }
 
-      this.countShow(id.toString());
       this.updateLocation();
     }
   }
 
+  // A mass goes away as a whole, whichever of its parts is removed.
   removeSlide(removedIndex: number) {
-    this.slideList.update((list) =>
-      list
-        .filter((slide, index) => index !== removedIndex)
-        .map((slide, index, slideList) => {
-          if (index >= removedIndex) {
-            const lastIndex = index > 0 ? slideList[index - 1].endIndex : -1;
+    this.slideList.update((list) => {
+      const liturgy = list[removedIndex]?.liturgy;
 
-            return { ...slide, startIndex: lastIndex + 1, endIndex: lastIndex + slide.slides.length };
-          }
-
-          return slide;
-        }),
-    );
+      return withIndexes(
+        list.filter((slide, index) => index !== removedIndex && !(liturgy && slide.liturgy === liturgy)),
+      );
+    });
 
     this.updateLocation();
   }
@@ -140,7 +135,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadSlide() {
     const listID = ((this.activatedRoute.snapshot.params['id'] as string) || '').split(',');
-    forkJoin([this.liturgyService.loadSlideForLiturgy(), this.songService.loadSongFromCache()])
+    const liturgy = this.liturgyService.getLiturgy().pipe(tap((masses) => this.masses.set(masses ?? [])));
+
+    forkJoin([liturgy, this.songService.loadSongFromCache()])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.buildSlides(listID),
@@ -152,47 +149,35 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private buildSlides(listID: string[]) {
     this.isDataLoaded$.next(true);
 
-    const slideList = listID.reduce<SlideList[]>((acc, id) => {
-      let lastIndex = acc.length ? acc[acc.length - 1].endIndex : -1;
-
-      if (Number.isNaN(parseInt(id, 10))) {
-        if (id === ALL_LITURGY) {
-          const liturgys = (this.liturgyService.slideLiturgy || []).map((liturgy) => {
-            const startIndex = lastIndex + 1;
-            lastIndex += liturgy.slides.length;
-
-            return { ...liturgy, startIndex, endIndex: lastIndex };
-          });
-
-          acc.push(...liturgys);
-        } else if (LITURGY_ACRONYM.has(id) && this.liturgyService.hasSlideLiturgy(id)) {
-          const slide = this.liturgyService.getSlideLiturgy(id);
-
-          acc.push({
-            ...slide,
-            startIndex: lastIndex + 1,
-            endIndex: lastIndex + slide.slides.length,
-          });
-        }
-      } else if (this.songService.hasSong(id)) {
-        const song = this.songService.getSong(id);
-        const slide = this.slidesService.getSongSlide(song.text);
-
-        acc.push({
-          id: song.id.toString(),
-          title: song.title,
-          slides: slide,
-          ...lyricsWithChords(song),
-          startIndex: lastIndex + 1,
-          endIndex: lastIndex + slide.length,
-        });
-      }
-
-      return acc;
-    }, []);
+    const slideList = withIndexes(oncePerMass(listID).flatMap((id) => this.slidesFor(id)));
 
     this.slideList.set(slideList);
     slideList.filter((slide) => this.songService.hasSong(slide.id)).forEach((slide) => this.countShow(slide.id));
+  }
+
+  private slidesFor(id: string): SlideList[] {
+    const index = liturgyIndex(id);
+
+    if (index !== null) {
+      const mass = this.masses()[index];
+
+      return mass ? this.slidesService.getLiturgySlides(id, mass.sections) : [];
+    }
+
+    if (!this.songService.hasSong(id)) {
+      return [];
+    }
+
+    const song = this.songService.getSong(id);
+
+    return [
+      {
+        id: song.id.toString(),
+        title: song.title,
+        slides: this.slidesService.getSongSlide(song.text),
+        ...lyricsWithChords(song),
+      },
+    ];
   }
 
   private countShow(songId: string) {
@@ -206,12 +191,26 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private updateLocation() {
     if (!this.reveal.isSpeakerNotes()) {
-      this.location.replaceState(
-        `/presentation/${this.slideList()
-          .map((slide) => slide.id)
-          .toString()}`,
-      );
+      const ids = this.slideList().map((slide) => slide.liturgy ?? slide.id);
+
+      this.location.replaceState(`/presentation/${oncePerMass(ids).toString()}`);
     }
     this.reveal.updateRevealState();
   }
+}
+
+function withIndexes(list: SlideList[]): SlideList[] {
+  let lastIndex = -1;
+
+  return list.map((slide) => {
+    const startIndex = lastIndex + 1;
+    lastIndex += slide.slides.length;
+
+    return { ...slide, startIndex, endIndex: lastIndex };
+  });
+}
+
+// A mass is shown once, where the list mentions it first; a song may be shown twice.
+function oncePerMass(ids: string[]): string[] {
+  return ids.filter((id, index) => liturgyIndex(id) === null || ids.indexOf(id) === index);
 }

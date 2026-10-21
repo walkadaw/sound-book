@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   inject,
   signal,
+  computed,
   input,
   output,
   viewChild,
@@ -20,6 +21,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
 import { MatchHighlightComponent } from '../../match-highlight/match-highlight.component';
+import { LiturgyChoice } from '../../../interfaces/liturgy';
 import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
@@ -39,6 +41,8 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   private reveal = inject(RevealService);
 
   readonly slideList = input<SlideList[]>();
+  // the masses of the day that can be added, listed before the songs
+  readonly liturgy = input<LiturgyChoice[]>([]);
 
   readonly addedSong = output<string>();
   readonly removeSong = output<number>();
@@ -66,6 +70,19 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
     this.debouncedSearch,
     this.songService.songList,
   );
+
+  // A mass is found by its title or by the start of the word "літургія", and a song tag hides the masses.
+  readonly foundLiturgy = computed(() => {
+    const search = this.debouncedSearch().trim().toLowerCase();
+
+    if (this.selectedTagId()) {
+      return [];
+    }
+
+    return this.liturgy()
+      .filter(({ title }) => 'літургія'.startsWith(search) || title.toLowerCase().includes(search))
+      .map(({ id, title }) => ({ id, title: `Літургія: ${title}` }));
+  });
 
   readonly selectedSlide = signal(this.reveal.getActiveSlide());
 
@@ -173,6 +190,13 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
     this.addedSong.emit(song.id.toString());
 
     this.sendPostMessage('addSong', song.id);
+  }
+
+  onClickSearchLiturgy(id: string) {
+    this.search.setValue('');
+    this.addedSong.emit(id);
+
+    this.sendPostMessage('addSong', id);
   }
 
   onClickRemovedSong(event: Event, index: number) {

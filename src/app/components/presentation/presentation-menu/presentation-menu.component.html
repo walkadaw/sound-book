@@ -80,6 +80,11 @@
     >
       @if (isSearchFocused()) {
         <ul class="slide-menu-items-search">
+          @for (mass of foundLiturgy(); track mass.id) {
+            <li class="slide-menu-item active selected add-new-slide" (click)="onClickSearchLiturgy(mass.id)">
+              <span class="slide-menu-item-title">{{ mass.title }}</span>
+            </li>
+          }
           @if (found.length) {
             @for (item of found; track item.song.id) {
               <li class="slide-menu-item active selected add-new-slide" (click)="onClickSearchSong(item.song)">
@@ -91,7 +96,7 @@
                 </span>
               </li>
             }
-          } @else {
+          } @else if (!foundLiturgy().length) {
             <li class="slide-menu-item">
               <span class="slide-menu-item-title">Песня не знойдзена</span>
             </li>

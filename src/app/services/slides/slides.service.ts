@@ -1,7 +1,9 @@
 import { Service, signal } from '@angular/core';
 import { filter, take, timer } from 'rxjs';
-import { Slide } from '../../interfaces/slide';
+import { LiturgySection } from '../../interfaces/liturgy';
+import { Slide, SlideList } from '../../interfaces/slide';
 import { withoutMarks } from '../chord/song-structure';
+import { liturgySlides } from '../liturgy-slides/liturgy-slides';
 
 @Service()
 export class SlidesService {
@@ -61,7 +63,7 @@ export class SlidesService {
         const needLine = this.getLineContend(songBlock, fontName, this.fontSizePx, this.lineHeight);
 
         if (line + needLine > maxLine && tmpSlideText) {
-          slide.push({ fontSize: this.fontSizePx.toString(), text: tmpSlideText });
+          slide.push({ fontSize: this.fontSizePx, text: tmpSlideText });
           line = 0;
           tmpSlideText = '';
         }
@@ -82,10 +84,17 @@ export class SlidesService {
     });
 
     if (tmpSlideText) {
-      slide.push({ fontSize: '60', text: tmpSlideText });
+      slide.push({ fontSize: this.fontSizePx, text: tmpSlideText });
     }
 
     return slide;
+  }
+
+  getLiturgySlides(liturgy: string, sections: LiturgySection[]): SlideList[] {
+    return liturgySlides(liturgy, sections, {
+      lines: (text, fontSize) => this.getLineContend(text, 'web', fontSize, this.lineHeight),
+      maxLines: (fontSize) => this.getMaxLine(fontSize, this.lineHeight),
+    });
   }
 
   private initContainer() {
@@ -140,7 +149,7 @@ export class SlidesService {
       const needLine = this.getLineContend(songBlock, fontName, fontSizePx, this.lineHeight);
 
       if (needLine <= maxLine) {
-        slide.push({ fontSize: fontSizePx.toString(), text: songBlock });
+        slide.push({ fontSize: fontSizePx, text: songBlock });
         break;
       }
 
@@ -159,7 +168,7 @@ export class SlidesService {
     songBlock.split('\n').forEach((lineText) => {
       const needLine = this.getLineContend(lineText, fontName, this.fontSizePx, this.lineHeight);
       if (line + needLine > howSlideNeed && tmpSlideText) {
-        slide.push({ fontSize: this.fontSizePx.toString(), text: tmpSlideText });
+        slide.push({ fontSize: this.fontSizePx, text: tmpSlideText });
         tmpSlideText = '';
         line = 0;
       }
@@ -169,7 +178,7 @@ export class SlidesService {
     });
 
     if (tmpSlideText) {
-      slide.push({ fontSize: this.fontSizePx.toString(), text: tmpSlideText });
+      slide.push({ fontSize: this.fontSizePx, text: tmpSlideText });
     }
 
     return slide;

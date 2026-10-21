@@ -7,7 +7,6 @@ header('Content-Type: application/json');
 require __DIR__.'/classes/_class.db.php';
 
 const ROUTES = [
-    'liturgy/get-slide' => 'liturgy/_get_slide.php',
     'liturgy/get' => 'liturgy/_get.php',
 
     'song/get' => 'song/_get_song.php',

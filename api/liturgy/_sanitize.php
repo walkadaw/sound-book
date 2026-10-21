@@ -1,6 +1,6 @@
 <?php
 // The liturgy text is scraped from catholic.by and shown on the site as HTML, so only the markup that the
-// page and the slide parser (_slides.php) rely on survives: paragraphs, line breaks, emphasis,
+// lectionary parser (_lectionary.php) relies on survives: paragraphs, line breaks, emphasis,
 // span.divider and div[align]. Other elements are unwrapped to their text; active content is dropped whole.
 const LITURGY_ALLOWED_ATTRIBUTES = [
     'p' => [],

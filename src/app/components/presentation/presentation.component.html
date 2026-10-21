@@ -23,6 +23,11 @@
 </div>
 
 @if (isReady()) {
-  <app-presentation-menu [slideList]="slideList()" (addedSong)="addSlide($event)" (removeSong)="removeSlide($event)">
+  <app-presentation-menu
+    [slideList]="slideList()"
+    [liturgy]="liturgyChoices()"
+    (addedSong)="addSlide($event)"
+    (removeSong)="removeSlide($event)"
+  >
   </app-presentation-menu>
 }
