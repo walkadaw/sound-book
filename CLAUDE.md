@@ -72,3 +72,7 @@ The songbook is read both at a music stand and on the move (a phone in hand, out
 - Use the `providedIn: 'root'` option for singleton services
 - Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
 - Use the `inject()` function instead of constructor injection
+
+## Commits
+
+- Before every commit run the linter (`npx ng lint`), the tests (`npx ng test --watch=false`) and the build (`npx ng build`). Do NOT commit while any of them reports errors
