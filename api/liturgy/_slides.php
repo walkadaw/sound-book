@@ -1,173 +1,66 @@
 <?php
-// Splits today's liturgy into presentation slides: the article (HTML from _parser.php) holds the texts,
-// the short reading list (`artlitreadings`) tells which of them are read today and in what order.
+// Splits a mass from _lectionary.php into presentation slides.
 
 // characters of a reading that fit on one 16:9 slide at fontSize 54
 const READING_SLIDE_CHARS = 285;
 
-const READING_HEADERS = [
-    'ПЕРШАЕ ЧЫТАННЕ', 'ДРУГОЕ ЧЫТАННЕ', 'ТРЭЦЯЕ ЧЫТАННЕ', 'ЧАЦВЁРТАЕ ЧЫТАННЕ',
-    'ПЯТАЕ ЧЫТАННЕ', 'ШОСТАЕ ЧЫТАННЕ', 'СЁМАЕ ЧЫТАННЕ', 'ЭПІСТАЛА',
-];
-
-// left out when a reference from the reading list is looked up in a text's header
-const REFERENCE_IGNORED = [',', '(', ')', '.', '-', '–', '—', ' ', "\u{a0}", ';', ':', '?'];
-
-/** @return array{reading: string[], psalm: string[], acclamation: string[], gospel: string[]} */
-function liturgy_sections(string $article): array {
-    $find = function (string $pattern) use ($article): array {
-        preg_match_all("#{$pattern}#is", $article, $matches);
-
-        return $matches[1];
-    };
-
-    return [
-        'reading' => array_merge(...array_map(fn(string $header) => $find($header.'(.+?)<span class="divider">'), READING_HEADERS)),
-        'psalm' => $find('РЭСПАНСАРЫЙНЫ ПСАЛЬМ(.+?)(<span class="divider">|СПЕЎ ПЕРАД)'),
-        'acclamation' => $find('СПЕЎ ПЕРАД ЕВАНГЕЛЛЕМ(.+?)(<span class="divider">|ЕВАНГЕЛЛЕ)'),
-        'gospel' => $find('<b>ЕВАНГЕЛЛЕ(.+?)(Пераклад здзейснены|<div align="center">|<span class="divider">)'),
-    ];
-}
-
 /**
- * The references of the reading list in order: first reading, psalm, [second reading, ...] gospel.
- * Each is a list of alternatives, which the list separates with "альбо".
+ * Readings and psalms are numbered in order (r1, p1, r2, ...; the Easter Vigil has eight of each),
+ * the acclamation is "es" and the gospel "e". The sequence and the Palm Sunday procession have no slides yet.
  *
- * @return string[][]
+ * @param array{type: string, title: string, blocks: array{kind: string, lines: string[]}[]}[] $sections
+ * @return array{id: string, title: string, slides: array{fontSize: int, text: string}[]}[]
  */
-function parse_readings(string $readings): array {
-    $text = preg_match('#На Імшу(.+?)$#ius', $readings, $match) ? $match[1] : $readings;
-    $text = trim(str_replace(['1 чыт.', '2 чыт.', '3 чыт.', 'чыт.', '(карац.)', 'Ев.', 'вечаровая Імша', ';', '\\', '/', ':'], '', $text));
-    $text = str_replace("\u{a0}", ' ', $text);
-
-    $isWord = fn(string $value): bool => (bool)preg_match('/^[а-яёіў.]+$/iu', $value);
-
-    $groups = [];
-    $group = 0;
-    $current = null;
-
-    foreach (explode(' ', $text) as $word) {
-        if ($word === 'альбо') {
-            $count = count($groups);
-
-            if ($count <= 4) {
-                if ($count < 3 || $current !== null) {
-                    $groups[$group][] = trim((string)$current, '.');
-                }
-
-                $current = null;
-                $group = match ($count) {
-                    0, 1 => 0,
-                    2 => 2,
-                    default => 3,
-                };
-            }
-
-            continue;
-        }
-
-        if (mb_strlen($current ?? '') === 1 || ($isWord($current ?? '') && $isWord($word))) {
-            $current .= " $word";
-            continue;
-        }
-
-        if (mb_strlen($word) === 1) {
-            $current = ($current ?? '') === '' ? $word : "$current $word";
-            continue;
-        }
-
-        // a book name starts the next reference
-        if ($word === '' || $isWord($word)) {
-            if (($current ?? '') !== '') {
-                $groups[$group][] = trim($current, '.');
-                $group++;
-
-                if ($word === '') {
-                    $current = null;
-                    continue;
-                }
-            }
-
-            $current = $word;
-        } else {
-            $current .= " $word";
-        }
-    }
-
-    $groups[$group][] = trim((string)$current, '.');
-
-    return $groups;
-}
-
-/** @return array{id: string, title: string, slides: array{fontSize: int, text: string}[]}[] */
-function liturgy_slides(array $sections, array $readings): array {
+function liturgy_slides(array $sections): array {
     $result = [];
-    $add = function (string $id, string $title, string $section, int $reading, callable $toSlides) use (&$result, $sections, $readings): void {
-        $key = find_section($sections[$section], $readings[$reading] ?? []);
+    $counts = ['reading' => 0, 'psalm' => 0];
 
-        if ($key !== null) {
-            $result[] = ['id' => $id, 'title' => $title, 'slides' => $toSlides($sections[$section][$key])];
-        }
-    };
+    foreach ($sections as $section) {
+        [$id, $toSlides] = match ($section['type']) {
+            'reading' => ['r'.++$counts['reading'], 'reading_slides'],
+            'psalm' => ['p'.++$counts['psalm'], 'psalm_slides'],
+            'acclamation' => ['es', 'acclamation_slides'],
+            'gospel' => ['e', 'reading_slides'],
+            default => [null, null],
+        };
 
-    $count = count($readings);
-
-    $add('r1', 'ПЕРШАЕ ЧЫТАННЕ', 'reading', 0, 'reading_slides');
-    $add('p1', 'РЭСПАНСАРЫЙНЫ ПСАЛЬМ', 'psalm', 1, 'psalm_slides');
-
-    if ($count > 3) {
-        $add('r2', 'ДРУГОЕ ЧЫТАННЕ', 'reading', 2, 'reading_slides');
-    }
-
-    if ($count > 5) {
-        $add('p2', 'РЭСПАНСАРЫЙНЫ ПСАЛЬМ', 'psalm', 3, 'psalm_slides');
-        $add('r3', 'ТРЭЦЯЕ ЧЫТАННЕ', 'reading', 4, 'reading_slides');
-        $add('p3', 'РЭСПАНСАРЫЙНЫ ПСАЛЬМ', 'psalm', 5, 'psalm_slides');
-        $add('e', 'ЕВАНГЕЛЛЕ', 'gospel', 6, 'reading_slides');
-    } elseif ($count === 3 || $count === 4) {
-        // the acclamation has no reference of its own and goes with the gospel of the same number
-        $key = find_section($sections['gospel'], $readings[$count - 1]);
-
-        if ($key !== null) {
-            $result[] = ['id' => 'es', 'title' => 'СПЕЎ ПЕРАД ЕВАНГЕЛЛЕ', 'slides' => acclamation_slides($sections['acclamation'][$key] ?? '')];
-            $result[] = ['id' => 'e', 'title' => 'ЕВАНГЕЛЛЕ', 'slides' => reading_slides($sections['gospel'][$key])];
+        if ($id !== null && !in_array($id, array_column($result, 'id'), true)) {
+            $result[] = ['id' => $id, 'title' => $section['title'], 'slides' => $toSlides($section['blocks'])];
         }
     }
 
     return $result;
 }
 
-// The text whose header (the first div) contains one of the references.
-function find_section(array $texts, array $references): ?int {
-    $references = array_filter(array_map(fn($reference) => normalize_reference((string)$reference), $references), 'strlen');
+/**
+ * The lines of the given kinds of blocks, still as HTML, with an empty line after each block.
+ * The subtitle, the opening line and the rubrics are not read aloud.
+ *
+ * @return string[]
+ */
+function block_lines(array $blocks, array $kinds): array {
+    $lines = [];
 
-    foreach ($texts as $key => $html) {
-        $header = preg_match('#<div.*?>(.*?)<*\/*div#is', $html, $match) ? $match[1] : '';
-        $header = normalize_reference(html_entity_decode(strip_tags($header), ENT_QUOTES, 'UTF-8'));
-
-        foreach ($references as $reference) {
-            if (str_contains($header, $reference)) {
-                return $key;
-            }
+    foreach ($blocks as $block) {
+        if (in_array($block['kind'], $kinds, true)) {
+            array_push($lines, ...$block['lines'], ...['']);
         }
     }
 
-    return null;
+    return $lines;
 }
 
-// Book names in the references are sometimes typed with Latin letters that look like Cyrillic ones.
-function normalize_reference(string $reference): string {
-    return str_replace(
-        ['a', 'b', 'c', 'y', 'k', 'p', 'i', 'e', 'm'],
-        ['а', 'в', 'с', 'у', 'к', 'р', 'і', 'е', 'м'],
-        mb_strtolower(str_replace(REFERENCE_IGNORED, '', $reference)),
-    );
+function slide_text(string $html): string {
+    return trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 }
 
 // Prose: whole phrases while they fit on a slide; a phrase too long for a mostly empty slide is split between words.
-function reading_slides(string $html): array {
-    $text = preg_replace('|^.*?Чытанне.*?</p>|i', '', str_replace(["\r", "\n"], '', $html));
-    $text = trim(html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8'));
+function reading_slides(array $blocks): array {
+    $html = implode(' ', block_lines($blocks, ['text', 'conclusion']));
+    // The speaker marks of the Passion (Ев., Е., І., Л.) keep their dot out of the phrase split for now and stick
+    // to the next word, so a mark opens its line instead of ending the phrase before it, maybe on the previous slide.
+    $html = preg_replace('#<b>\s*(Ев|Е|І|I|Л)\.\s*</b>\s*#u', "$1\x01\u{a0}", $html);
+    $text = preg_replace('/[ \t\r\n]+/', ' ', slide_text($html));
     $phrases = preg_split('~(.*?[.?!:,-])~', $text, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
     $slides = [];
@@ -181,7 +74,7 @@ function reading_slides(string $html): array {
     };
 
     foreach ($phrases as $phrase) {
-        $phrase = trim($phrase);
+        $phrase = str_replace("\x01", '.', trim($phrase));
         $phraseLength = mb_strlen($phrase);
 
         if ($length + $phraseLength <= READING_SLIDE_CHARS) {
@@ -212,27 +105,16 @@ function reading_slides(string $html): array {
     return $slides;
 }
 
-function psalm_slides(string $html): array {
-    // The refrain is printed in full once; every "Рэфрэн:" gets its words.
-    if (preg_match('#Рэфрэн:(.+?)(<br>|</p>)#is', $html, $refrain)) {
-        $html = str_replace($refrain[0], 'Рэфрэн:</b><br></p>', $html);
-        $html = str_replace('Рэфрэн:', strip_tags($refrain[0]), $html);
-    }
+function psalm_slides(array $blocks): array {
+    $lines = array_map('slide_text', block_lines($blocks, ['refrain', 'text']));
 
-    $html = str_replace('Рэфрэн:', '', $html);
-    $html = preg_replace('|(?s)<div.*?</div>|', '', $html);
-    $text = html_entity_decode(strip_tags(str_replace(['</p>', '<br>'], '|', $html)), ENT_QUOTES, 'UTF-8');
-
-    return verse_slides(explode('|', str_replace('|||', '||', $text)), fn(string $line) => ltrim(preg_replace('/^\d./u', '', $line), ' .'), 3);
+    return verse_slides($lines, fn(string $line) => ltrim(preg_replace('/^\d./u', '', $line), ' .'), 3);
 }
 
-function acclamation_slides(string $html): array {
-    $html = str_replace('Акламацыя:', '', $html);
-    // the right-aligned Bible reference
-    $html = preg_replace('|<div\s.*?right.*?>(.*?)</div>|', '<br>', $html);
-    $text = html_entity_decode(strip_tags(str_replace(['</p>', '<br>'], '|', $html)), ENT_QUOTES, 'UTF-8');
+function acclamation_slides(array $blocks): array {
+    $lines = array_map('slide_text', block_lines($blocks, ['acclamation', 'text']));
 
-    return verse_slides(explode('|', $text), fn(string $line) => trim(preg_replace('/^\d./u', '', $line), ' .;*'), 4);
+    return verse_slides($lines, fn(string $line) => trim(preg_replace('/^\d./u', '', $line), ' .;*'), 4);
 }
 
 // Verse: a blank line ends a stanza, and the slide too once it has more than $maxLines lines.
@@ -273,8 +155,9 @@ function verse_slides(array $lines, callable $clean, int $maxLines): array {
         $count++;
     }
 
-    if ($slide !== '' && $count > 3) {
-        $slides[] = ['fontSize' => 50, 'text' => $slide];
+    // even a short last slide counts: it is the refrain sung after the last stanza
+    if (trim($slide) !== '') {
+        $slides[] = ['fontSize' => 50, 'text' => rtrim($slide)];
     }
 
     return $slides;

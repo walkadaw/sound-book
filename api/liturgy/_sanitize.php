@@ -75,9 +75,13 @@ function sanitize_liturgy_html(string $html): string {
         }
     }
 
+    return children_html($root);
+}
+
+function children_html(DOMNode $node): string {
     $result = '';
-    foreach ($root->childNodes as $child) {
-        $result .= $dom->saveHTML($child);
+    foreach ($node->childNodes as $child) {
+        $result .= $node->ownerDocument->saveHTML($child);
     }
 
     // saveHTML writes Cyrillic as numeric entities; turn those back into UTF-8 but keep &lt; and friends

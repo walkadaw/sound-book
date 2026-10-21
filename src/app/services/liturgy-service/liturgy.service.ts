@@ -12,8 +12,9 @@ export class LiturgyService {
 
   slideLiturgy: SlideList[];
 
-  getLiturgy(): Observable<Liturgy> {
-    return this.http.get<Liturgy>(`${environment.baseUrl}/liturgy/get`).pipe(catchError(() => of(null)));
+  // the masses of the day, the default one first; null when the request failed
+  getLiturgy(): Observable<Liturgy[] | null> {
+    return this.http.get<Liturgy[]>(`${environment.baseUrl}/liturgy/get`).pipe(catchError(() => of(null)));
   }
 
   loadSlideForLiturgy(): Observable<SlideList[]> {

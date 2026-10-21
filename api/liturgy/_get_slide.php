@@ -1,6 +1,7 @@
 <?php
 require __DIR__.'/_slides.php';
 
-$row = $db->query("SELECT `artlitreadings`, `article` FROM `liturgy` ORDER BY `id` LIMIT 1")->fetch();
+// the slides follow the mass shown by default
+$sections = $db->query("SELECT `sections` FROM `liturgy` ORDER BY `id` LIMIT 1")->fetchColumn();
 
-send_json($row ? liturgy_slides(liturgy_sections($row['article']), parse_readings($row['artlitreadings'])) : []);
+send_json($sections === false ? [] : liturgy_slides(json_decode($sections, true)));

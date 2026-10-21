@@ -6,56 +6,56 @@ if (PHP_SAPI !== 'cli') {
 }
 
 require dirname(__DIR__).'/classes/_class.db.php';
-require __DIR__.'/_sanitize.php';
+require __DIR__.'/_lectionary.php';
 
 const LITURGY_SITE = 'https://catholic.by';
 
 // "Today" on catholic.by is the day in Minsk, whatever zone the server is in.
 date_default_timezone_set('Europe/Minsk');
 
-$calendar = fetch_html(LITURGY_SITE.'/3/liturgy/lit-calendar?filterdate='.date('Y-n'));
+$today = new DateTimeImmutable('today');
+$calendar = fetch_html(LITURGY_SITE.'/3/liturgy/lit-calendar?filterdate='.$today->format('Y-n'));
 
 if ($calendar === null) {
     exit(1);
 }
 
-$xpath = new DOMXPath(load_html($calendar));
-$today = "//div[contains(@class,'artlititem')]//div[contains(@class,'artlitdate') and contains(., '".date('d.m.Y')."')]/..";
-
-// A day may have several masses, each with its short reading list and a link to the full texts.
+$year = liturgical_year($today);
 $liturgy = [];
+// options of one page (the Christmas masses) share the download
+$pages = [];
+$positions = [];
 
-foreach ($xpath->query("$today//div[contains(@class,'artlitreadings')]") as $key => $readings) {
-    $liturgy[$key]['readings'] = $readings->nodeValue;
-}
+foreach (calendar_options($calendar, $today->format('d.m.Y')) as $option) {
+    $href = $option['href'];
+    $positions[$href] = ($positions[$href] ?? -1) + 1;
 
-foreach ($xpath->query("$today//div[@class='artlitreadings']//a/@href") as $key => $href) {
-    $page = fetch_html(LITURGY_SITE.$href->nodeValue);
-
-    if ($page === null) {
-        continue;
+    if (!array_key_exists($href, $pages)) {
+        $html = fetch_html(LITURGY_SITE.$href);
+        $pages[$href] = $html === null ? null : lectionary_page($html, $year);
     }
 
-    $pageXpath = new DOMXPath(load_html($page));
-    $liturgy[$key]['title'] = trim(last_node($pageXpath->query("//div[@class='page-header']"))?->nodeValue ?? '');
-    $liturgy[$key]['article'] = trim(fill_refrains(sanitize_liturgy_html(inner_html(last_node($pageXpath->query("//div[@class='article']"))))));
+    $mass = $pages[$href] === null ? null : option_mass($pages[$href], $option['readings'], $positions[$href]);
+
+    if ($mass !== null) {
+        $liturgy[] = ['readings' => $option['readings'], ...$mass];
+    }
 }
 
 // A failed scrape (site down, markup changed) keeps yesterday's reading instead of an empty page.
-$liturgy = array_filter($liturgy, fn(array $mass) => !empty($mass['article']));
-
 if (!$liturgy) {
     exit(1);
 }
 
 $db = (new db())->connect();
-$insert = $db->prepare("INSERT INTO `liturgy` (`artlitreadings`, `title`, `article`) VALUES (?, ?, ?)");
+$insert = $db->prepare("INSERT INTO `liturgy` (`artlitreadings`, `title`, `sections`) VALUES (?, ?, ?)");
 
 // DELETE rather than TRUNCATE: TRUNCATE commits implicitly, so a failing insert would still wipe the table.
+// The rows keep the calendar order: the first one is the mass shown by default.
 $db->beginTransaction();
 $db->exec("DELETE FROM `liturgy`");
 foreach ($liturgy as $mass) {
-    $insert->execute([$mass['readings'] ?? '', $mass['title'] ?? '', $mass['article']]);
+    $insert->execute([$mass['readings'], $mass['title'], json_encode($mass['sections'], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)]);
 }
 $db->commit();
 
@@ -74,49 +74,4 @@ function fetch_html(string $url): ?string {
     $html = curl_exec($curl);
 
     return is_string($html) && $html !== '' ? $html : null;
-}
-
-function last_node(DOMNodeList $nodes): ?DOMNode {
-    return $nodes->item($nodes->length - 1);
-}
-
-// Each child is saved as a document of its own: unlike saveHTML($node), that keeps the line breaks between blocks.
-function inner_html(?DOMNode $node): string {
-    $html = '';
-
-    foreach ($node?->childNodes ?? [] as $child) {
-        $document = new DOMDocument('1.0', 'utf-8');
-        $document->appendChild($document->importNode($child, true));
-        $html .= $document->saveHTML();
-    }
-
-    return $html;
-}
-
-// The refrain is printed in full once and later often as a bare "Рэфрэн:"; those get the words of the last full one.
-function fill_refrains(string $html): string {
-    $refrain = null;
-    $refrainEnd = null;
-
-    return preg_replace_callback('#Рэфрэн:(.+?)(<br>|</p>)#is', function (array $match) use (&$refrain, &$refrainEnd, $html): string {
-        [$text, $offset] = $match[0];
-
-        if (!has_text($match[1][0])) {
-            return $refrain ?? $text;
-        }
-
-        // A psalm may offer a second refrain printed right after the first; the repeats keep the first.
-        if ($refrainEnd === null || has_text(substr($html, $refrainEnd, $offset - $refrainEnd))) {
-            $refrain = $text;
-        }
-
-        $refrainEnd = $offset + strlen($text);
-
-        return $text;
-    }, $html, flags: PREG_OFFSET_CAPTURE);
-}
-
-// a bare "Рэфрэн: </b>" still holds a space, often a non-breaking one
-function has_text(string $html): bool {
-    return trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8'), " \t\r\n\u{a0}") !== '';
 }

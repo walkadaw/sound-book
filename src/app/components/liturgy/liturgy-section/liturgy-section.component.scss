@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  margin-bottom: 1.5em;
+}
+
+// as in a lectionary: the Bible reference on the right under the heading
+.reference {
+  text-align: right;
+}
+
+.subtitle {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.intro {
+  font-weight: 700;
+}
