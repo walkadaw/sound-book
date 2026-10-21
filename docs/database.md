@@ -1,6 +1,6 @@
 # База данных
 
-MySQL 5.7, InnoDB. С базой работает только PHP API в `api/`, подключение в `api/classes/_class.db.php`.
+MySQL 5.7, InnoDB. С базой работает только PHP API в `api/` (PHP 8.5), подключение в `api/classes/_class.db.php`, кодировка соединения `utf8mb4`.
 
 | Таблица | Что хранит |
 | --- | --- |
@@ -67,8 +67,8 @@ MySQL 5.7, InnoDB. С базой работает только PHP API в `api/`
 | `id` | `int unsigned`, PK, auto increment | |
 | `song_id` | `int`, FK → `sound_list.id` `ON DELETE CASCADE` | Песня |
 | `position` | `smallint unsigned`, default 0 | Порядок на странице песни, с 0. Новая запись встаёт в конец |
-| `source` | `varchar(16)` | `youtube`, `gdrive` или `file` |
-| `ref` | `varchar(1024)` | Для `youtube` — ID видео из 11 символов, для `gdrive` — ID файла, для `file` — `https://` URL |
+| `source` | `varchar(16)` | `youtube`, `gdrive`, `file` или `upload` |
+| `ref` | `varchar(1024)` | Для `youtube` — ID видео из 11 символов, для `gdrive` — ID файла, для `file` — `https://` URL, для `upload` — имя файла в `api/media/`, загруженного в админке |
 | `title` | `varchar(255)`, null | Название записи |
 | `author` | `varchar(255)`, null | Исполнитель |
 | `duration` | `smallint unsigned`, null | Длительность, секунды |

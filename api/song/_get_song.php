@@ -1,99 +1,69 @@
 <?php
+// The list is cached gzipped in tmp/, one file per `ad_options.last_update`: with the version in the name
+// a list can never be served under another version's label.
+const SONG_CACHE_DIR = __DIR__.'/../tmp';
 
-// get By ID
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET["id"])) {
-    $id = intval($_GET['id']);
-
-    $sth = $db->prepare("SELECT * FROM `sound_list` WHERE id=?");
-    $sth->execute([$id]);
+if (isset($_GET['id'])) {
+    $sth = $db->prepare("SELECT `id`, `title`, `text`, `chord`, `tag` FROM `sound_list` WHERE `id`=?");
+    $sth->execute([intval($_GET['id'])]);
     $row = $sth->fetch();
 
     if (!$row) {
-        http_response_code(404);
-        exit(404);
+        fail(404);
     }
 
-    $tag = explode(",", rtrim($row["tag"], ", "));
-    $tags = [];
-
-    foreach ($tag as $value) {
-        if( $value > 0 ) $tags[$value] = 1;
-    }
-
-    send_gzip(gzencode(json_encode([
-        "id" => $row["id"],
-        "title" => $row["title"],
-        "text" => $row["text"],
-        "chord" => $row["chord"],
-        "tag" => $tags
-      ], JSON_UNESCAPED_UNICODE)));
-    
-    exit();
+    send_json(song_json($row));
 }
 
-// GET ALL SONGS WITH CACHE
-$version_request = intval($_GET["last_update"]);
-
-$sql = $db->query("SELECT last_update FROM ad_options where id = '1'");
-$last_update = $sql->fetch()['last_update'];
+$lastUpdate = $db->query("SELECT `last_update` FROM `ad_options` WHERE `id`=1")->fetchColumn();
 
 // The client already holds this version of the list, so there is nothing to send.
-if (!isset($_GET["slide"]) && $version_request > 0 && $version_request === (int)$last_update) {
+$clientVersion = intval($_GET['last_update'] ?? 0);
+if ($clientVersion > 0 && $clientVersion === (int)$lastUpdate) {
     http_response_code(204);
     exit();
 }
 
-if(isset($_GET["slide"])){
-    $fillename = __DIR__."/../tmp/_list_song_json.txt";
-}else{
-    $fillename = __DIR__."/../tmp/_list_song_json_noslide.txt";
-   
-}
-try {
-    $last_update_file = file_get_contents(__DIR__."/../tmp/_list_song_json_update.txt");
-} catch (Exception $e) {
-    $last_update_file = 0;
-}
+$cacheFile = SONG_CACHE_DIR.'/_song_list_'.(int)$lastUpdate.'.json.gz';
+// false as well when a save made the file outdated and a newer request removed it just now
+$list = is_file($cacheFile) ? file_get_contents($cacheFile) : false;
 
+send_gzip($list ?: update_song_cache($db, $lastUpdate, $cacheFile));
 
-if($last_update_file != $last_update || !($list = file_get_contents($fillename)) ){
-    $list = updateList($db, $fillename, $last_update);
-}
+function update_song_cache(PDO $db, int|string $lastUpdate, string $cacheFile): string {
+    $songs = array_map('song_json', $db->query("SELECT `id`, `title`, `text`, `chord`, `tag` FROM `sound_list`")->fetchAll());
+    $list = gzencode(json_encode(['songs' => $songs, 'last_update' => $lastUpdate], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
 
-send_gzip($list);
-
-function updateList($db, $fillename, $last_update){
-    $list = [];
-    $slide = [];
-    $sql = $db->query("SELECT * FROM sound_list");
-    while($row = $sql->fetch()){
-        $tag = explode(",", rtrim($row["tag"], ", "));
-        $tags = [];
-        foreach ($tag as $value) {
-            if( $value > 0 ) $tags[$value] = 1;
+    // Written aside and renamed, so a request reading at the same moment gets either no file or the whole of it.
+    $part = $cacheFile.'.'.bin2hex(random_bytes(4)).'.part';
+    if (file_put_contents($part, $list) !== false && rename($part, $cacheFile)) {
+        foreach (glob(SONG_CACHE_DIR.'/_song_list_*.json.gz') ?: [] as $file) {
+            if ($file !== $cacheFile) {
+                @unlink($file);
+            }
         }
-        $list[] = [
-            "id" => $row["id"],
-            "title" => $row["title"],
-            "text" => $row["text"],
-            "chord" => $row["chord"],
-            "tag" => $tags
-          ];
-        $slide[] = [
-            "id" => $row["id"],
-            "title" => $row["title"],
-            "slides" => json_decode($row["slide"])
-        ];
+    } else {
+        @unlink($part);
     }
 
-    $list_result =  gzencode(json_encode([ 'songs' => $list,'last_update' => $last_update,], JSON_UNESCAPED_UNICODE));
-    $slide_result =  gzencode(json_encode([ 'slides' => $slide,'last_update' => $last_update,], JSON_UNESCAPED_UNICODE));
-        
-    file_put_contents(__DIR__."/../tmp/_list_song_json_noslide.txt", $list_result );
-    file_put_contents(__DIR__."/../tmp/_list_song_json.txt", $slide_result );
-    file_put_contents(__DIR__."/../tmp/_list_song_json_update.txt", $last_update );
-
-    return isset($_GET["slide"]) ? $slide_result : $list_result;
+    return $list;
 }
 
-exit();
+// `tag` is stored as "1,3,10," and sent as {"1": 1, "3": 1, "10": 1}.
+function song_json(array $row): array {
+    $tags = [];
+
+    foreach (explode(',', rtrim($row['tag'] ?? '', ', ')) as $tag) {
+        if ((int)$tag > 0) {
+            $tags[$tag] = 1;
+        }
+    }
+
+    return [
+        'id' => $row['id'],
+        'title' => $row['title'],
+        'text' => $row['text'],
+        'chord' => $row['chord'],
+        'tag' => $tags,
+    ];
+}

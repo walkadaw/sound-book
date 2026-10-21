@@ -7,22 +7,20 @@ const MAX_SONGS = 500;
 const MAX_COUNT = 100;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    exit();
+    fail(405);
 }
 
 // Sent with sendBeacon, which can only use a CORS-safelisted type, so the body is read regardless of Content-Type.
 $data = json_decode(file_get_contents('php://input'), true);
 
 if (!is_array($data)) {
-    http_response_code(400);
-    exit();
+    fail(400);
 }
 
 $counts = [];
 
 foreach (['view' => 0, 'show' => 1, 'favorite' => 2] as $kind => $column) {
-    if (!isset($data[$kind]) || !is_array($data[$kind])) {
+    if (!is_array($data[$kind] ?? null)) {
         continue;
     }
 
@@ -34,14 +32,13 @@ foreach (['view' => 0, 'show' => 1, 'favorite' => 2] as $kind => $column) {
             continue;
         }
 
-        $counts[$id] = $counts[$id] ?? [0, 0, 0];
+        $counts[$id] ??= [0, 0, 0];
         $counts[$id][$column] += $count;
     }
 }
 
 if (count($counts) > MAX_SONGS) {
-    http_response_code(413);
-    exit();
+    fail(413);
 }
 
 if ($counts) {

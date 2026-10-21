@@ -1,6 +1,8 @@
 <?php
-$sql = $db->query("SELECT * FROM liturgy ORDER BY id ASC limit 1");
-$row = $sql->fetch();
+$row = $db->query("SELECT `id`, `artlitreadings`, `title`, `article` FROM `liturgy` ORDER BY `id` LIMIT 1")->fetch();
 
-send_gzip(gzencode(json_encode($row, JSON_UNESCAPED_UNICODE)));
-exit();
+if (!$row) {
+    fail(404);
+}
+
+send_json($row);

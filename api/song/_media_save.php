@@ -1,4 +1,6 @@
 <?php
+require __DIR__.'/_media_files.php';
+
 $data = read_admin_json();
 
 $id = intval($data['id'] ?? 0);
@@ -12,21 +14,21 @@ $startAt = media_seconds($data['startAt'] ?? null);
 $endAt = media_seconds($data['endAt'] ?? null);
 
 // The same checks the song page applies before it embeds a ref (song-media-player.ts).
-$refPatterns = [
+$refPattern = match ($source) {
     'youtube' => '/^[\w-]{11}$/',
     'gdrive' => '/^[\w-]+$/',
     'file' => '/^https:\/\/\S+$/',
     'upload' => MEDIA_UPLOAD_REF,
-];
+    default => null,
+};
 
 if (
-    !isset($refPatterns[$source]) || !preg_match($refPatterns[$source], $ref) || strlen($ref) > 1024
+    $refPattern === null || !preg_match($refPattern, $ref) || strlen($ref) > 1024
     || $duration === false || $startAt === false || $endAt === false
     || ($startAt !== null && $endAt !== null && $endAt <= $startAt)
     || ($source === 'upload' && !is_file(media_upload_path($ref)))
 ) {
-    http_response_code(400);
-    exit();
+    fail(400);
 }
 
 $db->beginTransaction();
@@ -37,8 +39,7 @@ $sth->execute([$songId]);
 
 if (!$sth->fetch()) {
     $db->rollBack();
-    http_response_code(404);
-    exit();
+    fail(404);
 }
 
 $fields = [$source, $ref, $title, $author, $duration, $startAt, $endAt];
@@ -51,20 +52,19 @@ if ($id > 0) {
 
     if (!$previous) {
         $db->rollBack();
-        http_response_code(404);
-        exit();
+        fail(404);
     }
 
     $sth = $db->prepare("UPDATE `sound_media`
         SET `source`=?, `ref`=?, `title`=?, `author`=?, `duration`=?, `start_at`=?, `end_at`=?
         WHERE `id`=?");
-    $sth->execute(array_merge($fields, [$id]));
+    $sth->execute([...$fields, $id]);
 } else {
     $sth = $db->prepare("INSERT INTO `sound_media`
         (`song_id`, `position`, `source`, `ref`, `title`, `author`, `duration`, `start_at`, `end_at`, `created_at`)
         SELECT ?, COALESCE(MAX(`position`) + 1, 0), ?, ?, ?, ?, ?, ?, ?, ?
         FROM `sound_media` WHERE `song_id`=?");
-    $sth->execute(array_merge([$songId], $fields, [time(), $songId]));
+    $sth->execute([$songId, ...$fields, time(), $songId]);
     $id = (int)$db->lastInsertId();
 }
 
@@ -75,18 +75,16 @@ if ($previous && $previous['source'] === 'upload' && $previous['ref'] !== $ref) 
     delete_unused_upload($db, $previous['ref']);
 }
 
-send_gzip(gzencode(json_encode(['id' => $id])));
+send_json(['id' => $id]);
 
-exit();
-
-function media_text($value) {
+function media_text(mixed $value): ?string {
     $value = trim((string)$value);
 
     return $value === '' ? null : mb_substr($value, 0, 255);
 }
 
 // null for an empty value, false for one that does not fit the SMALLINT UNSIGNED columns
-function media_seconds($value) {
+function media_seconds(mixed $value): int|false|null {
     if ($value === null || $value === '') {
         return null;
     }

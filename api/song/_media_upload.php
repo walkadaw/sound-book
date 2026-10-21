@@ -1,4 +1,6 @@
 <?php
+require __DIR__.'/_media_files.php';
+
 // The file comes as the raw body: application/octet-stream also keeps cross-site forms out (require_admin_post).
 require_admin_post('application/octet-stream');
 
@@ -10,15 +12,14 @@ $extension = strtolower(pathinfo((string)($_GET['name'] ?? ''), PATHINFO_EXTENSI
 $ref = bin2hex(random_bytes(8)).'.'.$extension;
 
 if (!preg_match(MEDIA_UPLOAD_REF, $ref)) {
-    http_response_code(400);
-    exit();
+    fail(400);
 }
 
 // A body over post_max_size reaches PHP empty, so the length is checked before reading it.
-// The host may set post_max_size below our limit, and then that is the real limit.
-if (intval($_SERVER['CONTENT_LENGTH'] ?? 0) > min(MAX_UPLOAD_BYTES, ini_bytes(ini_get('post_max_size')))) {
-    http_response_code(413);
-    exit();
+// The host may set post_max_size below our limit, and then that is the real limit (0 means no limit).
+$postMaxSize = ini_parse_quantity(ini_get('post_max_size')) ?: PHP_INT_MAX;
+if (intval($_SERVER['CONTENT_LENGTH'] ?? 0) > min(MAX_UPLOAD_BYTES, $postMaxSize)) {
+    fail(413);
 }
 
 prepare_upload_dir();
@@ -30,8 +31,7 @@ $output = fopen($part, 'wb');
 
 // the folder is not writable or the disk is full: the server's fault, not the request's
 if (!$output) {
-    http_response_code(500);
-    exit();
+    fail(500);
 }
 
 // one byte over the limit is enough to tell that the body is too large
@@ -41,34 +41,28 @@ $written = fclose($output);
 
 if ($size === false || !$written) {
     @unlink($part);
-    http_response_code(500);
-    exit();
+    fail(500);
 }
 
 if (!$size || $size > MAX_UPLOAD_BYTES) {
     unlink($part);
-    http_response_code($size ? 413 : 400);
-    exit();
+    fail($size ? 413 : 400);
 }
 
 if (!rename($part, media_upload_path($ref))) {
     @unlink($part);
-    http_response_code(500);
-    exit();
+    fail(500);
 }
 
-send_gzip(gzencode(json_encode(['ref' => $ref])));
-
-exit();
+send_json(['ref' => $ref]);
 
 // The folder is never deployed, so it gets its rules here: only audio is served, nothing runs or gets listed.
-function prepare_upload_dir() {
+function prepare_upload_dir(): void {
     if (!is_dir(MEDIA_UPLOAD_DIR)) {
         mkdir(MEDIA_UPLOAD_DIR, 0755);
     }
 
     $htaccess = MEDIA_UPLOAD_DIR.'/.htaccess';
-    // mod_rewrite like the site root, since api/.htaccess mixes in the old Order/Deny access syntax
     $rules = implode("\n", [
         'Options -Indexes -ExecCGI',
         'RewriteEngine On',
@@ -85,20 +79,11 @@ function prepare_upload_dir() {
     }
 }
 
-// A php.ini size such as 8M; 0 means no limit.
-function ini_bytes($value) {
-    $bytes = intval($value);
-    $shift = ['K' => 10, 'M' => 20, 'G' => 30][strtoupper(substr(trim((string)$value), -1))] ?? 0;
-
-    return $bytes > 0 ? $bytes << $shift : PHP_INT_MAX;
-}
-
 // Files of forms closed without saving and of songs never created, and uploads cut off midway.
-function delete_stale_uploads($db) {
-    $used = $db->query("SELECT `ref` FROM `sound_media` WHERE `source`='upload'")->fetchAll(PDO::FETCH_COLUMN);
-    $used = array_flip($used);
+function delete_stale_uploads(PDO $db): void {
+    $used = array_flip($db->query("SELECT `ref` FROM `sound_media` WHERE `source`='upload'")->fetchAll(PDO::FETCH_COLUMN));
 
-    foreach (glob(MEDIA_UPLOAD_DIR.'/*') as $path) {
+    foreach (glob(MEDIA_UPLOAD_DIR.'/*') ?: [] as $path) {
         if (!isset($used[basename($path)]) && filemtime($path) < time() - UNUSED_UPLOAD_TTL) {
             unlink($path);
         }

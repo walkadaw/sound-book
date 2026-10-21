@@ -5,8 +5,7 @@ $songId = intval($data['songId'] ?? 0);
 $ids = $data['ids'] ?? null;
 
 if (!is_array($ids)) {
-    http_response_code(400);
-    exit();
+    fail(400);
 }
 
 $ids = array_map('intval', $ids);
@@ -24,8 +23,7 @@ sort($current);
 
 if ($sorted !== $current) {
     $db->rollBack();
-    http_response_code(409);
-    exit();
+    fail(409);
 }
 
 $sth = $db->prepare("UPDATE `sound_media` SET `position`=? WHERE `id`=?");

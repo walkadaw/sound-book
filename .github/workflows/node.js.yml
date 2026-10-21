@@ -30,6 +30,13 @@ jobs:
     - run: npm ci
     - run: npm run lint
     - run: npm test -- --watch=false
+    # the same PHP as the server
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+        tools: none
+    - name: Lint PHP
+      run: find api -name '*.php' -print0 | xargs -0 -n1 php -l
 
   deploy-api:
     needs: check

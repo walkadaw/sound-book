@@ -1,84 +1,90 @@
 <?php
 // The liturgy text is scraped from catholic.by and shown on the site as HTML, so only the markup that the
-// page and the slide parser (_get_slide.php) rely on survives: paragraphs, line breaks, emphasis,
+// page and the slide parser (_slides.php) rely on survives: paragraphs, line breaks, emphasis,
 // span.divider and div[align]. Other elements are unwrapped to their text; active content is dropped whole.
 const LITURGY_ALLOWED_ATTRIBUTES = [
-	'p' => [],
-	'br' => [],
-	'b' => [],
-	'strong' => [],
-	'i' => [],
-	'em' => [],
-	'sup' => [],
-	'sub' => [],
-	'span' => ['class'],
-	'div' => ['align'],
+    'p' => [],
+    'br' => [],
+    'b' => [],
+    'strong' => [],
+    'i' => [],
+    'em' => [],
+    'sup' => [],
+    'sub' => [],
+    'span' => ['class'],
+    'div' => ['align'],
 ];
 const LITURGY_DROPPED_TAGS = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'noscript', 'template', 'svg', 'math'];
 
-function sanitize_liturgy_html($html) {
-	$dom = new DOMDocument('1.0', 'utf-8');
-	@$dom->loadHTML(
-		'<div id="liturgy-root">'.mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8').'</div>',
-		LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-	);
-	$root = $dom->getElementById('liturgy-root');
+// libxml reads HTML without a charset declaration as Latin-1, so everything past ASCII goes in as numeric entities.
+// Its complaints about HTML5 markup are noise here.
+function load_html(string $html, int $options = 0): DOMDocument {
+    $dom = new DOMDocument('1.0', 'utf-8');
+    $useInternalErrors = libxml_use_internal_errors(true);
+    $dom->loadHTML(mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8'), $options);
+    libxml_clear_errors();
+    libxml_use_internal_errors($useInternalErrors);
 
-	if (!$root) {
-		return '';
-	}
+    return $dom;
+}
 
-	// A snapshot, because unwrapping and removing nodes mutates the live list.
-	$nodes = [];
-	foreach ((new DOMXPath($dom))->query('.//node()', $root) as $node) {
-		$nodes[] = $node;
-	}
+function sanitize_liturgy_html(string $html): string {
+    $dom = load_html('<div id="liturgy-root">'.$html.'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    $root = $dom->getElementById('liturgy-root');
 
-	foreach ($nodes as $node) {
-		if (!$node->parentNode) {
-			continue;
-		}
+    if (!$root) {
+        return '';
+    }
 
-		if ($node instanceof DOMComment || $node instanceof DOMProcessingInstruction) {
-			$node->parentNode->removeChild($node);
-			continue;
-		}
+    // A snapshot, because unwrapping and removing nodes mutates the live list.
+    $nodes = iterator_to_array((new DOMXPath($dom))->query('.//node()', $root));
 
-		if (!($node instanceof DOMElement)) {
-			continue;
-		}
+    foreach ($nodes as $node) {
+        if (!$node->parentNode) {
+            continue;
+        }
 
-		$tag = strtolower($node->tagName);
+        if ($node instanceof DOMComment || $node instanceof DOMProcessingInstruction) {
+            $node->parentNode->removeChild($node);
+            continue;
+        }
 
-		if (in_array($tag, LITURGY_DROPPED_TAGS, true)) {
-			$node->parentNode->removeChild($node);
-			continue;
-		}
+        if (!($node instanceof DOMElement)) {
+            continue;
+        }
 
-		if (!array_key_exists($tag, LITURGY_ALLOWED_ATTRIBUTES)) {
-			while ($node->firstChild) {
-				$node->parentNode->insertBefore($node->firstChild, $node);
-			}
-			$node->parentNode->removeChild($node);
-			continue;
-		}
+        $tag = strtolower($node->tagName);
 
-		foreach (iterator_to_array($node->attributes) as $attribute) {
-			if (!in_array(strtolower($attribute->name), LITURGY_ALLOWED_ATTRIBUTES[$tag], true)) {
-				$node->removeAttribute($attribute->name);
-			}
-		}
-	}
+        if (in_array($tag, LITURGY_DROPPED_TAGS, true)) {
+            $node->parentNode->removeChild($node);
+            continue;
+        }
 
-	$result = '';
-	foreach ($root->childNodes as $child) {
-		$result .= $dom->saveHTML($child);
-	}
+        if (!array_key_exists($tag, LITURGY_ALLOWED_ATTRIBUTES)) {
+            while ($node->firstChild) {
+                $node->parentNode->insertBefore($node->firstChild, $node);
+            }
+            $node->parentNode->removeChild($node);
+            continue;
+        }
 
-	// saveHTML writes Cyrillic as numeric entities; turn those back into UTF-8 but keep &lt; and friends
-	// escaped, so text can never turn into markup the way html_entity_decode() would let it.
-	return preg_replace_callback('/&#(\d+);/', function ($m) {
-		$code = (int)$m[1];
-		return $code > 127 ? mb_chr($code, 'UTF-8') : $m[0];
-	}, $result);
+        foreach (iterator_to_array($node->attributes) as $attribute) {
+            if (!in_array(strtolower($attribute->name), LITURGY_ALLOWED_ATTRIBUTES[$tag], true)) {
+                $node->removeAttribute($attribute->name);
+            }
+        }
+    }
+
+    $result = '';
+    foreach ($root->childNodes as $child) {
+        $result .= $dom->saveHTML($child);
+    }
+
+    // saveHTML writes Cyrillic as numeric entities; turn those back into UTF-8 but keep &lt; and friends
+    // escaped, so text can never turn into markup the way html_entity_decode() would let it.
+    return preg_replace_callback('/&#(\d+);/', function (array $match): string {
+        $code = (int)$match[1];
+
+        return $code > 127 ? mb_chr($code, 'UTF-8') : $match[0];
+    }, $result);
 }

@@ -7,9 +7,9 @@ export type SongMediaPlayer =
 export const YOUTUBE_ID = /^[\w-]{11}$/;
 export const DRIVE_ID = /^[\w-]+$/;
 const VIDEO_FILE = /\.(mp4|m4v|webm|mov|ogv)$/i;
-/** the formats a file uploaded in the admin may have, the same list as MEDIA_UPLOAD_EXTENSIONS in api/index.php */
+/** formats an admin upload may have, the same list as MEDIA_UPLOAD_EXTENSIONS in api/song/_media_files.php */
 export const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'aac', 'ogg', 'oga', 'opus', 'wav', 'flac'];
-/** the name the server gives an uploaded file, the same check as api/index.php */
+/** the name the server gives an uploaded file, the same check as api/song/_media_files.php */
 export const UPLOAD_REF = new RegExp(`^[0-9a-f]{16}\\.(${AUDIO_EXTENSIONS.join('|')})$`);
 
 export function uploadUrl(ref: string): string {
