@@ -124,6 +124,21 @@
         </ul>
       }
     </div>
+    <!-- the slides are downloaded from the main window -->
+    @if (slideList()?.length && !isSpeakerNotes && !isSearchFocused()) {
+      <div class="slide-menu-footer">
+        <button
+          type="button"
+          class="download-button"
+          [attr.aria-disabled]="isDownloading()"
+          [attr.aria-busy]="isDownloading()"
+          (click)="downloadSlides()"
+        >
+          <mat-icon aria-hidden="true">download</mat-icon>
+          Спампаваць слайды (PPTX)
+        </button>
+      </div>
+    }
   </nav>
   @if (!isPinned) {
     <div class="slide-menu-overlay" [class.active]="active()" (click)="toggleMenu()"></div>

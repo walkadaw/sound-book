@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { EMPTY } from 'rxjs';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { PresentationChannel } from '../../../services/presentation-channel/presentation-channel.service';
+import { PresentationFileService } from '../../../services/presentation-file/presentation-file.service';
 
 import { PresentationMenuComponent } from './presentation-menu.component';
 
@@ -17,6 +19,8 @@ const revealServiceStub: Partial<RevealService> = {
   slide: () => {},
 };
 
+const presentationFileStub = { downloadPptx: vi.fn(() => Promise.resolve()) };
+
 describe('PresentationMenuComponent', () => {
   let component: PresentationMenuComponent;
   let fixture: ComponentFixture<PresentationMenuComponent>;
@@ -24,7 +28,11 @@ describe('PresentationMenuComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PresentationMenuComponent],
-      providers: [PresentationChannel, { provide: RevealService, useValue: revealServiceStub }],
+      providers: [
+        PresentationChannel,
+        { provide: RevealService, useValue: revealServiceStub },
+        { provide: PresentationFileService, useValue: presentationFileStub },
+      ],
     }).compileComponents();
   });
 
@@ -93,6 +101,7 @@ describe('PresentationMenuComponent', () => {
       imports: [PresentationMenuComponent],
       providers: [
         PresentationChannel,
+        { provide: PresentationFileService, useValue: presentationFileStub },
         {
           provide: RevealService,
           useValue: { ...revealServiceStub, isShowControls: () => true, isSpeakerNotes: () => true },
@@ -106,10 +115,58 @@ describe('PresentationMenuComponent', () => {
     pinned.componentInstance.toggleMenu();
     expect(pinned.componentInstance.active()).toBe(true);
     expect(pinned.nativeElement.querySelector('.slide-menu-overlay')).toBeNull();
+    // the slides are downloaded from the main window
+    expect(pinned.nativeElement.querySelector('.download-button')).toBeNull();
     expect(document.body.classList).toContain('menuPinned');
 
     pinned.destroy();
     expect(document.body.classList).not.toContain('menuPinned');
+  });
+
+  it('should download the slides of the presentation', async () => {
+    const button = () => fixture.nativeElement.querySelector('.download-button') as HTMLButtonElement | null;
+    component.isSearchFocused.set(false);
+    fixture.detectChanges();
+    expect(button()).toBeNull();
+
+    const slide = (text: string) => ({ fontSize: 60, text });
+    fixture.componentRef.setInput('slideList', [
+      { id: '5', title: 'Песня', slides: [slide('1'), slide('2')], startIndex: 0, endIndex: 1 },
+      { id: '7', title: 'Другая', slides: [slide('3')], startIndex: 2, endIndex: 2 },
+    ]);
+    fixture.detectChanges();
+    expect(button()).toBeTruthy();
+
+    component.isSearchFocused.set(true);
+    fixture.detectChanges();
+    expect(button()).toBeNull();
+
+    component.isSearchFocused.set(false);
+    fixture.detectChanges();
+    presentationFileStub.downloadPptx.mockClear();
+
+    button()?.click();
+    // a second click while the file is made does nothing, and the button keeps the focus
+    fixture.detectChanges();
+    expect(button()?.disabled).toBe(false);
+    expect(button()?.getAttribute('aria-disabled')).toBe('true');
+    button()?.click();
+    await fixture.whenStable();
+
+    expect(presentationFileStub.downloadPptx).toHaveBeenCalledTimes(1);
+    expect(presentationFileStub.downloadPptx).toHaveBeenCalledWith([slide('1'), slide('2'), slide('3')]);
+  });
+
+  it('should tell when the file could not be made', async () => {
+    const snackBar = TestBed.inject(MatSnackBar);
+    const open = vi.spyOn(snackBar, 'open');
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    presentationFileStub.downloadPptx.mockRejectedValueOnce(new Error('chunk'));
+
+    await component.downloadSlides();
+
+    expect(open).toHaveBeenCalledWith(expect.stringContaining('Не атрымалася'), 'Зачыніць', { duration: 5000 });
+    expect(component.isDownloading()).toBe(false);
   });
 
   it('should hide the masses while a song tag is chosen', () => {

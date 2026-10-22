@@ -14,6 +14,9 @@
   transition: transform 0.3s;
   font-size: 15px;
   font-weight: normal;
+  // the song list takes the height the toolbar and the footer leave
+  display: flex;
+  flex-direction: column;
 }
 
 .slide-menu-wrapper .slide-menu.slide-menu--wide {
@@ -145,6 +148,7 @@
  */
 .slide-menu-wrapper .slide-menu-toolbar {
   height: 30px;
+  flex: none;
   width: 100%;
   font-size: 12px;
   display: table;
@@ -191,10 +195,11 @@
  * Panels
  */
 .slide-menu-wrapper .slide-menu-panel {
-  position: absolute;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   visibility: hidden;
-  height: calc(100% - 85px);
   overflow-x: hidden;
   overflow-y: auto;
   color: #aaa;
@@ -448,6 +453,44 @@ body.menuPinned .slide-menu-button {
   color: #aaa;
   border-radius: 3px;
   padding-top: 5px;
+}
+
+.slide-menu-wrapper .slide-menu-footer {
+  flex: none;
+  height: 49px;
+  border-top: solid 2px #666;
+  box-sizing: border-box;
+}
+
+.slide-menu-wrapper .download-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: #aaa;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover:not([aria-disabled='true']),
+  &:focus-visible {
+    color: white;
+    background-color: #222;
+  }
+
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: -2px;
+  }
+
+  &[aria-disabled='true'] {
+    cursor: progress;
+    opacity: 0.5;
+  }
 }
 
 #search-sound-list-btn {

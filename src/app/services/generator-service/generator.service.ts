@@ -1,6 +1,7 @@
 import { DOCUMENT, Service, inject } from '@angular/core';
 import { PARTS_OF_MASS_TAG_ID, TAGS_LIST } from '../../constants/tag-list';
 import { Song } from '../../interfaces/song';
+import { downloadFile } from '../../utils/download-file';
 import { PaperOptions } from './songbook-docx';
 import { MeasureText } from './songbook-layout';
 import { EmbeddedFont, FontStyle } from './songbook-package';
@@ -59,19 +60,8 @@ export class GeneratorService {
     });
     const file = await packSongbook(docx, document, assets?.fonts ?? []);
 
-    this.download(new Blob([file as BlobPart], { type: DOCX_TYPE }), 'Spewnik.docx');
+    downloadFile(this.document, new Blob([file as BlobPart], { type: DOCX_TYPE }), 'Spewnik.docx');
     return { pages: plan.pages };
-  }
-
-  private download(blob: Blob, name: string): void {
-    const url = URL.createObjectURL(blob);
-    const link = this.document.createElement('a');
-
-    link.href = url;
-    link.download = name;
-    link.click();
-    // revoking right away can cancel the download in some browsers
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   /**

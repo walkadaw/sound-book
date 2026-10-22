@@ -10,13 +10,13 @@ export class SlidesService {
   static readonly AVAILABLE_WIDTH = 1050;
   static readonly AVAILABLE_HEIGHT = 590;
   static readonly FONT_SIZES = [58, 56, 54, 52, 50];
+  static readonly LINE_HEIGHT = 1.15;
   static readonly FONTS = {
     web: 'Ubuntu',
     pptx: 'TODO',
   };
 
   fontSizePx = 60;
-  lineHeight = 1.15;
 
   private initState = signal(false);
   readonly init = this.initState.asReadonly();
@@ -29,7 +29,7 @@ export class SlidesService {
     // Костыль инициализации шрифта, почему то без начального редера с
     // кастомным шрифтом. в начале не доступен шрифт даже если он загружен
     // и размер определяется не верно на первых циклах рендера
-    this.getLineContend('1. Богу Святому сэрца аддай сваё (x2)', 'web', this.fontSizePx, this.lineHeight);
+    this.getLineContend('1. Богу Святому сэрца аддай сваё (x2)', 'web', this.fontSizePx, SlidesService.LINE_HEIGHT);
 
     timer(100, 50).pipe(
       // TODO magic init fonts
@@ -59,8 +59,8 @@ export class SlidesService {
     songBlocks.forEach((dirtySongBlock) => {
       const songBlock = dirtySongBlock.trim();
       if (songBlock) {
-        const maxLine = this.getMaxLine(this.fontSizePx, this.lineHeight);
-        const needLine = this.getLineContend(songBlock, fontName, this.fontSizePx, this.lineHeight);
+        const maxLine = this.getMaxLine(this.fontSizePx, SlidesService.LINE_HEIGHT);
+        const needLine = this.getLineContend(songBlock, fontName, this.fontSizePx, SlidesService.LINE_HEIGHT);
 
         if (line + needLine > maxLine && tmpSlideText) {
           slide.push({ fontSize: this.fontSizePx, text: tmpSlideText });
@@ -92,8 +92,8 @@ export class SlidesService {
 
   getLiturgySlides(liturgy: string, sections: LiturgySection[]): SlideList[] {
     return liturgySlides(liturgy, sections, {
-      lines: (text, fontSize) => this.getLineContend(text, 'web', fontSize, this.lineHeight),
-      maxLines: (fontSize) => this.getMaxLine(fontSize, this.lineHeight),
+      lines: (text, fontSize) => this.getLineContend(text, 'web', fontSize, SlidesService.LINE_HEIGHT),
+      maxLines: (fontSize) => this.getMaxLine(fontSize, SlidesService.LINE_HEIGHT),
     });
   }
 
@@ -149,8 +149,8 @@ export class SlidesService {
     // Пытаемся отобразить весь блок
     while (i < SlidesService.FONT_SIZES.length) {
       const fontSizePx = SlidesService.FONT_SIZES[i];
-      const maxLine = this.getMaxLine(fontSizePx, this.lineHeight);
-      const needLine = this.getLineContend(songBlock, fontName, fontSizePx, this.lineHeight);
+      const maxLine = this.getMaxLine(fontSizePx, SlidesService.LINE_HEIGHT);
+      const needLine = this.getLineContend(songBlock, fontName, fontSizePx, SlidesService.LINE_HEIGHT);
 
       if (needLine <= maxLine) {
         slide.push({ fontSize: fontSizePx, text: songBlock });
@@ -170,7 +170,7 @@ export class SlidesService {
     let line = 0;
 
     songBlock.split('\n').forEach((lineText) => {
-      const needLine = this.getLineContend(lineText, fontName, this.fontSizePx, this.lineHeight);
+      const needLine = this.getLineContend(lineText, fontName, this.fontSizePx, SlidesService.LINE_HEIGHT);
       if (line + needLine > howSlideNeed && tmpSlideText) {
         slide.push({ fontSize: this.fontSizePx, text: tmpSlideText });
         tmpSlideText = '';

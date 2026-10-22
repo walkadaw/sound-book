@@ -17,9 +17,11 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 import { filter, debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgTemplateOutlet } from '@angular/common';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
 import { FuseService } from '../../../services/fuse-service/fuse.service';
+import { PresentationFileService } from '../../../services/presentation-file/presentation-file.service';
 import { MatchHighlightComponent } from '../../match-highlight/match-highlight.component';
 import { LiturgyChoice } from '../../../interfaces/liturgy';
 import { Song } from '../../../interfaces/song';
@@ -44,6 +46,8 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   private songService = inject(SongService);
   private reveal = inject(RevealService);
   private channel = inject(PresentationChannel);
+  private presentationFile = inject(PresentationFileService);
+  private snackBar = inject(MatSnackBar);
 
   readonly slideList = input<SlideList[]>();
   // the masses of the day that can be added, listed before the songs
@@ -63,6 +67,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   readonly isSearchFocused = signal(false);
   readonly isFullscreen = signal(!!document.fullscreenElement);
   readonly hideMenu = signal(false);
+  readonly isDownloading = signal(false);
   readonly openSelectedTag = signal(false);
   readonly selectedTag = signal<TagList | undefined>(undefined);
   tagsList: TagList[];
@@ -146,6 +151,24 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
 
     if (dispatch) {
       this.channel.send({ type: 'changeTheme' });
+    }
+  }
+
+  async downloadSlides() {
+    // the button stays enabled while the file is made, so it keeps the keyboard focus
+    if (this.isDownloading()) {
+      return;
+    }
+
+    this.isDownloading.set(true);
+
+    try {
+      await this.presentationFile.downloadPptx((this.slideList() ?? []).flatMap((song) => song.slides));
+    } catch (error) {
+      console.error('pptx generation', error);
+      this.snackBar.open('Не атрымалася стварыць файл. Паспрабуйце яшчэ раз.', 'Зачыніць', { duration: 5000 });
+    } finally {
+      this.isDownloading.set(false);
     }
   }
 
