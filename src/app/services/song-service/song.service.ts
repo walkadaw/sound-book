@@ -3,9 +3,20 @@ import { Service, computed, inject, signal } from '@angular/core';
 import { Observable, defer, of, throwError } from 'rxjs';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
+import { PARTS_OF_MASS_ORDER, PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
 import { Song, SongAdd, SongRequest, SongVersion } from '../../interfaces/song';
 import { SongMedia, SongMediaDraft } from '../../interfaces/song-media';
+
+const isPartOfMass = (song: Song) => song.tag[PARTS_OF_MASS_TAG_ID] === 1;
+
+/**
+ * Where a part of Mass comes in the liturgy; the rest go after the ones in the list.
+ * A song from the list whose tag was taken off is an ordinary song again and is not moved up.
+ */
+const liturgyRank = (song: Song) => {
+  const index = isPartOfMass(song) ? PARTS_OF_MASS_ORDER.indexOf(song.id) : -1;
+  return index === -1 ? PARTS_OF_MASS_ORDER.length : index;
+};
 
 @Service()
 export class SongService {
@@ -134,17 +145,12 @@ export class SongService {
   setSong(songList: SongRequest): void {
     this.songListState.set(
       songList.songs
-        .sort((a, b) => {
-          if (a.tag[PARTS_OF_MASS_TAG_ID] !== 1 && b.tag[PARTS_OF_MASS_TAG_ID] === 1) {
-            return -1;
-          }
-
-          if (a.tag[PARTS_OF_MASS_TAG_ID] === 1 && b.tag[PARTS_OF_MASS_TAG_ID] !== 1) {
-            return 1;
-          }
-
-          return a.title.localeCompare(b.title, 'en');
-        })
+        .sort(
+          (a, b) =>
+            Number(isPartOfMass(a)) - Number(isPartOfMass(b))
+            || liturgyRank(a) - liturgyRank(b)
+            || a.title.localeCompare(b.title, 'en'),
+        )
         .map((song, index) => ({ ...song, songId: index + 1 })),
     );
     this.lastUpdate = songList.last_update;

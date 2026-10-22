@@ -169,12 +169,15 @@ describe('songbook-docx', () => {
     expect(xml).toContain('<w:spacing w:before="0" w:after="0" w:line="20" w:lineRule="exact"/>');
   });
 
-  it('should list the sections and songs in the contents with page references', () => {
+  it('should list the sections and songs in the contents with page references', async () => {
     expect(paragraphWith(xml, 'Змест')).toContain('<w:pStyle w:val="TOCHeading"/>');
     expect(xml).toMatch(/<w:fldSimple w:instr="PAGEREF song7 \\h"><w:r><w:t[^>]*>\d+<\/w:t><\/w:r><\/w:fldSimple>/);
     expect(xml).toContain('w:anchor="song7"');
     expect(xml).toContain('PAGEREF section0');
     expect(xml).toMatch(/<w:tab w:val="right" w:pos="\d+" w:leader="dot"\/>/);
+    // a gap that is not a whole line would put the two columns out of line
+    const styles = await read(zip, 'word/styles.xml');
+    expect(styles.match(/<w:style [^>]*w:styleId="TOC1"[\s\S]*?<\/w:style>/)?.[0]).not.toContain('w:before');
   });
 
   it('should end with the notes and print page numbers between thick rules', async () => {

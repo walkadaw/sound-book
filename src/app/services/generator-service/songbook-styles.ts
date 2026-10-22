@@ -77,7 +77,10 @@ export function verseNumbering(docx: Docx, number: number) {
 }
 /** 17 pt, as the icons of the 2023 songbook */
 export const ICON_PX = 23;
+export const TOC_ICON_PX = 18;
 export const NOTE_LINE = 470;
+/** An exact line a little taller than the icon, so the notes know how much room the legend takes */
+export const LEGEND = { size: 24, line: 420, after: 40 };
 /** The rules beside the page number: 2.25 pt thick, level with the middle of the number */
 export const FOOTER = { numberWidth: 700, ruleLine: 40, ruleSize: 18 };
 
@@ -177,7 +180,8 @@ export function songbookStyles(docx: Docx): IStylesOptions {
         basedOn: STYLE.toc2,
         next: 'Normal',
         run: { bold: true },
-        paragraph: { spacing: { before: 120 }, indent: { left: 0, hanging: 0 } },
+        // no gap before a section: any gap would put the column out of line with the other one
+        paragraph: { indent: { left: 0, hanging: 0 } },
       },
       {
         id: STYLE.tocHeading,
@@ -190,8 +194,8 @@ export function songbookStyles(docx: Docx): IStylesOptions {
         id: STYLE.legend,
         name: 'Легенда',
         basedOn: 'Normal',
-        run: { size: 24 },
-        paragraph: { spacing: { after: 40, ...single(docx) } },
+        run: { size: LEGEND.size },
+        paragraph: { spacing: { after: LEGEND.after, ...exact(docx, LEGEND.line) } },
       },
       {
         id: STYLE.footer,

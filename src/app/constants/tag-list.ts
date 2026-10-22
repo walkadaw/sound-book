@@ -62,3 +62,10 @@ export const TAGS_LIST: TagList[] = [
 export const SEARCH_FILTERS: TagList[] = [ALL_TAGS, ...TAGS_LIST];
 
 export const PARTS_OF_MASS_TAG_ID = 10;
+
+/**
+ * Song ids of the parts of Mass in the order they come in the liturgy:
+ * Пане, змілуйся; Хвала на вышынях Богу; Святы; Ойча наш; Баранку Божы; Аллелюя.
+ * The other parts of Mass follow them alphabetically.
+ */
+export const PARTS_OF_MASS_ORDER = [420, 421, 430, 431, 432, 442];

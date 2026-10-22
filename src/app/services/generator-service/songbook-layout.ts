@@ -27,6 +27,7 @@ import {
   TEXT_SIZE,
   TOC,
   TOC_COLUMN_WIDTH,
+  TOC_ICON_PX,
   VERSE_INDENT,
 } from './songbook-styles';
 
@@ -62,7 +63,7 @@ export const lyricsStyle = (kind: StanzaKind): TextStyle => ({
 
 // the browser measures Arsenal within about 2% of Word, wider or narrower
 const WIDTH_SAFETY = 0.98;
-const PAGE_SAFETY = 0.97;
+export const PAGE_SAFETY = 0.97;
 // at 96 dpi a pixel is 15 twips
 export const ICON_WIDTH = ICON_PX * 15;
 /** The chord column never takes more of the line than this */
@@ -110,9 +111,22 @@ export function lineCount(text: string, width: number, style: TextStyle, measure
   return lines;
 }
 
-export const stanzaIndent = (kind: StanzaKind) => {
+/**
+ * A number wider than the indent would push the line on to the next default tab stop,
+ * so a two-digit one widens the indent by what it takes more than a one-digit one, keeping the same gap after it.
+ * All the verses of a song line up, so the widest number decides for every verse.
+ */
+export function verseIndent(stanzas: Pick<Stanza, 'number'>[], measure: MeasureText = approximateMeasure): number {
+  const style = lyricsStyle('plain');
+  const widest = Math.max(0, ...stanzas.map(({ number }) => (number ? measure(`${number}.`, style) : 0)));
+  const extra = (widest - measure('8.', style)) / WIDTH_SAFETY;
+
+  return extra > 0 ? Math.round(VERSE_INDENT + extra) : VERSE_INDENT;
+}
+
+export const stanzaIndent = (kind: StanzaKind, indent = VERSE_INDENT) => {
   if (kind === 'verse') {
-    return VERSE_INDENT;
+    return indent;
   }
 
   return kind === 'bridge' ? 2 * BRIDGE_INDENT : 0;
@@ -166,6 +180,8 @@ const CHORD_FITS = [
 ];
 
 export interface SongLayout {
+  /** Where the verse text starts after the verse number */
+  verseIndent: number;
   /** Width of the chord column, 0 without chords */
   chordWidth: number;
   chordParagraphs: ChordParagraph[];
@@ -298,6 +314,7 @@ function fitLine(
  * to make room, and lines still too long are squeezed in turn.
  */
 function songGeometry(song: PrintSong, measure: MeasureText, spacing: Spacing = NORMAL): SongGeometry {
+  const indent = verseIndent(song.stanzas, measure);
   const covered = lastChordStanza(song.stanzas) + 1;
   const beside = song.stanzas.slice(0, covered);
   const rows = beside
@@ -313,7 +330,7 @@ function songGeometry(song: PrintSong, measure: MeasureText, spacing: Spacing = 
     .flatMap((stanza) => stanza.lines.map(({ text, chords }) => ({ text, chords, kind: stanza.kind })))
     .filter(({ text, chords }) => text && chords);
   const widthAt = (text: string, kind: StanzaKind, fit: LineFit = {}) =>
-    measure(text, { ...lyricsStyle(kind), ...fit }) / WIDTH_SAFETY + stanzaIndent(kind);
+    measure(text, { ...lyricsStyle(kind), ...fit }) / WIDTH_SAFETY + stanzaIndent(kind, indent);
   // lines that wrap whatever happens do not get to squeeze the chords
   const widest = Math.max(
     0,
@@ -335,7 +352,7 @@ function songGeometry(song: PrintSong, measure: MeasureText, spacing: Spacing = 
       }
 
       const width = chords ? BODY_WIDTH - chordWidth - CHORDS.fromText : BODY_WIDTH;
-      return fitLine(text, width - stanzaIndent(stanza.kind), stanza.kind, measure);
+      return fitLine(text, width - stanzaIndent(stanza.kind, indent), stanza.kind, measure);
     }),
   );
   const besideCounts = besideFits.map((fits) => fits.map(({ lines: count }) => count));
@@ -346,7 +363,7 @@ function songGeometry(song: PrintSong, measure: MeasureText, spacing: Spacing = 
   );
   const fullCounts = (stanza: Stanza) =>
     stanza.lines.map(({ text }) =>
-      text ? lineCount(text, BODY_WIDTH - stanzaIndent(stanza.kind), lyricsStyle(stanza.kind), measure) : 0,
+      text ? lineCount(text, BODY_WIDTH - stanzaIndent(stanza.kind, indent), lyricsStyle(stanza.kind), measure) : 0,
     );
 
   return {
@@ -374,14 +391,15 @@ function balancedHeight(heights: number[]): number {
   return best;
 }
 
-function columnsPart(stanzas: Stanza[], measure: MeasureText) {
+function columnsPart(stanzas: Stanza[], indent: number, measure: MeasureText) {
   let lines = 0;
   let wrapped = 0;
 
   const heights = stanzas.map((stanza) => {
+    const width = COLUMN_WIDTH - stanzaIndent(stanza.kind, indent);
     const counts = stanza.lines
       .filter(({ text }) => text)
-      .map(({ text }) => lineCount(text, COLUMN_WIDTH - stanzaIndent(stanza.kind), lyricsStyle(stanza.kind), measure));
+      .map(({ text }) => lineCount(text, width, lyricsStyle(stanza.kind), measure));
 
     lines += counts.length;
     wrapped += counts.filter((count) => count > 1).length;
@@ -401,8 +419,10 @@ export function layoutSong(song: PrintSong, measure: MeasureText): Omit<SongLayo
   const rest = song.stanzas.slice(geometry.covered);
   const compact = songGeometry(song, measure, COMPACT);
   const compactHeight = compact.headingHeight + compact.tableHeight + sum(compact.restHeights);
+  const indent = verseIndent(song.stanzas, measure);
   const base = {
     compact: false,
+    verseIndent: indent,
     chordWidth: geometry.chordWidth,
     chordParagraphs: geometry.chordParagraphs,
     lineFits: geometry.lineFits,
@@ -424,7 +444,7 @@ export function layoutSong(song: PrintSong, measure: MeasureText): Omit<SongLayo
   }
 
   if (rest.length >= 2) {
-    const columns = columnsPart(rest, measure);
+    const columns = columnsPart(rest, indent, measure);
     const twoColumns = geometry.headingHeight + geometry.tableHeight + columns.height;
     const worthIt =
       oneColumn > BODY_HEIGHT * PAGE_SAFETY
@@ -488,19 +508,67 @@ export function tocEntryText(song: Pick<PrintSong, 'number' | 'title'>): string 
   return song.number ? `${song.number}. ${song.title}` : song.title;
 }
 
+/** A contents entry as printed: the page number always ends its last line */
+export interface TocEntryLayout {
+  lines: string[];
+  letterSpacing?: number;
+}
+
+// a little tighter letters still read well in capitals; anything tighter would not
+const TOC_FITS = [-10, -14];
+// the dots before the icons never shrink to nothing
+const TOC_LEADER = 120;
+
+/**
+ * A title too long for its line is set a little tighter, or else broken between words by hand:
+ * left to Word it would wrap past the icon tab stop and push the page number onto a line of its own.
+ */
+export function tocEntryLayout(
+  song: Pick<PrintSong, 'number' | 'title' | 'tagIds'>,
+  measure: MeasureText,
+): TocEntryLayout {
+  const text = tocEntryText(song);
+  // the contents style prints in capitals
+  const widthOf = (line: string, letterSpacing = TOC.letterSpacing) =>
+    measure(line.toUpperCase(), { ...TEXT_STYLES.toc, letterSpacing }) / WIDTH_SAFETY;
+  const lineWidth = (index: number) => TOC_COLUMN_WIDTH - (index ? TOC.indent : 0);
+  const lastLineRoom = (index: number) =>
+    lineWidth(index) - TOC.pageNumberWidth - song.tagIds.length * TOC_ICON_PX * 15 - TOC_LEADER;
+
+  const letterSpacing = [TOC.letterSpacing, ...TOC_FITS].find((spacing) => widthOf(text, spacing) <= lastLineRoom(0));
+
+  if (letterSpacing !== undefined) {
+    return { lines: [text], ...(letterSpacing === TOC.letterSpacing ? {} : { letterSpacing }) };
+  }
+
+  const lines: string[][] = [[]];
+
+  for (const word of text.split(' ').filter(Boolean)) {
+    const current = lines[lines.length - 1];
+
+    if (current.length && widthOf([...current, word].join(' ')) > lineWidth(lines.length - 1)) {
+      lines.push([word]);
+    } else {
+      current.push(word);
+    }
+  }
+
+  const last = lines[lines.length - 1];
+  const tail: string[] = [];
+
+  while (last.length > 1 && widthOf(last.join(' ')) > lastLineRoom(lines.length - 1)) {
+    tail.unshift(last.pop() as string);
+  }
+
+  return { lines: [...lines, ...(tail.length ? [tail] : [])].map((words) => words.join(' ')) };
+}
+
 function tocHeight(sections: PlanSection[], measure: MeasureText): number {
   return sum(
     sections.map(
       ({ songs = [] }) =>
-        120
-        + TOC.line
-        + sum(
-          songs.map((song) => {
-            const icons = song.tagIds.length * ICON_WIDTH;
-            const width = TOC_COLUMN_WIDTH - TOC.indent - TOC.pageNumberWidth - icons;
-            return lineCount(tocEntryText(song).toUpperCase(), width, TEXT_STYLES.toc, measure) * TOC.line;
-          }),
-        ),
+        TOC.line
+        + sum(songs.map((song) => tocEntryLayout(song, measure).lines.length * TOC.line)),
     ),
   );
 }

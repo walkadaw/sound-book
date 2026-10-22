@@ -1,7 +1,14 @@
 import { Stanza } from '../chord/song-structure';
-import { ChordParagraph, approximateMeasure, layoutSong, lineCount, planSongbook } from './songbook-layout';
+import {
+  ChordParagraph,
+  approximateMeasure,
+  layoutSong,
+  lineCount,
+  planSongbook,
+  tocEntryLayout,
+} from './songbook-layout';
 import { PrintSong } from './songbook-model';
-import { BODY_HEIGHT, BODY_WIDTH, FONTS } from './songbook-styles';
+import { BODY_HEIGHT, BODY_WIDTH, FONTS, TOC, VERSE_INDENT } from './songbook-styles';
 
 const plain = (...lines: [string, string?][]): Stanza => ({
   kind: 'plain',
@@ -42,7 +49,40 @@ describe('songbook-layout', () => {
     });
   });
 
+  describe('tocEntryLayout', () => {
+    // the rough measure fits about 30 letters of the contents before the page number
+    const entry = (title: string, tagIds: number[] = []) =>
+      tocEntryLayout({ number: 1, title, tagIds }, approximateMeasure);
+
+    it('should keep a short title as it is', () => {
+      expect(entry('Песня')).toEqual({ lines: ['1. Песня'] });
+    });
+
+    it('should set a title a little too long a little tighter', () => {
+      const layout = entry('Ты ёсць скалою майго збаўлення');
+
+      expect(layout.lines).toEqual(['1. Ты ёсць скалою майго збаўлення']);
+      expect(layout.letterSpacing).toBeLessThan(TOC.letterSpacing);
+    });
+
+    it('should break a long title between words and leave room for the page number on the last line', () => {
+      const layout = entry('Ты ёсць скалою майго збаўлення і моцы', [1, 2]);
+
+      expect(layout.lines.length).toBe(2);
+      expect(layout.lines.join(' ')).toBe('1. Ты ёсць скалою майго збаўлення і моцы');
+      expect(layout.letterSpacing).toBeUndefined();
+    });
+  });
+
   describe('layoutSong', () => {
+    it('should widen the indent of every verse by what a two-digit number takes more than a one-digit one', () => {
+      // the rough measure gives every letter of the lyrics 130 twips
+      expect(layoutSong(song([verse('9', ['Раз'])]), approximateMeasure).verseIndent).toBe(VERSE_INDENT);
+      expect(layoutSong(song([verse('9', ['Раз']), verse('10', ['Два'])]), approximateMeasure).verseIndent).toBe(
+        VERSE_INDENT + Math.round(130 / 0.98),
+      );
+    });
+
     it('should give every stanza up to the last chords a chord row for each of its lines', () => {
       const layout = layoutSong(
         song([

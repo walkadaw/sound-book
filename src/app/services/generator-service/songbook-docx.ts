@@ -16,14 +16,17 @@ import { chordLineRuns } from './chord-notation';
 import {
   ChordRow,
   MeasureText,
+  PAGE_SAFETY,
   PlanSection,
   SongLayout,
   SongbookPlan,
+  TocEntryLayout,
   approximateMeasure,
   gadzinkiHeight,
   planSongbook,
   stanzaBefore,
-  tocEntryText,
+  tocEntryLayout,
+  verseIndent,
 } from './songbook-layout';
 import { PrintOptions, PrintSong, printSong } from './songbook-model';
 import {
@@ -36,6 +39,7 @@ import {
   FONTS,
   FOOTER,
   ICON_PX,
+  LEGEND,
   LINE,
   NOTE_LINE,
   PAGE,
@@ -43,7 +47,7 @@ import {
   STANZA_AFTER,
   STYLE,
   TOC_COLUMN_GAP,
-  VERSE_INDENT,
+  TOC_ICON_PX,
   songbookStyles,
   tocTabStops,
   verseNumbering,
@@ -88,8 +92,6 @@ export const SECTION_TITLES = {
   notes: 'Нататкі',
   toc: 'Змест',
 };
-
-const TOC_ICON_PX = 18;
 
 export const songBookmark = (song: Pick<PrintSong, 'id'>) => `song${song.id}`;
 const sectionBookmark = (index: number) => `section${index}`;
@@ -142,13 +144,13 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
     add(new docx.Paragraph({ style: STYLE.tocHeading, pageBreakBefore: hasContent(), text: SECTION_TITLES.toc }));
     startSection(2, TOC_COLUMN_GAP);
     planned.forEach((section, index) => {
-      add(tocEntry(docx, STYLE.toc1, section.title, sectionBookmark(index), plan.sectionPages[index], []));
+      add(tocEntry(docx, STYLE.toc1, { lines: [section.title] }, sectionBookmark(index), plan.sectionPages[index], []));
       (section.songs ?? []).forEach((song, songIndex) =>
         add(
           tocEntry(
             docx,
             STYLE.toc2,
-            tocEntryText(song),
+            tocEntryLayout(song, measure),
             songBookmark(song),
             plan.songs[index][songIndex].page,
             song.tagIds.flatMap((id) => icon(id, TOC_ICON_PX)),
@@ -185,7 +187,7 @@ export function buildSongbook(docx: Docx, content: SongbookContent): Songbook {
           }
 
           const keepNext = layout.keepTogether && stanzaIndex < Math.min(last, columnsFrom);
-          add(stanzaParagraph(docx, stanza, numberVerse, keepNext, layout.compact));
+          add(stanzaParagraph(docx, stanza, numberVerse, keepNext, layout.verseIndent, layout.compact));
         });
 
         if (columnsFrom < song.stanzas.length) {
@@ -276,7 +278,7 @@ function sectionTitle(docx: Docx, title: string, bookmark: string, pageBreakBefo
 function tocEntry(
   docx: Docx,
   style: string,
-  text: string,
+  { lines, letterSpacing }: TocEntryLayout,
   bookmark: string,
   page: number,
   icons: ParagraphChild[],
@@ -285,7 +287,13 @@ function tocEntry(
     style,
     tabStops: tocTabStops(docx),
     children: [
-      new docx.InternalHyperlink({ anchor: bookmark, children: [new docx.TextRun(text)] }),
+      new docx.InternalHyperlink({
+        anchor: bookmark,
+        children: lines.map(
+          (text, index) =>
+            new docx.TextRun({ text, characterSpacing: letterSpacing, break: index ? 1 : undefined }),
+        ),
+      }),
       new docx.TextRun({ children: [new docx.Tab()] }),
       ...icons,
       new docx.TextRun({ children: [new docx.Tab()] }),
@@ -417,7 +425,7 @@ function songTable(
                   ? {
                     indent: before
                       ? { left: 0, hanging: 0 }
-                      : { left: VERSE_INDENT, hanging: lineIndex === numbered ? VERSE_INDENT : 0 },
+                      : { left: layout.verseIndent, hanging: lineIndex === numbered ? layout.verseIndent : 0 },
                   }
                   : {}),
                 children: [
@@ -462,6 +470,7 @@ function stanzaParagraph(
   stanza: Stanza,
   numberVerse: NumberVerse,
   keepNext: boolean,
+  indent: number,
   compact = false,
 ): Paragraph {
   const lines = stanza.lines.filter(({ text }) => text);
@@ -471,7 +480,7 @@ function stanzaParagraph(
     keepLines: true,
     keepNext,
     ...(compact ? { spacing: compactSpacing(docx) } : {}),
-    ...(stanza.number && stanza.kind !== 'verse' ? { indent: { left: VERSE_INDENT, hanging: VERSE_INDENT } } : {}),
+    ...(stanza.number ? { indent: { left: indent, hanging: indent } } : {}),
     ...(stanza.number ? { numbering: numberVerse(stanza.number) } : {}),
     children: lines.map(({ text }, index) => new docx.TextRun({ text, break: index ? 1 : undefined })),
   });
@@ -479,15 +488,14 @@ function stanzaParagraph(
 
 function gadzinkiBlock(docx: Docx, block: GadzinkiBlock, numberVerse: NumberVerse): Paragraph[] {
   switch (block.kind) {
-    case 'list':
-      return block.items.map((item, index) =>
-        stanzaParagraph(
-          docx,
-          { kind: 'verse', number: String(index + 1), lines: item.split('\n').map((text) => ({ text, chords: '' })) },
-          numberVerse,
-          false,
-        ),
-      );
+    case 'list': {
+      const stanzas: Stanza[] = block.items.map((item, index) => ({
+        kind: 'verse',
+        number: String(index + 1),
+        lines: item.split('\n').map((text) => ({ text, chords: '' })),
+      }));
+      return stanzas.map((stanza) => stanzaParagraph(docx, stanza, numberVerse, false, verseIndent(stanzas)));
+    }
     case 'subtitle':
       return [new docx.Paragraph({ style: STYLE.refrain, keepNext: true, text: block.text })];
     case 'lines':
@@ -533,10 +541,11 @@ function notesBlocks(docx: Docx, pages: number, icon: (id: number) => ParagraphC
         )
         : [new docx.Paragraph('')],
     });
-  const legendRows = Math.max(half, 1);
-  const legendHeight = SECTION_TITLE.line + SECTION_TITLE.after + legendRows * (ICON_PX * 15 + 40) + 2 * NOTE_LINE;
+  const legendHeight = tags.length ? half * (LEGEND.line + LEGEND.after) + NOTE_LINE : 0;
   const linesPerPage = Math.floor(BODY_HEIGHT / NOTE_LINE);
-  const lines = Math.max(0, Math.floor((BODY_HEIGHT - legendHeight) / NOTE_LINE) + (pages - 1) * linesPerPage);
+  // the title is set in its own font, so the first page keeps a little room in case it comes out taller
+  const firstPage = BODY_HEIGHT * PAGE_SAFETY - SECTION_TITLE.line - SECTION_TITLE.after - legendHeight;
+  const lines = Math.max(0, Math.floor(firstPage / NOTE_LINE) + (pages - 1) * linesPerPage);
   const rule = { style: docx.BorderStyle.SINGLE, size: 4, color: '808080' };
 
   return [
@@ -547,7 +556,7 @@ function notesBlocks(docx: Docx, pages: number, icon: (id: number) => ParagraphC
           borders: docx.TableBorders.NONE,
           rows: [new docx.TableRow({ children: [legendColumn(tags.slice(0, half)), legendColumn(tags.slice(half))] })],
         }),
-        new docx.Paragraph({ spacing: { after: NOTE_LINE } }),
+        new docx.Paragraph({ spacing: { before: 0, after: 0, line: NOTE_LINE, lineRule: docx.LineRuleType.EXACT } }),
       ]
       : []),
     ...(lines
