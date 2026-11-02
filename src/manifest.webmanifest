@@ -1,6 +1,10 @@
 {
+  "id": "/",
   "name": "Спеўнік",
   "short_name": "Спеўнік",
+  "description": "Зборнік духоўных песень з акордамі: пошук па назве і тэксце, транспанаванне, плэйлісты і рэжым прэзентацыі.",
+  "lang": "be",
+  "dir": "ltr",
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display": "standalone",
@@ -68,9 +72,40 @@
       "purpose": "maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/wide-list.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Спіс песень"
+    },
+    {
+      "src": "assets/screenshots/wide-song.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Песня з акордамі"
+    },
+    {
+      "src": "assets/screenshots/narrow-list.png",
+      "sizes": "824x1830",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Спіс песень"
+    },
+    {
+      "src": "assets/screenshots/narrow-song.png",
+      "sizes": "824x1830",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Песня з акордамі"
+    }
+  ],
   "share_target": {
     "action": "/share",
     "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
     "params": {
       "title": "title",
       "text": "text",
@@ -81,22 +116,62 @@
     {
       "name": "Закладкі",
       "description": "Адкрыць закладкі",
-      "url": "/favorite"
+      "url": "/favorite",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-favorite-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Вашы плэйлісты",
       "description": "Адкрыць вашы плэйлісты",
-      "url": "/playlist"
+      "url": "/playlist",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-playlist-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Чытанне дня",
       "description": "Адкрыць чытанне дня",
-      "url": "/liturgy"
+      "url": "/liturgy",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-liturgy-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
-      "name": "Гадзінки",
-      "description": "Адкрыць гадзінки",
-      "url": "/gadzinki"
+      "name": "Гадзінкі",
+      "description": "Адкрыць гадзінкі",
+      "url": "/gadzinki",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-gadzinki-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Прэзентацыя",
+      "description": "Адкрыць прэзентацыю",
+      "url": "/presentation",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-presentation-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

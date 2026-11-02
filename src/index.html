@@ -11,12 +11,16 @@
     />
     <meta property="og:site_name" content="Спеўнік" />
     <meta property="og:locale" content="be_BY" />
+    <meta name="theme-color" content="#ffffff" />
     <script>
       // Applies a manually chosen theme before first paint; ThemeService takes over after bootstrap.
       try {
         var theme = localStorage.getItem('theme');
         if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
       } catch (e) {}
+      // Matches the dark surface in styles.scss so the status bar isn't white until ThemeService syncs it.
+      var dark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.querySelector('meta[name="theme-color"]').content = '#121316';
     </script>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link
@@ -25,7 +29,7 @@
     />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#ffffff" />
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon-180x180.png" />
   </head>
   <body>
     <!-- Shown until Angular bootstraps: on a first visit it waits for the song list to download. -->
