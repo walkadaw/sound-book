@@ -1,0 +1,106 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5em 1em;
+}
+
+.heading {
+  min-width: 0;
+}
+
+.label {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--app-fs-meta);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.screen-button {
+  display: block;
+  width: 100%;
+  // the controls stay in sight on a short screen
+  max-width: calc((100dvh - 19rem) * 16 / 9);
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid var(--mat-sys-primary);
+  border-radius: 14px;
+  background: #000;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: auto;
+
+  button {
+    height: 64px;
+    border-radius: 16px;
+    font-size: var(--app-fs-small);
+  }
+
+  .prev {
+    flex: 0 1 180px;
+    min-width: 110px;
+    background: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface);
+  }
+
+  .next {
+    flex: 1 1 0;
+    min-width: 120px;
+    font-size: 1em;
+    font-weight: 700;
+  }
+
+  .toggle {
+    flex: none;
+    padding: 0 18px;
+
+    &.pressed {
+      background: var(--mat-sys-inverse-surface);
+      color: var(--mat-sys-inverse-on-surface);
+    }
+
+    &.blackout.pressed {
+      background: var(--mat-sys-error-container);
+      color: var(--mat-sys-on-error-container);
+    }
+  }
+
+  button:disabled {
+    opacity: 0.5;
+  }
+}
+
+.hint {
+  margin: 0;
+}

@@ -1,0 +1,79 @@
+// The presentation puts the reveal.js class on body, so its theme reaches the dialog's headings and paragraphs.
+:host h2,
+:host p {
+  text-shadow: none;
+  text-transform: none;
+}
+
+:host p {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.qr {
+  display: block;
+  width: min(16rem, 60vw);
+  margin: 0 auto 1rem;
+}
+
+.link {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0.75rem;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--mat-sys-outline);
+    border-radius: 8px;
+    background: var(--mat-sys-surface-container);
+    color: var(--mat-sys-on-surface);
+    font: inherit;
+    font-size: 0.875rem;
+
+    &:focus-visible {
+      outline: 3px solid var(--mat-sys-primary);
+      outline-offset: 1px;
+    }
+  }
+
+  button {
+    flex-shrink: 0;
+    min-height: 44px;
+  }
+}
+
+:host p.note,
+:host p.status {
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+:host p.status {
+  margin-bottom: 0;
+}
+
+.connected,
+.away {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+
+  mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: light-dark(#1e7d3c, #7fd99a);
+  }
+}
+
+.away mat-icon {
+  color: var(--mat-sys-on-surface-variant);
+}

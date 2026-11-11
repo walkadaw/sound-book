@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>Пульт на іншай прыладзе</h2>
+
+<mat-dialog-content>
+  @if (connected()) {
+    <div class="connected">
+      <mat-icon aria-hidden="true">check_circle</mat-icon>
+      <p>Код схаваны: іншыя прылады не змогуць падключыцца, пакуль гэтая на сувязі.</p>
+    </div>
+  } @else if (host.deviceAway()) {
+    <div class="away">
+      <mat-icon aria-hidden="true">phonelink_erase</mat-icon>
+      <p>Прылада страціла сувязь — напрыклад, тэлефон заблакаваны. Яна вернецца сама, калі зноў падключыцца.</p>
+      <p class="note">Каб кіраваць з іншай прылады, стварыце новы код. Старая прылада тады будзе адключана.</p>
+    </div>
+  } @else if (qr(); as qr) {
+    <svg
+      class="qr"
+      role="img"
+      aria-label="QR-код са спасылкай на пульт"
+      shape-rendering="crispEdges"
+      [attr.viewBox]="'0 0 ' + qr.size + ' ' + qr.size"
+    >
+      <rect fill="#fff" [attr.width]="qr.size" [attr.height]="qr.size" />
+      <path fill="#000" [attr.d]="qr.path" />
+    </svg>
+    <p>Адсканіруйце код тэлефонам або адкрыйце спасылку на іншай прыладзе.</p>
+    <div class="link">
+      <label class="cdk-visually-hidden" for="remote-link">Спасылка на пульт</label>
+      <input #link id="remote-link" type="text" readonly [value]="url()" (focus)="link.select()" />
+      <button mat-stroked-button type="button" (click)="copy()">
+        <mat-icon aria-hidden="true">{{ copied() ? 'check' : 'content_copy' }}</mat-icon>
+        {{ copied() ? 'Скапіявана' : 'Скапіяваць' }}
+      </button>
+    </div>
+    <p class="note">Кіраваць можа толькі адна прылада. Пасля падключэння код знікне.</p>
+  } @else if (host.roomFailed()) {
+    <div class="away">
+      <mat-icon aria-hidden="true">wifi_off</mat-icon>
+      <p>Не ўдалося стварыць код. Праверце інтэрнэт і паспрабуйце зноў.</p>
+    </div>
+  } @else {
+    <p>Ствараем код…</p>
+  }
+
+  <p class="status" role="status">
+    @if (connected()) {
+      Падключана 1 прылада
+    } @else if (host.deviceAway()) {
+      Прылада не на сувязі
+    } @else if (host.roomFailed()) {
+      Код не створаны
+    } @else {
+      Падключаных прылад няма — чакаем
+    }
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  @if (connected()) {
+    <button mat-button type="button" mat-dialog-close (click)="host.closeRoom()">Адключыць прыладу</button>
+  } @else if (host.deviceAway()) {
+    <button mat-button type="button" (click)="host.newCode()">Новы код</button>
+  } @else if (host.roomFailed()) {
+    <button mat-button type="button" (click)="host.openRoom()">Паспрабаваць зноў</button>
+  }
+  <button mat-flat-button type="button" mat-dialog-close cdkFocusInitial>Гатова</button>
+</mat-dialog-actions>

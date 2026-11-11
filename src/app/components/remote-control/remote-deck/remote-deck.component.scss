@@ -1,0 +1,116 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.top {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 8px 0 16px;
+}
+
+.screen-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.toggle {
+  --mat-icon-button-state-layer-size: 44px;
+
+  border-radius: 12px;
+  color: var(--mat-sys-on-surface-variant);
+
+  &.pressed {
+    background: var(--mat-sys-inverse-surface);
+    color: var(--mat-sys-inverse-on-surface);
+  }
+
+  &.blackout.pressed {
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+}
+
+.deck {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75em;
+  min-height: 0;
+  padding: 0 16px 0.75em;
+  overflow: auto;
+
+  // the column scrolls; its parts keep their height
+  > * {
+    flex-shrink: 0;
+  }
+}
+
+.label {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--app-fs-meta);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.screen-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid var(--mat-sys-primary);
+  border-radius: 12px;
+  background: #000;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+}
+
+.moves {
+  display: flex;
+  flex-shrink: 0;
+  gap: 12px;
+  padding: 12px 16px;
+
+  button {
+    height: 72px;
+    border-radius: 18px;
+    font-size: var(--app-fs-small);
+  }
+
+  .prev {
+    flex: 1;
+    background: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface);
+  }
+
+  .next {
+    flex: 2;
+    font-size: 1em;
+    font-weight: 700;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+  }
+}

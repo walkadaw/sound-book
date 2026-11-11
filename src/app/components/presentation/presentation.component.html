@@ -1,18 +1,10 @@
-<div class="reveal" [class.speakerNotes]="isSpeakerNotes()">
+<div class="reveal">
   <div class="slides">
     @if (slideList().length) {
       @for (slides of slideList(); track $index) {
         @for (slide of slides.slides; track slide) {
           <section [style.font-size.px]="slide.fontSize">
             <span>{{ slide.text }}</span>
-            @if (slides.chord || slides.text) {
-              <aside class="notes">
-                <div style="display: flex; white-space: pre-wrap">
-                  <span style="flex: 1 1 80%">{{ slides.text }}</span
-                  ><span style="flex: 1 1 20%; font-weight: bold">{{ slides.chord }}</span>
-                </div>
-              </aside>
-            }
           </section>
         }
       }

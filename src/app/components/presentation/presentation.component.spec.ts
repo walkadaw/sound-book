@@ -2,12 +2,13 @@ import { Location } from '@angular/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { filter, firstValueFrom, of } from 'rxjs';
 
 import { Liturgy, LiturgySection } from '../../interfaces/liturgy';
 import { Song } from '../../interfaces/song';
 import { SlideList } from '../../interfaces/slide';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
+import { ChannelClientTransport } from '../../services/remote-control/remote-transport';
 import { RevealService } from '../../services/reveal-service/reveal.service';
 import { SlidesService } from '../../services/slides/slides.service';
 import { SongService } from '../../services/song-service/song.service';
@@ -37,8 +38,12 @@ describe('PresentationComponent', () => {
   let component: PresentationComponent;
   let fixture: ComponentFixture<PresentationComponent>;
   let replaceState: ReturnType<typeof vi.spyOn>;
+  const slideIndex = signal(0);
+  const updateRevealState = vi.fn();
 
   const create = async (ids: string) => {
+    slideIndex.set(0);
+    updateRevealState.mockReset();
     TestBed.configureTestingModule({
       imports: [PresentationComponent],
       providers: [
@@ -65,11 +70,13 @@ describe('PresentationComponent', () => {
           provide: RevealService,
           useValue: {
             ready: signal(false),
-            remoteId: 'spec',
-            isSpeakerNotes: () => false,
+            slideIndex,
+            paused: signal(false),
+            light: signal(false),
+            presentationId: 'spec',
             init: () => {},
             destroy: () => {},
-            updateRevealState: () => {},
+            updateRevealState,
           },
         },
         { provide: SongStatsService, useValue: { record: () => {} } },
@@ -111,19 +118,6 @@ describe('PresentationComponent', () => {
     expect(listed().length).toBe(3);
   });
 
-  it('should give the speaker view the masses it is built from', async () => {
-    await create('l');
-    const speakerView = new BroadcastChannel('reveal-menu-spec');
-    const answer = new Promise<MessageEvent>((resolve) => (speakerView.onmessage = resolve));
-
-    speakerView.postMessage({ type: 'requestLiturgy' });
-
-    const { data } = await answer;
-    expect(data.type).toBe('liturgy');
-    expect(data.masses.map(({ title }: Liturgy) => title)).toEqual(['Чацвер', 'Успамін']);
-    speakerView.close();
-  });
-
   it('should remove the whole mass with any of its parts', async () => {
     await create('l,5,l2');
 
@@ -131,5 +125,64 @@ describe('PresentationComponent', () => {
 
     expect(listed()).toEqual(['Песня 0-0', 'ЧЫТАННЕ 2 1-1', 'ЕВАНГЕЛЛЕ 2 2-3']);
     expect(replaceState).toHaveBeenLastCalledWith('/presentation/5,l2');
+  });
+
+  it('should keep the screen on its slide when songs before it go, and move on when its own song goes', async () => {
+    // song 0-0, then the two parts of the mass 1-1 and 2-3, then the song again 4-4
+    await create('5,l,5');
+    slideIndex.set(4);
+
+    component.removeSlide(1);
+    expect(listed()).toEqual(['Песня 0-0', 'Песня 1-1']);
+    expect(updateRevealState).toHaveBeenLastCalledWith(1);
+
+    slideIndex.set(1);
+    component.removeSlide(1);
+    expect(updateRevealState).toHaveBeenLastCalledWith(0);
+  });
+
+  it('should move on to what followed when the song on the screen goes', async () => {
+    await create('l,5');
+    slideIndex.set(2);
+
+    component.removeSlide(0);
+
+    expect(listed()).toEqual(['Песня 0-0']);
+    expect(updateRevealState).toHaveBeenLastCalledWith(0);
+  });
+
+  it('should add a song right after the current one', async () => {
+    await create('5,l');
+
+    expect(component.addSlide('5', 'afterCurrent')).toBe(1);
+    expect(listed()).toEqual(['Песня 0-0', 'Песня 1-1', 'ЧЫТАННЕ 1 2-2', 'ЕВАНГЕЛЛЕ 1 3-4']);
+  });
+
+  it('should add after the whole mass the current slide is part of', async () => {
+    await create('l,5');
+    slideIndex.set(1);
+
+    expect(component.addSlide('l2', 'afterCurrent')).toBe(2);
+    expect(listed()).toEqual([
+      'ЧЫТАННЕ 1 0-0',
+      'ЕВАНГЕЛЛЕ 1 1-2',
+      'ЧЫТАННЕ 2 3-3',
+      'ЕВАНГЕЛЛЕ 2 4-5',
+      'Песня 6-6',
+    ]);
+  });
+
+  it('should let a control window add a song and see it in the state', async () => {
+    await create('5');
+    const remote = new ChannelClientTransport('remote-control-spec');
+    const twoSongs = firstValueFrom(remote.state$.pipe(filter(({ songs }) => songs.length === 2)));
+
+    remote.send({ type: 'add', id: '5', position: 'end' });
+    TestBed.tick();
+
+    const state = await twoSongs;
+    expect(state.songs.map(({ id }) => id)).toEqual(['5', '5']);
+    expect(remote.status()).toBe('connected');
+    remote.close();
   });
 });

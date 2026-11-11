@@ -1,0 +1,75 @@
+<div class="head">
+  <div class="heading">
+    <h1 class="cdk-visually-hidden">Пульт</h1>
+    @if (!session.songs().length) {
+      <p class="meta">У праграме няма песень. Дадайце іх у раздзеле «Дадаць» злева.</p>
+    }
+  </div>
+  <app-remote-status />
+</div>
+
+@if (session.songs().length) {
+  <section class="screen" aria-labelledby="remote-stage-screen">
+    <h2 id="remote-stage-screen" class="label">На экране</h2>
+    <button
+      type="button"
+      class="screen-button"
+      aria-label="Наступны слайд"
+      [disabled]="!session.connected() || session.atEnd()"
+      (click)="session.next()"
+    >
+      <app-slide-preview [slide]="session.currentSlide()" [light]="session.light()" [blackout]="session.blackout()" />
+    </button>
+  </section>
+}
+
+<div class="controls">
+  <button
+    mat-flat-button
+    type="button"
+    class="prev"
+    [disabled]="!session.connected() || session.atStart()"
+    (click)="session.prev()"
+  >
+    <mat-icon aria-hidden="true">chevron_left</mat-icon>
+    Назад
+  </button>
+  <button
+    mat-flat-button
+    type="button"
+    class="next"
+    [disabled]="!session.connected() || session.atEnd()"
+    (click)="session.next()"
+  >
+    Далей
+    <mat-icon aria-hidden="true" iconPositionEnd>chevron_right</mat-icon>
+  </button>
+  <button
+    mat-stroked-button
+    type="button"
+    class="toggle"
+    title="Чорны тэкст на белым фоне"
+    [class.pressed]="session.light()"
+    [attr.aria-pressed]="session.light()"
+    [disabled]="!session.connected()"
+    (click)="session.setLight(!session.light())"
+  >
+    <mat-icon aria-hidden="true">contrast</mat-icon>
+    Тэма
+  </button>
+  <button
+    mat-stroked-button
+    type="button"
+    class="toggle blackout"
+    title="Схаваць тэкст на экране"
+    [class.pressed]="session.blackout()"
+    [attr.aria-pressed]="session.blackout()"
+    [disabled]="!session.connected()"
+    (click)="session.setBlackout(!session.blackout())"
+  >
+    <mat-icon aria-hidden="true">visibility_off</mat-icon>
+    Схаваць
+  </button>
+</div>
+
+<p class="meta hint">Клавішы: ← → — слайды, B — схаваць тэкст, T — тэма, / — пошук песні</p>

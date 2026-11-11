@@ -117,7 +117,7 @@ export class SongStatsService {
   }
 
   /**
-   * Takes the stored counts out of localStorage before they are sent. Other tabs and the speaker notes frames share
+   * Takes the stored counts out of localStorage before they are sent. Other tabs share
    * the storage, and a page closed mid-request cannot clean up after itself: counts left in storage would be sent
    * twice. A batch lost with a closed page is rare and cheaper than a doubled one.
    */

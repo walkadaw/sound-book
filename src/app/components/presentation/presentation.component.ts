@@ -14,14 +14,16 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, EMPTY, Observable, defer, forkJoin, merge } from 'rxjs';
-import { filter, map, switchMap, take, tap, timeout } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin } from 'rxjs';
+import { filter, take, tap } from 'rxjs/operators';
 import { liturgyId, liturgyIndex } from '../../constants/liturgy';
 import { Liturgy, LiturgyChoice } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 import { lyricsWithChords } from '../../services/chord/song-structure';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
-import { PresentationChannel } from '../../services/presentation-channel/presentation-channel.service';
+import { InsertPosition, RemoteMass, insertionIndex } from '../../services/remote-control/remote-control';
+import { RemoteHost } from '../../services/remote-control/remote-host.service';
+import { ChannelHostTransport, channelName } from '../../services/remote-control/remote-transport';
 import { RevealService } from '../../services/reveal-service/reveal.service';
 import { SlidesService } from '../../services/slides/slides.service';
 import { SongService } from '../../services/song-service/song.service';
@@ -40,7 +42,7 @@ import { PresentationMenuComponent } from './presentation-menu/presentation-menu
   ],
   encapsulation: ViewEncapsulation.None,
   imports: [PresentationMenuComponent],
-  providers: [PresentationChannel],
+  providers: [RemoteHost],
 })
 export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
@@ -53,18 +55,18 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   private injector = inject(Injector);
   private destroyRef = inject(DestroyRef);
   private songStats = inject(SongStatsService);
-  private channel = inject(PresentationChannel);
+  private remoteHost = inject(RemoteHost);
 
   // Removing a song and adding it back is still one use in this presentation.
   private countedSongs = new Set<string>();
-  // The speaker notes window loads the same presentation (with ?receiver) in its own frames.
-  private isNotesWindow = /receiver/i.test(this.location.path());
 
   readonly slideList = signal<SlideList[]>([]);
   readonly isReady = this.reveal.ready;
-  readonly isSpeakerNotes = computed(() => this.reveal.ready() && this.reveal.isSpeakerNotes());
 
   private masses = signal<Liturgy[]>([]);
+  private remoteMasses = computed<RemoteMass[]>(() =>
+    this.masses().map(({ title }, index) => ({ id: liturgyId(index), title })),
+  );
 
   // the masses of the day that are not in the presentation yet
   readonly liturgyChoices = computed<LiturgyChoice[]>(() => {
@@ -86,9 +88,13 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.render.addClass(document.body, 'reveal');
 
-    if (!this.isNotesWindow) {
-      this.shareLiturgy();
-    }
+    this.remoteHost.attach({
+      slides: this.slideList,
+      masses: this.remoteMasses,
+      add: (id, position) => this.addSlide(id, position),
+      remove: (index) => this.removeSlide(index),
+    });
+    this.remoteHost.connect(new ChannelHostTransport(channelName(this.reveal.presentationId)));
   }
 
   ngOnDestroy(): void {
@@ -108,39 +114,44 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  addSlide(id: string) {
+  /** Returns the index of the first added song, or null when nothing was added. */
+  addSlide(id: string, position: InsertPosition = 'end'): number | null {
     const isLiturgy = liturgyIndex(id) !== null;
     const added = isLiturgy && this.slideList().some(({ liturgy }) => liturgy === id) ? [] : this.slidesFor(id);
 
-    if (added.length) {
-      this.slideList.update((list) => withIndexes([...list, ...added]));
-
-      if (!isLiturgy) {
-        this.countShow(id);
-      }
-
-      this.updateLocation();
+    if (!added.length) {
+      return null;
     }
+
+    const list = this.slideList();
+    const at = position === 'afterCurrent' ? insertionIndex(list, this.reveal.slideIndex()) : list.length;
+
+    this.slideList.set(withIndexes([...list.slice(0, at), ...added, ...list.slice(at)]));
+
+    if (!isLiturgy) {
+      this.countShow(id);
+    }
+
+    this.updateLocation();
+
+    return at;
   }
 
   // A mass goes away as a whole, whichever of its parts is removed.
   removeSlide(removedIndex: number) {
-    this.slideList.update((list) => {
-      const liturgy = list[removedIndex]?.liturgy;
+    const list = this.slideList();
+    const liturgy = list[removedIndex]?.liturgy;
+    const removed = (slide: SlideList, index: number) =>
+      index === removedIndex || (!!liturgy && slide.liturgy === liturgy);
+    const kept = withIndexes(list.filter((slide, index) => !removed(slide, index)));
 
-      return withIndexes(
-        list.filter((slide, index) => index !== removedIndex && !(liturgy && slide.liturgy === liturgy)),
-      );
-    });
-
-    this.updateLocation();
+    this.slideList.set(kept);
+    this.updateLocation(slideAfterRemoval(list, removed, this.reveal.slideIndex(), kept));
   }
 
   private loadSlide() {
     const listID = ((this.activatedRoute.snapshot.params['id'] as string) || '').split(',');
-    const liturgy = (this.isNotesWindow ? this.liturgyOfMainWindow() : this.liturgyService.getLiturgy()).pipe(
-      tap((masses) => this.masses.set(masses ?? [])),
-    );
+    const liturgy = this.liturgyService.getLiturgy().pipe(tap((masses) => this.masses.set(masses ?? [])));
 
     forkJoin([liturgy, this.songService.loadSongFromCache()])
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -185,33 +196,8 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     ];
   }
 
-  // The speaker view shows the masses the main window has, though the server may have moved on to another day since.
-  private liturgyOfMainWindow(): Observable<Liturgy[] | null> {
-    const answer = this.channel.messages$.pipe(
-      filter((message) => message.type === 'liturgy'),
-      map(({ masses }) => masses),
-    );
-    const request = defer(() => {
-      this.channel.send({ type: 'requestLiturgy' });
-      return EMPTY;
-    });
-
-    return merge(answer, request).pipe(take(1), timeout({ first: 3000, with: () => this.liturgyService.getLiturgy() }));
-  }
-
-  private shareLiturgy() {
-    this.channel.messages$
-      .pipe(
-        filter(({ type }) => type === 'requestLiturgy'),
-        // answer with the masses the presentation is built from
-        switchMap(() => this.isDataLoaded$.pipe(filter(Boolean), take(1))),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => this.channel.send({ type: 'liturgy', masses: this.masses() }));
-  }
-
   private countShow(songId: string) {
-    if (this.isNotesWindow || this.countedSongs.has(songId)) {
+    if (this.countedSongs.has(songId)) {
       return;
     }
 
@@ -219,14 +205,39 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.songStats.record('show', songId);
   }
 
-  private updateLocation() {
-    if (!this.reveal.isSpeakerNotes()) {
-      const ids = this.slideList().map((slide) => slide.liturgy ?? slide.id);
+  private updateLocation(indexh?: number) {
+    const ids = this.slideList().map((slide) => slide.liturgy ?? slide.id);
 
-      this.location.replaceState(`/presentation/${oncePerMass(ids).toString()}`);
-    }
-    this.reveal.updateRevealState();
+    this.location.replaceState(`/presentation/${oncePerMass(ids).toString()}`);
+    this.reveal.updateRevealState(indexh);
   }
+}
+
+/**
+ * Where the screen goes once songs are removed: the same slide when they came before it, or whatever followed
+ * when its own song went. Left alone, the screen would keep the number and land in another song.
+ */
+function slideAfterRemoval(
+  list: SlideList[],
+  removed: (slide: SlideList, index: number) => boolean,
+  current: number,
+  kept: SlideList[],
+): number {
+  let target = current;
+
+  list.forEach((slide, index) => {
+    const { startIndex = 0, endIndex = 0 } = slide;
+
+    if (!removed(slide, index) || startIndex > current) {
+      return;
+    }
+
+    target -= endIndex < current ? slide.slides.length : current - startIndex;
+  });
+
+  const total = kept.at(-1)?.endIndex ?? -1;
+
+  return Math.max(0, Math.min(target, total));
 }
 
 function withIndexes(list: SlideList[]): SlideList[] {

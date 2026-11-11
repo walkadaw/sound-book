@@ -1,0 +1,80 @@
+<header class="top">
+  <app-remote-status />
+  <div class="screen-buttons">
+    <button
+      mat-icon-button
+      type="button"
+      class="toggle"
+      aria-label="Чорны тэкст на белым фоне"
+      title="Тэма экрана"
+      [class.pressed]="session.light()"
+      [attr.aria-pressed]="session.light()"
+      [disabled]="!session.connected()"
+      (click)="session.setLight(!session.light())"
+    >
+      <mat-icon aria-hidden="true">contrast</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      type="button"
+      class="toggle blackout"
+      aria-label="Схаваць тэкст на экране"
+      title="Схаваць тэкст"
+      [class.pressed]="session.blackout()"
+      [attr.aria-pressed]="session.blackout()"
+      [disabled]="!session.connected()"
+      (click)="session.setBlackout(!session.blackout())"
+    >
+      <mat-icon aria-hidden="true">visibility_off</mat-icon>
+    </button>
+  </div>
+</header>
+
+<div class="deck">
+  <h1 class="cdk-visually-hidden">Пульт</h1>
+  @if (!session.songs().length) {
+    <p class="meta">У праграме няма песень. Дадайце іх ва ўкладцы «Дадаць».</p>
+  }
+
+  @if (session.songs().length) {
+    <section class="screen" aria-labelledby="remote-screen-title">
+      <h2 id="remote-screen-title" class="label">На экране</h2>
+      <button
+        type="button"
+        class="screen-button"
+        aria-label="Наступны слайд"
+        [disabled]="!session.connected() || session.atEnd()"
+        (click)="session.next()"
+      >
+        <app-slide-preview [slide]="session.currentSlide()" [light]="session.light()" [blackout]="session.blackout()" />
+      </button>
+    </section>
+
+    <app-remote-dots />
+    <app-remote-next />
+    <app-remote-notes collapsible />
+  }
+</div>
+
+<div class="moves">
+  <button
+    mat-flat-button
+    type="button"
+    class="prev"
+    [disabled]="!session.connected() || session.atStart()"
+    (click)="session.prev()"
+  >
+    <mat-icon aria-hidden="true">chevron_left</mat-icon>
+    Назад
+  </button>
+  <button
+    mat-flat-button
+    type="button"
+    class="next"
+    [disabled]="!session.connected() || session.atEnd()"
+    (click)="session.next()"
+  >
+    Далей
+    <mat-icon aria-hidden="true" iconPositionEnd>chevron_right</mat-icon>
+  </button>
+</div>

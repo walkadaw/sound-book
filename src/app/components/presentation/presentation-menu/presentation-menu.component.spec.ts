@@ -1,19 +1,20 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EMPTY } from 'rxjs';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
-import { PresentationChannel } from '../../../services/presentation-channel/presentation-channel.service';
+import { RemoteHost } from '../../../services/remote-control/remote-host.service';
 import { PresentationFileService } from '../../../services/presentation-file/presentation-file.service';
 
 import { PresentationMenuComponent } from './presentation-menu.component';
 
+const light = signal(false);
 const revealServiceStub: Partial<RevealService> = {
-  getActiveSlide: () => 0,
-  openNotes: () => {},
-  layout: () => {},
-  remoteId: 'test',
+  presentationId: 'test',
+  slideIndex: signal(0),
+  light,
+  setLight: (value: boolean) => light.set(value),
   isShowControls: () => false,
-  isSpeakerNotes: () => false,
   onSlideChange: () => EMPTY,
   togglePause: () => {},
   slide: () => {},
@@ -29,7 +30,7 @@ describe('PresentationMenuComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PresentationMenuComponent],
       providers: [
-        PresentationChannel,
+        RemoteHost,
         { provide: RevealService, useValue: revealServiceStub },
         { provide: PresentationFileService, useValue: presentationFileStub },
       ],
@@ -85,42 +86,27 @@ describe('PresentationMenuComponent', () => {
     expect(component.foundLiturgy().length).toBe(0);
   });
 
-  it('should add the songs chosen in the other windows of the presentation', async () => {
-    const added: string[] = [];
-    component.addedSong.subscribe((id) => added.push(id));
-    const otherWindow = new BroadcastChannel('reveal-menu-test');
+  it('should open the control window beside the presentation, the same one each time', () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
 
-    otherWindow.postMessage({ type: 'addSong', id: '5' });
-    await vi.waitFor(() => expect(added).toEqual(['5']));
-    otherWindow.close();
+    component.openControlWindow();
+    component.openControlWindow();
+
+    expect(open).toHaveBeenCalledTimes(2);
+    expect(open).toHaveBeenCalledWith(
+      expect.stringMatching(/\/remote\/window\/test$/),
+      'remote-control-test',
+      expect.stringContaining('popup'),
+    );
+    open.mockRestore();
   });
 
-  it('should keep the menu open in the control window', () => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      imports: [PresentationMenuComponent],
-      providers: [
-        PresentationChannel,
-        { provide: PresentationFileService, useValue: presentationFileStub },
-        {
-          provide: RevealService,
-          useValue: { ...revealServiceStub, isShowControls: () => true, isSpeakerNotes: () => true },
-        },
-      ],
-    });
-    const pinned = TestBed.createComponent(PresentationMenuComponent);
-    pinned.componentRef.setInput('slideList', [{ id: '5', title: 'Песня', slides: [], startIndex: 0, endIndex: 0 }]);
-    pinned.detectChanges();
+  it('should switch the screen to black text on white and back', () => {
+    component.toggleTheme();
+    expect(light()).toBe(true);
 
-    pinned.componentInstance.toggleMenu();
-    expect(pinned.componentInstance.active()).toBe(true);
-    expect(pinned.nativeElement.querySelector('.slide-menu-overlay')).toBeNull();
-    // the slides are downloaded from the main window
-    expect(pinned.nativeElement.querySelector('.download-button')).toBeNull();
-    expect(document.body.classList).toContain('menuPinned');
-
-    pinned.destroy();
-    expect(document.body.classList).not.toContain('menuPinned');
+    component.toggleTheme();
+    expect(light()).toBe(false);
   });
 
   it('should download the slides of the presentation', async () => {

@@ -19,6 +19,22 @@ export const appRoutes: Routes = [
     loadChildren: () => import('./components/presentation/presentation.routes').then((m) => m.presentationRoutes),
   },
   {
+    // the remote in a window beside the presentation, over the browser's own channel
+    path: 'remote/window/:presentation',
+    title: 'Кіраванне',
+    data: { window: true },
+    loadComponent: () =>
+      import('./components/remote-control/remote-control.component').then((m) => m.RemoteControlComponent),
+  },
+  {
+    path: 'remote/:room',
+    title: 'Пульт',
+    loadComponent: () =>
+      import('./components/remote-control/remote-control.component').then((m) => m.RemoteControlComponent),
+    canActivate: [WakeLockService],
+    canDeactivate: [WakeLockService],
+  },
+  {
     path: '',
     component: MainSoundComponent,
     children: [

@@ -101,7 +101,6 @@ export class SlidesService {
     this.container = document.createElement('div');
     this.container.style.width = `${SlidesService.AVAILABLE_WIDTH}px`;
     this.container.style.position = 'fixed';
-    // Moving it above the page is not enough: in the short previews of the speaker view a long text reaches into sight.
     this.container.style.top = '0';
     this.container.style.left = '0';
     this.container.style.visibility = 'hidden';

@@ -1,0 +1,83 @@
+@if (!session.connected()) {
+  <main class="offline">
+    <h1 class="cdk-visually-hidden">Пульт</h1>
+    @if (session.status() === 'connecting') {
+      <!-- the status next to it is what screen readers hear -->
+      <mat-progress-spinner mode="indeterminate" diameter="48" aria-hidden="true" />
+    }
+    <app-remote-status />
+    <p class="meta">{{ offlineHint() }}</p>
+    @if (session.canReconnect()) {
+      <button mat-flat-button type="button" (click)="session.reconnect()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+        Паспрабаваць зноў
+      </button>
+    }
+  </main>
+} @else if (layout() === 'narrow') {
+  <main class="panel">
+    @switch (tab()) {
+      @case ('deck') {
+        <app-remote-deck />
+      }
+      @case ('program') {
+        <app-remote-program (addSong)="showTab('add')" />
+      }
+      @case ('add') {
+        <app-remote-add />
+      }
+    }
+  </main>
+
+  <nav class="tabs" aria-label="Раздзелы пульта">
+    @for (item of tabs; track item.id) {
+      <button type="button" [attr.aria-current]="tab() === item.id ? 'page' : null" (click)="showTab(item.id)">
+        <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+        {{ item.title }}
+      </button>
+    }
+  </nav>
+} @else {
+  <main class="board" [class.wide]="layout() === 'wide'">
+    <aside class="program-column" aria-label="Праграма і пошук песень">
+      <div class="side-switch" role="group" aria-label="Што паказваць">
+        <button
+          #programButton
+          type="button"
+          [attr.aria-pressed]="sideView() === 'program'"
+          (click)="sideView.set('program')"
+        >
+          <mat-icon aria-hidden="true">format_list_bulleted</mat-icon>
+          Праграма
+        </button>
+        <button type="button" [attr.aria-pressed]="sideView() === 'add'" (click)="sideView.set('add')">
+          <mat-icon aria-hidden="true">add</mat-icon>
+          Дадаць
+        </button>
+      </div>
+      @if (sideView() === 'program') {
+        <h2 class="cdk-visually-hidden">Праграма</h2>
+        <app-remote-program wide />
+      } @else {
+        <h2 class="cdk-visually-hidden">Дадаць песню</h2>
+        <app-remote-add compact (leaveSearch)="showProgram()" />
+      }
+    </aside>
+
+    <div class="stage-column">
+      <app-remote-stage />
+      @if (layout() === 'medium') {
+        <app-remote-next />
+        <app-remote-notes collapsible />
+      }
+    </div>
+
+    @if (layout() === 'wide') {
+      <aside class="side-column" aria-label="Далей і нататкі">
+        <app-remote-next />
+        <app-remote-notes />
+        <app-remote-timer />
+      </aside>
+    }
+  </main>
+}

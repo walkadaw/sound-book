@@ -1,23 +1,24 @@
 import { Service, signal } from '@angular/core';
-import Reveal, { RevealApi, RevealConfig } from 'reveal.js';
-import RevealNotes from 'reveal.js/plugin/notes';
+import Reveal, { RevealApi } from 'reveal.js';
 import { fromEvent, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-
-interface NotesPlugin {
-  open: () => void;
-}
 
 @Service()
 export class RevealService {
   readonly ready = signal(false);
-  // The speaker view loads the presentation with this id, so the windows of one presentation find each other
-  // and two presentations open at once stay apart.
-  readonly remoteId = new URLSearchParams(window.location.search).get('remote') ?? Math.random().toString(36).slice(2);
+  // The one source of truth for what the screen shows, for the menu and for every remote.
+  readonly slideIndex = signal(0);
+  readonly paused = signal(false);
+  readonly light = signal(false);
+  // Names the channel the control windows of this presentation listen on, so two presentations open at once stay apart.
+  // Kept by the tab, so that a control window finds the presentation again after it was reloaded.
+  readonly presentationId = tabPresentationId();
 
   private reveal: RevealApi;
   private initTimer: ReturnType<typeof setTimeout>;
   private updateTimer: ReturnType<typeof setTimeout>;
+  // set while the slides change under the screen, which is no move of the reader's
+  private keepingPlace = false;
 
   isReady(): boolean {
     return this.ready() && !!this.reveal && this.reveal.isReady();
@@ -27,50 +28,49 @@ export class RevealService {
     return this.isReady() && !!this.reveal.getConfig().controls;
   }
 
-  isSpeakerNotes(): boolean {
-    return this.reveal && this.reveal.isSpeakerNotes();
-  }
-
-  isPause(): boolean {
-    return this.reveal && this.reveal.isPaused();
-  }
-
-  openNotes(): void {
-    // The notes plugin loads its previews from config.url, which RevealConfig does not declare.
-    const options: RevealConfig & { url: string } = {
-      url: `${window.location.origin}${window.location.pathname}?remote=${this.remoteId}`,
-    };
-
-    this.reveal.configure(options);
-    (this.reveal.getPlugin('notes') as unknown as NotesPlugin).open();
-  }
-
-  layout(): void {
-    this.reveal.layout();
-  }
-
   getRevealElement(): HTMLElement {
     return this.reveal.getRevealElement();
-  }
-
-  getActiveSlide(): number {
-    return this.reveal.getState().indexh;
   }
 
   togglePause(): void {
     this.reveal.togglePause();
   }
 
-  slide(slideNumber: number) {
-    this.reveal.slide(slideNumber, 0);
+  // A remote may send these while the presentation is still loading: there is nothing to move yet.
+  setPaused(paused: boolean): void {
+    this.reveal?.togglePause(paused);
   }
 
-  updateRevealState() {
+  /** Black text on white instead of white on black. */
+  setLight(light: boolean): void {
+    this.light.set(light);
+    document.body.classList.toggle('white', light);
+  }
+
+  slide(slideNumber: number) {
+    this.reveal?.slide(slideNumber, 0);
+  }
+
+  next(): void {
+    this.reveal?.next();
+  }
+
+  prev(): void {
+    this.reveal?.prev();
+  }
+
+  /** Makes Reveal pick up changed slides, on the given slide or on the one it shows. */
+  updateRevealState(indexh?: number) {
     // Hack for update state for Reveal
     clearTimeout(this.updateTimer);
     this.updateTimer = setTimeout(() => {
       if (this.reveal) {
-        this.reveal.setState(this.reveal.getState());
+        const state = this.reveal.getState();
+
+        this.keepingPlace = true;
+        this.reveal.setState(indexh === undefined ? state : { ...state, indexh, indexv: 0 });
+        this.keepingPlace = false;
+        this.slideIndex.set(this.reveal.getState().indexh);
       }
     }, 0);
   }
@@ -80,6 +80,9 @@ export class RevealService {
     clearTimeout(this.initTimer);
     clearTimeout(this.updateTimer);
     this.ready.set(false);
+    this.slideIndex.set(0);
+    this.paused.set(false);
+    this.setLight(false);
 
     if (this.reveal) {
       this.reveal.destroy();
@@ -87,8 +90,10 @@ export class RevealService {
     }
   }
 
+  /** The reader moving to another slide; not the slides changing under the screen. */
   onSlideChange(): Observable<number> {
     return fromEvent(this.reveal.getRevealElement(), 'slidechanged').pipe(
+      filter(() => !this.keepingPlace),
       filter<any>((event) => !!event && event.indexh >= 0),
       map(({ indexh }) => indexh),
     );
@@ -97,9 +102,7 @@ export class RevealService {
   init() {
     this.destroy();
     this.initTimer = setTimeout(() => {
-      const reveal = new Reveal({
-        plugins: [RevealNotes],
-      });
+      const reveal = new Reveal();
       this.reveal = reveal;
       reveal
         .initialize({
@@ -121,14 +124,39 @@ export class RevealService {
 
           // Factor of the display size that should remain empty around the content
           margin: 0.025,
-
-          // Exposes the reveal.js API through window.postMessage
-          postMessage: true,
-
-          // Dispatches all reveal.js events to the parent window through postMessage
-          postMessageEvents: false,
         })
-        .then(() => this.ready.set(this.reveal === reveal));
+        .then(() => {
+          if (this.reveal !== reveal) {
+            return;
+          }
+
+          reveal.on('slidechanged', (event) => this.slideIndex.set((event as Event & { indexh: number }).indexh));
+          reveal.on('paused', () => this.paused.set(true));
+          reveal.on('resumed', () => this.paused.set(false));
+          this.slideIndex.set(reveal.getState().indexh);
+          this.ready.set(true);
+        });
     }, 0);
   }
+}
+
+function tabPresentationId(): string {
+  const key = 'remote-presentation-id';
+  const fresh = Math.random().toString(36).slice(2);
+  const [navigation] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+
+  try {
+    const stored = sessionStorage.getItem(key);
+
+    // A duplicated tab, or one opened from this one, starts with a copy of the storage, so only a reload keeps the id.
+    if (stored && navigation?.type === 'reload') {
+      return stored;
+    }
+
+    sessionStorage.setItem(key, fresh);
+  } catch {
+    // without storage the windows reconnect only until the presentation is reloaded
+  }
+
+  return fresh;
 }

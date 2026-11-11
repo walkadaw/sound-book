@@ -1,0 +1,124 @@
+@if (!wide()) {
+  <div class="head">
+    <h1 class="page-title">Праграма</h1>
+    <p class="meta">{{ summary() }}</p>
+  </div>
+}
+
+<div class="list">
+  @for (group of groups(); track group.key) {
+    <section [attr.aria-label]="group.title">
+      @if (group.liturgy) {
+        <div class="group-head">
+          <h2 class="group-title">{{ group.title }}</h2>
+          <button
+            mat-button
+            type="button"
+            [attr.aria-label]="'Выдаліць імшу «' + group.title + '»'"
+            [disabled]="!session.connected()"
+            (click)="session.remove(group.items[0].index)"
+          >
+            Выдаліць імшу
+          </button>
+        </div>
+      } @else if (wide() || groups().length > 1) {
+        <h2 class="group-title standalone">{{ group.title }}</h2>
+      }
+      <ol class="songs">
+        @for (item of group.items; track item.index) {
+          <li [class]="item.status" [class.open]="!wide() && expanded() === item.index">
+            <div class="row">
+              <button
+                type="button"
+                class="song"
+                [attr.aria-current]="item.status === 'active' ? 'true' : null"
+                [attr.aria-expanded]="wide() ? null : expanded() === item.index"
+                [attr.aria-controls]="wide() ? null : 'remote-song-slides-' + item.index"
+                (click)="wide() ? session.goTo(item.song.startIndex) : toggle(item.index)"
+              >
+                <span class="status" aria-hidden="true">
+                  @switch (item.status) {
+                    @case ('past') {
+                      <mat-icon>check</mat-icon>
+                    }
+                    @case ('active') {
+                      <mat-icon>play_arrow</mat-icon>
+                    }
+                    @default {
+                      {{ item.index + 1 }}
+                    }
+                  }
+                </span>
+                <span class="text">
+                  <span class="name song-name">{{ item.song.title }}</span>
+                  <span class="meta">
+                    @if (item.status === 'past') {
+                      <span class="cdk-visually-hidden">Прайшла, </span>
+                    }
+                    {{ item.meta }}
+                  </span>
+                </span>
+              </button>
+              @if (!item.song.liturgy) {
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="remove"
+                  [attr.aria-label]="'Выдаліць «' + item.song.title + '»'"
+                  [disabled]="!session.connected()"
+                  (click)="session.remove(item.index)"
+                >
+                  <mat-icon aria-hidden="true">delete_outline</mat-icon>
+                </button>
+              }
+            </div>
+
+            @if (wide()) {
+              @if (item.status === 'active') {
+                <div class="numbers" role="group" aria-label="Слайды песні">
+                  @for (slide of item.song.slides; track $index; let i = $index) {
+                    <button
+                      type="button"
+                      [attr.aria-current]="item.song.startIndex + i === session.slide() ? 'true' : null"
+                      [attr.aria-label]="'Слайд ' + (i + 1)"
+                      [disabled]="!session.connected()"
+                      (click)="session.goTo(item.song.startIndex + i)"
+                    >
+                      {{ i + 1 }}
+                    </button>
+                  }
+                </div>
+              }
+            } @else if (expanded() === item.index) {
+              <div class="slides" [id]="'remote-song-slides-' + item.index">
+                @for (slide of item.song.slides; track $index; let i = $index) {
+                  <button
+                    type="button"
+                    class="mini"
+                    [attr.aria-current]="item.song.startIndex + i === session.slide() ? 'true' : null"
+                    [disabled]="!session.connected()"
+                    (click)="session.goTo(item.song.startIndex + i)"
+                  >
+                    <app-slide-preview [slide]="slide" [light]="session.light()" />
+                    <span class="n"><span class="cdk-visually-hidden">Слайд </span>{{ i + 1 }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </li>
+        }
+      </ol>
+    </section>
+  } @empty {
+    <p class="empty">У праграме пакуль няма песень.</p>
+  }
+</div>
+
+@if (!wide()) {
+  <div class="footer">
+    <button mat-stroked-button type="button" class="add" (click)="addSong.emit()">
+      <mat-icon aria-hidden="true">add</mat-icon>
+      Дадаць песню
+    </button>
+  </div>
+}

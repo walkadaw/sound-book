@@ -17,6 +17,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 import { filter, debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgTemplateOutlet } from '@angular/common';
 import { TagList, TAGS_LIST } from '../../../constants/tag-list';
@@ -26,12 +27,11 @@ import { MatchHighlightComponent } from '../../match-highlight/match-highlight.c
 import { LiturgyChoice } from '../../../interfaces/liturgy';
 import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
+import { RemoteHost } from '../../../services/remote-control/remote-host.service';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { SongService } from '../../../services/song-service/song.service';
-import {
-  PresentationChannel,
-  PresentationMessage,
-} from '../../../services/presentation-channel/presentation-channel.service';
+import { controlWindowUrl } from '../../../services/remote-control/remote-control';
+import { RemoteDialogComponent } from '../remote-dialog/remote-dialog.component';
 
 @Component({
   selector: 'app-presentation-menu',
@@ -45,9 +45,10 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   private fuseService = inject(FuseService);
   private songService = inject(SongService);
   private reveal = inject(RevealService);
-  private channel = inject(PresentationChannel);
   private presentationFile = inject(PresentationFileService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private remoteHost = inject(RemoteHost);
 
   readonly slideList = input<SlideList[]>();
   // the masses of the day that can be added, listed before the songs
@@ -59,11 +60,7 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   readonly searchElement = viewChild<ElementRef<HTMLInputElement>>('searchElement');
 
   readonly isShowControls = this.reveal.isShowControls();
-  readonly isSpeakerNotes = this.reveal.isSpeakerNotes();
-  // The control window keeps the menu open beside the slide; the upcoming slide preview has no controls.
-  readonly isPinned = this.isSpeakerNotes && this.isShowControls;
-  private isUpcomingPreview = this.isSpeakerNotes && !this.isShowControls;
-  readonly active = signal(this.isPinned);
+  readonly active = signal(false);
   readonly isSearchFocused = signal(false);
   readonly isFullscreen = signal(!!document.fullscreenElement);
   readonly hideMenu = signal(false);
@@ -97,61 +94,50 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
       .map(({ id, title }) => ({ id, title: `Літургія: ${title}` }));
   });
 
-  readonly selectedSlide = signal(this.reveal.getActiveSlide());
+  readonly selectedSlide = this.reveal.slideIndex;
 
   ngOnInit(): void {
     this.initTag();
     this.initSearch();
 
-    // the upcoming slide preview of the speaker view shows only the slide
-    if (!this.slideList()?.length && !this.isSpeakerNotes) {
+    if (!this.slideList()?.length) {
       this.toggleMenu();
-    }
-
-    if (this.isPinned) {
-      document.body.classList.add('menuPinned');
-      this.reveal.layout();
     }
 
     fromEvent(document, 'fullscreenchange')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.isFullscreen.set(!!document.fullscreenElement));
 
-    this.channel.messages$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((message) => this.onMessage(message));
-
     this.destroyRef.onDestroy(() => {
       // the body outlives the presentation
-      document.body.classList.remove('menuPinned', 'hideMenu', 'white');
+      document.body.classList.remove('hideMenu');
     });
-
-    if (this.isSpeakerNotes) {
-      // The main window may have hidden its controls before the speaker view was opened, and the speaker view
-      // moves the upcoming preview only once, maybe before its songs have loaded.
-      this.channel.send({ type: 'requestState' });
-    }
   }
 
   ngAfterViewInit() {
-    this.initHighlightCurrentSlide();
+    this.closeOnSlideChange();
 
     // an empty presentation starts with choosing songs
-    if (!this.slideList()?.length && !this.isSpeakerNotes) {
+    if (!this.slideList()?.length) {
       this.searchElement()?.nativeElement.focus();
     }
   }
 
-  openRemoteControl() {
-    this.reveal.openNotes();
+  /** The remote in a window beside the presentation, for a second screen of the same computer. */
+  openControlWindow() {
+    const id = this.reveal.presentationId;
+
+    // by its name the same window comes back to the front instead of a second one opening
+    window.open(controlWindowUrl(id), `remote-control-${id}`, 'popup,width=1330,height=800');
   }
 
-  toggleTheme(dispatch = true) {
-    if (!this.isSpeakerNotes) {
-      document.body.classList.toggle('white');
-    }
+  openRemoteDevice() {
+    this.remoteHost.openRoom();
+    this.dialog.open(RemoteDialogComponent, { data: this.remoteHost });
+  }
 
-    if (dispatch) {
-      this.channel.send({ type: 'changeTheme' });
-    }
+  toggleTheme() {
+    this.reveal.setLight(!this.reveal.light());
   }
 
   async downloadSlides() {
@@ -173,14 +159,12 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   }
 
   toggleMenu() {
-    if (!this.isPinned) {
-      this.active.update((active) => !active);
-    }
+    this.active.update((active) => !active);
   }
 
   toggleShowIconMenu() {
-    this.setHideMenu(!this.hideMenu());
-    this.channel.send({ type: 'hideMenu', hidden: this.hideMenu() });
+    this.hideMenu.update((hidden) => !hidden);
+    document.body.classList.toggle('hideMenu', this.hideMenu());
   }
 
   openSlide(song: SlideList) {
@@ -218,7 +202,6 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   onClickRemovedSong(event: Event, index: number) {
     event.stopPropagation();
     this.removeSong.emit(index);
-    this.channel.send({ type: 'removeSong', index });
   }
 
   toggleSelectedTag() {
@@ -249,44 +232,6 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
 
   private addSong(id: string) {
     this.addedSong.emit(id);
-    this.channel.send({ type: 'addSong', id });
-  }
-
-  private setHideMenu(hidden: boolean) {
-    this.hideMenu.set(hidden);
-
-    if (!this.isSpeakerNotes) {
-      document.body.classList.toggle('hideMenu', hidden);
-    }
-  }
-
-  private onMessage(message: PresentationMessage) {
-    switch (message.type) {
-      case 'addSong':
-        this.addedSong.emit(message.id);
-        break;
-      case 'removeSong':
-        this.removeSong.emit(message.index);
-        break;
-      case 'hideMenu':
-        this.setHideMenu(message.hidden);
-        break;
-      case 'changeTheme':
-        this.toggleTheme(false);
-        break;
-      case 'requestState':
-        if (!this.isSpeakerNotes) {
-          this.channel.send({ type: 'state', hidden: this.hideMenu(), slide: this.reveal.getActiveSlide() });
-        }
-        break;
-      case 'state':
-        this.setHideMenu(message.hidden);
-
-        if (this.isUpcomingPreview) {
-          this.reveal.slide(message.slide + 1);
-        }
-        break;
-    }
   }
 
   private enterFullscreen() {
@@ -328,14 +273,12 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
       });
   }
 
-  private initHighlightCurrentSlide() {
+  private closeOnSlideChange() {
     this.reveal
       .onSlideChange()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((slideNumber) => {
-        this.selectedSlide.set(slideNumber);
-
-        if (this.active() && !this.isSpeakerNotes) {
+      .subscribe(() => {
+        if (this.active()) {
           this.toggleMenu();
         }
       });

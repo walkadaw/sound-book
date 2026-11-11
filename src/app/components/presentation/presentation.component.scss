@@ -37,12 +37,4 @@
             white-space: -o-pre-wrap;
         }
     }
-
-    &.speakerNotes {
-        &.paused {
-            .pause-overlay {
-                display: none !important;
-            }
-        }
-    }
 }

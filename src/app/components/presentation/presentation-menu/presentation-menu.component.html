@@ -17,20 +17,21 @@
           <br />
           <span class="slide-menu-toolbar-label">Меню</span>
         </li>
-        @if (!isSpeakerNotes) {
-          <li class="toolbar-panel-button" (click)="openRemoteControl()">
-            <mat-icon>open_in_new</mat-icon>
-            <br />
-            <span class="slide-menu-toolbar-label">Кіраванне</span>
-          </li>
-        }
-        @if (!isSpeakerNotes) {
-          <li class="toolbar-panel-button" (click)="toggleMenu()">
-            <mat-icon>close</mat-icon>
-            <br />
-            <span class="slide-menu-toolbar-label">Зачыніць</span>
-          </li>
-        }
+        <li class="toolbar-panel-button" (click)="openControlWindow()">
+          <mat-icon>open_in_new</mat-icon>
+          <br />
+          <span class="slide-menu-toolbar-label">Кіраванне</span>
+        </li>
+        <li class="toolbar-panel-button" title="Пульт на іншай прыладзе" (click)="openRemoteDevice()">
+          <mat-icon>devices</mat-icon>
+          <br />
+          <span class="slide-menu-toolbar-label">Пульт</span>
+        </li>
+        <li class="toolbar-panel-button" (click)="toggleMenu()">
+          <mat-icon>close</mat-icon>
+          <br />
+          <span class="slide-menu-toolbar-label">Зачыніць</span>
+        </li>
       </ul>
       <div id="search" class="search-nav">
         <input
@@ -125,7 +126,7 @@
       }
     </div>
     <!-- the slides are downloaded from the main window -->
-    @if (slideList()?.length && !isSpeakerNotes && !isSearchFocused()) {
+    @if (slideList()?.length && !isSearchFocused()) {
       <div class="slide-menu-footer">
         <button
           type="button"
@@ -140,25 +141,19 @@
       </div>
     }
   </nav>
-  @if (!isPinned) {
-    <div class="slide-menu-overlay" [class.active]="active()" (click)="toggleMenu()"></div>
-  }
+  <div class="slide-menu-overlay" [class.active]="active()" (click)="toggleMenu()"></div>
 </div>
 
 @if (isShowControls) {
   <div class="slide-menu-button">
-    @if (!isPinned) {
-      <mat-icon class="slide-button" (click)="toggleMenu()">menu</mat-icon>
-    }
-    @if (!isSpeakerNotes) {
-      <mat-icon class="slide-button" (click)="fullScreen()">
-        @if (!isFullscreen()) {
-          fullscreen
-        } @else {
-          fullscreen_exit
-        }
-      </mat-icon>
-    }
+    <mat-icon class="slide-button" (click)="toggleMenu()">menu</mat-icon>
+    <mat-icon class="slide-button" (click)="fullScreen()">
+      @if (!isFullscreen()) {
+        fullscreen
+      } @else {
+        fullscreen_exit
+      }
+    </mat-icon>
     <mat-icon class="slide-button" (click)="togglePause()">visibility_off</mat-icon>
   </div>
 }
