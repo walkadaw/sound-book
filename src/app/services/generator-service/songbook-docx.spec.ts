@@ -11,6 +11,7 @@ const song = (fields: Partial<Song>): Song => ({
   text: '',
   chord: '',
   tag: {},
+  position: null,
   ...fields,
 });
 

@@ -7,6 +7,8 @@ export interface Song {
   text: string;
   chord: string;
   tag: { [key: string]: number };
+  /** place of a part of Mass in the liturgy, lower comes first; null for the songs without a fixed place */
+  position: number | null;
 }
 
 export interface SongAdd {

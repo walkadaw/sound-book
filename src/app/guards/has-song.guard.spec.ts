@@ -11,14 +11,14 @@ import {
   provideRouter,
 } from '@angular/router';
 import { Observable, firstValueFrom, isObservable } from 'rxjs';
-import { SongRequest } from '../interfaces/song';
+import { Song, SongRequest } from '../interfaces/song';
 import { SongService } from '../services/song-service/song.service';
 import { hasSongGuard } from './has-song.guard';
 
 const songList = (...ids: number[]): SongRequest => ({
   last_update: '1',
   hash: '',
-  songs: ids.map((id) => ({ id, songId: 0, title: `Song ${id}`, text: '', chord: '', tag: {} })),
+  songs: ids.map((id): Song => ({ id, songId: 0, title: `Song ${id}`, text: '', chord: '', tag: {}, position: null })),
 });
 
 describe('hasSongGuard', () => {

@@ -10,6 +10,7 @@ const SONG: Song = {
   text: '1. Раз\n\nПрыпеў:\nАллелюя (х3)\n\n2. Два\n\nПрыпеў:\nАллелюя (x3)',
   chord: 'a C\n\n\nE a',
   tag: { 3: 1, 10: 1 },
+  position: null,
 };
 const OPTIONS: PrintOptions = { showChords: true, showTags: true, repeatChoruses: true };
 

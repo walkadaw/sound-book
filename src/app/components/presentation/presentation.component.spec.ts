@@ -14,7 +14,7 @@ import { SongService } from '../../services/song-service/song.service';
 import { SongStatsService } from '../../services/song-stats/song-stats.service';
 import { PresentationComponent } from './presentation.component';
 
-const song: Song = { id: 5, songId: 5, title: 'Песня', text: 'Радок', chord: '', tag: {} };
+const song: Song = { id: 5, songId: 5, title: 'Песня', text: 'Радок', chord: '', tag: {}, position: null };
 const mass = (id: number, title: string): Liturgy => ({
   id,
   title,

@@ -14,6 +14,7 @@ const SONG: Song = {
   text: '1. Ты даў мне сонца\n\nПрыпеў:\nА без Цябе\n\nБрыдж:\nО-о-о',
   chord: 'd C\n\n\nB♭maj7 C',
   tag: {},
+  position: null,
 };
 
 describe('SongDetailsComponent', () => {

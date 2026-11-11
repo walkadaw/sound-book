@@ -3,20 +3,17 @@ import { Service, computed, inject, signal } from '@angular/core';
 import { Observable, defer, of, throwError } from 'rxjs';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { PARTS_OF_MASS_ORDER, PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
+import { PARTS_OF_MASS_TAG_ID } from '../../constants/tag-list';
 import { Song, SongAdd, SongRequest, SongVersion } from '../../interfaces/song';
 import { SongMedia, SongMediaDraft } from '../../interfaces/song-media';
 
 const isPartOfMass = (song: Song) => song.tag[PARTS_OF_MASS_TAG_ID] === 1;
 
 /**
- * Where a part of Mass comes in the liturgy; the rest go after the ones in the list.
- * A song from the list whose tag was taken off is an ordinary song again and is not moved up.
+ * Where a part of Mass comes in the liturgy; the ones without a position go after the rest.
+ * A song with a position whose tag was taken off is an ordinary song again and is not moved up.
  */
-const liturgyRank = (song: Song) => {
-  const index = isPartOfMass(song) ? PARTS_OF_MASS_ORDER.indexOf(song.id) : -1;
-  return index === -1 ? PARTS_OF_MASS_ORDER.length : index;
-};
+const liturgyRank = (song: Song) => (isPartOfMass(song) ? song.position : null) ?? Number.MAX_SAFE_INTEGER;
 
 @Service()
 export class SongService {

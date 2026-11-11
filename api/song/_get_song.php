@@ -4,7 +4,7 @@
 const SONG_CACHE_DIR = __DIR__.'/../tmp';
 
 if (isset($_GET['id'])) {
-    $sth = $db->prepare("SELECT `id`, `title`, `text`, `chord`, `tag` FROM `sound_list` WHERE `id`=?");
+    $sth = $db->prepare("SELECT `id`, `title`, `text`, `chord`, `tag`, `position` FROM `sound_list` WHERE `id`=?");
     $sth->execute([intval($_GET['id'])]);
     $row = $sth->fetch();
 
@@ -31,7 +31,7 @@ $list = is_file($cacheFile) ? file_get_contents($cacheFile) : false;
 send_gzip($list ?: update_song_cache($db, $lastUpdate, $cacheFile));
 
 function update_song_cache(PDO $db, int|string $lastUpdate, string $cacheFile): string {
-    $songs = array_map('song_json', $db->query("SELECT `id`, `title`, `text`, `chord`, `tag` FROM `sound_list`")->fetchAll());
+    $songs = array_map('song_json', $db->query("SELECT `id`, `title`, `text`, `chord`, `tag`, `position` FROM `sound_list`")->fetchAll());
     $list = gzencode(json_encode(['songs' => $songs, 'last_update' => $lastUpdate], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
 
     // Written aside and renamed, so a request reading at the same moment gets either no file or the whole of it.
@@ -65,5 +65,6 @@ function song_json(array $row): array {
         'text' => $row['text'],
         'chord' => $row['chord'],
         'tag' => $tags,
+        'position' => $row['position'] === null ? null : (int)$row['position'],
     ];
 }
