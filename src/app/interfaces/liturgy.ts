@@ -19,12 +19,6 @@ export interface LiturgySection {
   blocks: LiturgyBlock[];
 }
 
-// A mass of the day the presentation can add, by its presentation id
-export interface LiturgyChoice {
-  id: string;
-  title: string;
-}
-
 // One mass of the day with only the current liturgical year's texts.
 export interface Liturgy {
   id: number;

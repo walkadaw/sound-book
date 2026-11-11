@@ -46,6 +46,7 @@ describe('RemoteHost', () => {
   const slides = signal<SlideList[]>([]);
   const add = vi.fn();
   const remove = vi.fn();
+  const move = vi.fn();
 
   beforeEach(() => {
     reveal = {
@@ -61,10 +62,11 @@ describe('RemoteHost', () => {
     slides.set([song('A', 0, 1), song('B', 2, 2)]);
     add.mockReset();
     remove.mockReset();
+    move.mockReset();
 
     TestBed.configureTestingModule({ providers: [RemoteHost, { provide: RevealService, useValue: reveal }] });
     host = TestBed.inject(RemoteHost);
-    host.attach({ slides, masses: signal([{ id: 'l', title: 'Чацвер' }]), add, remove });
+    host.attach({ slides, masses: signal([{ id: 'l', title: 'Чацвер' }]), add, remove, move });
   });
 
   it('should run the commands of remotes on every transport', () => {
@@ -81,22 +83,19 @@ describe('RemoteHost', () => {
     expect(reveal.next).toHaveBeenCalledTimes(1);
     expect(reveal.slide).toHaveBeenCalledWith(2);
     expect(reveal.prev).toHaveBeenCalledTimes(1);
-    expect(remove).toHaveBeenCalledWith(1);
+    expect(remove).toHaveBeenCalledWith(1, 'B');
   });
 
-  it('should leave a slide or a song alone when the program changed under the remote', () => {
+  it('should leave a slide alone when the program changed under the remote', () => {
     const phone = new FakeTransport();
     host.connect(phone);
     // a song went in at the start while the phone still showed A first
     slides.set([song('C', 0, 0), song('A', 1, 2), song('B', 3, 3)]);
 
     phone.commands.next({ type: 'slide', index: 0, id: 'A' });
-    phone.commands.next({ type: 'remove', index: 0, id: 'A' });
     phone.commands.next({ type: 'slide', index: 1, id: 'A' });
-    phone.commands.next({ type: 'remove', index: 1, id: 'A' });
 
     expect(reveal.slide.mock.calls).toEqual([[1]]);
-    expect(remove.mock.calls).toEqual([[1]]);
   });
 
   it('should keep the program the same object while only the slide changes', () => {
@@ -160,21 +159,35 @@ describe('RemoteHost', () => {
     for (const transport of [phone, window]) {
       const state = transport.sent.at(-1);
 
-      expect(state).toEqual(
-        expect.objectContaining({ slide: 2, light: true, blackout: true, remotes: 3 }),
-      );
+      expect(state).toEqual(expect.objectContaining({ slide: 2, light: true, blackout: true, remotes: 3 }));
       expect(state?.songs.map(({ title }) => title)).toEqual(['A', 'B']);
       expect(state?.masses).toEqual([{ id: 'l', title: 'Чацвер' }]);
     }
   });
 
-  it('should add a song where the remote asks', () => {
+  it('should tell every remote where the song it asked for went in', () => {
+    const phone = new FakeTransport();
+    host.connect(phone);
+    add.mockReturnValueOnce(2).mockReturnValueOnce(null);
+
+    phone.commands.next({ type: 'add', id: '7', request: 'a' });
+    phone.commands.next({ type: 'add', id: '8', request: 'b' });
+    TestBed.tick();
+
+    expect(add.mock.calls).toEqual([['7'], ['8']]);
+    expect(phone.sent.at(-1)?.added).toEqual([
+      { request: 'a', index: 2 },
+      { request: 'b', index: null },
+    ]);
+  });
+
+  it('should pass a move on with the song it names', () => {
     const phone = new FakeTransport();
     host.connect(phone);
 
-    phone.commands.next({ type: 'add', id: '7', position: 'afterCurrent' });
+    phone.commands.next({ type: 'move', index: 0, id: 'A', to: 2 });
 
-    expect(add).toHaveBeenCalledWith('7', 'afterCurrent');
+    expect(move.mock.calls).toEqual([[0, 'A', 2]]);
   });
 
   it('should start the timer again from zero for every remote', () => {

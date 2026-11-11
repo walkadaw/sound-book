@@ -1,5 +1,5 @@
 import { SlideList } from '../../interfaces/slide';
-import { insertionIndex, remoteSongs } from './remote-control';
+import { remoteSongs } from './remote-control';
 
 const song = (title: string, startIndex: number, endIndex: number, liturgy?: string): SlideList => ({
   id: title,
@@ -25,22 +25,5 @@ describe('remote control protocol', () => {
 
   it('should leave the notes of a mass empty', () => {
     expect(remoteSongs([song('ЧЫТАННЕ', 0, 1, 'l')])[0].notes).toEqual([]);
-  });
-
-  it('should insert right after the current song', () => {
-    const list = [song('A', 0, 1), song('B', 2, 2), song('C', 3, 4)];
-
-    expect(insertionIndex(list, 1)).toBe(1);
-    expect(insertionIndex(list, 4)).toBe(3);
-  });
-
-  it('should insert after the whole mass the current part belongs to', () => {
-    const list = [song('A', 0, 0), song('Ч', 1, 1, 'l'), song('Е', 2, 3, 'l'), song('B', 4, 4)];
-
-    expect(insertionIndex(list, 1)).toBe(3);
-  });
-
-  it('should insert at the end of an empty presentation', () => {
-    expect(insertionIndex([], 0)).toBe(0);
   });
 });

@@ -21,13 +21,16 @@
         <app-remote-deck />
       }
       @case ('program') {
-        <app-remote-program (addSong)="showTab('add')" />
-      }
-      @case ('add') {
-        <app-remote-add />
+        <h1 class="cdk-visually-hidden">Праграма</h1>
+        <app-program-panel [control]="session" slideNumbers />
       }
     }
   </main>
+
+  <!-- under every tab; while a song is searched for, the list takes the room -->
+  @if (!(tab() === 'program' && programPanel()?.searching())) {
+    <app-remote-moves />
+  }
 
   <nav class="tabs" aria-label="Раздзелы пульта">
     @for (item of tabs; track item.id) {
@@ -40,28 +43,8 @@
 } @else {
   <main class="board" [class.wide]="layout() === 'wide'">
     <aside class="program-column" aria-label="Праграма і пошук песень">
-      <div class="side-switch" role="group" aria-label="Што паказваць">
-        <button
-          #programButton
-          type="button"
-          [attr.aria-pressed]="sideView() === 'program'"
-          (click)="sideView.set('program')"
-        >
-          <mat-icon aria-hidden="true">format_list_bulleted</mat-icon>
-          Праграма
-        </button>
-        <button type="button" [attr.aria-pressed]="sideView() === 'add'" (click)="sideView.set('add')">
-          <mat-icon aria-hidden="true">add</mat-icon>
-          Дадаць
-        </button>
-      </div>
-      @if (sideView() === 'program') {
-        <h2 class="cdk-visually-hidden">Праграма</h2>
-        <app-remote-program wide />
-      } @else {
-        <h2 class="cdk-visually-hidden">Дадаць песню</h2>
-        <app-remote-add compact (leaveSearch)="showProgram()" />
-      }
+      <h2 class="cdk-visually-hidden">Праграма</h2>
+      <app-program-panel [control]="session" slideNumbers />
     </aside>
 
     <div class="stage-column">

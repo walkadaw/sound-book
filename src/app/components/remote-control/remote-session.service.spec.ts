@@ -33,14 +33,60 @@ describe('RemoteSession', () => {
     expect(session.startedAt()).toBe(40_000);
   });
 
-  it('should add a song to the end unless asked otherwise', () => {
-    session.add('7');
-    session.insertPosition.set('afterCurrent');
-    session.add('8');
+  it('should learn where its own added song went in from the presentation', async () => {
+    const state = remoteState();
+    transport.states.next(state);
+
+    const added = session.add('7');
+    const command = transport.sent[0];
+    const request = command.type === 'add' ? command.request : '';
+
+    expect(command).toEqual({ type: 'add', id: '7', request: expect.any(String) });
+
+    // another remote's addition is not this one
+    transport.states.next({ ...state, added: [{ request: 'other', index: 3 }] });
+    transport.states.next({
+      ...state,
+      added: [
+        { request: 'other', index: 3 },
+        { request, index: 4 },
+      ],
+    });
+
+    expect(await added).toBe(4);
+  });
+
+  it('should tell when the presentation could not add the song', async () => {
+    transport.states.next(remoteState());
+
+    const added = session.add('7');
+    const command = transport.sent[0];
+
+    transport.states.next(
+      remoteState({ added: [{ request: command.type === 'add' ? command.request : '', index: null }] }),
+    );
+
+    expect(await added).toBeNull();
+  });
+
+  it('should give up on an added song that never comes back', async () => {
+    vi.useFakeTimers();
+    transport.states.next(remoteState());
+
+    const added = session.add('7');
+    vi.advanceTimersByTime(10_000);
+
+    expect(await added).toBeNull();
+    vi.useRealTimers();
+  });
+
+  it('should name the song it moves or removes', () => {
+    session.move(2, '5', 0);
+    session.remove(0, 'l-0');
 
     expect(transport.sent).toEqual([
-      { type: 'add', id: '7', position: 'end' },
-      { type: 'add', id: '8', position: 'afterCurrent' },
+      { type: 'move', index: 2, id: '5', to: 0 },
+      { type: 'remove', index: 0, id: 'l-0' },
     ]);
   });
 

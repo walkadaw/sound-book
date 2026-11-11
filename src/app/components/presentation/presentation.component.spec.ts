@@ -97,13 +97,16 @@ describe('PresentationComponent', () => {
     await create('5,l2,l,l2');
 
     expect(listed()).toEqual(['Песня 0-0', 'ЧЫТАННЕ 2 1-1', 'ЕВАНГЕЛЛЕ 2 2-3', 'ЧЫТАННЕ 1 4-4', 'ЕВАНГЕЛЛЕ 1 5-6']);
-    expect(component.liturgyChoices()).toEqual([]);
   });
 
-  it('should offer the masses that are not in the presentation yet', async () => {
+  it('should give the program every mass of the day, added or not', async () => {
     await create('l2');
 
-    expect(component.liturgyChoices()).toEqual([{ id: 'l', title: 'Чацвер' }]);
+    expect(component.program.masses()).toEqual([
+      { id: 'l', title: 'Чацвер' },
+      { id: 'l2', title: 'Успамін' },
+    ]);
+    expect(component.program.songs().map(({ liturgy }) => liturgy)).toEqual(['l2', 'l2']);
   });
 
   it('should add a mass as a whole after the songs', async () => {
@@ -121,7 +124,7 @@ describe('PresentationComponent', () => {
   it('should remove the whole mass with any of its parts', async () => {
     await create('l,5,l2');
 
-    component.removeSlide(1);
+    component.removeSlide(1, 'l-1');
 
     expect(listed()).toEqual(['Песня 0-0', 'ЧЫТАННЕ 2 1-1', 'ЕВАНГЕЛЛЕ 2 2-3']);
     expect(replaceState).toHaveBeenLastCalledWith('/presentation/5,l2');
@@ -132,12 +135,12 @@ describe('PresentationComponent', () => {
     await create('5,l,5');
     slideIndex.set(4);
 
-    component.removeSlide(1);
+    component.removeSlide(1, 'l-0');
     expect(listed()).toEqual(['Песня 0-0', 'Песня 1-1']);
     expect(updateRevealState).toHaveBeenLastCalledWith(1);
 
     slideIndex.set(1);
-    component.removeSlide(1);
+    component.removeSlide(1, '5');
     expect(updateRevealState).toHaveBeenLastCalledWith(0);
   });
 
@@ -145,31 +148,50 @@ describe('PresentationComponent', () => {
     await create('l,5');
     slideIndex.set(2);
 
-    component.removeSlide(0);
+    component.removeSlide(0, 'l-0');
 
     expect(listed()).toEqual(['Песня 0-0']);
     expect(updateRevealState).toHaveBeenLastCalledWith(0);
   });
 
-  it('should add a song right after the current one', async () => {
+  it('should add a song at the end, even while another one is on the screen', async () => {
     await create('5,l');
-
-    expect(component.addSlide('5', 'afterCurrent')).toBe(1);
-    expect(listed()).toEqual(['Песня 0-0', 'Песня 1-1', 'ЧЫТАННЕ 1 2-2', 'ЕВАНГЕЛЛЕ 1 3-4']);
-  });
-
-  it('should add after the whole mass the current slide is part of', async () => {
-    await create('l,5');
     slideIndex.set(1);
 
-    expect(component.addSlide('l2', 'afterCurrent')).toBe(2);
-    expect(listed()).toEqual([
-      'ЧЫТАННЕ 1 0-0',
-      'ЕВАНГЕЛЛЕ 1 1-2',
-      'ЧЫТАННЕ 2 3-3',
-      'ЕВАНГЕЛЛЕ 2 4-5',
-      'Песня 6-6',
-    ]);
+    expect(component.addSlide('5')).toBe(3);
+    expect(listed()).toEqual(['Песня 0-0', 'ЧЫТАННЕ 1 1-1', 'ЕВАНГЕЛЛЕ 1 2-3', 'Песня 4-4']);
+  });
+
+  it('should move a song and keep the screen on the slide it shows', async () => {
+    // song 0-0, the mass 1-1 and 2-3, the song again 4-4; the second slide of the gospel is on the screen
+    await create('5,l,5');
+    slideIndex.set(3);
+
+    component.moveSlide(3, '5', 0);
+
+    expect(listed()).toEqual(['Песня 0-0', 'Песня 1-1', 'ЧЫТАННЕ 1 2-2', 'ЕВАНГЕЛЛЕ 1 3-4']);
+    expect(updateRevealState).toHaveBeenLastCalledWith(4);
+    expect(replaceState).toHaveBeenLastCalledWith('/presentation/5,5,l');
+  });
+
+  it('should move a mass as a whole and never split it', async () => {
+    await create('5,l,5');
+
+    component.moveSlide(0, '5', 2);
+    expect(listed()).toEqual(['Песня 0-0', 'ЧЫТАННЕ 1 1-1', 'ЕВАНГЕЛЛЕ 1 2-3', 'Песня 4-4']);
+
+    component.moveSlide(1, 'l-0', 0);
+    expect(listed()).toEqual(['ЧЫТАННЕ 1 0-0', 'ЕВАНГЕЛЛЕ 1 1-2', 'Песня 3-3', 'Песня 4-4']);
+  });
+
+  it('should let the program panel change only the song it names', async () => {
+    await create('5,l');
+
+    component.program.remove(0, 'l-0');
+    component.program.move(0, 'l-0', 3);
+    expect(listed()).toEqual(['Песня 0-0', 'ЧЫТАННЕ 1 1-1', 'ЕВАНГЕЛЛЕ 1 2-3']);
+
+    expect(await component.program.add('5')).toBe(3);
   });
 
   it('should let a control window add a song and see it in the state', async () => {
@@ -177,11 +199,12 @@ describe('PresentationComponent', () => {
     const remote = new ChannelClientTransport('remote-control-spec');
     const twoSongs = firstValueFrom(remote.state$.pipe(filter(({ songs }) => songs.length === 2)));
 
-    remote.send({ type: 'add', id: '5', position: 'end' });
+    remote.send({ type: 'add', id: '5', request: 'spec' });
     TestBed.tick();
 
     const state = await twoSongs;
     expect(state.songs.map(({ id }) => id)).toEqual(['5', '5']);
+    expect(state.added).toEqual([{ request: 'spec', index: 1 }]);
     expect(remote.status()).toBe('connected');
     remote.close();
   });

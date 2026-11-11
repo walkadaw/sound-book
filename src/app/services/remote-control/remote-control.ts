@@ -22,7 +22,8 @@ export type RemoteSong = {
 
 export type RemoteMass = { id: string; title: string };
 
-export type InsertPosition = 'afterCurrent' | 'end';
+// Where the song a remote asked for went in, null when it could not be added; the request names the asking.
+export type RemoteAdded = { request: string; index: number | null };
 
 export type RemoteState = {
   slide: number;
@@ -34,6 +35,8 @@ export type RemoteState = {
   // Time since the presentation started, as of sending: the clocks of two devices rarely agree.
   elapsed: number;
   remotes: number;
+  // the latest additions, so that the remote that asked learns where its song went
+  added: RemoteAdded[];
 };
 
 // The program goes only when it changed: a slide change would otherwise resend every song with its notes.
@@ -48,8 +51,10 @@ export type RemoteCommand =
   | { type: 'slide'; index: number; id: string }
   | { type: 'theme'; light: boolean }
   | { type: 'blackout'; hidden: boolean }
-  | { type: 'add'; id: string; position: InsertPosition }
+  | { type: 'add'; id: string; request: string }
   | { type: 'remove'; index: number; id: string }
+  // `to` is the index of the song to stand before, the length of the program for the end
+  | { type: 'move'; index: number; id: string; to: number }
   | { type: 'resetTimer' };
 /* eslint-enable @typescript-eslint/consistent-type-definitions */
 
@@ -78,25 +83,6 @@ function noteLines(text = '', chord = ''): RemoteNoteLine[] {
   const chords = chord.split('\n');
 
   return text.split('\n').map((line, index) => ({ chords: chords[index] ?? '', text: line }));
-}
-
-/** Where a song added after the current one goes: after the current song, or after the whole mass it is part of. */
-export function insertionIndex(list: SlideList[], slide: number): number {
-  const current = list.findIndex(({ startIndex = 0, endIndex = 0 }) => startIndex <= slide && slide <= endIndex);
-
-  if (current < 0) {
-    return list.length;
-  }
-
-  const liturgy = list[current].liturgy;
-  let end = current + 1;
-
-  // the parts of a mass always stand together
-  while (liturgy && end < list.length && list[end].liturgy === liturgy) {
-    end++;
-  }
-
-  return end;
 }
 
 export function withoutProgram(state: RemoteState): RemoteUpdate {

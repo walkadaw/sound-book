@@ -1,0 +1,229 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.head {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5em;
+  padding: 0.75em 16px 0.5em;
+}
+
+.search {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  padding: 0 4px 0 14px;
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 14px;
+  background: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface-variant);
+
+  &:focus-within {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+
+  > mat-icon {
+    flex-shrink: 0;
+    margin-right: 6px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+
+    &::placeholder {
+      color: var(--mat-sys-on-surface-variant);
+      opacity: 1;
+    }
+  }
+
+  button {
+    flex-shrink: 0;
+    color: inherit;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 0 8px 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font: inherit;
+  font-size: var(--app-fs-meta);
+  font-weight: 500;
+  cursor: pointer;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+}
+
+.results {
+  flex: 1;
+  min-height: 0;
+  padding: 0 6px 0.75em;
+  overflow: auto;
+}
+
+.count,
+.keys {
+  margin: 0.25em 8px 0.4em;
+}
+
+.keys {
+  // only where there is a keyboard to press them
+  @media not ((hover: hover) and (pointer: fine)) {
+    display: none;
+  }
+}
+
+.group-title {
+  margin: 0.5em 8px 0.25em;
+  font-size: var(--app-fs-meta);
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  // dense, so a search shows many songs at once; still well above the 24px target size
+  min-height: 40px;
+  padding: 3px 6px;
+  border-radius: 10px;
+  /* the rows of the song list on the main page */
+  font-size: 0.93em;
+  line-height: 1.25;
+  cursor: pointer;
+
+  &.active {
+    background: var(--mat-sys-surface-container-highest);
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+  }
+
+  &[aria-disabled='true'] {
+    cursor: default;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.number {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  // four digits, the longest number
+  min-width: 2.5em;
+  font-family: var(--app-font-heading);
+  font-size: var(--app-fs-meta);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-accent-muted);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  overflow-wrap: anywhere;
+}
+
+.snippet {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.added {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  font-size: var(--app-fs-meta);
+  font-weight: 700;
+  color: light-dark(#1e7d3c, #7fd99a);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.empty {
+  margin: 1.5em 8px;
+  text-align: center;
+
+  p {
+    margin: 0 0 0.25em;
+  }
+}
+
+.empty-title {
+  font-weight: 500;
+}
+
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 0.75em;
+}
+
+.text-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--mat-sys-primary);
+  font: inherit;
+  font-size: var(--app-fs-meta);
+  font-weight: 500;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+}
+
+app-program-list {
+  flex: 1;
+}

@@ -22,7 +22,7 @@ export class FakeClientTransport implements ClientTransport {
   }
 }
 
-export function remoteSong(id: string, startIndex: number, slides: number, liturgy: string | null = null): RemoteSong {
+function remoteSong(id: string, startIndex: number, slides: number, liturgy: string | null = null): RemoteSong {
   return {
     id,
     title: `Песня ${id}`,
@@ -47,6 +47,7 @@ export function remoteState(patch: Partial<RemoteState> = {}): RemoteState {
     blackout: false,
     elapsed: 60_000,
     remotes: 1,
+    added: [],
     ...patch,
   };
 }

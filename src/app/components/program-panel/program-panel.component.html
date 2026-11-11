@@ -1,0 +1,166 @@
+@let isSearching = searching();
+
+<div class="head" (focusout)="onSearchFocusOut($event)">
+  <div class="search">
+    <mat-icon aria-hidden="true">search</mat-icon>
+    <input
+      #searchInput
+      id="program-search"
+      type="text"
+      role="combobox"
+      autocomplete="off"
+      aria-label="Пошук песні"
+      aria-autocomplete="list"
+      aria-controls="program-results"
+      placeholder="Нумар, назва або радок"
+      [attr.aria-expanded]="isSearching"
+      [attr.aria-activedescendant]="activeId()"
+      [value]="search()"
+      (focus)="searchFocused.set(true)"
+      (input)="setSearch(searchInput.value)"
+      (keydown)="onSearchKeydown($event)"
+    />
+    @if (search()) {
+      <button mat-icon-button type="button" class="clear" aria-label="Ачысціць пошук" (click)="clearSearch()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+    }
+    <button
+      mat-icon-button
+      type="button"
+      class="filter"
+      [attr.aria-label]="'Тэма: ' + tagTitle()"
+      [matMenuTriggerFor]="tagMenu"
+    >
+      <mat-icon aria-hidden="true">filter_list</mat-icon>
+    </button>
+  </div>
+
+  @if (tag() && isSearching) {
+    <button type="button" class="chip" [attr.aria-label]="'Прыбраць тэму «' + tagTitle() + '»'" (click)="setTag(0)">
+      {{ tagTitle() }}
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  }
+</div>
+
+@if (isSearching) {
+  <!-- a press on the list or its scroll bar leaves the focus in the field -->
+  <div class="results" #results (mousedown)="$event.preventDefault()" (focusout)="onSearchFocusOut($event)">
+    @if (options().length) {
+      <p class="count meta">{{ countText() }}</p>
+      <div id="program-results" role="listbox" aria-label="Вынікі пошуку">
+        @if (massOptions().length) {
+          <div role="group" aria-labelledby="program-masses-title">
+            <div id="program-masses-title" class="group-title" role="presentation">Імша дня · дадаецца цалкам</div>
+            @for (option of massOptions(); track option.id) {
+              <ng-container *ngTemplateOutlet="row; context: { $implicit: option }" />
+            }
+          </div>
+        }
+        @if (songOptions().length) {
+          <div role="group" aria-label="Песні">
+            @if (massOptions().length) {
+              <div class="group-title" role="presentation">Песні</div>
+            }
+            @for (option of songOptions(); track option.id) {
+              <ng-container *ngTemplateOutlet="row; context: { $implicit: option }" />
+            }
+          </div>
+        }
+      </div>
+      <p class="keys meta" aria-hidden="true">Enter — дадаць · Esc — да праграмы</p>
+    } @else {
+      <div id="program-results" role="listbox" aria-label="Вынікі пошуку"></div>
+      <div class="empty">
+        <p class="empty-title">{{ emptyTitle() }}</p>
+        <p class="meta">{{ emptyHint() }}</p>
+        <div class="empty-actions">
+          @if (tag()) {
+            <button type="button" class="text-button" (click)="setTag(0)">Шукаць ва ўсіх песнях</button>
+          }
+          <button type="button" class="text-button" (click)="clearSearch()">Ачысціць пошук</button>
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <app-program-list
+    [control]="control()"
+    [slideNumbers]="slideNumbers()"
+    (remove)="removeEntry($event)"
+    (navigated)="navigated.emit()"
+  />
+}
+
+<ng-template #row let-option>
+  <div
+    role="option"
+    class="option"
+    [id]="optionId(option.position)"
+    [class.active]="option.position === active()"
+    [attr.aria-selected]="option.position === active()"
+    [attr.aria-disabled]="option.disabled || !control().enabled() ? 'true' : null"
+    (mousedown)="$event.preventDefault()"
+    (mouseenter)="hover(option.position)"
+    (click)="choose(option.position)"
+  >
+    <span class="number" aria-hidden="true">
+      @if (option.kind === 'mass') {
+        <mat-icon>menu_book</mat-icon>
+      } @else {
+        {{ option.number }}
+      }
+    </span>
+    <span class="text">
+      <span class="title">
+        @if (option.number !== null) {
+          <span class="cdk-visually-hidden">{{ option.number }}. </span>
+        }
+        <span [class.song-name]="option.kind === 'song'">{{ option.title }}</span>
+      </span>
+      @if (option.exact) {
+        <span class="meta">Дакладны нумар</span>
+      } @else if (option.snippet; as snippet) {
+        <app-match-highlight class="snippet meta" [snippet]="snippet" />
+      }
+    </span>
+    @if (option.count) {
+      <!-- a small mark rather than a label: the titles need the width -->
+      <span class="added">
+        <mat-icon aria-hidden="true">check</mat-icon>
+        @if (option.count > 1) {
+          <span aria-hidden="true">×{{ option.count }}</span>
+        }
+        <span class="cdk-visually-hidden">
+          {{
+            option.kind === 'mass'
+              ? ', ужо дададзена'
+              : ', у праграме' + (option.count > 1 ? ' ' + option.count + ' разы' : '')
+          }}
+        </span>
+      </span>
+    }
+  </div>
+</ng-template>
+
+<mat-menu #tagMenu="matMenu">
+  <ng-template matMenuContent>
+    @for (item of tags; track item.id) {
+      <button
+        mat-menu-item
+        type="button"
+        [attr.aria-checked]="tag() === item.id"
+        role="menuitemradio"
+        (click)="setTag(item.id)"
+      >
+        @if (item.icon) {
+          <mat-icon aria-hidden="true" [svgIcon]="item.icon" />
+        } @else {
+          <mat-icon aria-hidden="true">search</mat-icon>
+        }
+        {{ item.title }}
+      </button>
+    }
+  </ng-template>
+</mat-menu>

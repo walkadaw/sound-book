@@ -53,7 +53,7 @@
 .tabs {
   display: grid;
   flex-shrink: 0;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   height: 64px;
   border-top: 1px solid var(--mat-sys-outline-variant);
   background: var(--mat-sys-surface-container-low);
@@ -86,12 +86,12 @@
 .board {
   display: grid;
   flex: 1;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 360px minmax(0, 1fr);
   min-height: 0;
   padding: 0;
 
   &.wide {
-    grid-template-columns: 340px minmax(0, 1fr) 330px;
+    grid-template-columns: 360px minmax(0, 1fr) 330px;
   }
 }
 
@@ -102,45 +102,8 @@
   border-right: 1px solid var(--mat-sys-outline-variant);
   background: var(--mat-sys-surface-container-low);
 
-  app-remote-add,
-  app-remote-program {
+  app-program-panel {
     flex: 1;
-    min-height: 0;
-  }
-}
-
-.side-switch {
-  display: grid;
-  flex-shrink: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 0.8em 16px 0.25em;
-  overflow: hidden;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 12px;
-
-  button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4em;
-    min-height: 44px;
-    border: 0;
-    background: transparent;
-    color: var(--app-text);
-    font: inherit;
-    font-size: var(--app-fs-small);
-    cursor: pointer;
-
-    &[aria-pressed='true'] {
-      background: var(--mat-sys-secondary-container);
-      color: var(--mat-sys-on-secondary-container);
-      font-weight: 500;
-    }
-
-    &:focus-visible {
-      outline: 3px solid var(--mat-sys-primary);
-      outline-offset: -3px;
-    }
   }
 }
 
@@ -168,5 +131,10 @@
 
   app-remote-notes {
     flex: 1;
+  }
+
+  // at the bottom also when the song has no notes and they are hidden
+  app-remote-timer {
+    margin-top: auto;
   }
 }

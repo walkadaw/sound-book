@@ -8,13 +8,13 @@
 .head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
   gap: 0.5em 1em;
-}
 
-.heading {
-  min-width: 0;
+  .meta {
+    margin: 0;
+  }
 }
 
 .label {

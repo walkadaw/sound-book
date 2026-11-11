@@ -1,0 +1,148 @@
+@let list = entries();
+@let enabled = control().enabled();
+
+@if (list.length) {
+  <ol
+    class="entries"
+    aria-label="Праграма"
+    cdkDropList
+    cdkDropListLockAxis="y"
+    [cdkDropListData]="list"
+    [cdkDropListDisabled]="!enabled"
+    (cdkDropListDropped)="drop($event)"
+  >
+    @for (entry of list; track entry.index; let position = $index; let first = $first; let last = $last) {
+      <!-- the dragged copy stays in the list, so it keeps the look of the menu over the presentation -->
+      <li
+        class="entry"
+        cdkDrag
+        cdkDragPreviewContainer="parent"
+        [cdkDragData]="entry"
+        [cdkDragStartDelay]="{ touch: 250, mouse: 0 }"
+        [class]="entry.status"
+        [class.mass]="!!entry.liturgy"
+        (keydown)="onRowKeydown($event, position)"
+      >
+        <div class="row">
+          <button
+            type="button"
+            class="handle"
+            cdkDragHandle
+            [attr.aria-label]="'Перацягнуць «' + entry.title + '»'"
+            [disabled]="!enabled"
+          >
+            <mat-icon aria-hidden="true">drag_indicator</mat-icon>
+          </button>
+          <button
+            type="button"
+            class="song"
+            [attr.aria-current]="entry.status === 'active' && !entry.liturgy ? 'true' : null"
+            [disabled]="!enabled"
+            (click)="goToSlide(entry.startIndex)"
+          >
+            <span class="text">
+              <span class="name" [class.song-name]="!entry.liturgy">{{ entry.title }}</span>
+              @if (entry.status === 'past') {
+                <span class="cdk-visually-hidden">, прайшла</span>
+              }
+            </span>
+          </button>
+          <button
+            mat-icon-button
+            type="button"
+            class="more"
+            #trigger="matMenuTrigger"
+            [matMenuTriggerFor]="actions"
+            [matMenuTriggerData]="{ entry, first, last }"
+            [matMenuTriggerRestoreFocus]="false"
+            [attr.aria-label]="'Дзеянні: «' + entry.title + '»'"
+            [disabled]="!enabled"
+            (menuClosed)="onMenuClosed(trigger)"
+          >
+            <mat-icon aria-hidden="true">more_vert</mat-icon>
+          </button>
+        </div>
+
+        @if (entry.parts.length) {
+          <ol class="parts" [attr.aria-label]="'Часткі: «' + entry.title + '»'">
+            @for (part of entry.parts; track part.startIndex) {
+              <li [class]="part.status">
+                <button
+                  type="button"
+                  class="part"
+                  [attr.aria-current]="part.status === 'active' ? 'true' : null"
+                  [disabled]="!enabled"
+                  (click)="goToSlide(part.startIndex)"
+                >
+                  <span class="text">
+                    <span class="name">{{ part.title }}</span>
+                    @if (part.status === 'past') {
+                      <span class="cdk-visually-hidden">, прайшла</span>
+                    }
+                  </span>
+                </button>
+                <ng-container *ngTemplateOutlet="numbers; context: { $implicit: part.slides }" />
+              </li>
+            }
+          </ol>
+        } @else {
+          <ng-container *ngTemplateOutlet="numbers; context: { $implicit: entry.slides }" />
+        }
+
+        <div class="placeholder" *cdkDragPlaceholder></div>
+      </li>
+    }
+  </ol>
+} @else {
+  <div class="empty">
+    <p class="empty-title">Праграма пустая</p>
+    <p class="meta">Знайдзіце песню па нумары, назве або радку з тэксту.</p>
+  </div>
+}
+
+<ng-template #numbers let-slides>
+  @if (slideNumbers() && slides.length > 1) {
+    <div class="numbers" role="group" aria-label="Слайды">
+      @for (slide of slides; track slide; let i = $index) {
+        <button
+          type="button"
+          [attr.aria-current]="slide === control().slide() ? 'true' : null"
+          [attr.aria-label]="'Слайд ' + (i + 1)"
+          [disabled]="!enabled"
+          (click)="goToSlide(slide)"
+        >
+          {{ i + 1 }}
+        </button>
+      }
+    </div>
+  }
+</ng-template>
+
+<mat-menu #actions="matMenu">
+  <ng-template matMenuContent let-entry="entry" let-first="first" let-last="last">
+    <button mat-menu-item type="button" [disabled]="first" (click)="menuMove(entry, -1)">
+      <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+      Уверх
+    </button>
+    <button mat-menu-item type="button" [disabled]="last" (click)="menuMove(entry, 1)">
+      <mat-icon aria-hidden="true">arrow_downward</mat-icon>
+      Уніз
+    </button>
+    <button mat-menu-item type="button" [disabled]="!canShowNext(entry)" (click)="menuMoveTo(entry, nextIndex())">
+      <mat-icon aria-hidden="true">queue_play_next</mat-icon>
+      Наступнай
+    </button>
+    <button mat-menu-item type="button" [disabled]="first" (click)="menuMoveTo(entry, 0)">
+      <mat-icon aria-hidden="true">vertical_align_top</mat-icon>
+      На пачатак
+    </button>
+    <button mat-menu-item type="button" [disabled]="last" (click)="menuMoveTo(entry, control().songs().length)">
+      <mat-icon aria-hidden="true">vertical_align_bottom</mat-icon>
+      У канец
+    </button>
+    <button mat-menu-item type="button" (click)="menuRemove(entry)">
+      <mat-icon aria-hidden="true">delete_outline</mat-icon>
+      Выдаліць
+    </button>
+  </ng-template>
+</mat-menu>

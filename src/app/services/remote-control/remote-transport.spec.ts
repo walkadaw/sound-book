@@ -16,6 +16,7 @@ const state = (slide: number): RemoteState => ({
   blackout: false,
   elapsed: 0,
   remotes: 1,
+  added: [],
 });
 
 // BroadcastChannel delivers asynchronously

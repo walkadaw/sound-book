@@ -3,16 +3,22 @@ import { Subscription } from 'rxjs';
 import { SlideList } from '../../interfaces/slide';
 import { RevealService } from '../reveal-service/reveal.service';
 import { createHostKey } from './host-key';
-import { InsertPosition, RemoteCommand, RemoteMass, RemoteState, remoteSongs } from './remote-control';
+import { RemoteAdded, RemoteCommand, RemoteMass, RemoteState, remoteSongs } from './remote-control';
 import { HostTransport, TrysteroHostTransport, joinRemoteRoom } from './remote-transport';
 
 /** What the presentation lets the remotes see and change. */
 export interface PresentationControl {
   slides: Signal<SlideList[]>;
   masses: Signal<RemoteMass[]>;
-  add(id: string, position: InsertPosition): void;
-  remove(index: number): void;
+  /** Returns where the song went in, or null when it could not be added. */
+  add(id: string): number | null;
+  // A song is named by its index and its id: the presentation leaves it alone when they no longer match.
+  remove(index: number, id: string): void;
+  move(index: number, id: string, to: number): void;
 }
+
+// Enough for the remotes that add at about the same time; each one waits only for its own request.
+const ADDED_KEPT = 10;
 
 /** Runs the commands of every remote, over any transport, and keeps all of them on the same state. */
 @Injectable()
@@ -28,6 +34,8 @@ export class RemoteHost {
   private opening?: Promise<string | null>;
   // Counts the rooms closed, so that a room still opening when it was closed is left at once.
   private generation = 0;
+
+  private added = signal<RemoteAdded[]>([]);
 
   readonly roomId = signal<string | null>(null);
   /** The last room could not be opened, without the internet say. */
@@ -59,6 +67,7 @@ export class RemoteHost {
       light: this.reveal.light(),
       blackout: this.reveal.paused(),
       remotes: this.remotes(),
+      added: this.added(),
     };
   });
 
@@ -194,13 +203,21 @@ export class RemoteHost {
       case 'blackout':
         this.reveal.setPaused(command.hidden);
         break;
-      case 'add':
-        this.control()?.add(command.id, command.position);
-        break;
-      case 'remove':
-        if (this.control()?.slides()[command.index]?.id === command.id) {
-          this.control()?.remove(command.index);
+      case 'add': {
+        const control = this.control();
+
+        if (control) {
+          const added = { request: command.request, index: control.add(command.id) };
+
+          this.added.update((list) => [...list, added].slice(-ADDED_KEPT));
         }
+        break;
+      }
+      case 'remove':
+        this.control()?.remove(command.index, command.id);
+        break;
+      case 'move':
+        this.control()?.move(command.index, command.id, command.to);
         break;
       case 'resetTimer':
         this.startedAt.set(Date.now());

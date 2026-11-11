@@ -1,8 +1,8 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import {
   ConnectionStatus,
-  InsertPosition,
   RemoteCommand,
+  RemoteMass,
   RemoteSlide,
   RemoteSong,
   RemoteState,
@@ -18,6 +18,10 @@ import {
   remoteSelfId,
 } from '../../services/remote-control/remote-transport';
 import { verifyHostProof } from '../../services/remote-control/host-key';
+import { ProgramControl } from '../program-panel/program-control';
+
+// How long the presentation may take to answer an addition before the remote gives up on it.
+const ADD_TIMEOUT = 10000;
 
 export interface FlatSlide extends RemoteSlide {
   songIndex: number;
@@ -27,9 +31,11 @@ export interface FlatSlide extends RemoteSlide {
 
 /** One remote's view of the presentation, shared by the parts of the remote screen. */
 @Injectable()
-export class RemoteSession {
+export class RemoteSession implements ProgramControl {
   private transport = signal<ClientTransport | null>(null);
   private destroyed = false;
+  // additions waiting for the presentation to tell where the song went, by request
+  private pendingAdds = new Map<string, (index: number | null) => void>();
 
   readonly state = signal<RemoteState | null>(null);
   // the remote could not even start, without the internet say
@@ -41,18 +47,15 @@ export class RemoteSession {
   );
 
   readonly connected = computed(() => this.status() === 'connected');
-  readonly canReconnect = computed(
-    () => this.status() === 'lost' && (this.failed() || !!this.transport()?.reconnect),
-  );
+  readonly enabled = this.connected;
+  readonly canReconnect = computed(() => this.status() === 'lost' && (this.failed() || !!this.transport()?.reconnect));
 
   // a control window beside the presentation, rather than another device
   readonly local = signal(false);
   // When the presentation started by this device's clock.
   readonly startedAt = signal<number | null>(null);
-  // where newly added songs go, kept while the remote is open
-  readonly insertPosition = signal<InsertPosition>('end');
-
   readonly songs = computed<RemoteSong[]>(() => this.state()?.songs ?? []);
+  readonly masses = computed<RemoteMass[]>(() => this.state()?.masses ?? []);
   readonly slide = computed(() => this.state()?.slide ?? 0);
   readonly light = computed(() => this.state()?.light ?? false);
   readonly blackout = computed(() => this.state()?.blackout ?? false);
@@ -70,6 +73,7 @@ export class RemoteSession {
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       this.destroyed = true;
+      this.pendingAdds.forEach((done) => done(null));
       this.transport()?.close();
     });
   }
@@ -91,8 +95,11 @@ export class RemoteSession {
 
     if (!this.destroyed) {
       this.connect(
-        new TrysteroClientTransport(() => joinRemoteRoom(roomId), deviceToken(roomId), relays, (nonce, proof) =>
-          verifyHostProof(roomId, nonce, selfId, proof),
+        new TrysteroClientTransport(
+          () => joinRemoteRoom(roomId),
+          deviceToken(roomId),
+          relays,
+          (nonce, proof) => verifyHostProof(roomId, nonce, selfId, proof),
         ),
       );
     }
@@ -148,16 +155,29 @@ export class RemoteSession {
     this.send({ type: 'blackout', hidden });
   }
 
-  remove(index: number) {
-    const song = this.songs()[index];
-
-    if (song) {
-      this.send({ type: 'remove', index, id: song.id });
-    }
+  remove(index: number, id: string) {
+    this.send({ type: 'remove', index, id });
   }
 
-  add(id: string, position = this.insertPosition()) {
-    this.send({ type: 'add', id, position });
+  move(index: number, id: string, to: number) {
+    this.send({ type: 'move', index, id, to });
+  }
+
+  add(id: string): Promise<number | null> {
+    const request = Math.random().toString(36).slice(2);
+
+    this.send({ type: 'add', id, request });
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => done(null), ADD_TIMEOUT);
+      const done = (index: number | null) => {
+        clearTimeout(timer);
+        this.pendingAdds.delete(request);
+        resolve(index);
+      };
+
+      this.pendingAdds.set(request, done);
+    });
   }
 
   resetTimer() {
@@ -166,6 +186,8 @@ export class RemoteSession {
 
   private receive(state: RemoteState) {
     this.state.set(state);
+    state.added.forEach(({ request, index }) => this.pendingAdds.get(request)?.(index));
+
     this.startedAt.set(Date.now() - state.elapsed);
   }
 }

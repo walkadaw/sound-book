@@ -33,7 +33,7 @@
 <div class="deck">
   <h1 class="cdk-visually-hidden">Пульт</h1>
   @if (!session.songs().length) {
-    <p class="meta">У праграме няма песень. Дадайце іх ва ўкладцы «Дадаць».</p>
+    <p class="meta">У праграме няма песень. Дадайце іх ва ўкладцы «Праграма».</p>
   }
 
   @if (session.songs().length) {
@@ -54,27 +54,4 @@
     <app-remote-next />
     <app-remote-notes collapsible />
   }
-</div>
-
-<div class="moves">
-  <button
-    mat-flat-button
-    type="button"
-    class="prev"
-    [disabled]="!session.connected() || session.atStart()"
-    (click)="session.prev()"
-  >
-    <mat-icon aria-hidden="true">chevron_left</mat-icon>
-    Назад
-  </button>
-  <button
-    mat-flat-button
-    type="button"
-    class="next"
-    [disabled]="!session.connected() || session.atEnd()"
-    (click)="session.next()"
-  >
-    Далей
-    <mat-icon aria-hidden="true" iconPositionEnd>chevron_right</mat-icon>
-  </button>
 </div>

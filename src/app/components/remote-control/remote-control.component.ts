@@ -1,24 +1,21 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, ElementRef, Injector, OnInit, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, Injector, OnInit, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { RemoteAddComponent } from './remote-add/remote-add.component';
+import { ProgramPanelComponent } from '../program-panel/program-panel.component';
 import { RemoteDeckComponent } from './remote-deck/remote-deck.component';
+import { RemoteMovesComponent } from './remote-moves/remote-moves.component';
 import { RemoteNextComponent } from './remote-next/remote-next.component';
 import { RemoteNotesComponent } from './remote-notes/remote-notes.component';
-import { RemoteProgramComponent } from './remote-program/remote-program.component';
 import { RemoteSession } from './remote-session.service';
 import { RemoteStageComponent } from './remote-stage/remote-stage.component';
 import { RemoteStatusComponent } from './remote-status/remote-status.component';
 import { RemoteTimerComponent } from './remote-timer/remote-timer.component';
 
-export type RemoteTab = 'deck' | 'program' | 'add';
-
-/** What the side column of a wide remote shows. */
-export type SideView = 'program' | 'add';
+export type RemoteTab = 'deck' | 'program';
 
 /** By the width of the window, not the kind of device: a tablet turned on its side gets the wide layout. */
 export type RemoteLayout = 'narrow' | 'medium' | 'wide';
@@ -29,7 +26,6 @@ const WIDE = '(min-width: 1100px)';
 const TABS: { id: RemoteTab; title: string; icon: string }[] = [
   { id: 'deck', title: 'Пульт', icon: 'tv' },
   { id: 'program', title: 'Праграма', icon: 'format_list_bulleted' },
-  { id: 'add', title: 'Дадаць', icon: 'add' },
 ];
 
 /** The remote: the same screen on a phone, a tablet, another computer or a window beside the presentation. */
@@ -39,11 +35,11 @@ const TABS: { id: RemoteTab; title: string; icon: string }[] = [
     MatButton,
     MatIcon,
     MatProgressSpinner,
-    RemoteAddComponent,
+    ProgramPanelComponent,
     RemoteDeckComponent,
+    RemoteMovesComponent,
     RemoteNextComponent,
     RemoteNotesComponent,
-    RemoteProgramComponent,
     RemoteStageComponent,
     RemoteStatusComponent,
     RemoteTimerComponent,
@@ -63,7 +59,6 @@ export class RemoteControlComponent implements OnInit {
 
   readonly tabs = TABS;
   readonly tab = signal<RemoteTab>('deck');
-  readonly sideView = signal<SideView>('program');
 
   private breakpoints = inject(BreakpointObserver);
   private matches = toSignal(this.breakpoints.observe([MEDIUM, WIDE]), {
@@ -101,8 +96,7 @@ export class RemoteControlComponent implements OnInit {
     }
   });
 
-  private addPanel = viewChild(RemoteAddComponent);
-  private programButton = viewChild<ElementRef<HTMLButtonElement>>('programButton');
+  protected programPanel = viewChild(ProgramPanelComponent);
 
   ngOnInit() {
     const { data, params } = this.route.snapshot;
@@ -119,23 +113,14 @@ export class RemoteControlComponent implements OnInit {
   }
 
   focusSearch() {
-    if (this.layout() === 'narrow') {
-      this.tab.set('add');
-    } else {
-      this.sideView.set('add');
-    }
-
-    afterNextRender(() => this.addPanel()?.focusSearch(), { injector: this.injector });
-  }
-
-  // The search field goes away with the view, so the focus moves to the button that brought the program back.
-  showProgram() {
-    this.sideView.set('program');
-    afterNextRender(() => this.programButton()?.nativeElement.focus(), { injector: this.injector });
+    this.tab.set('program');
+    afterNextRender(() => this.programPanel()?.focusSearch(), { injector: this.injector });
   }
 
   onKeydown(event: KeyboardEvent) {
-    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || isTyping(event.target)) {
+    const modified = event.altKey || event.ctrlKey || event.metaKey;
+
+    if (event.defaultPrevented || modified || isTyping(event.target) || inPopup(event.target)) {
       return;
     }
 
@@ -166,6 +151,11 @@ export class RemoteControlComponent implements OnInit {
         return null;
     }
   }
+}
+
+// A menu over the remote keeps its keys: the arrows move through it, not the slides.
+function inPopup(target: EventTarget | null): boolean {
+  return target instanceof Element && !!target.closest('.cdk-overlay-container');
 }
 
 function isTyping(target: EventTarget | null): boolean {

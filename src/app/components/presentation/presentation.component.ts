@@ -17,17 +17,19 @@ import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { filter, take, tap } from 'rxjs/operators';
 import { liturgyId, liturgyIndex } from '../../constants/liturgy';
-import { Liturgy, LiturgyChoice } from '../../interfaces/liturgy';
+import { Liturgy } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 import { lyricsWithChords } from '../../services/chord/song-structure';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
-import { InsertPosition, RemoteMass, insertionIndex } from '../../services/remote-control/remote-control';
+import { moveEntry } from '../../services/program/program-entries';
+import { RemoteMass } from '../../services/remote-control/remote-control';
 import { RemoteHost } from '../../services/remote-control/remote-host.service';
 import { ChannelHostTransport, channelName } from '../../services/remote-control/remote-transport';
 import { RevealService } from '../../services/reveal-service/reveal.service';
 import { SlidesService } from '../../services/slides/slides.service';
 import { SongService } from '../../services/song-service/song.service';
 import { SongStatsService } from '../../services/song-stats/song-stats.service';
+import { ProgramControl } from '../program-panel/program-control';
 import { PresentationMenuComponent } from './presentation-menu/presentation-menu.component';
 
 @Component({
@@ -68,14 +70,24 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.masses().map(({ title }, index) => ({ id: liturgyId(index), title })),
   );
 
-  // the masses of the day that are not in the presentation yet
-  readonly liturgyChoices = computed<LiturgyChoice[]>(() => {
-    const added = new Set(this.slideList().map(({ liturgy }) => liturgy));
-
-    return this.masses()
-      .map(({ title }, index) => ({ id: liturgyId(index), title }))
-      .filter(({ id }) => !added.has(id));
-  });
+  readonly program: ProgramControl = {
+    songs: computed(() =>
+      this.slideList().map(({ id, title, liturgy, startIndex = 0, endIndex = 0 }) => ({
+        id,
+        title,
+        liturgy: liturgy ?? null,
+        startIndex,
+        endIndex,
+      })),
+    ),
+    masses: this.remoteMasses,
+    slide: this.reveal.slideIndex,
+    enabled: signal(true).asReadonly(),
+    add: (id) => Promise.resolve(this.addSlide(id)),
+    remove: (index, id) => this.removeSlide(index, id),
+    move: (index, id, to) => this.moveSlide(index, id, to),
+    goTo: (slide) => this.reveal.slide(slide),
+  };
 
   private isDataLoaded$ = new BehaviorSubject(false);
 
@@ -91,8 +103,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.remoteHost.attach({
       slides: this.slideList,
       masses: this.remoteMasses,
-      add: (id, position) => this.addSlide(id, position),
-      remove: (index) => this.removeSlide(index),
+      add: (id) => this.addSlide(id),
+      remove: (index, id) => this.removeSlide(index, id),
+      move: (index, id, to) => this.moveSlide(index, id, to),
     });
     this.remoteHost.connect(new ChannelHostTransport(channelName(this.reveal.presentationId)));
   }
@@ -114,8 +127,8 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  /** Returns the index of the first added song, or null when nothing was added. */
-  addSlide(id: string, position: InsertPosition = 'end'): number | null {
+  /** Adds at the end; returns the index of the first added song, or null when nothing was added. */
+  addSlide(id: string): number | null {
     const isLiturgy = liturgyIndex(id) !== null;
     const added = isLiturgy && this.slideList().some(({ liturgy }) => liturgy === id) ? [] : this.slidesFor(id);
 
@@ -124,9 +137,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const list = this.slideList();
-    const at = position === 'afterCurrent' ? insertionIndex(list, this.reveal.slideIndex()) : list.length;
+    const at = list.length;
 
-    this.slideList.set(withIndexes([...list.slice(0, at), ...added, ...list.slice(at)]));
+    this.slideList.set(withIndexes([...list, ...added]));
 
     if (!isLiturgy) {
       this.countShow(id);
@@ -137,9 +150,15 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     return at;
   }
 
-  // A mass goes away as a whole, whichever of its parts is removed.
-  removeSlide(removedIndex: number) {
+  // A mass goes away as a whole, whichever of its parts is removed. The song is named by its index and id:
+  // a panel or a remote may have seen the program before it changed, and then the index points elsewhere.
+  removeSlide(removedIndex: number, id: string) {
     const list = this.slideList();
+
+    if (list[removedIndex]?.id !== id) {
+      return;
+    }
+
     const liturgy = list[removedIndex]?.liturgy;
     const removed = (slide: SlideList, index: number) =>
       index === removedIndex || (!!liturgy && slide.liturgy === liturgy);
@@ -147,6 +166,24 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.slideList.set(kept);
     this.updateLocation(slideAfterRemoval(list, removed, this.reveal.slideIndex(), kept));
+  }
+
+  /** Moves the song or the whole mass at `index` before the song at `to`; the screen stays on the same slide. */
+  moveSlide(index: number, id: string, to: number) {
+    const list = this.slideList();
+    const moved = list[index]?.id === id ? moveEntry(list, index, to) : null;
+
+    if (!moved) {
+      return;
+    }
+
+    const slide = this.reveal.slideIndex();
+    const current = list.find(({ startIndex = 0, endIndex = 0 }) => startIndex <= slide && slide <= endIndex);
+    const kept = withIndexes(moved);
+    const shown = current && kept[moved.indexOf(current)];
+
+    this.slideList.set(kept);
+    this.updateLocation(current && shown ? (shown.startIndex ?? 0) + slide - (current.startIndex ?? 0) : undefined);
   }
 
   private loadSlide() {

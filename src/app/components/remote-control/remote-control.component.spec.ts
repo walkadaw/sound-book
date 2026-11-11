@@ -85,10 +85,23 @@ describe('RemoteControlComponent', () => {
     ]);
   });
 
+  it('should leave the arrows to a menu over the remote', () => {
+    const overlay = document.createElement('div');
+    const item = document.createElement('button');
+    overlay.className = 'cdk-overlay-container';
+    overlay.append(item);
+    document.body.append(overlay);
+
+    press({ key: 'ArrowRight' }, item);
+
+    expect(transport.sent).toEqual([]);
+    overlay.remove();
+  });
+
   it('should leave the keys alone while the reader types or holds a modifier', async () => {
     press({ key: '/' });
     await fixture.whenStable();
-    const input = element().querySelector('input[type=search]') as HTMLInputElement;
+    const input = element().querySelector('input[role="combobox"]') as HTMLInputElement;
 
     expect(document.activeElement).toBe(input);
 
@@ -100,19 +113,39 @@ describe('RemoteControlComponent', () => {
     expect(transport.sent).toEqual([]);
   });
 
-  it('should switch the tabs and open the search from the program', async () => {
+  it('should switch between the remote and the program with its search', async () => {
     const tabs = () => Array.from(element().querySelectorAll<HTMLButtonElement>('nav.tabs button'));
 
+    expect(tabs().map((tab) => tab.textContent?.replace('tv', '').replace('format_list_bulleted', '').trim())).toEqual([
+      'Пульт',
+      'Праграма',
+    ]);
     expect(tabs()[0].getAttribute('aria-current')).toBe('page');
 
     tabs()[1].click();
     await fixture.whenStable();
-    expect(element().querySelector('app-remote-program')).not.toBeNull();
+    expect(element().querySelector('app-program-panel input[role="combobox"]')).not.toBeNull();
     expect(tabs()[1].getAttribute('aria-current')).toBe('page');
+  });
 
-    (element().querySelector('app-remote-program .add') as HTMLButtonElement).click();
+  it('should keep back and next under every tab of a phone, but not over the search', async () => {
+    const moves = () => element().querySelector('app-remote-moves');
+    const tabs = () => Array.from(element().querySelectorAll<HTMLButtonElement>('nav.tabs button'));
+
+    expect(moves()).not.toBeNull();
+
+    tabs()[1].click();
     await fixture.whenStable();
-    expect(element().querySelector('app-remote-add')).not.toBeNull();
+    expect(moves()).not.toBeNull();
+
+    const input = element().querySelector('app-program-panel input[role="combobox"]') as HTMLInputElement;
+    input.focus();
+    await fixture.whenStable();
+    expect(moves()).toBeNull();
+
+    input.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: document.body }));
+    await fixture.whenStable();
+    expect(moves()).not.toBeNull();
   });
 
   it('should lay the remote out by the width of the window', async () => {
@@ -124,7 +157,7 @@ describe('RemoteControlComponent', () => {
     await resize(900);
     expect(fixture.componentInstance.layout()).toBe('medium');
     expect(has('nav.tabs')).toBe(false);
-    expect([has('app-remote-program'), has('app-remote-stage'), has('app-remote-next')]).toEqual([true, true, true]);
+    expect([has('app-program-panel'), has('app-remote-stage'), has('app-remote-next')]).toEqual([true, true, true]);
     expect(has('.side-column')).toBe(false);
 
     await resize(1330);
@@ -136,34 +169,35 @@ describe('RemoteControlComponent', () => {
     expect(has('nav.tabs')).toBe(true);
   });
 
-  it('should switch the side column of a wide remote between the program and the whole song list', async () => {
-    await resize(1330);
-    const has = (selector: string) => !!element().querySelector(selector);
-    const [program, add] = Array.from(element().querySelectorAll<HTMLButtonElement>('.side-switch button'));
-
-    expect(program.getAttribute('aria-pressed')).toBe('true');
-    expect([has('app-remote-program'), has('app-remote-add')]).toEqual([true, false]);
-
-    add.click();
-    await fixture.whenStable();
-    expect(add.getAttribute('aria-pressed')).toBe('true');
-    expect([has('app-remote-program'), has('app-remote-add li.song')]).toEqual([false, true]);
-  });
-
-  it('should open the search with / and come back to the program with Escape', async () => {
+  it('should open the search with / and come back to the program with Escape twice', async () => {
     await resize(1330);
 
     press({ key: '/' });
     await fixture.whenStable();
-    const input = element().querySelector('.program-column input[type=search]') as HTMLInputElement;
+    const input = element().querySelector('.program-column input[role="combobox"]') as HTMLInputElement;
     expect(document.activeElement).toBe(input);
+
+    input.value = '5';
+    input.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect(element().querySelector('app-program-list')).toBeNull();
+
+    // the first Escape clears the field and keeps the whole list, the second one goes back to the program
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await fixture.whenStable();
+    expect(input.value).toBe('');
+    expect(element().querySelector('app-program-list')).toBeNull();
 
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     await fixture.whenStable();
+    expect(element().querySelector('app-program-list')).not.toBeNull();
+  });
 
-    const program = element().querySelector('.side-switch button') as HTMLButtonElement;
-    expect(element().querySelector('app-remote-program')).not.toBeNull();
-    expect(document.activeElement).toBe(program);
+  it('should open the program tab for the search on a phone', async () => {
+    press({ key: '/' });
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(element().querySelector('app-program-panel input[role="combobox"]'));
   });
 
   it('should show only the connection until the presentation answers', async () => {

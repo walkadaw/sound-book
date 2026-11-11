@@ -110,6 +110,9 @@ export class RevealService {
           progress: false,
           center: true,
           hash: false,
+          // the arrows and the space bar in the menu and its popups move through the menu, not the slides
+          keyboardCondition: (event) =>
+            !(event.target instanceof Element && event.target.closest('.slide-menu, .cdk-overlay-container')),
 
           transition: 'none',
           // transitionSpeed: 'slow',

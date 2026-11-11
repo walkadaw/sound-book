@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconRegistry } from '@angular/material/icon';
+import { FakeMatIconRegistry } from '@angular/material/icon/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EMPTY } from 'rxjs';
+import { FakeProgram } from '../../program-panel/program-testing';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
 import { RemoteHost } from '../../../services/remote-control/remote-host.service';
 import { PresentationFileService } from '../../../services/presentation-file/presentation-file.service';
@@ -33,6 +36,7 @@ describe('PresentationMenuComponent', () => {
         RemoteHost,
         { provide: RevealService, useValue: revealServiceStub },
         { provide: PresentationFileService, useValue: presentationFileStub },
+        { provide: MatIconRegistry, useClass: FakeMatIconRegistry },
       ],
     }).compileComponents();
   });
@@ -40,50 +44,12 @@ describe('PresentationMenuComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(PresentationMenuComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('program', new FakeProgram());
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should list the masses of the day first in the search', () => {
-    const added: string[] = [];
-    component.addedSong.subscribe((id) => added.push(id));
-    fixture.componentRef.setInput('liturgy', [
-      { id: 'l', title: 'Чацвер' },
-      { id: 'l2', title: 'Успамін св. Тэрэзы' },
-    ]);
-    component.onSearchFocused();
-    fixture.detectChanges();
-
-    const items = () => [...fixture.nativeElement.querySelectorAll('.slide-menu-items-search li')] as HTMLElement[];
-    expect(items().map((item) => item.textContent?.trim())).toEqual([
-      'Літургія: Чацвер',
-      'Літургія: Успамін св. Тэрэзы',
-    ]);
-
-    items()[1].click();
-    expect(added).toEqual(['l2']);
-  });
-
-  it('should filter the masses by the search', async () => {
-    // the search applies after its debounce
-    const type = (value: string) => {
-      component.search.setValue(value);
-      return new Promise((resolve) => setTimeout(resolve, 350));
-    };
-    fixture.componentRef.setInput('liturgy', [{ id: 'l', title: 'Чацвер' }]);
-
-    await type('Літ');
-    expect(component.foundLiturgy().length).toBe(1);
-
-    await type('цвер');
-    expect(component.foundLiturgy().length).toBe(1);
-
-    // a song search that only happens to be inside "Літургія"
-    await type('гі');
-    expect(component.foundLiturgy().length).toBe(0);
   });
 
   it('should open the control window beside the presentation, the same one each time', () => {
@@ -111,8 +77,6 @@ describe('PresentationMenuComponent', () => {
 
   it('should download the slides of the presentation', async () => {
     const button = () => fixture.nativeElement.querySelector('.download-button') as HTMLButtonElement | null;
-    component.isSearchFocused.set(false);
-    fixture.detectChanges();
     expect(button()).toBeNull();
 
     const slide = (text: string) => ({ fontSize: 60, text });
@@ -122,13 +86,6 @@ describe('PresentationMenuComponent', () => {
     ]);
     fixture.detectChanges();
     expect(button()).toBeTruthy();
-
-    component.isSearchFocused.set(true);
-    fixture.detectChanges();
-    expect(button()).toBeNull();
-
-    component.isSearchFocused.set(false);
-    fixture.detectChanges();
     presentationFileStub.downloadPptx.mockClear();
 
     button()?.click();
@@ -155,11 +112,20 @@ describe('PresentationMenuComponent', () => {
     expect(component.isDownloading()).toBe(false);
   });
 
-  it('should hide the masses while a song tag is chosen', () => {
-    fixture.componentRef.setInput('liturgy', [{ id: 'l', title: 'Чацвер' }]);
-    expect(component.foundLiturgy().length).toBe(1);
+  it('should open an empty presentation on the search', () => {
+    const search = fixture.nativeElement.querySelector('input[role="combobox"]');
 
-    component.onClickTag(component.tagsList[1].id);
-    expect(component.foundLiturgy().length).toBe(0);
+    expect(component.active()).toBe(true);
+    expect(document.activeElement).toBe(search);
+  });
+
+  it('should give the focus back to the slides on closing', () => {
+    const nav = fixture.nativeElement.querySelector('nav') as HTMLElement;
+
+    component.closeMenu();
+    fixture.detectChanges();
+
+    expect(nav.hasAttribute('inert')).toBe(true);
+    expect(nav.contains(document.activeElement)).toBe(false);
   });
 });

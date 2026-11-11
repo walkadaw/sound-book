@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RemoteDotsComponent } from '../remote-dots/remote-dots.component';
 import { RemoteNextComponent } from '../remote-next/remote-next.component';
@@ -8,11 +8,10 @@ import { RemoteSession } from '../remote-session.service';
 import { RemoteStatusComponent } from '../remote-status/remote-status.component';
 import { SlidePreviewComponent } from '../slide-preview/slide-preview.component';
 
-/** The phone's main tab: what is on the screen and the buttons to move on. */
+/** The phone's main tab: what is on the screen, what comes next and the notes. */
 @Component({
   selector: 'app-remote-deck',
   imports: [
-    MatButton,
     MatIconButton,
     MatIcon,
     RemoteDotsComponent,

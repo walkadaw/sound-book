@@ -7,30 +7,21 @@ import {
   AfterViewInit,
   inject,
   signal,
-  computed,
   input,
-  output,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
-import { filter, debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { NgTemplateOutlet } from '@angular/common';
-import { TagList, TAGS_LIST } from '../../../constants/tag-list';
-import { FuseService } from '../../../services/fuse-service/fuse.service';
 import { PresentationFileService } from '../../../services/presentation-file/presentation-file.service';
-import { MatchHighlightComponent } from '../../match-highlight/match-highlight.component';
-import { LiturgyChoice } from '../../../interfaces/liturgy';
-import { Song } from '../../../interfaces/song';
 import { SlideList } from '../../../interfaces/slide';
 import { RemoteHost } from '../../../services/remote-control/remote-host.service';
 import { RevealService } from '../../../services/reveal-service/reveal.service';
-import { SongService } from '../../../services/song-service/song.service';
 import { controlWindowUrl } from '../../../services/remote-control/remote-control';
+import { ProgramControl } from '../../program-panel/program-control';
+import { ProgramPanelComponent } from '../../program-panel/program-panel.component';
 import { RemoteDialogComponent } from '../remote-dialog/remote-dialog.component';
 
 @Component({
@@ -38,12 +29,10 @@ import { RemoteDialogComponent } from '../remote-dialog/remote-dialog.component'
   templateUrl: './presentation-menu.component.html',
   styleUrls: ['./presentation-menu.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatIcon, ReactiveFormsModule, NgTemplateOutlet, MatchHighlightComponent],
+  imports: [MatIcon, ProgramPanelComponent],
 })
 export class PresentationMenuComponent implements OnInit, AfterViewInit {
   private destroyRef = inject(DestroyRef);
-  private fuseService = inject(FuseService);
-  private songService = inject(SongService);
   private reveal = inject(RevealService);
   private presentationFile = inject(PresentationFileService);
   private snackBar = inject(MatSnackBar);
@@ -51,57 +40,20 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   private remoteHost = inject(RemoteHost);
 
   readonly slideList = input<SlideList[]>();
-  // the masses of the day that can be added, listed before the songs
-  readonly liturgy = input<LiturgyChoice[]>([]);
+  readonly program = input.required<ProgramControl>();
 
-  readonly addedSong = output<string>();
-  readonly removeSong = output<number>();
-
-  readonly searchElement = viewChild<ElementRef<HTMLInputElement>>('searchElement');
+  private menu = viewChild.required<ElementRef<HTMLElement>>('menu');
+  private panel = viewChild.required(ProgramPanelComponent);
 
   readonly isShowControls = this.reveal.isShowControls();
   readonly active = signal(false);
-  readonly isSearchFocused = signal(false);
   readonly isFullscreen = signal(!!document.fullscreenElement);
   readonly hideMenu = signal(false);
   readonly isDownloading = signal(false);
-  readonly openSelectedTag = signal(false);
-  readonly selectedTag = signal<TagList | undefined>(undefined);
-  tagsList: TagList[];
-  search = new FormControl('', { nonNullable: true });
-  private selectedTagId = signal(0);
-  private debouncedSearch = toSignal(
-    this.search.valueChanges.pipe(startWith(''), debounceTime(300), distinctUntilChanged()),
-    { initialValue: '' },
-  );
-
-  readonly foundSongs = this.fuseService.getSearchResults(
-    this.selectedTagId,
-    this.debouncedSearch,
-    this.songService.songList,
-  );
-
-  // A mass is found by its title or by the start of the word "літургія", and a song tag hides the masses.
-  readonly foundLiturgy = computed(() => {
-    const search = this.debouncedSearch().trim().toLowerCase();
-
-    if (this.selectedTagId()) {
-      return [];
-    }
-
-    return this.liturgy()
-      .filter(({ title }) => 'літургія'.startsWith(search) || title.toLowerCase().includes(search))
-      .map(({ id, title }) => ({ id, title: `Літургія: ${title}` }));
-  });
-
-  readonly selectedSlide = this.reveal.slideIndex;
 
   ngOnInit(): void {
-    this.initTag();
-    this.initSearch();
-
     if (!this.slideList()?.length) {
-      this.toggleMenu();
+      this.active.set(true);
     }
 
     fromEvent(document, 'fullscreenchange')
@@ -118,8 +70,8 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
     this.closeOnSlideChange();
 
     // an empty presentation starts with choosing songs
-    if (!this.slideList()?.length) {
-      this.searchElement()?.nativeElement.focus();
+    if (this.active()) {
+      this.panel().focusSearch();
     }
   }
 
@@ -159,53 +111,31 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
   }
 
   toggleMenu() {
-    this.active.update((active) => !active);
+    if (this.active()) {
+      this.closeMenu();
+    } else {
+      this.openMenu();
+    }
+  }
+
+  openMenu() {
+    this.active.set(true);
+  }
+
+  closeMenu() {
+    const menu = this.menu().nativeElement;
+
+    // the arrows and the space bar go back to the slides
+    if (document.activeElement instanceof HTMLElement && menu.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+
+    this.active.set(false);
   }
 
   toggleShowIconMenu() {
     this.hideMenu.update((hidden) => !hidden);
     document.body.classList.toggle('hideMenu', this.hideMenu());
-  }
-
-  openSlide(song: SlideList) {
-    this.toggleMenu();
-
-    this.reveal.slide(song.startIndex);
-  }
-
-  onClickTag(tagId: number) {
-    const tag = this.tagsList.find(({ id }) => id === tagId);
-
-    if (tag) {
-      this.selectedTag.set(tag);
-      this.selectedTagId.set(tagId);
-
-      const searchElement = this.searchElement();
-      if (searchElement) {
-        searchElement.nativeElement.focus();
-      }
-    }
-
-    this.openSelectedTag.set(false);
-  }
-
-  onClickSearchSong(song: Song) {
-    this.search.setValue('');
-    this.addSong(song.id.toString());
-  }
-
-  onClickSearchLiturgy(id: string) {
-    this.search.setValue('');
-    this.addSong(id);
-  }
-
-  onClickRemovedSong(event: Event, index: number) {
-    event.stopPropagation();
-    this.removeSong.emit(index);
-  }
-
-  toggleSelectedTag() {
-    this.openSelectedTag.update((open) => !open);
   }
 
   fullScreen() {
@@ -218,20 +148,6 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
 
   togglePause(): void {
     this.reveal.togglePause();
-  }
-
-  onSearchFocused() {
-    this.isSearchFocused.set(true);
-  }
-
-  onSearchBlur() {
-    setTimeout(() => {
-      this.isSearchFocused.set(false);
-    }, 250);
-  }
-
-  private addSong(id: string) {
-    this.addedSong.emit(id);
   }
 
   private enterFullscreen() {
@@ -250,36 +166,13 @@ export class PresentationMenuComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private initTag() {
-    this.tagsList = [
-      {
-        id: 0,
-        title: 'Усе',
-        icon: 'search',
-      },
-      ...TAGS_LIST,
-    ];
-    this.selectedTag.set(this.tagsList[0]);
-  }
-
-  private initSearch() {
-    this.search.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter(() => this.openSelectedTag()),
-      )
-      .subscribe(() => {
-        this.openSelectedTag.set(false);
-      });
-  }
-
   private closeOnSlideChange() {
     this.reveal
       .onSlideChange()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.active()) {
-          this.toggleMenu();
+          this.closeMenu();
         }
       });
   }

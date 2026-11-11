@@ -1,16 +1,12 @@
-<div class="head">
-  <div class="heading">
-    <h1 class="cdk-visually-hidden">Пульт</h1>
-    @if (!session.songs().length) {
-      <p class="meta">У праграме няма песень. Дадайце іх у раздзеле «Дадаць» злева.</p>
-    }
-  </div>
-  <app-remote-status />
-</div>
+<h1 class="cdk-visually-hidden">Пульт</h1>
 
 @if (session.songs().length) {
   <section class="screen" aria-labelledby="remote-stage-screen">
-    <h2 id="remote-stage-screen" class="label">На экране</h2>
+    <!-- the connection beside the label, rather than on a row of its own above the screen -->
+    <div class="head">
+      <h2 id="remote-stage-screen" class="label">На экране</h2>
+      <app-remote-status />
+    </div>
     <button
       type="button"
       class="screen-button"
@@ -21,6 +17,11 @@
       <app-slide-preview [slide]="session.currentSlide()" [light]="session.light()" [blackout]="session.blackout()" />
     </button>
   </section>
+} @else {
+  <div class="head">
+    <p class="meta">У праграме няма песень. Знайдзіце іх праз пошук злева.</p>
+    <app-remote-status />
+  </div>
 }
 
 <div class="controls">

@@ -1,0 +1,249 @@
+:host {
+  display: block;
+  min-height: 0;
+  padding: 0 8px 0.75em;
+  overflow: auto;
+}
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  position: relative;
+  border-radius: 14px;
+
+  // A thin straight line between the songs, so the eye finds where one ends; a border would bend with the corners.
+  & + &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 8px;
+    left: 8px;
+    height: 1px;
+    background: var(--mat-sys-outline-variant);
+  }
+
+  &.active {
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.handle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: grab;
+  touch-action: none;
+
+  .active & {
+    color: inherit;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: -3px;
+  }
+}
+
+.song {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 4px 4px 4px 2px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: -3px;
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+// a narrow column: the titles a step smaller than the text
+.name {
+  font-size: var(--app-fs-small);
+  overflow-wrap: anywhere;
+
+  .past & {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .active & {
+    font-weight: 500;
+  }
+}
+
+.more {
+  flex-shrink: 0;
+  color: var(--mat-sys-on-surface-variant);
+
+  .active & {
+    color: inherit;
+  }
+}
+
+.parts {
+  margin: 0 0 6px;
+  padding: 0 0 0 40px;
+  list-style: none;
+
+  .numbers {
+    padding-left: 8px;
+  }
+
+  li {
+    position: relative;
+  }
+
+  // the same straight line as between the songs, from the same edge rather than the indent of the parts
+  li + li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 8px;
+    left: -32px;
+    height: 1px;
+    background: var(--mat-sys-outline-variant);
+  }
+
+  li.active {
+    border-radius: 12px;
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+}
+
+// the mass itself is not on the screen, one of its parts is
+.entry.mass.active {
+  background: transparent;
+  color: inherit;
+}
+
+.part {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: -3px;
+  }
+
+  .past & .name {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 6px;
+  padding: 0 10px 8px 34px;
+
+  button {
+    min-height: 44px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--app-fs-meta);
+    cursor: pointer;
+
+    &[aria-current='true'] {
+      border-color: var(--mat-sys-primary);
+      background: var(--mat-sys-primary);
+      color: var(--mat-sys-on-primary);
+      font-weight: 700;
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--mat-sys-primary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.placeholder {
+  min-height: 48px;
+  border: 2px dashed var(--mat-sys-primary);
+  border-radius: 14px;
+}
+
+// the copy of the row that follows the pointer
+.cdk-drag-preview {
+  box-sizing: border-box;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  list-style: none;
+  box-shadow: var(--mat-sys-level3);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .entries.cdk-drop-list-dragging .entry:not(.cdk-drag-placeholder) {
+    transition: transform 150ms ease;
+  }
+}
+
+.empty {
+  margin: 2em 8px;
+  text-align: center;
+
+  p {
+    margin: 0 0 0.25em;
+  }
+}
+
+.empty-title {
+  font-weight: 500;
+}

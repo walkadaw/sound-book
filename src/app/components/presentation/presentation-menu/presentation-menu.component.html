@@ -1,5 +1,5 @@
 <div class="slide-menu-wrapper">
-  <nav class="slide-menu slide-menu--left" [class.active]="active()">
+  <nav #menu class="slide-menu slide-menu--left" [class.active]="active()" [attr.inert]="active() ? null : ''">
     <div class="slide-menu-toolbar">
       <ul class="menu-toolbar">
         <li class="toolbar-panel-button" (click)="toggleTheme()">
@@ -33,100 +33,15 @@
           <span class="slide-menu-toolbar-label">Зачыніць</span>
         </li>
       </ul>
-      <div id="search" class="search-nav">
-        <input
-          #searchElement
-          (focus)="onSearchFocused()"
-          (blur)="onSearchBlur()"
-          placeholder="Пошук..."
-          aria-label="Пошук песні"
-          [formControl]="search"
-        />
-        <button
-          id="search-sound-list-btn"
-          type="button"
-          class="button"
-          [attr.aria-label]="'Фільтр пошуку: ' + (selectedTag()?.title ?? 'усе песні')"
-          [attr.aria-expanded]="openSelectedTag()"
-          (click)="toggleSelectedTag()"
-        >
-          <ng-container
-            [ngTemplateOutlet]="songIcon"
-            [ngTemplateOutletContext]="{ $implicit: selectedTag() }"
-          ></ng-container>
-        </button>
-
-        <div class="tag-search" [class.open]="openSelectedTag()">
-          <ul class="tag-list">
-            @for (tagList of tagsList; track tagList) {
-              <li (click)="onClickTag(tagList.id)">
-                <ng-container
-                  [ngTemplateOutlet]="songIcon"
-                  [ngTemplateOutletContext]="{ $implicit: tagList }"
-                ></ng-container>
-                {{ tagList.title }}
-              </li>
-            }
-          </ul>
-        </div>
-      </div>
     </div>
-    @let found = foundSongs();
-    <div
-      data-panel="Slides"
-      class="slide-menu-panel active-menu-panel"
-      tabindex="0"
-      role="region"
-      aria-label="Спіс песень"
-    >
-      @if (isSearchFocused()) {
-        <ul class="slide-menu-items-search">
-          @for (mass of foundLiturgy(); track mass.id) {
-            <li class="slide-menu-item active selected add-new-slide" (click)="onClickSearchLiturgy(mass.id)">
-              <span class="slide-menu-item-title">{{ mass.title }}</span>
-            </li>
-          }
-          @if (found.length) {
-            @for (item of found; track item.song.id) {
-              <li class="slide-menu-item active selected add-new-slide" (click)="onClickSearchSong(item.song)">
-                <span class="slide-menu-item-title">
-                  {{ item.song.title }}
-                  @if (item.snippet; as snippet) {
-                    <app-match-highlight class="slide-menu-item-snippet" [snippet]="snippet" />
-                  }
-                </span>
-              </li>
-            }
-          } @else if (!foundLiturgy().length) {
-            <li class="slide-menu-item">
-              <span class="slide-menu-item-title">Песня не знойдзена</span>
-            </li>
-          }
-        </ul>
-      }
-      @if (!isSearchFocused()) {
-        <ul class="slide-menu-items">
-          @for (song of slideList(); track $index; let index = $index) {
-            <li
-              class="slide-menu-item"
-              [class.past]="song.endIndex < selectedSlide()"
-              [class.active]="song.startIndex <= selectedSlide() && song.endIndex >= selectedSlide()"
-              [class.selected]="song.startIndex <= selectedSlide() && song.endIndex >= selectedSlide()"
-              [class.future]="song.startIndex > selectedSlide()"
-              (click)="openSlide(song)"
-            >
-              <mat-icon class="past">check</mat-icon>
-              <mat-icon class="active">arrow_forward_ios</mat-icon>
-              <mat-icon class="future">panorama_fish_eye</mat-icon>
-              <span class="slide-menu-item-title">{{ song.title }}</span>
-              <mat-icon class="delete-slide" (click)="onClickRemovedSong($event, index)">delete</mat-icon>
-            </li>
-          }
-        </ul>
-      }
-    </div>
+    <app-program-panel
+      class="slide-menu-program"
+      [control]="program()"
+      (navigated)="closeMenu()"
+      (leave)="closeMenu()"
+    />
     <!-- the slides are downloaded from the main window -->
-    @if (slideList()?.length && !isSearchFocused()) {
+    @if (slideList()?.length) {
       <div class="slide-menu-footer">
         <button
           type="button"
@@ -141,7 +56,7 @@
       </div>
     }
   </nav>
-  <div class="slide-menu-overlay" [class.active]="active()" (click)="toggleMenu()"></div>
+  <div class="slide-menu-overlay" [class.active]="active()" (click)="closeMenu()"></div>
 </div>
 
 @if (isShowControls) {
@@ -157,11 +72,3 @@
     <mat-icon class="slide-button" (click)="togglePause()">visibility_off</mat-icon>
   </div>
 }
-
-<ng-template #songIcon let-tagList>
-  @if (tagList.id === 0) {
-    <mat-icon>search</mat-icon>
-  } @else {
-    <mat-icon [svgIcon]="tagList.icon"></mat-icon>
-  }
-</ng-template>

@@ -85,32 +85,3 @@
     outline-offset: 2px;
   }
 }
-
-.moves {
-  display: flex;
-  flex-shrink: 0;
-  gap: 12px;
-  padding: 12px 16px;
-
-  button {
-    height: 72px;
-    border-radius: 18px;
-    font-size: var(--app-fs-small);
-  }
-
-  .prev {
-    flex: 1;
-    background: var(--mat-sys-surface-container-highest);
-    color: var(--mat-sys-on-surface);
-  }
-
-  .next {
-    flex: 2;
-    font-size: 1em;
-    font-weight: 700;
-  }
-
-  button:disabled {
-    opacity: 0.5;
-  }
-}
