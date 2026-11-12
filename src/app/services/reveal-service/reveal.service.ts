@@ -3,6 +3,10 @@ import Reveal, { RevealApi } from 'reveal.js';
 import { fromEvent, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
+interface SlideChangedEvent extends Event {
+  indexh: number;
+}
+
 @Service()
 export class RevealService {
   readonly ready = signal(false);
@@ -92,9 +96,9 @@ export class RevealService {
 
   /** The reader moving to another slide; not the slides changing under the screen. */
   onSlideChange(): Observable<number> {
-    return fromEvent(this.reveal.getRevealElement(), 'slidechanged').pipe(
+    return fromEvent<SlideChangedEvent>(this.reveal.getRevealElement(), 'slidechanged').pipe(
       filter(() => !this.keepingPlace),
-      filter<any>((event) => !!event && event.indexh >= 0),
+      filter((event) => event.indexh >= 0),
       map(({ indexh }) => indexh),
     );
   }
@@ -110,6 +114,9 @@ export class RevealService {
           progress: false,
           center: true,
           hash: false,
+          // The screen stays slides on a narrow phone too: Reveal's scroll view moves the slides on scrolling and
+          // on every resize (a phone keyboard opening), and reaches a slide only after a scroll, past keepingPlace.
+          scrollActivationWidth: 0,
           // the arrows and the space bar in the menu and its popups move through the menu, not the slides
           keyboardCondition: (event) =>
             !(event.target instanceof Element && event.target.closest('.slide-menu, .cdk-overlay-container')),
@@ -133,7 +140,7 @@ export class RevealService {
             return;
           }
 
-          reveal.on('slidechanged', (event) => this.slideIndex.set((event as Event & { indexh: number }).indexh));
+          reveal.on('slidechanged', (event) => this.slideIndex.set((event as SlideChangedEvent).indexh));
           reveal.on('paused', () => this.paused.set(true));
           reveal.on('resumed', () => this.paused.set(false));
           this.slideIndex.set(reveal.getState().indexh);
