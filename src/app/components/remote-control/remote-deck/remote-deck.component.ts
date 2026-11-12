@@ -6,6 +6,7 @@ import { RemoteNextComponent } from '../remote-next/remote-next.component';
 import { RemoteNotesComponent } from '../remote-notes/remote-notes.component';
 import { RemoteSession } from '../remote-session.service';
 import { RemoteStatusComponent } from '../remote-status/remote-status.component';
+import { RemoteThemeComponent } from '../remote-theme/remote-theme.component';
 import { SlidePreviewComponent } from '../slide-preview/slide-preview.component';
 
 /** The phone's main tab: what is on the screen, what comes next and the notes. */
@@ -18,6 +19,7 @@ import { SlidePreviewComponent } from '../slide-preview/slide-preview.component'
     RemoteNextComponent,
     RemoteNotesComponent,
     RemoteStatusComponent,
+    RemoteThemeComponent,
     SlidePreviewComponent,
   ],
   templateUrl: './remote-deck.component.html',

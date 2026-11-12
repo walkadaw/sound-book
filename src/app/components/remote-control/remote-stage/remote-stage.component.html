@@ -5,7 +5,10 @@
     <!-- the connection beside the label, rather than on a row of its own above the screen -->
     <div class="head">
       <h2 id="remote-stage-screen" class="label">На экране</h2>
-      <app-remote-status />
+      <div class="head-end">
+        <app-remote-status />
+        <app-remote-theme />
+      </div>
     </div>
     <button
       type="button"
@@ -20,7 +23,10 @@
 } @else {
   <div class="head">
     <p class="meta">У праграме няма песень. Знайдзіце іх праз пошук злева.</p>
-    <app-remote-status />
+    <div class="head-end">
+      <app-remote-status />
+      <app-remote-theme />
+    </div>
   </div>
 }
 

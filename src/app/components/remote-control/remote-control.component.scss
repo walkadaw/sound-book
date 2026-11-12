@@ -3,6 +3,8 @@
   flex-direction: column;
   height: 100dvh;
   background: var(--mat-sys-surface);
+  // the body's colour is worked out in the site theme; the remote may have its own
+  color: var(--app-text);
 }
 
 .panel {
@@ -19,6 +21,7 @@
 }
 
 .offline {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -30,6 +33,12 @@
 
   mat-progress-spinner {
     margin-bottom: 0.5em;
+  }
+
+  .offline-theme {
+    position: absolute;
+    top: 6px;
+    right: 8px;
   }
 
   // the dot above a status long enough to wrap

@@ -1,6 +1,7 @@
 @if (!session.connected()) {
   <main class="offline">
     <h1 class="cdk-visually-hidden">Пульт</h1>
+    <app-remote-theme class="offline-theme" />
     @if (session.status() === 'connecting') {
       <!-- the status next to it is what screen readers hear -->
       <mat-progress-spinner mode="indeterminate" diameter="48" aria-hidden="true" />

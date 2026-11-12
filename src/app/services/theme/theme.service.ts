@@ -1,4 +1,4 @@
-import { DOCUMENT, Service, effect, inject, signal } from '@angular/core';
+import { DOCUMENT, Service, computed, effect, inject, signal } from '@angular/core';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -8,14 +8,24 @@ const THEME_KEY = 'theme';
 export class ThemeService {
   private document = inject(DOCUMENT);
   private darkQuery = this.document.defaultView?.matchMedia?.('(prefers-color-scheme: dark)');
+  private systemDark = signal(!!this.darkQuery?.matches);
 
   readonly mode = signal<ThemeMode>(this.readStoredMode());
+
+  readonly isDark = computed(() => {
+    const mode = this.mode();
+
+    return mode === 'dark' || (mode === 'system' && this.systemDark());
+  });
 
   constructor() {
     effect(() => this.apply(this.mode()));
 
     // In system mode the browser bar has to follow the OS switching between light and dark.
-    this.darkQuery?.addEventListener('change', () => this.syncThemeColor());
+    this.darkQuery?.addEventListener('change', (event) => {
+      this.systemDark.set(event.matches);
+      this.syncThemeColor();
+    });
   }
 
   setMode(mode: ThemeMode): void {

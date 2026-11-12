@@ -1,4 +1,5 @@
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -6,6 +7,7 @@ import { FakeMatIconRegistry } from '@angular/material/icon/testing';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { SongService } from '../../services/song-service/song.service';
+import { ThemeService } from '../../services/theme/theme.service';
 import { RemoteControlComponent } from './remote-control.component';
 import { RemoteSession } from './remote-session.service';
 import { FakeClientTransport, remoteState } from './remote-testing';
@@ -83,6 +85,29 @@ describe('RemoteControlComponent', () => {
       { type: 'blackout', hidden: true },
       { type: 'theme', light: true },
     ]);
+  });
+
+  it('should switch to its own dark theme and leave the site theme as it was', async () => {
+    const site = TestBed.inject(ThemeService);
+    site.mode.set('light');
+    await fixture.whenStable();
+    const button = element().querySelector<HTMLButtonElement>('app-remote-theme button')!;
+    const overlay = TestBed.inject(OverlayContainer).getContainerElement();
+
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+
+    button.click();
+    await fixture.whenStable();
+
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(element().style.colorScheme).toBe('dark');
+    expect(overlay.style.colorScheme).toBe('dark');
+    expect(site.mode()).toBe('light');
+    expect(transport.sent).toEqual([]);
+
+    fixture.destroy();
+
+    expect(overlay.style.colorScheme).toBe('');
   });
 
   it('should leave the arrows to a menu over the remote', () => {

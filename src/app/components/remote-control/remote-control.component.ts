@@ -13,6 +13,8 @@ import { RemoteNotesComponent } from './remote-notes/remote-notes.component';
 import { RemoteSession } from './remote-session.service';
 import { RemoteStageComponent } from './remote-stage/remote-stage.component';
 import { RemoteStatusComponent } from './remote-status/remote-status.component';
+import { RemoteTheme } from './remote-theme/remote-theme';
+import { RemoteThemeComponent } from './remote-theme/remote-theme.component';
 import { RemoteTimerComponent } from './remote-timer/remote-timer.component';
 
 export type RemoteTab = 'deck' | 'program';
@@ -42,20 +44,23 @@ const TABS: { id: RemoteTab; title: string; icon: string }[] = [
     RemoteNotesComponent,
     RemoteStageComponent,
     RemoteStatusComponent,
+    RemoteThemeComponent,
     RemoteTimerComponent,
   ],
-  providers: [RemoteSession],
+  providers: [RemoteSession, RemoteTheme],
   templateUrl: './remote-control.component.html',
   styleUrl: './remote-control.component.scss',
   host: {
     // On the document: right after the page opens the focus is on the body, outside the component.
     '(document:keydown)': 'onKeydown($event)',
+    '[style.color-scheme]': 'theme.scheme()',
   },
 })
 export class RemoteControlComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private injector = inject(Injector);
   protected session = inject(RemoteSession);
+  protected theme = inject(RemoteTheme);
 
   readonly tabs = TABS;
   readonly tab = signal<RemoteTab>('deck');
