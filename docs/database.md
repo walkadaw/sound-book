@@ -91,6 +91,7 @@ MySQL 5.7, InnoDB. С базой работает только PHP API в `api/`
 | --- | --- | --- |
 | `id` | `int`, PK, auto increment | Задаёт порядок Імшаў |
 | `artlitreadings` | `text` | Краткие ссылки на чтения из календаря catholic.by |
+| `url` | `varchar(255)` | Адрес страницы catholic.by, с которой взяты тексты; на сайте ссылка на источник ведёт на неё |
 | `title` | `varchar(255)` | Название Імшы |
 | `sections` | `mediumtext` | JSON-массив секций `{type, title, reference, blocks}`: `type` — `reading`, `psalm`, `sequence`, `acclamation`, `gospel` или `procession` (Евангелле працэсіі ў Пальмовую нядзелю). Только тексты текущего литургического года. `blocks` — абзацы `{kind, lines}`, `kind` — `subtitle`, `intro` («Чытанне кнігі…»), `text`, `refrain`, `acclamation` (без меток «Рэфрэн:» / «Акламацыя:»), `rubric` (указания, справочная информация, в слайды не попадает) или `conclusion` («Гэта слова Божае»). `lines` — строки HTML, в которых остаются только `<b>` и `<i>` |
 

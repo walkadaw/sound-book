@@ -38,7 +38,7 @@ foreach (calendar_options($calendar, $today->format('d.m.Y')) as $option) {
     $mass = $pages[$href] === null ? null : option_mass($pages[$href], $option['readings'], $positions[$href]);
 
     if ($mass !== null) {
-        $liturgy[] = ['readings' => $option['readings'], ...$mass];
+        $liturgy[] = ['readings' => $option['readings'], 'url' => LITURGY_SITE.$href, ...$mass];
     }
 }
 
@@ -48,14 +48,14 @@ if (!$liturgy) {
 }
 
 $db = (new db())->connect();
-$insert = $db->prepare("INSERT INTO `liturgy` (`artlitreadings`, `title`, `sections`) VALUES (?, ?, ?)");
+$insert = $db->prepare("INSERT INTO `liturgy` (`artlitreadings`, `url`, `title`, `sections`) VALUES (?, ?, ?, ?)");
 
 // DELETE rather than TRUNCATE: TRUNCATE commits implicitly, so a failing insert would still wipe the table.
 // The rows keep the calendar order: the first one is the mass shown by default.
 $db->beginTransaction();
 $db->exec("DELETE FROM `liturgy`");
 foreach ($liturgy as $mass) {
-    $insert->execute([$mass['readings'], $mass['title'], json_encode($mass['sections'], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)]);
+    $insert->execute([$mass['readings'], $mass['url'], $mass['title'], json_encode($mass['sections'], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)]);
 }
 $db->commit();
 

@@ -24,6 +24,8 @@ export interface Liturgy {
   id: number;
   // the short reference list from the catholic.by calendar
   readings: string;
+  // the catholic.by page the texts were taken from
+  url: string;
   title: string;
   sections: LiturgySection[];
 }

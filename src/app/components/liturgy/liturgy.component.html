@@ -14,10 +14,7 @@
     @for (section of mass.sections; track $index) {
       <app-liturgy-section [section]="section" />
     }
-    <i
-      >Тэкст літургіі узяты з сайта
-      <a href="https://catholic.by" target="_blank" rel="noopener noreferrer">Catholic.by</a></i
-    >
+    <i>Тэкст літургіі узяты з сайта <a [href]="mass.url" target="_blank" rel="noopener noreferrer">Catholic.by</a></i>
   } @else {
     @if (isLoading()) {
       <mat-spinner></mat-spinner>

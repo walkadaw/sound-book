@@ -20,7 +20,9 @@ describe('LiturgyService', () => {
   afterEach(() => http.verify());
 
   it('should return the masses of the day', () => {
-    const masses: Liturgy[] = [{ id: 1, title: 'Серада', readings: '', sections: [] }];
+    const masses: Liturgy[] = [
+      { id: 1, title: 'Серада', readings: '', url: 'https://catholic.by/3/liturgy/1', sections: [] },
+    ];
     let result: Liturgy[] | null | undefined;
 
     service.getLiturgy().subscribe((value) => (result = value));

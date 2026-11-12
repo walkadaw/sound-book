@@ -20,6 +20,7 @@ const mass = (id: number, title: string): Liturgy => ({
   id,
   title,
   readings: '',
+  url: `https://catholic.by/3/liturgy/${id}`,
   sections: [
     { type: 'reading', title: `ЧЫТАННЕ ${id}`, reference: '', blocks: [] },
     { type: 'gospel', title: `ЕВАНГЕЛЛЕ ${id}`, reference: '', blocks: [] },

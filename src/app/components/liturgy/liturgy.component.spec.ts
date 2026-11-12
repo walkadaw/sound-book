@@ -9,6 +9,7 @@ const mass = (id: number, title: string, gospel: string): Liturgy => ({
   id,
   title,
   readings: '',
+  url: `https://catholic.by/3/liturgy/${id}`,
   sections: [
     { type: 'reading', title: 'ПЕРШАЕ ЧЫТАННЕ', reference: 'Эф 3, 2–12', blocks: [{ kind: 'text', lines: ['Браты'] }] },
     { type: 'gospel', title: 'ЕВАНГЕЛЛЕ', reference: gospel, blocks: [{ kind: 'text', lines: ['У той час'] }] },
@@ -21,6 +22,8 @@ describe('LiturgyComponent', () => {
 
   const text = (selector: string, root: ParentNode = fixture.nativeElement) =>
     [...root.querySelectorAll(selector)].map((element) => element.textContent?.trim());
+
+  const source = () => fixture.nativeElement.querySelector('article > i a')?.getAttribute('href');
 
   const load = async (body: Liturgy[] | null) => {
     const request = http.expectOne((item) => item.url.endsWith('/liturgy/get'));
@@ -60,6 +63,7 @@ describe('LiturgyComponent', () => {
     await load([mass(1, 'Чацвер', 'Лк 10, 1–12'), mass(2, 'Успамін св. Тэрэзы', 'Мц 18, 1–5')]);
 
     expect(text('h1')).toEqual(['Чацвер']);
+    expect(source()).toBe('https://catholic.by/3/liturgy/1');
 
     fixture.nativeElement.querySelector('.mat-mdc-select-trigger').click();
     await fixture.whenStable();
@@ -70,6 +74,7 @@ describe('LiturgyComponent', () => {
     await fixture.whenStable();
     expect(text('h1')).toEqual(['Успамін св. Тэрэзы']);
     expect(text('.meta')).toContain('Мц 18, 1–5');
+    expect(source()).toBe('https://catholic.by/3/liturgy/2');
   });
 
   it('should report a failed request', async () => {
