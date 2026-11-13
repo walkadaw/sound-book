@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
+import { LiturgyStatus } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 import { RevealService } from '../reveal-service/reveal.service';
 import { RemoteCommand, RemoteState } from './remote-control';
@@ -47,6 +48,8 @@ describe('RemoteHost', () => {
   const add = vi.fn();
   const remove = vi.fn();
   const move = vi.fn();
+  const massesStatus = signal<LiturgyStatus>('ready');
+  const refreshMasses = vi.fn();
 
   beforeEach(() => {
     reveal = {
@@ -63,10 +66,13 @@ describe('RemoteHost', () => {
     add.mockReset();
     remove.mockReset();
     move.mockReset();
+    refreshMasses.mockReset();
+    massesStatus.set('ready');
 
     TestBed.configureTestingModule({ providers: [RemoteHost, { provide: RevealService, useValue: reveal }] });
     host = TestBed.inject(RemoteHost);
-    host.attach({ slides, masses: signal([{ id: 'l', title: 'Чацвер' }]), add, remove, move });
+    const masses = signal([{ id: 'l', title: 'Чацвер' }]);
+    host.attach({ slides, masses, massesStatus, add, remove, move, refreshMasses });
   });
 
   it('should run the commands of remotes on every transport', () => {
@@ -179,6 +185,18 @@ describe('RemoteHost', () => {
       { request: 'a', index: 2 },
       { request: 'b', index: null },
     ]);
+  });
+
+  it('should ask for the masses again for a remote and tell every remote how it goes', () => {
+    const phone = new FakeTransport();
+    host.connect(phone);
+
+    phone.commands.next({ type: 'refreshMasses' });
+    expect(refreshMasses).toHaveBeenCalledTimes(1);
+
+    massesStatus.set('loading');
+    TestBed.tick();
+    expect(phone.sent.at(-1)?.massesStatus).toBe('loading');
   });
 
   it('should pass a move on with the song it names', () => {

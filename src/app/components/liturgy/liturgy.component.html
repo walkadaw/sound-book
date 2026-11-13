@@ -5,7 +5,7 @@
       <mat-form-field class="liturgy-mass" subscriptSizing="dynamic">
         <mat-label>Чытанні дня</mat-label>
         <mat-select [(value)]="selectedIndex">
-          @for (option of liturgy(); track option.id) {
+          @for (option of liturgy.value(); track option.id) {
             <mat-option [value]="$index">{{ option.title }}</mat-option>
           }
         </mat-select>
@@ -16,11 +16,23 @@
     }
     <i>Тэкст літургіі узяты з сайта <a [href]="mass.url" target="_blank" rel="noopener noreferrer">Catholic.by</a></i>
   } @else {
-    @if (isLoading()) {
-      <mat-spinner></mat-spinner>
+    <!-- the value stays null while asking again: the button stays and the status line shows the loading -->
+    @if (liturgy.value() === undefined) {
+      <mat-spinner aria-label="Чытанні загружаюцца"></mat-spinner>
     } @else {
-      <h1 class="page-title">Не атрымалася атрымаць сённяшняе чытанне</h1>
-      <p>Праверце сваё злучэнне з інтэрнэтам або паспрабуйце пазней.</p>
+      <h1 class="page-title">Няма чытанняў на сёння</h1>
+      <!-- read out again after a failed try, once the loading text gives way to it -->
+      <p role="status">
+        {{ liturgy.isLoading() ? 'Загрузка…' : 'Праверце злучэнне з інтэрнэтам і паспрабуйце зноў.' }}
+      </p>
+      <button
+        matButton="outlined"
+        type="button"
+        [attr.aria-disabled]="liturgy.isLoading() ? 'true' : null"
+        (click)="liturgy.reload()"
+      >
+        Абнавіць
+      </button>
     }
   }
 </article>

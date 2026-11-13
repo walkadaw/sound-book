@@ -17,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { filter, take, tap } from 'rxjs/operators';
 import { liturgyId, liturgyIndex } from '../../constants/liturgy';
-import { Liturgy } from '../../interfaces/liturgy';
+import { Liturgy, LiturgyStatus } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 import { lyricsWithChords } from '../../services/chord/song-structure';
 import { LiturgyService } from '../../services/liturgy-service/liturgy.service';
@@ -65,7 +65,9 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly slideList = signal<SlideList[]>([]);
   readonly isReady = this.reveal.ready;
 
+  // The masses stay those of the day the presentation opened on, past midnight too.
   private masses = signal<Liturgy[]>([]);
+  private massesStatus = signal<LiturgyStatus>('loading');
   private remoteMasses = computed<RemoteMass[]>(() =>
     this.masses().map(({ title }, index) => ({ id: liturgyId(index), title })),
   );
@@ -81,12 +83,14 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
       })),
     ),
     masses: this.remoteMasses,
+    massesStatus: this.massesStatus.asReadonly(),
     slide: this.reveal.slideIndex,
     enabled: signal(true).asReadonly(),
     add: (id) => Promise.resolve(this.addSlide(id)),
     remove: (index, id) => this.removeSlide(index, id),
     move: (index, id, to) => this.moveSlide(index, id, to),
     goTo: (slide) => this.reveal.slide(slide),
+    refreshMasses: () => this.refreshMasses(),
   };
 
   private isDataLoaded$ = new BehaviorSubject(false);
@@ -103,9 +107,11 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.remoteHost.attach({
       slides: this.slideList,
       masses: this.remoteMasses,
+      massesStatus: this.massesStatus.asReadonly(),
       add: (id) => this.addSlide(id),
       remove: (index, id) => this.removeSlide(index, id),
       move: (index, id, to) => this.moveSlide(index, id, to),
+      refreshMasses: () => this.refreshMasses(),
     });
     this.remoteHost.connect(new ChannelHostTransport(channelName(this.reveal.presentationId)));
   }
@@ -188,7 +194,7 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadSlide() {
     const listID = ((this.activatedRoute.snapshot.params['id'] as string) || '').split(',');
-    const liturgy = this.liturgyService.getLiturgy().pipe(tap((masses) => this.masses.set(masses ?? [])));
+    const liturgy = this.liturgyService.getLiturgy().pipe(tap((masses) => this.setMasses(masses)));
 
     forkJoin([liturgy, this.songService.loadSongFromCache()])
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -197,6 +203,24 @@ export class PresentationComponent implements OnInit, AfterViewInit, OnDestroy {
         // still show the (empty) presentation so the menu can be used to add songs
         error: () => this.buildSlides(listID),
       });
+  }
+
+  // Only when there is nothing for today: the masses of a presentation under way are never swapped.
+  private refreshMasses() {
+    if (this.massesStatus() !== 'missing') {
+      return;
+    }
+
+    this.massesStatus.set('loading');
+    this.liturgyService
+      .getLiturgy()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((masses) => this.setMasses(masses));
+  }
+
+  private setMasses(masses: Liturgy[] | null) {
+    this.masses.set(masses ?? []);
+    this.massesStatus.set(masses ? 'ready' : 'missing');
   }
 
   private buildSlides(listID: string[]) {

@@ -18,6 +18,7 @@ import {
   remoteSelfId,
 } from '../../services/remote-control/remote-transport';
 import { verifyHostProof } from '../../services/remote-control/host-key';
+import { LiturgyStatus } from '../../interfaces/liturgy';
 import { ProgramControl } from '../program-panel/program-control';
 
 // How long the presentation may take to answer an addition before the remote gives up on it.
@@ -56,6 +57,7 @@ export class RemoteSession implements ProgramControl {
   readonly startedAt = signal<number | null>(null);
   readonly songs = computed<RemoteSong[]>(() => this.state()?.songs ?? []);
   readonly masses = computed<RemoteMass[]>(() => this.state()?.masses ?? []);
+  readonly massesStatus = computed<LiturgyStatus>(() => this.state()?.massesStatus ?? 'ready');
   readonly slide = computed(() => this.state()?.slide ?? 0);
   readonly light = computed(() => this.state()?.light ?? false);
   readonly blackout = computed(() => this.state()?.blackout ?? false);
@@ -182,6 +184,10 @@ export class RemoteSession implements ProgramControl {
 
   resetTimer() {
     this.send({ type: 'resetTimer' });
+  }
+
+  refreshMasses() {
+    this.send({ type: 'refreshMasses' });
   }
 
   private receive(state: RemoteState) {

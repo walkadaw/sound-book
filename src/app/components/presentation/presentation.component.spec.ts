@@ -2,7 +2,7 @@ import { Location } from '@angular/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { filter, firstValueFrom, of } from 'rxjs';
+import { Observable, filter, firstValueFrom, of } from 'rxjs';
 
 import { Liturgy, LiturgySection } from '../../interfaces/liturgy';
 import { Song } from '../../interfaces/song';
@@ -42,7 +42,15 @@ describe('PresentationComponent', () => {
   const slideIndex = signal(0);
   const updateRevealState = vi.fn();
 
-  const create = async (ids: string) => {
+  let liturgyService: { getLiturgy: ReturnType<typeof vi.fn<() => Observable<Liturgy[] | null>>> };
+
+  const create = async (ids: string, masses: Liturgy[] | null = [mass(1, 'Чацвер'), mass(2, 'Успамін')]) => {
+    liturgyService = {
+      getLiturgy: vi
+        .fn<() => Observable<Liturgy[] | null>>()
+        .mockReturnValueOnce(of(masses))
+        .mockReturnValue(of([mass(3, 'Пятніца')])),
+    };
     slideIndex.set(0);
     updateRevealState.mockReset();
     TestBed.configureTestingModule({
@@ -50,7 +58,7 @@ describe('PresentationComponent', () => {
       providers: [
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { snapshot: { params: { id: ids } } } },
-        { provide: LiturgyService, useValue: { getLiturgy: () => of([mass(1, 'Чацвер'), mass(2, 'Успамін')]) } },
+        { provide: LiturgyService, useValue: liturgyService },
         {
           provide: SongService,
           useValue: {
@@ -108,6 +116,21 @@ describe('PresentationComponent', () => {
       { id: 'l2', title: 'Успамін' },
     ]);
     expect(component.program.songs().map(({ liturgy }) => liturgy)).toEqual(['l2', 'l2']);
+  });
+
+  it('should ask again for the masses only while there are none for today', async () => {
+    await create('5,l', null);
+
+    expect(listed()).toEqual(['Песня 0-0']);
+    expect(component.program.massesStatus()).toBe('missing');
+
+    component.program.refreshMasses();
+
+    expect(component.program.massesStatus()).toBe('ready');
+    expect(component.program.masses()).toEqual([{ id: 'l', title: 'Пятніца' }]);
+
+    component.program.refreshMasses();
+    expect(liturgyService.getLiturgy).toHaveBeenCalledTimes(2);
   });
 
   it('should add a mass as a whole after the songs', async () => {

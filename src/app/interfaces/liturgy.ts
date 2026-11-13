@@ -19,7 +19,7 @@ export interface LiturgySection {
   blocks: LiturgyBlock[];
 }
 
-// One mass of the day with only the current liturgical year's texts.
+// One mass of the day with only the texts of that day's liturgical year.
 export interface Liturgy {
   id: number;
   // the short reference list from the catholic.by calendar
@@ -29,3 +29,10 @@ export interface Liturgy {
   title: string;
   sections: LiturgySection[];
 }
+
+// The masses by their day (YYYY-MM-DD), the default one first.
+export type LiturgyDays = Record<string, Liturgy[]>;
+
+// What a presentation knows of today's masses: they are there, they are not (no internet, not out yet), or
+// they are being asked for.
+export type LiturgyStatus = 'ready' | 'missing' | 'loading';

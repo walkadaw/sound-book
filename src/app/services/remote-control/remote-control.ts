@@ -1,3 +1,4 @@
+import { LiturgyStatus } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 
 // What a remote asks the presentation to do and what the presentation tells every remote back.
@@ -30,6 +31,8 @@ export type RemoteState = {
   songs: RemoteSong[];
   // the masses of the day, added or not
   masses: RemoteMass[];
+  // sent with every update: a few letters, and a remote asking for the masses waits for it
+  massesStatus: LiturgyStatus;
   light: boolean;
   blackout: boolean;
   // Time since the presentation started, as of sending: the clocks of two devices rarely agree.
@@ -55,7 +58,9 @@ export type RemoteCommand =
   | { type: 'remove'; index: number; id: string }
   // `to` is the index of the song to stand before, the length of the program for the end
   | { type: 'move'; index: number; id: string; to: number }
-  | { type: 'resetTimer' };
+  | { type: 'resetTimer' }
+  // asks the server again for today's masses when the presentation has none
+  | { type: 'refreshMasses' };
 /* eslint-enable @typescript-eslint/consistent-type-definitions */
 
 // 'busy': another device controls the presentation already.

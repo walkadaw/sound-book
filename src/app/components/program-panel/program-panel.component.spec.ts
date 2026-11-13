@@ -163,6 +163,32 @@ describe('ProgramPanelComponent', () => {
     expect(input().getAttribute('aria-activedescendant')).toBe(options()[0].id);
   });
 
+  it('should offer to ask again for the masses when there are none for today', async () => {
+    program.masses.set([]);
+    program.massesStatus.set('missing');
+    await focusSearch();
+    await type('літ');
+
+    expect(titles()).toEqual(['Няма чытанняў на сёння']);
+    expect(options()[0].getAttribute('aria-disabled')).toBeNull();
+    // Enter adds a song rather than asking again
+    expect(input().hasAttribute('aria-activedescendant')).toBe(false);
+
+    options()[0].click();
+    await fixture.whenStable();
+    expect(program.calls).toEqual(['refreshMasses']);
+
+    program.massesStatus.set('loading');
+    await fixture.whenStable();
+    expect(titles()).toEqual(['Чытанні дня загружаюцца…']);
+    expect(options()[0].getAttribute('aria-disabled')).toBe('true');
+
+    program.masses.set([{ id: 'l', title: 'Пятніца' }]);
+    program.massesStatus.set('ready');
+    await fixture.whenStable();
+    expect(titles()).toEqual(['Пятніца']);
+  });
+
   it('should tell a number that no song has', async () => {
     await type('999');
 

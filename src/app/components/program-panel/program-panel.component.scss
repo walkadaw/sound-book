@@ -133,6 +133,11 @@
     cursor: default;
     color: var(--mat-sys-on-surface-variant);
   }
+
+  // looks out of use, yet a press asks for the masses again
+  &.unavailable {
+    color: var(--mat-sys-on-surface-variant);
+  }
 }
 
 .number {

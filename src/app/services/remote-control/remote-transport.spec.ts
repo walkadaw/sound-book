@@ -12,6 +12,7 @@ const state = (slide: number): RemoteState => ({
   slide,
   songs: [],
   masses: [],
+  massesStatus: 'ready',
   light: false,
   blackout: false,
   elapsed: 0,

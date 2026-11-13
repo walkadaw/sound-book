@@ -1,4 +1,5 @@
 import { Signal } from '@angular/core';
+import { LiturgyStatus } from '../../interfaces/liturgy';
 
 export interface ProgramSong {
   // the song id, or the id of one part of a mass
@@ -23,6 +24,7 @@ export interface ProgramControl {
   readonly songs: Signal<readonly ProgramSong[]>;
   // the masses of the day, added or not
   readonly masses: Signal<readonly ProgramMass[]>;
+  readonly massesStatus: Signal<LiturgyStatus>;
   readonly slide: Signal<number>;
   // a remote that lost the presentation shows the program but changes nothing
   readonly enabled: Signal<boolean>;
@@ -32,4 +34,6 @@ export interface ProgramControl {
   /** Moves the song or the whole mass at `index` to stand before the song now at `to`. */
   move(index: number, id: string, to: number): void;
   goTo(slide: number): void;
+  /** Asks again for today's masses when there are none: no internet when the presentation opened, say. */
+  refreshMasses(): void;
 }

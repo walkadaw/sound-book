@@ -1,5 +1,6 @@
 import { Component, ViewEncapsulation, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatOption, MatSelect } from '@angular/material/select';
@@ -11,16 +12,15 @@ import { LiturgySectionComponent } from './liturgy-section/liturgy-section.compo
   templateUrl: './liturgy.component.html',
   styleUrls: ['./liturgy.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatProgressSpinner, MatFormField, MatLabel, MatSelect, MatOption, LiturgySectionComponent],
+  imports: [MatButton, MatProgressSpinner, MatFormField, MatLabel, MatSelect, MatOption, LiturgySectionComponent],
 })
 export class LiturgyComponent {
   private liturgyService = inject(LiturgyService);
 
-  // undefined until the request finishes, null when it failed
-  protected liturgy = toSignal(this.liturgyService.getLiturgy());
-  protected isLoading = computed(() => this.liturgy() === undefined);
+  // never fails: the service answers null when there is nothing for today
+  protected liturgy = rxResource({ stream: () => this.liturgyService.getLiturgy() });
 
   protected selectedIndex = signal(0);
-  protected mass = computed(() => this.liturgy()?.[this.selectedIndex()]);
-  protected hasChoice = computed(() => (this.liturgy()?.length ?? 0) > 1);
+  protected mass = computed(() => this.liturgy.value()?.[this.selectedIndex()]);
+  protected hasChoice = computed(() => (this.liturgy.value()?.length ?? 0) > 1);
 }

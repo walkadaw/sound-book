@@ -43,6 +43,7 @@ export function remoteState(patch: Partial<RemoteState> = {}): RemoteState {
       { id: 'l', title: 'Чацвер' },
       { id: 'l2', title: 'Успамін' },
     ],
+    massesStatus: 'ready',
     light: false,
     blackout: false,
     elapsed: 60_000,

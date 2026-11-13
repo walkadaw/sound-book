@@ -52,7 +52,9 @@
       <div id="program-results" role="listbox" aria-label="Вынікі пошуку">
         @if (massOptions().length) {
           <div role="group" aria-labelledby="program-masses-title">
-            <div id="program-masses-title" class="group-title" role="presentation">Імша дня · дадаецца цалкам</div>
+            <div id="program-masses-title" class="group-title" role="presentation">
+              {{ massesReady() ? 'Імша дня · дадаецца цалкам' : 'Імша дня' }}
+            </div>
             @for (option of massOptions(); track option.id) {
               <ng-container *ngTemplateOutlet="row; context: { $implicit: option }" />
             }
@@ -99,6 +101,7 @@
     class="option"
     [id]="optionId(option.position)"
     [class.active]="option.position === active()"
+    [class.unavailable]="option.kind === 'refresh'"
     [attr.aria-selected]="option.position === active()"
     [attr.aria-disabled]="option.disabled || !control().enabled() ? 'true' : null"
     (mousedown)="$event.preventDefault()"
@@ -108,6 +111,8 @@
     <span class="number" aria-hidden="true">
       @if (option.kind === 'mass') {
         <mat-icon>menu_book</mat-icon>
+      } @else if (option.kind === 'refresh') {
+        <mat-icon>{{ option.disabled ? 'hourglass_empty' : 'cloud_off' }}</mat-icon>
       } @else {
         {{ option.number }}
       }
@@ -119,7 +124,9 @@
         }
         <span [class.song-name]="option.kind === 'song'">{{ option.title }}</span>
       </span>
-      @if (option.exact) {
+      @if (option.kind === 'refresh' && !option.disabled) {
+        <span class="meta">Націсніце, каб загрузіць зноў</span>
+      } @else if (option.exact) {
         <span class="meta">Дакладны нумар</span>
       } @else if (option.snippet; as snippet) {
         <app-match-highlight class="snippet meta" [snippet]="snippet" />

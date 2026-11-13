@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { LiturgyStatus } from '../../interfaces/liturgy';
 import { entryEnd, moveEntry } from '../../services/program/program-entries';
 import { ProgramControl, ProgramMass, ProgramSong } from './program-control';
 
@@ -6,6 +7,7 @@ import { ProgramControl, ProgramMass, ProgramSong } from './program-control';
 export class FakeProgram implements ProgramControl {
   readonly songs = signal<ProgramSong[]>([]);
   readonly masses = signal<ProgramMass[]>([]);
+  readonly massesStatus = signal<LiturgyStatus>('ready');
   readonly slide = signal(0);
   readonly enabled = signal(true);
   readonly calls: string[] = [];
@@ -53,6 +55,10 @@ export class FakeProgram implements ProgramControl {
   goTo(slide: number) {
     this.calls.push(`goTo ${slide}`);
     this.slide.set(slide);
+  }
+
+  refreshMasses() {
+    this.calls.push('refreshMasses');
   }
 
   ids(): string[] {

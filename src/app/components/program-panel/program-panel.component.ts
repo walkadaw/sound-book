@@ -34,7 +34,8 @@ import { ProgramListComponent } from './program-list/program-list.component';
 import { scrollInto } from './scroll-into';
 
 interface SearchOption {
-  kind: 'mass' | 'song';
+  // 'refresh': no masses for today, the row asks for them again
+  kind: 'mass' | 'refresh' | 'song';
   // the id the program adds
   id: string;
   title: string;
@@ -137,22 +138,41 @@ export class ProgramPanelComponent {
 
     const counts = this.inProgram();
     const search = query.toLowerCase();
+    const control = this.control();
+    const status = control.massesStatus();
     // a mass is found by its title or by the start of the word "літургія"; a song tag hides the masses
-    const masses = this.tag()
-      ? []
-      : this.control()
-          .masses()
-          .filter(({ title }) => 'літургія'.startsWith(search) || title.toLowerCase().includes(search))
-          .map(({ id, title }): Omit<SearchOption, 'position'> => ({
-            kind: 'mass',
-            id,
-            title,
-            number: null,
-            snippet: null,
-            exact: false,
-            count: counts.get(id) ?? 0,
-            disabled: counts.has(id),
-          }));
+    const wanted = (title: string) =>
+      !this.tag() && ('літургія'.startsWith(search) || title.toLowerCase().includes(search));
+    const masses = control
+      .masses()
+      .filter(({ title }) => wanted(title))
+      .map(({ id, title }): Omit<SearchOption, 'position'> => ({
+        kind: 'mass',
+        id,
+        title,
+        number: null,
+        snippet: null,
+        exact: false,
+        count: counts.get(id) ?? 0,
+        disabled: counts.has(id),
+      }));
+    // no masses for today: a row in their place asks for them again
+    const refreshTitle = status === 'loading' ? 'Чытанні дня загружаюцца…' : 'Няма чытанняў на сёння';
+    const refresh: Omit<SearchOption, 'position'>[] =
+      status === 'ready' || !wanted(refreshTitle)
+        ? []
+        : [
+            {
+              kind: 'refresh',
+              id: 'refresh-masses',
+              title: refreshTitle,
+              number: null,
+              snippet: null,
+              exact: false,
+              count: 0,
+              disabled: status === 'loading',
+            },
+          ];
     const songs = this.foundSongs().map(({ song, snippet }): Omit<SearchOption, 'position'> => ({
       kind: 'song',
       id: song.id.toString(),
@@ -164,14 +184,18 @@ export class ProgramPanelComponent {
       disabled: false,
     }));
 
-    return [...masses, ...songs].map((option, position) => ({ ...option, position }));
+    return [...masses, ...refresh, ...songs].map((option, position) => ({ ...option, position }));
   });
 
-  readonly massOptions = computed(() => this.options().filter(({ kind }) => kind === 'mass'));
+  readonly massesReady = computed(() => this.control().massesStatus() === 'ready');
+  readonly massOptions = computed(() => this.options().filter(({ kind }) => kind !== 'song'));
   readonly songOptions = computed(() => this.options().filter(({ kind }) => kind === 'song'));
 
   // Enter adds the first song found; the whole list waits for the arrows before Enter does anything.
-  readonly active = linkedSignal(() => (this.query() ? this.options().findIndex(({ disabled }) => !disabled) : -1));
+  readonly active = linkedSignal(() =>
+    this.query() ? this.options().findIndex(({ disabled, kind }) => !disabled && kind !== 'refresh') : -1,
+  );
+
   readonly activeId = computed(() => (this.searching() && this.active() >= 0 ? optionId(this.active()) : null));
 
   readonly countText = computed(() => {
@@ -314,6 +338,12 @@ export class ProgramPanelComponent {
     const option = this.options()[position];
 
     if (!option || option.disabled || !this.control().enabled()) {
+      return;
+    }
+
+    // the list stays open, to show the masses once they come
+    if (option.kind === 'refresh') {
+      this.control().refreshMasses();
       return;
     }
 

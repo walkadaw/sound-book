@@ -1,9 +1,19 @@
 <?php
-// The masses of the day in the calendar order; the first one is shown by default.
-$rows = $db->query("SELECT `id`, `artlitreadings` AS `readings`, `url`, `title`, `sections` FROM `liturgy` ORDER BY `id`")->fetchAll();
+// The days stored ahead by the parser, from yesterday on: a device west of Minsk may still be on yesterday.
+// The masses by their day (YYYY-MM-DD), in the calendar order, the default one first. The client picks the day by
+// its own date.
+date_default_timezone_set('Europe/Minsk');
 
-if (!$rows) {
-    fail(404);
+$query = $db->prepare("SELECT `id`, `date`, `artlitreadings` AS `readings`, `url`, `title`, `sections` FROM `liturgy` WHERE `date` >= ? ORDER BY `date`, `id`");
+$query->execute([(new DateTimeImmutable('yesterday'))->format('Y-m-d')]);
+
+$days = [];
+
+foreach ($query->fetchAll() as $row) {
+    $date = $row['date'];
+    unset($row['date']);
+    $days[$date][] = [...$row, 'id' => (int)$row['id'], 'sections' => json_decode($row['sections'], true)];
 }
 
-send_json(array_map(fn(array $row) => [...$row, 'sections' => json_decode($row['sections'], true)], $rows));
+// an object even without days: an empty PHP array would go out as []
+send_json((object)$days);

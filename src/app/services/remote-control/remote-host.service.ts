@@ -1,5 +1,6 @@
 import { DestroyRef, Injectable, Signal, computed, effect, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { LiturgyStatus } from '../../interfaces/liturgy';
 import { SlideList } from '../../interfaces/slide';
 import { RevealService } from '../reveal-service/reveal.service';
 import { createHostKey } from './host-key';
@@ -10,11 +11,14 @@ import { HostTransport, TrysteroHostTransport, joinRemoteRoom } from './remote-t
 export interface PresentationControl {
   slides: Signal<SlideList[]>;
   masses: Signal<RemoteMass[]>;
+  massesStatus: Signal<LiturgyStatus>;
   /** Returns where the song went in, or null when it could not be added. */
   add(id: string): number | null;
   // A song is named by its index and its id: the presentation leaves it alone when they no longer match.
   remove(index: number, id: string): void;
   move(index: number, id: string, to: number): void;
+  /** Asks again for today's masses when there are none. */
+  refreshMasses(): void;
 }
 
 // Enough for the remotes that add at about the same time; each one waits only for its own request.
@@ -51,7 +55,13 @@ export class RemoteHost {
   private program = computed(() => {
     const control = this.control();
 
-    return control && { songs: remoteSongs(control.slides()), masses: control.masses() };
+    return (
+      control && {
+        songs: remoteSongs(control.slides()),
+        masses: control.masses(),
+        massesStatus: control.massesStatus(),
+      }
+    );
   });
 
   private state = computed<Omit<RemoteState, 'elapsed'> | null>(() => {
@@ -221,6 +231,9 @@ export class RemoteHost {
         break;
       case 'resetTimer':
         this.startedAt.set(Date.now());
+        break;
+      case 'refreshMasses':
+        this.control()?.refreshMasses();
         break;
     }
   }
