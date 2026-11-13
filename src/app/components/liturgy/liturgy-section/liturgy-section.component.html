@@ -1,16 +1,18 @@
 <section>
-  <h2 class="section-title">{{ section().title }}</h2>
-  @if (section().reference) {
-    <p class="meta reference">{{ section().reference }}</p>
-  }
+  <header class="heading">
+    <h2 class="subsection-title">{{ section().title }}</h2>
+    @if (section().reference) {
+      <p class="meta reference">{{ section().reference }}</p>
+    }
+  </header>
   @for (block of blocks(); track $index) {
     @switch (block.kind) {
       <!-- the space sits inside the label: Angular drops the whitespace between two elements -->
       @case ('refrain') {
-        <p><b>Рэфрэн: </b><span [innerHTML]="block.html"></span></p>
+        <p><b class="label">Рэфрэн: </b><span [innerHTML]="block.html"></span></p>
       }
       @case ('acclamation') {
-        <p><b>Акламацыя: </b><span [innerHTML]="block.html"></span></p>
+        <p><b class="label">Акламацыя: </b><span [innerHTML]="block.html"></span></p>
       }
       @case ('rubric') {
         <p class="meta" [innerHTML]="block.html"></p>
