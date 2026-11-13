@@ -1,4 +1,4 @@
-import { LiturgyBlock, LiturgyBlockKind, LiturgySection } from '../../interfaces/liturgy';
+import { LiturgyBlock, LiturgyBlockKind, LiturgySection, LiturgySectionType } from '../../interfaces/liturgy';
 import { Slide, SlideList } from '../../interfaces/slide';
 
 const PROSE_FONT_SIZE = 54;
@@ -34,32 +34,51 @@ const SEQUENCE: VerseRule = { ...PSALM, kinds: ['text'] };
 const SPEAKER_MARK = /<b>\s*(Ев|Е|І|I|Л)\.\s*<\/b>\s*/gu;
 const MARK_DOT = '\u0001';
 
+// "<b>Або:</b> Аллелюя." in the first refrain of a psalm: another refrain to sing all through instead
+const ALTERNATIVE_REFRAIN = /^\s*(<b>)?\s*Або:/u;
+
 /**
- * The slides of one mass, a list per section in the order of the liturgy. Only the texts read aloud go on them,
- * and a section with nothing to read aloud gets no list.
+ * The slides of one mass, a list per section in the order of the liturgy. A text that may be read instead of the
+ * section's first one ("або") gets a list of its own right after it, and then each of them is named with its
+ * reference too. Only the texts read aloud go on them, and a text with nothing to read aloud gets no list.
  */
 export function liturgySlides(liturgy: string, sections: LiturgySection[], measure: SlideMeasure): SlideList[] {
-  const lists = sections.map(({ type, title, blocks }, index): SlideList => {
-    let slides: Slide[];
+  const lists = sections.flatMap(({ type, title, ...first }, index) =>
+    [first, ...first.alternatives].map(({ reference, blocks }, alternative): SlideList => {
+      const id = alternative ? `${liturgy}-${index}-${alternative}` : `${liturgy}-${index}`;
+      // the reference tells apart the texts to choose from
+      const name = first.alternatives.length && reference ? `${title} (${reference})` : title;
 
-    switch (type) {
-      case 'psalm':
-        slides = verseSlides(blocks, PSALM, measure);
-        break;
-      case 'acclamation':
-        slides = verseSlides(blocks, ACCLAMATION, measure);
-        break;
-      case 'sequence':
-        slides = verseSlides(blocks, SEQUENCE, measure);
-        break;
-      default:
-        slides = proseSlides(blocks, measure);
-    }
-
-    return { id: `${liturgy}-${index}`, title, slides, liturgy };
-  });
+      return { id, title: name, slides: textSlides(type, blocks, measure), liturgy };
+    }),
+  );
 
   return lists.filter(({ slides }) => slides.length);
+}
+
+function textSlides(type: LiturgySectionType, blocks: LiturgyBlock[], measure: SlideMeasure): Slide[] {
+  switch (type) {
+    case 'psalm':
+      return verseSlides(withEveryRefrain(blocks), PSALM, measure);
+    case 'acclamation':
+      return verseSlides(blocks, ACCLAMATION, measure);
+    case 'sequence':
+      return verseSlides(blocks, SEQUENCE, measure);
+    default:
+      return proseSlides(blocks, measure);
+  }
+}
+
+// The page repeats only the first refrain; when it offers another one ("Або: Аллелюя."), every refrain on the
+// slides shows both, so that either can be sung all through.
+function withEveryRefrain(blocks: LiturgyBlock[]): LiturgyBlock[] {
+  const first = blocks.find(({ kind }) => kind === 'refrain');
+
+  if (!first?.lines.some((line) => ALTERNATIVE_REFRAIN.test(line))) {
+    return blocks;
+  }
+
+  return blocks.map((block) => (block.kind === 'refrain' ? { ...block, lines: first.lines } : block));
 }
 
 function textOf(html: string): string {

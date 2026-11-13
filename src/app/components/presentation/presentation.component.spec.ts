@@ -22,8 +22,8 @@ const mass = (id: number, title: string): Liturgy => ({
   readings: '',
   url: `https://catholic.by/3/liturgy/${id}`,
   sections: [
-    { type: 'reading', title: `ЧЫТАННЕ ${id}`, reference: '', blocks: [] },
-    { type: 'gospel', title: `ЕВАНГЕЛЛЕ ${id}`, reference: '', blocks: [] },
+    { type: 'reading', title: `ЧЫТАННЕ ${id}`, reference: '', blocks: [], alternatives: [] },
+    { type: 'gospel', title: `ЕВАНГЕЛЛЕ ${id}`, reference: '', blocks: [], alternatives: [] },
   ],
 });
 // one slide for the reading and two for the gospel

@@ -13,6 +13,7 @@ const section = (type: LiturgySectionType, blocks: LiturgyBlock[]): LiturgySecti
   title: type.toUpperCase(),
   reference: '',
   blocks,
+  alternatives: [],
 });
 const texts = (sections: LiturgySection[], slideMeasure = roomy) =>
   liturgySlides('l', sections, slideMeasure).map(({ slides }) => slides.map(({ text }) => text));
@@ -48,6 +49,42 @@ describe('liturgySlides', () => {
     ]);
 
     expect(texts([reading])).toEqual([['Браты, радуйцеся & спявайце. Слова Божае.']]);
+  });
+
+  it('should give a text read instead a list right after it and name both with their references', () => {
+    const reading = {
+      ...section('reading', [{ kind: 'text', lines: ['Браты.'] }]),
+      reference: 'Эф 1, 3–6',
+      alternatives: [{ reference: 'Гал 4, 4–7', blocks: [{ kind: 'text' as const, lines: ['Калі надышла.'] }] }],
+    };
+    const gospel = { ...section('gospel', [{ kind: 'text', lines: ['У той час.'] }]), reference: 'Лк 1, 39–47' };
+    const lists = liturgySlides('l', [reading, gospel], roomy);
+
+    expect(lists.map(({ id, title, liturgy }) => ({ id, title, liturgy }))).toEqual([
+      { id: 'l-0', title: 'READING (Эф 1, 3–6)', liturgy: 'l' },
+      { id: 'l-0-1', title: 'READING (Гал 4, 4–7)', liturgy: 'l' },
+      { id: 'l-1', title: 'GOSPEL', liturgy: 'l' },
+    ]);
+    expect(lists[1].slides).toEqual([{ fontSize: 54, text: 'Калі надышла.' }]);
+  });
+
+  it('should show both refrains on every refrain slide of a psalm that offers two', () => {
+    const psalm = {
+      ...section('psalm', [
+        { kind: 'refrain', lines: ['Пан мой пастыр.', '<b>Або:</b> Аллелюя.'] },
+        { kind: 'text', lines: ['1. Пан мой пастыр, *', 'нічога мне не бракуе.'] },
+        { kind: 'refrain', lines: ['Пан мой пастыр.'] },
+      ]),
+      reference: 'Пс 23 (22), 1',
+    };
+    const lists = liturgySlides('l', [psalm], measure(1000, 3));
+
+    expect(lists.map(({ id, title }) => ({ id, title }))).toEqual([{ id: 'l-0', title: 'PSALM' }]);
+    expect(lists[0].slides.map(({ text }) => text)).toEqual([
+      'Пан мой пастыр.\nАбо: Аллелюя.',
+      'Пан мой пастыр, *\nнічога мне не бракуе.',
+      'Пан мой пастыр.\nАбо: Аллелюя.',
+    ]);
   });
 
   it('should give no list to a section with nothing read aloud', () => {
@@ -107,6 +144,29 @@ describe('liturgySlides', () => {
         'Пан мой пастыр.\n\nПан мой пастыр, *\nнічога мне не бракуе.',
         'Пан мой пастыр.\n\nЁн вядзе мяне *\nна зялёныя пашы.',
         'Пан мой пастыр.',
+      ],
+    ]);
+  });
+
+  it('should give the refrain and the stanza a slide each when they do not fit on one', () => {
+    const refrain = { kind: 'refrain' as const, lines: ['Пан мой пастыр.', '<b>Або:</b> Аллелюя.'] };
+    const psalm = section('psalm', [
+      refrain,
+      { kind: 'text', lines: ['1. Пан мой пастыр, *', 'нічога мне не бракуе.', 'Ён вядзе мяне.'] },
+      refrain,
+      { kind: 'text', lines: ['2. Адзін *', 'два', 'тры', 'чатыры', 'пяць', 'шэсць'] },
+      refrain,
+    ]);
+
+    // four lines a slide: the two refrains and a blank line leave no room for a stanza of three
+    expect(texts([psalm], measure(1000, 4))).toEqual([
+      [
+        'Пан мой пастыр.\nАбо: Аллелюя.',
+        'Пан мой пастыр, *\nнічога мне не бракуе.\nЁн вядзе мяне.',
+        'Пан мой пастыр.\nАбо: Аллелюя.',
+        'Адзін *\nдва\nтры\nчатыры',
+        'пяць\nшэсць',
+        'Пан мой пастыр.\nАбо: Аллелюя.',
       ],
     ]);
   });

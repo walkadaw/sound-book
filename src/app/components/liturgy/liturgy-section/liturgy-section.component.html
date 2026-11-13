@@ -1,24 +1,35 @@
 <section>
-  <header class="heading">
-    <h2 class="subsection-title">{{ section().title }}</h2>
-    @if (section().reference) {
-      <p class="meta reference">{{ section().reference }}</p>
-    }
-  </header>
-  @for (block of blocks(); track $index) {
-    @switch (block.kind) {
+  @for (text of texts(); track $index) {
+    @if ($first) {
+      <header class="heading">
+        <h2 class="subsection-title">{{ section().title }}</h2>
+        @if (text.reference) {
+          <p class="meta reference">{{ text.reference }}</p>
+        }
+      </header>
+    } @else {
       <!-- the space sits inside the label: Angular drops the whitespace between two elements -->
-      @case ('refrain') {
-        <p><b class="label">Рэфрэн: </b><span [innerHTML]="block.html"></span></p>
-      }
-      @case ('acclamation') {
-        <p><b class="label">Акламацыя: </b><span [innerHTML]="block.html"></span></p>
-      }
-      @case ('rubric') {
-        <p class="meta" [innerHTML]="block.html"></p>
-      }
-      @default {
-        <p [class]="block.kind" [innerHTML]="block.html"></p>
+      <p class="heading alternative">
+        <b class="label">Або </b>
+        @if (text.reference) {
+          <span class="meta reference">{{ text.reference }}</span>
+        }
+      </p>
+    }
+    @for (block of text.blocks; track $index) {
+      @switch (block.kind) {
+        @case ('refrain') {
+          <p><b class="label">Рэфрэн: </b><span [innerHTML]="block.html"></span></p>
+        }
+        @case ('acclamation') {
+          <p><b class="label">Акламацыя: </b><span [innerHTML]="block.html"></span></p>
+        }
+        @case ('rubric') {
+          <p class="meta" [innerHTML]="block.html"></p>
+        }
+        @default {
+          <p [class]="block.kind" [innerHTML]="block.html"></p>
+        }
       }
     }
   }

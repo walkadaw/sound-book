@@ -24,6 +24,7 @@ describe('LiturgySectionComponent', () => {
         { kind: 'text', lines: ['Браты:', 'Калі вы чулі <b>пра</b> ўдзяленне ласкі'] },
         { kind: 'conclusion', lines: ['Гэта слова Божае.'] },
       ],
+      alternatives: [],
     });
 
     expect(fixture.nativeElement.querySelector('h2').textContent).toBe('ПЕРШАЕ ЧЫТАННЕ');
@@ -41,6 +42,7 @@ describe('LiturgySectionComponent', () => {
         { kind: 'acclamation', lines: ['Аллелюя, аллелюя, аллелюя.'] },
         { kind: 'rubric', lines: ['Чытаецца калекта'] },
       ],
+      alternatives: [],
     });
 
     expect(paragraphs().map((p) => p.textContent)).toEqual([
@@ -49,4 +51,33 @@ describe('LiturgySectionComponent', () => {
       'Чытаецца калекта',
     ]);
     expect(paragraphs()[2].className).toBe('meta');
-  });});
+  });
+
+  it('should show a text read instead of the first one after it, under "Або" and its reference', async () => {
+    await render({
+      type: 'reading',
+      title: 'ПЕРШАЕ ЧЫТАННЕ',
+      reference: 'Эф 1, 3–6. 11–12',
+      blocks: [{ kind: 'text', lines: ['Браты: Благаслаўлёны Бог'] }],
+      alternatives: [
+        {
+          reference: 'Гал 4, 4–7',
+          blocks: [
+            { kind: 'intro', lines: ['Чытанне Паслання святога апостала Паўла да Галатаў.'] },
+            { kind: 'text', lines: ['Браты: Калі надышла паўната часу'] },
+          ],
+        },
+      ],
+    });
+
+    expect(fixture.nativeElement.querySelectorAll('h2').length).toBe(1);
+    expect(paragraphs().map((p) => p.textContent?.replace(/\s+/g, ' ').trim())).toEqual([
+      'Эф 1, 3–6. 11–12',
+      'Браты: Благаслаўлёны Бог',
+      'Або Гал 4, 4–7',
+      'Чытанне Паслання святога апостала Паўла да Галатаў.',
+      'Браты: Калі надышла паўната часу',
+    ]);
+    expect(paragraphs()[2].className).toBe('heading alternative');
+  });
+});

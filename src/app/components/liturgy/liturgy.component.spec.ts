@@ -2,9 +2,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { Liturgy } from '../../interfaces/liturgy';
+import { Liturgy, LiturgySection, LiturgySectionType } from '../../interfaces/liturgy';
 import { localDate } from '../../services/liturgy-service/liturgy.service';
 import { LiturgyComponent } from './liturgy.component';
+
+const section = (type: LiturgySectionType, title: string, reference: string, text: string): LiturgySection => ({
+  type,
+  title,
+  reference,
+  blocks: [{ kind: 'text', lines: [text] }],
+  alternatives: [],
+});
 
 const mass = (id: number, title: string, gospel: string): Liturgy => ({
   id,
@@ -12,8 +20,8 @@ const mass = (id: number, title: string, gospel: string): Liturgy => ({
   readings: '',
   url: `https://catholic.by/3/liturgy/${id}`,
   sections: [
-    { type: 'reading', title: 'ПЕРШАЕ ЧЫТАННЕ', reference: 'Эф 3, 2–12', blocks: [{ kind: 'text', lines: ['Браты'] }] },
-    { type: 'gospel', title: 'ЕВАНГЕЛЛЕ', reference: gospel, blocks: [{ kind: 'text', lines: ['У той час'] }] },
+    section('reading', 'ПЕРШАЕ ЧЫТАННЕ', 'Эф 3, 2–12', 'Браты'),
+    section('gospel', 'ЕВАНГЕЛЛЕ', gospel, 'У той час'),
   ],
 });
 

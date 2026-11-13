@@ -11,12 +11,18 @@ export interface LiturgyBlock {
   lines: string[];
 }
 
-export interface LiturgySection {
-  type: LiturgySectionType;
-  title: string;
+// One text read in its place in the mass.
+export interface LiturgyText {
   // Bible reference, empty for the sequence
   reference: string;
   blocks: LiturgyBlock[];
+}
+
+export interface LiturgySection extends LiturgyText {
+  type: LiturgySectionType;
+  title: string;
+  // the texts that may be read instead of the first one ("або"), usually none
+  alternatives: LiturgyText[];
 }
 
 // One mass of the day with only the texts of that day's liturgical year.

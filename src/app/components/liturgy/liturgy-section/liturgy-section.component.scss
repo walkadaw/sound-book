@@ -22,6 +22,11 @@ p {
   }
 }
 
+// set apart from the end of the text before it, which may be read instead
+.alternative {
+  margin-top: 2em;
+}
+
 // the opening line and the labels are rubrics, which liturgical books print in red
 .intro,
 .label {
