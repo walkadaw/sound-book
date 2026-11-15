@@ -1,119 +1,78 @@
 import { DOCUMENT, Service, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, CanActivate, CanDeactivate } from '@angular/router';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Store } from '@ngrx/store';
-import { fromEvent } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { changeShowMenuAction } from '../../redux/actions/settings.actions';
-import { IAppState } from '../../redux/models/IAppState';
-import { getShowMenu } from '../../redux/selector/settings.selector';
+import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
+import { EMPTY, Observable, combineLatest, fromEvent, merge, timer } from 'rxjs';
+import { distinctUntilChanged, filter, map, startWith, switchMap } from 'rxjs/operators';
 
+// Long enough to cover a song opened before the homily and played afterwards.
+export const WAKE_LOCK_IDLE_TIMEOUT = 20 * 60 * 1000;
+
+/** Keeps the screen on while the current route has `data: { wakeLock: true }` and the reader is active. */
 @Service()
-export class WakeLockService implements CanActivate, CanDeactivate<boolean> {
-  private store = inject<Store<IAppState>>(Store);
-  private route = inject(ActivatedRoute);
-  private actions$ = inject(Actions);
+export class WakeLockService {
   private document = inject(DOCUMENT);
-
-  private sentinel: WakeLockSentinel | null = null;
-  private wanted = false;
-  private showMenu = this.store.selectSignal(getShowMenu);
-
-  readonly isSupported = typeof navigator !== 'undefined' && 'wakeLock' in navigator;
-
-  syncOnMenuChange$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(changeShowMenuAction),
-        tap(() => this.sync()),
-      ),
-    { dispatch: false },
-  );
+  private router = inject(Router);
 
   constructor() {
-    // The browser releases the lock itself when the page is hidden; re-acquire it when visible again.
-    fromEvent(this.document, 'visibilitychange')
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.sync());
-  }
-
-  get isEnabled(): boolean {
-    return this.wanted;
-  }
-
-  async enable(): Promise<void> {
-    this.wanted = true;
-
-    if (!this.isSupported || this.sentinel || this.document.visibilityState === 'hidden') {
+    if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) {
       return;
     }
 
-    try {
-      const sentinel = await navigator.wakeLock.request('screen');
+    const navigated$ = this.router.events.pipe(filter((event) => event instanceof NavigationEnd));
 
-      // Disabled (or requested twice) while the request was pending.
-      if (!this.wanted || this.sentinel) {
-        await sentinel.release();
-        return;
-      }
+    const wanted$ = navigated$.pipe(map(() => routeWantsLock(this.router.routerState.snapshot.root)));
 
-      this.sentinel = sentinel;
-      sentinel.addEventListener('release', () => {
-        if (this.sentinel === sentinel) {
-          this.sentinel = null;
-        }
-      });
-    } catch {
-      // Request can be rejected (e.g. low battery); the next sync will retry.
-    }
+    // The browser releases the lock itself when the page is hidden.
+    const visible$ = fromEvent(this.document, 'visibilitychange').pipe(
+      startWith(null),
+      map(() => this.document.visibilityState === 'visible'),
+    );
+
+    // Musicians can't touch the screen while playing, so only a long silence counts as a forgotten phone.
+    // Capture phase: a component stopping propagation must not hide the activity.
+    const options = { capture: true, passive: true };
+    const active$ = merge(
+      fromEvent(this.document, 'pointerdown', options),
+      fromEvent(this.document, 'keydown', options),
+      fromEvent(this.document, 'wheel', options),
+      navigated$,
+      visible$.pipe(filter(Boolean)),
+    ).pipe(
+      switchMap(() =>
+        timer(WAKE_LOCK_IDLE_TIMEOUT).pipe(
+          map(() => false),
+          startWith(true),
+        ),
+      ),
+    );
+
+    combineLatest([wanted$, visible$, active$])
+      .pipe(
+        map(([wanted, visible, active]) => wanted && visible && active),
+        distinctUntilChanged(),
+        switchMap((hold) => (hold ? screenLock() : EMPTY)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
+}
+
+function routeWantsLock(route: ActivatedRouteSnapshot): boolean {
+  while (route.firstChild) {
+    route = route.firstChild;
   }
 
-  disable(): void {
-    this.wanted = false;
+  return route.data['wakeLock'] === true;
+}
 
-    const sentinel = this.sentinel;
-    this.sentinel = null;
-    sentinel?.release().catch((): void => {});
-  }
+// Holds the lock while subscribed; unsubscribing mid-request releases it once granted.
+// A rejected request (e.g. low battery) is retried on the next change of state.
+function screenLock(): Observable<never> {
+  return new Observable<never>(() => {
+    const lock = navigator.wakeLock.request('screen').catch((): null => null);
 
-  canActivate(): boolean {
-    this.enable();
-
-    return true;
-  }
-
-  canDeactivate(): boolean {
-    this.disable();
-
-    return true;
-  }
-
-  private sync(): void {
-    if (this.showMenu() || !this.hasWakeLockGuard()) {
-      this.disable();
-      return;
-    }
-
-    // Keep `wanted` while hidden so the lock is re-acquired on return.
-    this.enable();
-  }
-
-  private hasWakeLockGuard(): boolean {
-    function lastRoute(route: ActivatedRoute): boolean {
-      if (route.firstChild) {
-        return lastRoute(route.firstChild);
-      }
-
-      if (!route?.routeConfig) {
-        return false;
-      }
-
-      const { canActivate = [], canDeactivate = [] } = route.routeConfig;
-
-      return canActivate.concat(canDeactivate).some((guard) => guard === WakeLockService);
-    }
-
-    return lastRoute(this.route);
-  }
+    return (): void => {
+      lock.then((sentinel) => sentinel?.release());
+    };
+  });
 }

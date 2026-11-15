@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { TitleStrategy, provideRouter, withInMemoryScrolling, withRouterConfig } from '@angular/router';
@@ -22,7 +22,10 @@ export const appConfig: ApplicationConfig = {
       settings: settingsReducer,
       favorite: favoriteReducer,
     }),
-    provideEffects(FavoriteEffects, WakeLockService),
+    provideEffects(FavoriteEffects),
+    provideAppInitializer(() => {
+      inject(WakeLockService);
+    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: environment.production,
     }),

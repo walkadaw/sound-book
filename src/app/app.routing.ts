@@ -9,7 +9,6 @@ import { SongDetailsComponent } from './components/song-details/song-details.com
 import { hasSongGuard } from './guards/has-song.guard';
 import { shareTargetGuard } from './guards/share-target.guard';
 import { UserService } from './services/user/user.service';
-import { WakeLockService } from './services/wakelock/wake-lock.service';
 import { songTitle } from './services/page-title/page-title.strategy';
 
 export const appRoutes: Routes = [
@@ -31,8 +30,7 @@ export const appRoutes: Routes = [
     title: 'Пульт',
     loadComponent: () =>
       import('./components/remote-control/remote-control.component').then((m) => m.RemoteControlComponent),
-    canActivate: [WakeLockService],
-    canDeactivate: [WakeLockService],
+    data: { wakeLock: true },
   },
   {
     path: '',
@@ -43,15 +41,15 @@ export const appRoutes: Routes = [
         path: 'song/:id/:title',
         component: SongDetailsComponent,
         title: songTitle,
-        canActivate: [hasSongGuard, WakeLockService],
-        canDeactivate: [WakeLockService],
+        canActivate: [hasSongGuard],
+        data: { wakeLock: true },
       },
       {
         path: 'song/:id',
         component: SongDetailsComponent,
         title: songTitle,
-        canActivate: [hasSongGuard, WakeLockService],
-        canDeactivate: [WakeLockService],
+        canActivate: [hasSongGuard],
+        data: { wakeLock: true },
       },
       {
         path: 'playlist',
@@ -74,16 +72,14 @@ export const appRoutes: Routes = [
         path: 'part-of-mass',
         component: PartOfMassComponent,
         title: 'Часткі імшы',
-        canActivate: [WakeLockService],
-        canDeactivate: [WakeLockService],
+        data: { wakeLock: true },
       },
       { path: 'favorite', component: FavoriteComponent, title: 'Закладкі' },
       {
         path: 'gadzinki',
         loadComponent: () => import('./components/gadzinki/gadzinki.component').then((m) => m.GadzinkiComponent),
         title: 'Гадзінкі',
-        canActivate: [WakeLockService],
-        canDeactivate: [WakeLockService],
+        data: { wakeLock: true },
       },
       { path: 'about', component: AboutComponent, title: 'Пра нас' },
       {
