@@ -118,7 +118,7 @@ describe('ChordService', () => {
       const chords = ['a', 'c#7', 'bb', 'eb', 'h', 'Hm', 'fis', 'Asus', 'B♭maj7', 'Eb'];
 
       expect(chords.map((chord) => service.toFullChord(chord)))
-        .toEqual(['Am', 'C#m7', 'Bbm', 'D#m', 'Bm', 'Bm', 'F#', 'Asus4', 'Bbmaj7', 'D#']);
+        .toEqual(['Am', 'C#m7', 'Bbm', 'D#m', 'Bm', 'Bm', 'F#m', 'Asus4', 'Bbmaj7', 'D#']);
     });
 
     it('should read the bass of a short notation slash chord as a note', () => {
@@ -148,7 +148,7 @@ describe('ChordService', () => {
 
     it('should treat alias spellings equally', () => {
       expect(transpose('A# Bb Db C# Ab G# H', 1)).toBe('B B D D A A C');
-      expect(transpose('a cis h d#', 1)).toBe('bb D c e');
+      expect(transpose('a cis h d#', 1)).toBe('bb d c e');
     });
 
     it('should match the notation the song editor saves', () => {

@@ -6,37 +6,44 @@ export const CHORD_CLEAN_UP = /[^\w+/#♭]/g;
 export const SHORT_MAP: {[key: string]: string} = {
   c: 'Cm',
   cb: 'Cbm',
-  cis: 'C#',
+  Cis: 'C#',
+  cis: 'C#m',
   'c#': 'C#m',
 
   d: 'Dm',
   db: 'Dbm',
-  dis: 'D#',
+  Dis: 'D#',
+  dis: 'D#m',
   'd#': 'D#m',
 
   e: 'Em',
   eb: 'Ebm',
-  eis: 'E#',
+  Eis: 'E#',
+  eis: 'E#m',
   'e#': 'E#m',
 
   f: 'Fm',
   fb: 'Fbm',
-  fis: 'F#',
+  Fis: 'F#',
+  fis: 'F#m',
   'f#': 'F#m',
 
   g: 'Gm',
   gb: 'Gbm',
-  gis: 'G#',
+  Gis: 'G#',
+  gis: 'G#m',
   'g#': 'G#m',
 
   a: 'Am',
   ab: 'Abm',
-  ais: 'A#',
+  Ais: 'A#',
+  ais: 'A#m',
   'a#': 'A#m',
 
   b: 'Bm',
   bb: 'Bbm',
-  bis: 'B#',
+  Bis: 'B#',
+  bis: 'B#m',
   'b#': 'B#m',
 };
 

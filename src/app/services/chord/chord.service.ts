@@ -331,11 +331,9 @@ export class ChordService {
 
   private normalizeChord(baseChord: string): string {
     let result: string;
-    // German sharp notation is also written capitalized: "Cis"
-    const shortKey = baseChord.length === 3 && baseChord.endsWith('is') ? baseChord.toLowerCase() : baseChord;
 
-    if (SHORT_MAP[shortKey]) {
-      result = SHORT_MAP[shortKey];
+    if (SHORT_MAP[baseChord]) {
+      result = SHORT_MAP[baseChord];
     }
 
     if (ALIAS_MAP[result || baseChord]) {
